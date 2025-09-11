@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainstorming Lunch - September 20, 2025 - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Brainstorming Lunch Event</p>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="#overview">Event Overview</a></li>
+                <li><a href="#registration">Registration</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <section id="event-header" class="visit-header">
+            <div class="visit-welcome">
+                <h2>Brainstorming Lunch</h2>
+                <div class="visit-details">
+                    <p><strong>Date:</strong> September 20, 2025</p>
+                    <p><strong>Time:</strong> 12:00 PM - 3:00 PM</p>
+                    <p><strong>Capacity:</strong> 15 guests maximum</p>
+                    <p><strong>Focus:</strong> Networking & Innovation Discussion</p>
+                </div>
+                <div class="access-code">
+                    <h4>🍷 Special Event</h4>
+                    <p><small>Guest speaker session with local menu and wine</small></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="overview">
+            <h2>Event Information</h2>
+            <p>Join us for an exclusive brainstorming lunch featuring sustainability experts and innovators. This intimate gathering will include our chef's locally-sourced menu paired with our own wine.</p>
+            
+            <div class="coming-soon">
+                <h3>🚧 Registration Opening Soon</h3>
+                <ul>
+                    <li>Guest speaker details</li>
+                    <li>Full menu and wine pairing information</li>
+                    <li>Registration process and pricing</li>
+                    <li>Networking opportunities</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Information</h2>
+            <p>For more information about this exclusive event:</p>
+            <div class="contact-info">
+                <p><strong>Event Coordinator:</strong> Maria Gonzalez</p>
+                <p><strong>Email:</strong> events@allellagreentech.com</p>
+                <p><strong>Phone:</strong> +34 123 456 789</p>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../index.html">Back to GUIDAL</a></p>
+            <p><strong>Emergency Contact:</strong> +34 123 456 789</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+                
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

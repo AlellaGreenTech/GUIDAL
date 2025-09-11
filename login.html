@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GUIDAL</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="index.html">GUIDAL</a></h1>
+            <p class="subtitle">Login to Your Visit</p>
+        </div>
+    </header>
+    
+    <main class="container">
+        <section class="login-section">
+            <div class="login-container">
+                <h2>School Visit Login</h2>
+                <p class="login-description">Please enter your school credentials to access your visit details.</p>
+                
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required placeholder="Enter your school code">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required placeholder="Enter your password">
+                    </div>
+                    
+                    <button type="submit" class="btn login-btn-submit">Login to Visit</button>
+                </form>
+                
+                <div class="login-help">
+                    <h4>Need help logging in?</h4>
+                    <p>For BFIS September 16, 2025 visit:</p>
+                    <ul>
+                        <li><strong>Username:</strong> bfis</li>
+                        <li><strong>Password:</strong> @agt2025</li>
+                    </ul>
+                    <p class="help-contact">Contact your teacher or <a href="mailto:support@allellagreentech.com">support@allellagreentech.com</a> if you need assistance.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="index.html">Back to GUIDAL</a></p>
+        </div>
+    </footer>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple authentication for BFIS
+            if (username === 'bfis' && password === '@agt2025') {
+                // Store login state
+                localStorage.setItem('schoolLogin', 'bfis');
+                localStorage.setItem('loginTime', new Date().getTime().toString());
+                
+                // Redirect to BFIS visit page
+                window.location.href = 'visits/benjamin-franklin-sept-2025.html';
+            } else {
+                alert('Invalid credentials. Please check your username and password.');
+            }
+        });
+        
+        // Check if already logged in
+        const schoolLogin = localStorage.getItem('schoolLogin');
+        const loginTime = localStorage.getItem('loginTime');
+        const currentTime = new Date().getTime();
+        
+        // Auto-login if logged in within last 24 hours
+        if (schoolLogin === 'bfis' && loginTime && (currentTime - parseInt(loginTime)) < 24 * 60 * 60 * 1000) {
+            window.location.href = 'visits/benjamin-franklin-sept-2025.html';
+        }
+    </script>
+</body>
+</html>

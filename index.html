@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUIDAL - Guide to All at Alella Green Tech</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1>GUIDAL</h1>
+            <p class="subtitle">Guide to All at Alella Green Tech</p>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="#welcome">Welcome</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#visits">School Visits</a></li>
+                <li><a href="#activities">Activities</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#blog">Blog</a></li>
+                <li><a href="#store">Store</a></li>
+                <li><a href="login.html" class="login-btn">Login/Register</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <section id="welcome">
+            <div class="welcome-content">
+                <div class="welcome-text">
+                    <h2>Welcome to Alella Green Tech</h2>
+                    <p>Your comprehensive guide to sustainable technology demonstrations, hands-on learning experiences, and green innovation projects.</p>
+                    <p>Please select your school visit below to access your personalized learning stations and activities.</p>
+                    <div class="support-foundation">
+                        <a href="https://alellagreentech.com/donate/" target="_blank" class="support-btn">
+                            💝 SUPPORT OUR NON-PROFIT FOUNDATION
+                        </a>
+                    </div>
+                </div>
+                <div class="welcome-image">
+                    <img src="images/welcome-hero.png" alt="Student exploring natural water systems at Alella Green Tech" class="hero-image">
+                </div>
+            </div>
+        </section>
+        
+        <section id="activities" class="activities-section">
+            <div class="activities-header">
+                <h2>Upcoming Activities</h2>
+                <div class="search-container">
+                    <input type="text" id="activity-search" placeholder="Search activities..." class="search-input">
+                    <select id="activity-filter" class="filter-select">
+                        <option value="all">All Activities</option>
+                        <option value="school-visits">School Visits</option>
+                        <option value="workshops">Workshops</option>
+                        <option value="events">Events</option>
+                        <option value="lunches">Special Lunches</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="activity-cards" id="activity-grid">
+                <div class="activity-card" data-type="school-visits" data-date="2025-09-16">
+                    <div class="activity-image">
+                        <div class="image-placeholder">
+                            <p>🏫 School Visit</p>
+                        </div>
+                    </div>
+                    <div class="activity-info">
+                        <div class="activity-type">School Visit</div>
+                        <h3>Benjamin Franklin International School</h3>
+                        <p class="activity-date">September 16, 2025</p>
+                        <p class="activity-description">Comprehensive sustainability workshop covering energy storage, soil management, and green construction techniques.</p>
+                        <div class="activity-details">
+                            <span class="participants">70 students</span>
+                            <span class="duration">6 hours</span>
+                        </div>
+                        <a href="login.html" class="btn">Login to Visit</a>
+                    </div>
+                </div>
+                
+                <div class="activity-card" data-type="school-visits" data-date="2025-09-17">
+                    <div class="activity-image">
+                        <div class="image-placeholder">
+                            <p>🏫 School Visit</p>
+                        </div>
+                    </div>
+                    <div class="activity-info">
+                        <div class="activity-type">School Visit</div>
+                        <h3>St. George International School</h3>
+                        <p class="activity-date">September 17, 2025</p>
+                        <p class="activity-description">Focus on water management systems and sustainable construction. Hands-on experience with ram pumps and natural building.</p>
+                        <div class="activity-details">
+                            <span class="participants">22 students</span>
+                            <span class="duration">5 hours</span>
+                        </div>
+                        <a href="visits/st-george-sept-2025.html" class="btn">Visit Details</a>
+                    </div>
+                </div>
+                
+                <div class="activity-card" data-type="events" data-date="2025-09-20">
+                    <div class="activity-image">
+                        <div class="image-placeholder">
+                            <p>🍷 Special Event</p>
+                        </div>
+                    </div>
+                    <div class="activity-info">
+                        <div class="activity-type">Special Lunch</div>
+                        <h3>Brainstorming Lunch</h3>
+                        <p class="activity-date">September 20, 2025</p>
+                        <p class="activity-description">Guest speaker session featuring our chef's local menu and our own vino. Network with sustainability experts and innovators.</p>
+                        <div class="activity-details">
+                            <span class="participants">15 guests max</span>
+                            <span class="duration">3 hours</span>
+                        </div>
+                        <a href="events/brainstorming-lunch-sept-2025.html" class="btn">Event Details</a>
+                    </div>
+                </div>
+                
+                <div class="activity-card" data-type="workshops" data-date="2025-09-25">
+                    <div class="activity-image">
+                        <div class="image-placeholder">
+                            <p>🔧 Workshop</p>
+                        </div>
+                    </div>
+                    <div class="activity-info">
+                        <div class="activity-type">Workshop</div>
+                        <h3>Build Your Own Ram Pump</h3>
+                        <p class="activity-date">September 25, 2025</p>
+                        <p class="activity-description">Hands-on workshop to construct a working ram pump system. Take home your creation and learn water hammer physics.</p>
+                        <div class="activity-details">
+                            <span class="participants">12 participants</span>
+                            <span class="duration">4 hours</span>
+                        </div>
+                        <a href="workshops/ram-pump-sept-2025.html" class="btn">Workshop Details</a>
+                    </div>
+                </div>
+                
+                <div class="activity-card" data-type="events" data-date="TBD">
+                    <div class="activity-image">
+                        <div class="image-placeholder">
+                            <p>🌱 Event</p>
+                        </div>
+                    </div>
+                    <div class="activity-info">
+                        <div class="activity-type">Community Event</div>
+                        <h3>Sustainability Fair</h3>
+                        <p class="activity-date">Date: TBD</p>
+                        <p class="activity-description">Community fair featuring local sustainable businesses, food vendors, and interactive demonstrations of green technologies.</p>
+                        <div class="activity-details">
+                            <span class="participants">Open to all</span>
+                            <span class="duration">Full day</span>
+                        </div>
+                        <a href="events/sustainability-fair.html" class="btn">Event Details</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="quick-links">
+            <h2>Explore More</h2>
+            <div class="quick-links-grid">
+                <a href="#shop" class="quick-link">🛒 Online Shop</a>
+                <a href="#lunch" class="quick-link">🍽️ Lunch Menu</a>
+                <a href="#activities" class="quick-link">⚽ R&R Activities</a>
+                <a href="#events" class="quick-link">📅 Events</a>
+                <a href="#internships" class="quick-link">🎓 Internships</a>
+                <a href="#camp" class="quick-link">🏕️ Summer Camp</a>
+                <a href="https://alellagreentech.com/donate/" class="quick-link" target="_blank">💝 Donate</a>
+                <a href="#social" class="quick-link">📱 Follow Us</a>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. Sustainable learning for a better future.</p>
+        </div>
+    </footer>
+    
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- GUIDAL Database Client -->
+    <script src="js/supabase-client.js"></script>
+    
+    <!-- Main Application Script -->
+    <script src="js/app.js"></script>
+    
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+                mobileMenuToggle.classList.toggle('active');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.main-nav')) {
+                    navMenu.classList.remove('active');
+                    mobileMenuToggle.classList.remove('active');
+                }
+            });
+            
+            // Close menu when clicking a nav link
+            const navLinks = document.querySelectorAll('.nav-menu a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navMenu.classList.remove('active');
+                    mobileMenuToggle.classList.remove('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

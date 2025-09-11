@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustainability Fair - TBD - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Sustainability Fair</p>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="#overview">Event Overview</a></li>
+                <li><a href="#updates">Stay Updated</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <section id="event-header" class="visit-header">
+            <div class="visit-welcome">
+                <h2>Community Sustainability Fair</h2>
+                <div class="visit-details">
+                    <p><strong>Date:</strong> To Be Determined</p>
+                    <p><strong>Time:</strong> Full Day Event</p>
+                    <p><strong>Capacity:</strong> Open to All</p>
+                    <p><strong>Focus:</strong> Community & Green Technology</p>
+                </div>
+                <div class="access-code">
+                    <h4>🌱 Community Event</h4>
+                    <p><small>Local businesses, food vendors, and tech demonstrations</small></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="overview">
+            <h2>Event Information</h2>
+            <p>Join our community fair featuring local sustainable businesses, food vendors, and interactive demonstrations of green technologies. This full-day event will showcase the best of sustainable living and innovation.</p>
+            
+            <div class="coming-soon">
+                <h3>🚧 Event Planning in Progress</h3>
+                <ul>
+                    <li>Date announcement</li>
+                    <li>Vendor and exhibitor lineup</li>
+                    <li>Activity schedule and demonstrations</li>
+                    <li>Food and entertainment details</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="updates">
+            <h2>Stay Updated</h2>
+            <p>Be the first to know when we announce the date and details for our Sustainability Fair:</p>
+            <div class="contact-info">
+                <p><strong>Subscribe to updates:</strong> events@allellagreentech.com</p>
+                <p><strong>Follow us:</strong> Social media links coming soon</p>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Information</h2>
+            <p>For vendor inquiries and general information:</p>
+            <div class="contact-info">
+                <p><strong>Event Coordinator:</strong> Maria Gonzalez</p>
+                <p><strong>Email:</strong> events@allellagreentech.com</p>
+                <p><strong>Phone:</strong> +34 123 456 789</p>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../index.html">Back to GUIDAL</a></p>
+            <p><strong>Emergency Contact:</strong> +34 123 456 789</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+                
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
