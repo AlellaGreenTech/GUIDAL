@@ -76,6 +76,7 @@ class GuidalApp {
         
         // Set up event listeners
         this.setupEventListeners();
+        this.setupModalEventListeners();
     }
 
     async loadActivityTypes() {
@@ -191,7 +192,11 @@ class GuidalApp {
 
     getActivityButton(activity) {
         if (activity.activity_type === 'school-visits') {
-            return `<a href="${activity.page_url}" class="btn">${activity.title === 'Benjamin Franklin International School' ? 'Login to Visit' : 'Visit Details'}</a>`;
+            if (activity.title === 'Benjamin Franklin International School') {
+                return `<button class="btn" onclick="app.openLoginModal('${activity.title}', 'visits/benjamin-franklin-sept-2025.html', 'bfis', 'alellagreentech')">Login to Visit</button>`;
+            } else {
+                return `<a href="${activity.page_url}" class="btn">Visit Details</a>`;
+            }
         }
         
         return `<a href="${activity.page_url}" class="btn">${activity.activity_type === 'workshops' ? 'Workshop Details' : activity.activity_type === 'events' ? 'Event Details' : 'Details'}</a>`;
@@ -323,6 +328,100 @@ class GuidalApp {
     hideAuthModal() {
         // TODO: Hide authentication modal
         console.log('Hide authentication modal');
+    }
+
+    // Modal Login System
+    openLoginModal(schoolName, redirectUrl, username, password) {
+        const modal = document.getElementById('loginModal');
+        const modalSchoolInfo = document.getElementById('modalSchoolInfo');
+        const modalUsername = document.getElementById('modalUsername');
+        const modalPassword = document.getElementById('modalPassword');
+        const modalLoginHelp = document.getElementById('modalLoginHelp');
+        
+        // Set school-specific content
+        modalSchoolInfo.innerHTML = `
+            <h4>${schoolName}</h4>
+            <p>September 16, 2025</p>
+        `;
+        
+        // Pre-fill login credentials
+        modalUsername.value = username;
+        modalPassword.value = password;
+        
+        // Set login help content
+        modalLoginHelp.innerHTML = `
+            <p>For BFIS September 16, 2025 visit:</p>
+            <ul>
+                <li><strong>Username:</strong> ${username} (pre-filled)</li>
+                <li><strong>Password:</strong> ${password} (pre-filled)</li>
+            </ul>
+            <p>Simply click "Login to Visit" to access your visit details.</p>
+        `;
+        
+        // Store redirect URL for form submission
+        modal.dataset.redirectUrl = redirectUrl;
+        
+        // Show modal with animation
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.style.opacity = '1';
+        }, 10);
+        
+        // Focus password field
+        modalPassword.focus();
+        modalPassword.select();
+    }
+
+    closeLoginModal() {
+        const modal = document.getElementById('loginModal');
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+
+    setupModalEventListeners() {
+        const modal = document.getElementById('loginModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalBackdrop = modal.querySelector('.modal-backdrop');
+        const modalLoginForm = document.getElementById('modalLoginForm');
+        
+        // Close modal events
+        modalClose.addEventListener('click', () => this.closeLoginModal());
+        modalCancel.addEventListener('click', () => this.closeLoginModal());
+        modalBackdrop.addEventListener('click', () => this.closeLoginModal());
+        
+        // Escape key to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                this.closeLoginModal();
+            }
+        });
+        
+        // Handle login form submission
+        modalLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('modalUsername').value;
+            const password = document.getElementById('modalPassword').value;
+            const redirectUrl = modal.dataset.redirectUrl;
+            
+            // Simple authentication for BFIS (same logic as original login page)
+            if (username === 'bfis' && password === 'alellagreentech') {
+                // Store login state
+                localStorage.setItem('schoolLogin', 'bfis');
+                localStorage.setItem('loginTime', new Date().getTime().toString());
+                
+                // Close modal
+                this.closeLoginModal();
+                
+                // Redirect to visit page
+                window.location.href = redirectUrl;
+            } else {
+                alert('Invalid credentials. Please check your username and password.');
+            }
+        });
     }
 }
 

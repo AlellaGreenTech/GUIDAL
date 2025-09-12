@@ -189,6 +189,43 @@
         </section>
     </main>
     
+    <!-- School Login Modal -->
+    <div id="loginModal" class="login-modal" style="display: none;">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>School Visit Login</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalSchoolInfo" class="school-info">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+                <form id="modalLoginForm" class="modal-login-form">
+                    <div class="form-group">
+                        <label for="modalUsername">Username:</label>
+                        <input type="text" id="modalUsername" name="username" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalPassword">Password:</label>
+                        <input type="text" id="modalPassword" name="password" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="modalCancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Login to Visit</button>
+                    </div>
+                </form>
+                <div class="login-help">
+                    <h4>Login Instructions</h4>
+                    <div id="modalLoginHelp">
+                        <!-- Dynamic login help content -->
+                    </div>
+                    <p class="help-contact">Contact your teacher or <a href="mailto:support@allellagreentech.com">support@allellagreentech.com</a> if you need assistance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <footer>
         <div class="container">
             <p>&copy; 2024 Alella Green Tech. Sustainable learning for a better future.</p>
