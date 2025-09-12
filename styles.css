@@ -1401,71 +1401,42 @@ footer a:hover {
     text-decoration: underline;
 }
 
-/* Support Foundation Buttons */
-.support-foundation {
-    margin-top: 1.5rem;
+/* Support Foundation Links */
+.support-links {
+    margin-top: 1rem;
     text-align: center;
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-}
-
-.support-btn,
-.social-btn {
-    display: inline-block;
-    color: white;
-    text-decoration: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 25px;
-    font-weight: 500;
     font-size: 0.9rem;
-    transition: all 0.3s ease;
-    letter-spacing: 0.3px;
-    text-align: center;
-    opacity: 0.8;
+    color: #666;
 }
 
-.support-btn {
-    background: linear-gradient(135deg, #2e7d32, #388e3c);
-    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
+.support-link,
+.social-link,
+.gallery-link {
+    color: #2e7d32;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease, text-decoration 0.3s ease;
 }
 
-.support-btn:hover {
-    background: linear-gradient(135deg, #1b5e20, #2e7d32);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
-    opacity: 1;
+.support-link:hover,
+.social-link:hover,
+.gallery-link:hover {
+    color: #1b5e20;
+    text-decoration: underline;
 }
 
-.social-btn {
-    background: linear-gradient(135deg, #1976d2, #1e88e5);
-    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
-}
-
-.social-btn:hover {
-    background: linear-gradient(135deg, #1565c0, #1976d2);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
-    opacity: 1;
-}
-
-.support-btn:active,
-.social-btn:active {
-    transform: translateY(-1px);
+.link-separator {
+    margin: 0 0.8rem;
+    color: #ccc;
 }
 
 @media (max-width: 768px) {
-    .support-foundation {
-        flex-direction: column;
-        gap: 0.8rem;
+    .support-links {
+        font-size: 0.85rem;
     }
     
-    .support-btn,
-    .social-btn {
-        font-size: 0.85rem;
-        padding: 0.5rem 1rem;
+    .link-separator {
+        margin: 0 0.6rem;
     }
 }
 

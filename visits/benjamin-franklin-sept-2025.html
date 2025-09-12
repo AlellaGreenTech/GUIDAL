@@ -26,7 +26,7 @@
                 <li><a href="#overview">Visit Overview</a></li>
                 <li><a href="#stations">Your Stations</a></li>
                 <li><a href="#schedule">Schedule</a></li>
-                <li><a href="../lunch-menu.html">Lunch Menu</a></li>
+                <li><a href="../snack-bar.html">Snack Bar</a></li>
                 <li><a href="#resources">Resources</a></li>
                 <li><a href="#guestbook">Guest Book</a></li>
             </ul>
@@ -52,7 +52,8 @@
 
         <section id="overview">
             <h2>Your Visit Overview</h2>
-            <p>Today you'll explore six innovative sustainability stations covering energy storage, soil management, water systems, automation, and natural construction techniques. Each station offers hands-on learning experiences designed to demonstrate real-world applications of green technology.</p>
+            <p><em>Today's focus is on IBDP Collaborative Sciences Projects</em></p>
+            <p>You'll explore six innovative sustainability stations covering energy storage, soil management, water systems, automation, and natural construction techniques. Each station offers hands-on learning experiences designed to demonstrate real-world applications of collaborative science.</p>
             
             <div class="learning-objectives">
                 <h3>Learning Objectives</h3>
@@ -147,7 +148,7 @@
                     </div>
                     <div class="stat">
                         <div class="stat-number">7</div>
-                        <div class="stat-label">Parent Chaperones</div>
+                        <div class="stat-label">Accompanying Teachers</div>
                     </div>
                 </div>
                 <p class="groups-description">Students will rotate through 6 stations in their assigned groups. Each group will experience all stations throughout the day.</p>
@@ -343,6 +344,94 @@
             </div>
         </section>
 
+        <section id="soil-tracking" class="soil-tracking-section">
+            <div class="soil-tracking-container">
+                <h2>🌱 Station 1: Soil Mixture Tracking</h2>
+                <p class="soil-intro">Record your group's soil mixture composition and observations for collaborative learning and comparison across all groups.</p>
+                
+                <form id="soilMixtureForm" class="soil-mixture-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="groupNumber">Group Number:</label>
+                            <select id="groupNumber" name="groupNumber" required>
+                                <option value="">Select your group</option>
+                                <option value="1">Group 1</option>
+                                <option value="2">Group 2</option>
+                                <option value="3">Group 3</option>
+                                <option value="4">Group 4</option>
+                                <option value="5">Group 5</option>
+                                <option value="6">Group 6</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="soilType">Primary Soil Type:</label>
+                            <select id="soilType" name="soilType" required>
+                                <option value="">Choose soil type</option>
+                                <option value="clay">Clay</option>
+                                <option value="sand">Sand</option>
+                                <option value="loam">Loam</option>
+                                <option value="compost">Compost</option>
+                                <option value="mixed">Mixed</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="compostPercentage">Compost %:</label>
+                            <input type="number" id="compostPercentage" name="compostPercentage" min="0" max="100" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sandPercentage">Sand %:</label>
+                            <input type="number" id="sandPercentage" name="sandPercentage" min="0" max="100" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="clayPercentage">Clay %:</label>
+                            <input type="number" id="clayPercentage" name="clayPercentage" min="0" max="100" step="0.1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phLevel">pH Level:</label>
+                            <input type="number" id="phLevel" name="phLevel" min="0" max="14" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="moistureLevel">Moisture Level:</label>
+                            <select id="moistureLevel" name="moistureLevel">
+                                <option value="">Select moisture</option>
+                                <option value="dry">Dry</option>
+                                <option value="moist">Moist</option>
+                                <option value="wet">Wet</option>
+                                <option value="saturated">Saturated</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="soilNotes">Observations & Notes:</label>
+                        <textarea id="soilNotes" name="soilNotes" rows="3" placeholder="Color, texture, smell, any unique characteristics..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn soil-submit">🌱 Record Soil Mixture</button>
+                        <button type="button" id="viewAllMixtures" class="btn view-mixtures">📊 View All Group Data</button>
+                    </div>
+                </form>
+                
+                <div id="percentageWarning" class="percentage-warning" style="display: none;">
+                    <p>⚠️ Total percentage should equal 100%. Current total: <span id="totalPercentage">0</span>%</p>
+                </div>
+            </div>
+            
+            <div class="soil-mixtures-data" id="soilMixturesData" style="display: none;">
+                <h3>All Groups' Soil Mixture Data</h3>
+                <div class="mixtures-grid" id="mixturesGrid">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+        </section>
+
         <section id="guestbook" class="guestbook-section">
             <h2>📝 Student Guest Book</h2>
             <div class="martin-welcome">
@@ -427,6 +516,12 @@
         </div>
     </footer>
     
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- GUIDAL Database Client -->
+    <script src="../js/supabase-client.js"></script>
+    
     <!-- Mobile Menu Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -462,9 +557,13 @@
             const shareInstagram = document.getElementById('shareInstagram');
             const entriesContainer = document.getElementById('entriesContainer');
             let currentEntry = null;
+            const visitAccessCode = 'bfis-sept-2025'; // BFIS visit access code
+
+            // Load existing guest book entries on page load
+            loadGuestBookEntries();
 
             if (guestBookForm) {
-                guestBookForm.addEventListener('submit', function(e) {
+                guestBookForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     const formData = new FormData(guestBookForm);
@@ -474,29 +573,54 @@
                     const message = formData.get('studentMessage');
                     const photo = formData.get('studentPhoto');
                     
-                    // Create new entry
-                    const entry = {
-                        name: name,
-                        group: group,
-                        station: station,
-                        message: message,
-                        photo: photo,
-                        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-                    };
-                    
-                    currentEntry = entry;
-                    
-                    // Add entry to the list
-                    addEntryToList(entry);
-                    
-                    // Enable Instagram sharing
-                    shareInstagram.disabled = false;
-                    
-                    // Show success message
-                    alert('Thank you for signing our guest book! You can now share to Instagram.');
-                    
-                    // Reset form
-                    guestBookForm.reset();
+                    try {
+                        // Get visit ID by access code
+                        const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
+                        if (!visit) {
+                            alert('Visit not found. Please contact support.');
+                            return;
+                        }
+                        
+                        // Create new entry data
+                        const entryData = {
+                            visit_id: visit.id,
+                            student_name: name,
+                            message: message,
+                            photo_url: null, // TODO: Handle photo upload later
+                            instagram_handle: null
+                        };
+                        
+                        // Save to database
+                        const savedEntry = await GuidalDB.addGuestBookEntry(entryData);
+                        
+                        // Create entry object for display
+                        const entry = {
+                            id: savedEntry.id,
+                            name: name,
+                            group: group,
+                            station: station,
+                            message: message,
+                            time: new Date(savedEntry.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                        };
+                        
+                        currentEntry = entry;
+                        
+                        // Add entry to the list
+                        addEntryToList(entry);
+                        
+                        // Enable Instagram sharing
+                        shareInstagram.disabled = false;
+                        
+                        // Show success message
+                        alert('Thank you for signing our guest book! You can now share to Instagram.');
+                        
+                        // Reset form
+                        guestBookForm.reset();
+                        
+                    } catch (error) {
+                        console.error('Error saving guest book entry:', error);
+                        alert('There was an error saving your entry. Please try again.');
+                    }
                 });
             }
 
@@ -508,9 +632,59 @@
                 });
             }
 
-            function addEntryToList(entry) {
+            async function loadGuestBookEntries() {
+                try {
+                    // Get visit by access code
+                    const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
+                    if (!visit) return;
+                    
+                    // Get entries for this visit
+                    const entries = await GuidalDB.getGuestBookEntries(visit.id);
+                    
+                    // Clear existing entries (except sample)
+                    const existingEntries = entriesContainer.querySelectorAll('.entry-item:not(.sample-entry)');
+                    existingEntries.forEach(entry => entry.remove());
+                    
+                    // Add each entry to the display
+                    entries.forEach(dbEntry => {
+                        const entry = {
+                            id: dbEntry.id,
+                            name: dbEntry.student_name,
+                            group: 'Student', // Could add group field to DB later
+                            station: 'Various Stations',
+                            message: dbEntry.message,
+                            time: new Date(dbEntry.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                        };
+                        addEntryToList(entry, false); // Don't animate existing entries
+                    });
+                    
+                    // Set up real-time subscription for new entries
+                    GuidalDB.subscribeToGuestBookEntries(handleNewGuestBookEntry, visit.id);
+                    
+                } catch (error) {
+                    console.error('Error loading guest book entries:', error);
+                }
+            }
+            
+            function handleNewGuestBookEntry(payload) {
+                if (payload.eventType === 'INSERT') {
+                    const dbEntry = payload.new;
+                    const entry = {
+                        id: dbEntry.id,
+                        name: dbEntry.student_name,
+                        group: 'Student',
+                        station: 'Various Stations',
+                        message: dbEntry.message,
+                        time: new Date(dbEntry.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    };
+                    addEntryToList(entry, true); // Animate new entries
+                }
+            }
+
+            function addEntryToList(entry, animate = true) {
                 const entryDiv = document.createElement('div');
                 entryDiv.className = 'entry-item';
+                entryDiv.dataset.entryId = entry.id;
                 
                 entryDiv.innerHTML = `
                     <div class="entry-header">
@@ -532,14 +706,16 @@
                     entriesContainer.appendChild(entryDiv);
                 }
                 
-                // Animate in
-                entryDiv.style.opacity = '0';
-                entryDiv.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    entryDiv.style.transition = 'all 0.5s ease';
-                    entryDiv.style.opacity = '1';
-                    entryDiv.style.transform = 'translateY(0)';
-                }, 100);
+                // Animate in if requested
+                if (animate) {
+                    entryDiv.style.opacity = '0';
+                    entryDiv.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        entryDiv.style.transition = 'all 0.5s ease';
+                        entryDiv.style.opacity = '1';
+                        entryDiv.style.transform = 'translateY(0)';
+                    }, 100);
+                }
             }
 
             function shareToInstagram(entry) {
@@ -575,6 +751,172 @@
                     document.body.removeChild(textArea);
                     alert('Message copied! Open Instagram and paste as your caption.');
                 });
+            }
+
+            // Soil Mixture Tracking functionality
+            const soilMixtureForm = document.getElementById('soilMixtureForm');
+            const viewAllMixtures = document.getElementById('viewAllMixtures');
+            const soilMixturesData = document.getElementById('soilMixturesData');
+            const mixturesGrid = document.getElementById('mixturesGrid');
+            const percentageWarning = document.getElementById('percentageWarning');
+            const totalPercentageSpan = document.getElementById('totalPercentage');
+
+            // Load existing soil mixtures on page load
+            loadSoilMixtures();
+
+            // Percentage validation
+            const percentageInputs = ['compostPercentage', 'sandPercentage', 'clayPercentage'];
+            percentageInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('input', validatePercentages);
+                }
+            });
+
+            function validatePercentages() {
+                const compost = parseFloat(document.getElementById('compostPercentage').value) || 0;
+                const sand = parseFloat(document.getElementById('sandPercentage').value) || 0;
+                const clay = parseFloat(document.getElementById('clayPercentage').value) || 0;
+                const total = compost + sand + clay;
+                
+                totalPercentageSpan.textContent = total.toFixed(1);
+                
+                if (total !== 100 && (compost > 0 || sand > 0 || clay > 0)) {
+                    percentageWarning.style.display = 'block';
+                    percentageWarning.style.color = total > 100 ? '#f44336' : '#ff9800';
+                } else {
+                    percentageWarning.style.display = 'none';
+                }
+            }
+
+            if (soilMixtureForm) {
+                soilMixtureForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(soilMixtureForm);
+                    const groupNumber = parseInt(formData.get('groupNumber'));
+                    const soilType = formData.get('soilType');
+                    const compostPercentage = parseFloat(formData.get('compostPercentage'));
+                    const sandPercentage = parseFloat(formData.get('sandPercentage'));
+                    const clayPercentage = parseFloat(formData.get('clayPercentage'));
+                    const phLevel = parseFloat(formData.get('phLevel')) || null;
+                    const moistureLevel = formData.get('moistureLevel') || null;
+                    const notes = formData.get('soilNotes') || null;
+
+                    // Validate percentages
+                    const total = compostPercentage + sandPercentage + clayPercentage;
+                    if (Math.abs(total - 100) > 0.1) {
+                        alert(`Please ensure percentages add up to 100%. Current total: ${total.toFixed(1)}%`);
+                        return;
+                    }
+
+                    try {
+                        // Get visit ID by access code
+                        const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
+                        if (!visit) {
+                            alert('Visit not found. Please contact support.');
+                            return;
+                        }
+
+                        // Prepare soil mixture data
+                        const soilData = {
+                            visit_id: visit.id,
+                            group_number: groupNumber,
+                            group_name: `Group ${groupNumber}`,
+                            soil_type: soilType,
+                            compost_percentage: compostPercentage,
+                            sand_percentage: sandPercentage,
+                            clay_percentage: clayPercentage,
+                            ph_level: phLevel,
+                            moisture_level: moistureLevel,
+                            notes: notes
+                        };
+
+                        // Check if group already has data (for updates)
+                        const existingMixtures = await GuidalDB.getSoilMixtures();
+                        const existingMixture = existingMixtures.find(m => m.group_number === groupNumber && m.visit_id === visit.id);
+
+                        if (existingMixture) {
+                            // Update existing mixture
+                            await GuidalDB.updateSoilMixture(groupNumber, soilData);
+                            alert('Soil mixture data updated successfully! 🌱');
+                        } else {
+                            // Add new mixture
+                            await GuidalDB.addSoilMixture(soilData);
+                            alert('Soil mixture data recorded successfully! 🌱');
+                        }
+
+                        // Refresh the display
+                        await loadSoilMixtures();
+                        
+                        // Reset form
+                        soilMixtureForm.reset();
+                        percentageWarning.style.display = 'none';
+
+                    } catch (error) {
+                        console.error('Error saving soil mixture:', error);
+                        alert('There was an error saving your soil mixture data. Please try again.');
+                    }
+                });
+            }
+
+            if (viewAllMixtures) {
+                viewAllMixtures.addEventListener('click', function() {
+                    if (soilMixturesData.style.display === 'none') {
+                        soilMixturesData.style.display = 'block';
+                        viewAllMixtures.textContent = '🫣 Hide Group Data';
+                        soilMixturesData.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        soilMixturesData.style.display = 'none';
+                        viewAllMixtures.textContent = '📊 View All Group Data';
+                    }
+                });
+            }
+
+            async function loadSoilMixtures() {
+                try {
+                    const mixtures = await GuidalDB.getSoilMixtures();
+                    
+                    if (mixtures.length === 0) {
+                        mixturesGrid.innerHTML = '<p class="no-data">No soil mixture data recorded yet. Be the first to record your group\'s data!</p>';
+                        return;
+                    }
+
+                    // Sort by group number
+                    mixtures.sort((a, b) => a.group_number - b.group_number);
+
+                    mixturesGrid.innerHTML = mixtures.map(mixture => `
+                        <div class="mixture-card">
+                            <h4>Group ${mixture.group_number}</h4>
+                            <div class="mixture-details">
+                                <p><strong>Soil Type:</strong> ${mixture.soil_type}</p>
+                                <div class="percentage-breakdown">
+                                    <span class="compost">Compost: ${mixture.compost_percentage}%</span>
+                                    <span class="sand">Sand: ${mixture.sand_percentage}%</span>
+                                    <span class="clay">Clay: ${mixture.clay_percentage}%</span>
+                                </div>
+                                ${mixture.ph_level ? `<p><strong>pH Level:</strong> ${mixture.ph_level}</p>` : ''}
+                                ${mixture.moisture_level ? `<p><strong>Moisture:</strong> ${mixture.moisture_level}</p>` : ''}
+                                ${mixture.notes ? `<p><strong>Notes:</strong> ${mixture.notes}</p>` : ''}
+                                <p class="recorded-time">Recorded: ${new Date(mixture.created_at).toLocaleString()}</p>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    // Set up real-time subscription
+                    GuidalDB.subscribeToSoilMixtures(handleSoilMixtureUpdate);
+
+                } catch (error) {
+                    console.error('Error loading soil mixtures:', error);
+                    mixturesGrid.innerHTML = '<p class="error">Error loading soil mixture data. Please refresh the page.</p>';
+                }
+            }
+
+            function handleSoilMixtureUpdate(payload) {
+                if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+                    // Refresh the soil mixtures display
+                    loadSoilMixtures();
+                }
             }
         });
     </script>

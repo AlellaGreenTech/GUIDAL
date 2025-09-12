@@ -1,11 +1,8 @@
 // Supabase Client for GUIDAL
-// Replace these with your actual Supabase project values
+// Updated for production database schema
 
-const SUPABASE_URL = 'https://your-project-id.supabase.co'
-const SUPABASE_ANON_KEY = 'your-anon-key-here'
-
-// Import Supabase (you'll need to include this in your HTML)
-// <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U'
 
 // Initialize Supabase client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -13,324 +10,281 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 // Database service functions
 class GuidalDB {
   
-  // Activities
+  // Schools Management
+  static async getSchools() {
+    const { data, error } = await supabase
+      .from('schools')
+      .select('*')
+      .order('name', { ascending: true })
+    
+    if (error) {
+      console.error('Error fetching schools:', error)
+      return []
+    }
+    return data || []
+  }
+
+  static async addSchool(schoolData) {
+    const { data, error } = await supabase
+      .from('schools')
+      .insert([schoolData])
+      .select()
+    
+    if (error) {
+      console.error('Error adding school:', error)
+      throw error
+    }
+    return data[0]
+  }
+
+  // Visits Management
+  static async getVisits(filters = {}) {
+    let query = supabase
+      .from('visits')
+      .select(`
+        *,
+        school:schools(name, country)
+      `)
+      .order('visit_date', { ascending: true })
+    
+    if (filters.upcoming) {
+      query = query.gte('visit_date', new Date().toISOString().split('T')[0])
+    }
+    
+    const { data, error } = await query
+    
+    if (error) {
+      console.error('Error fetching visits:', error)
+      return []
+    }
+    return data || []
+  }
+
+  static async getVisitByAccessCode(accessCode) {
+    const { data, error } = await supabase
+      .from('visits')
+      .select(`
+        *,
+        school:schools(name, country)
+      `)
+      .eq('access_code', accessCode)
+      .single()
+    
+    if (error) {
+      console.error('Error fetching visit by access code:', error)
+      return null
+    }
+    return data
+  }
+
+  static async addVisit(visitData) {
+    const { data, error } = await supabase
+      .from('visits')
+      .insert([visitData])
+      .select()
+    
+    if (error) {
+      console.error('Error adding visit:', error)
+      throw error
+    }
+    return data[0]
+  }
+
+  // Guest Book Entries
+  static async getGuestBookEntries(visitId = null) {
+    let query = supabase
+      .from('guest_book_entries')
+      .select('*')
+      .order('created_at', { ascending: false })
+    
+    if (visitId) {
+      query = query.eq('visit_id', visitId)
+    }
+    
+    const { data, error } = await query
+    
+    if (error) {
+      console.error('Error fetching guest book entries:', error)
+      return []
+    }
+    return data || []
+  }
+
+  static async addGuestBookEntry(entryData) {
+    const { data, error } = await supabase
+      .from('guest_book_entries')
+      .insert([entryData])
+      .select()
+    
+    if (error) {
+      console.error('Error adding guest book entry:', error)
+      throw error
+    }
+    return data[0]
+  }
+
+  // Soil Mixtures (Station 1 - Planting)
+  static async getSoilMixtures() {
+    const { data, error } = await supabase
+      .from('soil_mixtures')
+      .select('*')
+      .order('group_number', { ascending: true })
+    
+    if (error) {
+      console.error('Error fetching soil mixtures:', error)
+      return []
+    }
+    return data || []
+  }
+
+  static async addSoilMixture(mixtureData) {
+    const { data, error } = await supabase
+      .from('soil_mixtures')
+      .insert([mixtureData])
+      .select()
+    
+    if (error) {
+      console.error('Error adding soil mixture:', error)
+      throw error
+    }
+    return data[0]
+  }
+
+  static async updateSoilMixture(groupNumber, mixtureData) {
+    const { data, error } = await supabase
+      .from('soil_mixtures')
+      .update(mixtureData)
+      .eq('group_number', groupNumber)
+      .select()
+    
+    if (error) {
+      console.error('Error updating soil mixture:', error)
+      throw error
+    }
+    return data[0]
+  }
+
+  // Activities (for dynamic content)
   static async getActivities(filters = {}) {
     let query = supabase
       .from('activities')
-      .select(`
-        *,
-        activity_type:activity_types(name, slug, color, icon),
-        registrations:activity_registrations(count)
-      `)
+      .select('*')
       .eq('status', 'published')
       .order('date_time', { ascending: true })
-
-    // Apply filters
+    
     if (filters.type) {
-      query = query.eq('activity_types.slug', filters.type)
+      query = query.eq('activity_type', filters.type)
     }
     
     if (filters.search) {
       query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
     }
-
+    
+    if (filters.limit) {
+      query = query.limit(filters.limit)
+    }
+    
     const { data, error } = await query
-    if (error) throw error
-    return data
+    
+    if (error) {
+      console.error('Error fetching activities:', error)
+      return []
+    }
+    return data || []
   }
 
-  static async getActivity(slug) {
+  static async addActivity(activityData) {
     const { data, error } = await supabase
       .from('activities')
-      .select(`
-        *,
-        activity_type:activity_types(name, slug, color, icon),
-        school_visit:school_visits(*)
-      `)
-      .eq('slug', slug)
-      .eq('status', 'published')
-      .single()
-
-    if (error) throw error
-    return data
-  }
-
-  // Activity Types
-  static async getActivityTypes() {
-    const { data, error } = await supabase
-      .from('activity_types')
-      .select('*')
-      .eq('active', true)
-      .order('name')
-
-    if (error) throw error
-    return data
-  }
-
-  // Schools
-  static async getSchools() {
-    const { data, error } = await supabase
-      .from('schools')
-      .select('*')
-      .eq('active', true)
-      .order('name')
-
-    if (error) throw error
-    return data
-  }
-
-  // User Profile
-  static async getProfile(userId) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select(`
-        *,
-        school:schools(name)
-      `)
-      .eq('id', userId)
-      .single()
-
-    if (error) throw error
-    return data
-  }
-
-  static async updateProfile(userId, updates) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', userId)
+      .insert([activityData])
       .select()
-      .single()
-
-    if (error) throw error
-    return data
-  }
-
-  // Activity Registration
-  static async registerForActivity(activityId, userId) {
-    const { data, error } = await supabase
-      .from('activity_registrations')
-      .insert([
-        {
-          activity_id: activityId,
-          user_id: userId,
-          status: 'registered'
-        }
-      ])
-      .select()
-      .single()
-
-    if (error) throw error
-    return data
-  }
-
-  static async getUserRegistrations(userId) {
-    const { data, error } = await supabase
-      .from('activity_registrations')
-      .select(`
-        *,
-        activity:activities(
-          title,
-          date_time,
-          location,
-          activity_type:activity_types(name, color)
-        )
-      `)
-      .eq('user_id', userId)
-      .order('registration_date', { ascending: false })
-
-    if (error) throw error
-    return data
-  }
-
-  // Credits
-  static async getUserCredits(userId) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('credits')
-      .eq('id', userId)
-      .single()
-
-    if (error) throw error
-    return data.credits || 0
-  }
-
-  static async addCreditTransaction(userId, amount, type, description, activityId = null) {
-    const { data, error } = await supabase
-      .from('credit_transactions')
-      .insert([
-        {
-          user_id: userId,
-          activity_id: activityId,
-          transaction_type: type,
-          amount: amount,
-          description: description
-        }
-      ])
-      .select()
-      .single()
-
-    if (error) throw error
-
-    // Update user's total credits
-    const { error: updateError } = await supabase.rpc('update_user_credits', {
-      user_id: userId,
-      credit_change: type === 'earned' || type === 'awarded' ? amount : -amount
-    })
-
-    if (updateError) throw updateError
-    return data
-  }
-
-  // Blog Posts
-  static async getBlogPosts(limit = 10) {
-    const { data, error } = await supabase
-      .from('blog_posts')
-      .select(`
-        *,
-        author:profiles(full_name)
-      `)
-      .eq('published', true)
-      .order('published_at', { ascending: false })
-      .limit(limit)
-
-    if (error) throw error
-    return data
-  }
-
-  // Products
-  static async getProducts() {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('active', true)
-      .order('name')
-
-    if (error) throw error
-    return data
-  }
-
-  // School Visits
-  static async getSchoolVisit(accessCode) {
-    const { data, error } = await supabase
-      .from('school_visits')
-      .select(`
-        *,
-        activity:activities(*),
-        school:schools(*),
-        stations:visit_stations(*)
-      `)
-      .eq('access_code', accessCode)
-      .single()
-
-    if (error) throw error
-    return data
-  }
-}
-
-// Authentication service
-class GuidalAuth {
-  
-  // Sign up new user
-  static async signUp(email, password, userData = {}) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: userData
-      }
-    })
-
-    if (error) throw error
-
-    // Create profile if sign up successful
-    if (data.user) {
-      await GuidalDB.updateProfile(data.user.id, {
-        email: data.user.email,
-        full_name: userData.full_name,
-        user_type: userData.user_type || 'student'
-      })
+    
+    if (error) {
+      console.error('Error adding activity:', error)
+      throw error
     }
-
-    return data
+    return data[0]
   }
 
-  // Sign in user
-  static async signIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-
-    if (error) throw error
-    return data
+  // Station Visits Tracking
+  static async trackStationVisit(visitData) {
+    const { data, error } = await supabase
+      .from('station_visits')
+      .insert([visitData])
+      .select()
+    
+    if (error) {
+      console.error('Error tracking station visit:', error)
+      throw error
+    }
+    return data[0]
   }
 
-  // Sign out user
-  static async signOut() {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+  static async getStationVisits(visitId) {
+    const { data, error } = await supabase
+      .from('station_visits')
+      .select('*')
+      .eq('visit_id', visitId)
+      .order('completion_time', { ascending: false })
+    
+    if (error) {
+      console.error('Error fetching station visits:', error)
+      return []
+    }
+    return data || []
   }
 
-  // Get current user
-  static async getCurrentUser() {
-    const { data: { user } } = await supabase.auth.getUser()
-    return user
-  }
-
-  // Get current session
-  static async getCurrentSession() {
-    const { data: { session } } = await supabase.auth.getSession()
-    return session
-  }
-
-  // Listen to auth changes
-  static onAuthStateChange(callback) {
-    return supabase.auth.onAuthStateChange((event, session) => {
-      callback(event, session)
-    })
-  }
-
-  // Password recovery
-  static async resetPassword(email) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email)
-    if (error) throw error
-  }
-}
-
-// Real-time subscriptions service
-class GuidalRealtime {
-  
-  // Subscribe to activity updates
-  static subscribeToActivities(callback) {
-    return supabase
-      .channel('activities-changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'activities'
+  // Real-time subscriptions
+  static subscribeToGuestBookEntries(callback, visitId = null) {
+    let channel = supabase
+      .channel('guest_book_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'guest_book_entries',
+        filter: visitId ? `visit_id=eq.${visitId}` : undefined
       }, callback)
-      .subscribe()
+      .subscribe((status) => {
+        console.log('Guest book subscription status:', status)
+      })
+    
+    return channel
   }
 
-  // Subscribe to user's registrations
-  static subscribeToUserRegistrations(userId, callback) {
-    return supabase
-      .channel('user-registrations')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'activity_registrations',
-        filter: `user_id=eq.${userId}`
+  static subscribeToSoilMixtures(callback) {
+    let channel = supabase
+      .channel('soil_mixture_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'soil_mixtures'
       }, callback)
-      .subscribe()
+      .subscribe((status) => {
+        console.log('Soil mixtures subscription status:', status)
+      })
+    
+    return channel
+  }
+
+  // Utility functions
+  static async testConnection() {
+    try {
+      const { data, error } = await supabase
+        .from('schools')
+        .select('count(*)')
+        .limit(1)
+      
+      if (error) throw error
+      console.log('✅ Supabase connection successful')
+      return true
+    } catch (error) {
+      console.error('❌ Supabase connection failed:', error)
+      return false
+    }
   }
 }
 
 // Export for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { GuidalDB, GuidalAuth, GuidalRealtime, supabase }
+if (typeof window !== 'undefined') {
+  window.GuidalDB = GuidalDB
 }

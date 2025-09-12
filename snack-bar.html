@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snack Bar - GUIDAL</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="index.html">GUIDAL</a></h1>
+            <p class="subtitle">The Guide to All at <a href="https://alellagreentech.org" target="_blank" class="agt-link">Alella Green Tech</a></p>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#about">About Us</a></li>
+                <li><a href="index.html#activities">Activities</a></li>
+                <li><a href="index.html#events">Events</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="https://alellagreentech.com/shop/" target="_blank">Store</a></li>
+                <li><a href="login.html" class="login-btn">Login/Register</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <section id="menu-header" class="menu-header">
+            <h2>🍿 Available at the Snack Bar</h2>
+            <div class="menu-hero">
+                <img src="images/pizza-oven.png" alt="Martin preparing fresh pizza in the traditional wood-fired oven at Alella Green Tech" class="pizza-oven-image">
+                <p class="menu-intro">Delicious options perfect for a day of learning and exploration.</p>
+            </div>
+        </section>
+
+        <section id="menu-items" class="menu-section">
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-header">
+                        <h3>🍕 Mini Pizza</h3>
+                        <span class="price">€5</span>
+                    </div>
+                    <p class="menu-description">Perfect portion personal pizza made with fresh ingredients and local produce. Great for a quick bite between station activities.</p>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-header">
+                        <h3>🍕 Full Pizza</h3>
+                        <span class="price">€9</span>
+                    </div>
+                    <p class="menu-description">Full-size artisanal pizza crafted with locally sourced ingredients. Perfect for sharing or for those with heartier appetites.</p>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-header">
+                        <h3>🥤 Drink</h3>
+                        <span class="price">€2</span>
+                    </div>
+                    <p class="menu-description">Refreshing beverages including water, natural juices, and soft drinks. Stay hydrated during your sustainability workshop!</p>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-header">
+                        <h3>🥨 Churro</h3>
+                        <span class="price">€3</span>
+                    </div>
+                    <p class="menu-description">Traditional Spanish churro, crispy and delicious. The perfect sweet treat to end your meal or enjoy as an afternoon snack.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="menu-info" class="menu-info">
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4>🌱 Fresh & Local</h4>
+                    <p>We source our ingredients locally whenever possible, supporting sustainable agriculture and reducing our carbon footprint.</p>
+                </div>
+                
+                <div class="info-card">
+                    <h4>💳 Payment</h4>
+                    <p>We accept cash and card payments. Please let your teacher know about any dietary restrictions in advance.</p>
+                </div>
+                
+                <div class="info-card">
+                    <h4>⏰ Service Times</h4>
+                    <p>Lunch is typically served from 12:00-13:00 PM during your visit. Orders can be placed throughout your stay.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact-lunch" class="contact-section">
+            <h2>Questions About Our Menu?</h2>
+            <p>If you have any dietary restrictions, allergies, or special requests, please contact us in advance:</p>
+            <div class="contact-info">
+                <p><strong>Kitchen Coordinator:</strong> Maria Gonzalez</p>
+                <p><strong>Email:</strong> kitchen@allellagreentech.com</p>
+                <p><strong>Phone:</strong> +34 123 456 789</p>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="index.html">Back to GUIDAL</a></p>
+            <p><strong>Emergency Contact:</strong> +34 123 456 789 | <strong>Visit Coordinator:</strong> Maria Gonzalez</p>
+        </div>
+    </footer>
+    
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+                
+                // Close menu when clicking a nav link
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -70,39 +70,23 @@ class GuidalApp {
     }
 
     async init() {
-        // Check for existing session
-        await this.checkAuthStatus();
-        
         // Load initial data
         await this.loadActivityTypes();
         await this.loadActivities();
         
         // Set up event listeners
         this.setupEventListeners();
-        
-        // Set up auth state listener
-        this.setupAuthListener();
-    }
-
-    async checkAuthStatus() {
-        try {
-            const user = await GuidalAuth.getCurrentUser();
-            if (user) {
-                this.currentUser = await GuidalDB.getProfile(user.id);
-                this.updateUIForLoggedInUser();
-            }
-        } catch (error) {
-            console.log('No active session');
-        }
     }
 
     async loadActivityTypes() {
-        try {
-            this.activityTypes = await GuidalDB.getActivityTypes();
-            this.populateActivityTypeFilter();
-        } catch (error) {
-            console.error('Error loading activity types:', error);
-        }
+        // Simple predefined activity types since we're not storing them separately
+        this.activityTypes = [
+            { slug: 'school-visits', name: 'School Visits' },
+            { slug: 'workshops', name: 'Workshops' },
+            { slug: 'events', name: 'Events' },
+            { slug: 'lunches', name: 'Special Lunches' }
+        ];
+        this.populateActivityTypeFilter();
     }
 
     async loadActivities(filters = {}) {
@@ -147,7 +131,7 @@ class GuidalApp {
     createActivityCard(activity) {
         const card = document.createElement('div');
         card.className = 'activity-card';
-        card.setAttribute('data-type', activity.activity_type.slug);
+        card.setAttribute('data-type', activity.activity_type);
         card.setAttribute('data-date', activity.date_time || 'TBD');
 
         const dateDisplay = activity.date_time 
@@ -158,23 +142,25 @@ class GuidalApp {
               })
             : 'Date: TBD';
 
-        const participantCount = activity.current_participants || 0;
-        const maxParticipants = activity.max_participants || 'Unlimited';
+        const activityType = this.activityTypes.find(type => type.slug === activity.activity_type);
+        const participantInfo = activity.participant_count 
+            ? `${activity.participant_count} ${activity.activity_type === 'school-visits' ? 'students' : 'participants'}`
+            : 'Open to all';
 
         card.innerHTML = `
             <div class="activity-image">
                 <div class="image-placeholder">
-                    <p>${this.getActivityIcon(activity.activity_type.slug)} ${activity.activity_type.name}</p>
+                    <p>${this.getActivityIcon(activity.activity_type)} ${activityType ? activityType.name : 'Activity'}</p>
                 </div>
             </div>
             <div class="activity-info">
-                <div class="activity-type">${activity.activity_type.name}</div>
+                <div class="activity-type">${activityType ? activityType.name : 'Activity'}</div>
                 <h3>${activity.title}</h3>
                 <p class="activity-date">${dateDisplay}</p>
                 <p class="activity-description">${activity.description}</p>
                 <div class="activity-details">
-                    <span class="participants">${participantCount}/${maxParticipants} participants</span>
-                    <span class="duration">${this.formatDuration(activity.duration_minutes)}</span>
+                    <span class="participants">${participantInfo}</span>
+                    <span class="duration">${activity.duration}</span>
                 </div>
                 ${this.getActivityButton(activity)}
             </div>
@@ -204,15 +190,11 @@ class GuidalApp {
     }
 
     getActivityButton(activity) {
-        if (activity.activity_type.slug === 'school-visits') {
-            return `<a href="visits/${activity.slug}.html" class="btn">Login to Visit</a>`;
+        if (activity.activity_type === 'school-visits') {
+            return `<a href="${activity.page_url}" class="btn">${activity.title === 'Benjamin Franklin International School' ? 'Login to Visit' : 'Visit Details'}</a>`;
         }
         
-        const buttonText = activity.requires_login && !this.currentUser 
-            ? 'Login to Register' 
-            : 'Register Now';
-            
-        return `<button class="btn" onclick="app.handleActivityRegistration('${activity.id}', '${activity.title}')">${buttonText}</button>`;
+        return `<a href="${activity.page_url}" class="btn">${activity.activity_type === 'workshops' ? 'Workshop Details' : activity.activity_type === 'events' ? 'Event Details' : 'Details'}</a>`;
     }
 
     async handleActivityRegistration(activityId, activityTitle) {
@@ -248,18 +230,7 @@ class GuidalApp {
             });
         }
 
-        // Login/Register button
-        const loginBtn = document.querySelector('.login-btn');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (this.currentUser) {
-                    this.showUserMenu();
-                } else {
-                    this.showAuthModal();
-                }
-            });
-        }
+        // Keep existing login button functionality (it redirects to login.html)
     }
 
     async handleSearch(searchTerm) {
