@@ -1403,12 +1403,13 @@ footer a:hover {
 
 /* Support Foundation Buttons */
 .support-foundation {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     text-align: center;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
     align-items: center;
+    justify-content: center;
 }
 
 .support-btn,
@@ -1416,36 +1417,38 @@ footer a:hover {
     display: inline-block;
     color: white;
     text-decoration: none;
-    padding: 1rem 2rem;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1.1rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-weight: 500;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
-    letter-spacing: 0.5px;
-    min-width: 300px;
+    letter-spacing: 0.3px;
     text-align: center;
+    opacity: 0.8;
 }
 
 .support-btn {
     background: linear-gradient(135deg, #2e7d32, #388e3c);
-    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
 }
 
 .support-btn:hover {
     background: linear-gradient(135deg, #1b5e20, #2e7d32);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    opacity: 1;
 }
 
 .social-btn {
     background: linear-gradient(135deg, #1976d2, #1e88e5);
-    box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
 }
 
 .social-btn:hover {
     background: linear-gradient(135deg, #1565c0, #1976d2);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+    opacity: 1;
 }
 
 .support-btn:active,
@@ -1454,11 +1457,15 @@ footer a:hover {
 }
 
 @media (max-width: 768px) {
+    .support-foundation {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
     .support-btn,
     .social-btn {
-        min-width: 280px;
-        font-size: 1rem;
-        padding: 0.9rem 1.8rem;
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
     }
 }
 
