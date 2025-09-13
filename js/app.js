@@ -118,15 +118,21 @@ class GuidalApp {
 
     renderActivities() {
         const activityGrid = document.getElementById('activity-grid');
-        if (!activityGrid || !this.activities) return;
+        if (!activityGrid) return;
 
-        // Clear existing static content
-        activityGrid.innerHTML = '';
+        // Only clear and re-render if we have activities from database
+        if (this.activities && this.activities.length > 0) {
+            // Clear existing static content
+            activityGrid.innerHTML = '';
 
-        this.activities.forEach(activity => {
-            const card = this.createActivityCard(activity);
-            activityGrid.appendChild(card);
-        });
+            this.activities.forEach(activity => {
+                const card = this.createActivityCard(activity);
+                activityGrid.appendChild(card);
+            });
+        } else {
+            // Keep static HTML content when no database activities
+            console.log('No database activities found, keeping static content');
+        }
     }
 
     createActivityCard(activity) {
@@ -148,11 +154,15 @@ class GuidalApp {
             ? `${activity.participant_count} ${activity.activity_type === 'school-visits' ? 'students' : 'participants'}`
             : 'Open to all';
 
+        // Get GREENs info for activity
+        const greensInfo = this.getGREENsInfo(activity);
+
+        // Get activity image
+        const activityImage = this.getActivityImage(activity);
+
         card.innerHTML = `
             <div class="activity-image">
-                <div class="image-placeholder">
-                    <p>${this.getActivityIcon(activity.activity_type)} ${activityType ? activityType.name : 'Activity'}</p>
-                </div>
+                ${activityImage}
             </div>
             <div class="activity-info">
                 <div class="activity-type">${activityType ? activityType.name : 'Activity'}</div>
@@ -163,11 +173,90 @@ class GuidalApp {
                     <span class="participants">${participantInfo}</span>
                     <span class="duration">${activity.duration}</span>
                 </div>
+                ${greensInfo}
                 ${this.getActivityButton(activity)}
             </div>
         `;
 
         return card;
+    }
+
+    getActivityImage(activity) {
+        // Use featured_image from database if available
+        const imageSrc = activity.featured_image || this.getDefaultImageForActivity(activity);
+        
+        if (imageSrc) {
+            return `<img src="${imageSrc}" alt="${activity.title}" class="activity-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="image-placeholder" style="display:none;">
+                        <p>${this.getActivityIcon(activity.activity_type)} ${activity.activity_type}</p>
+                    </div>`;
+        } else {
+            return `<div class="image-placeholder">
+                        <p>${this.getActivityIcon(activity.activity_type)} ${activity.activity_type}</p>
+                    </div>`;
+        }
+    }
+
+    getDefaultImageForActivity(activity) {
+        // Fallback images when database doesn't have featured_image
+        const defaultImages = {
+            'Benjamin Franklin International School': 'images/school-visit-planting.png',
+            'International School of Prague': 'images/school-visit-prague.png',
+            'Brainstorming Lunch': 'images/lunch-event.png',
+            'Build Your Own Ram Pump': 'images/workshop-construction.png',
+            'Sustainability Fair': 'images/sustainability-fair.png'
+        };
+        
+        return defaultImages[activity.title] || null;
+    }
+
+    getGREENsInfo(activity) {
+        // Determine GREENs reward based on activity type and characteristics
+        let greensReward = 1; // Default
+        let greensCost = 0;   // Default free
+
+        // Educational activities earn GREENs
+        if (activity.activity_category === 'educational' || activity.activity_type === 'workshops' || activity.activity_type === 'school-visits') {
+            if (activity.title.toLowerCase().includes('full day') || activity.title.toLowerCase().includes('workshop') || activity.title.toLowerCase().includes('ram pump')) {
+                greensReward = 3; // Full day with manual work
+            } else if (activity.title.toLowerCase().includes('planting') || activity.title.toLowerCase().includes('station') || activity.activity_type === 'school-visits') {
+                greensReward = 2; // Activities with manual work
+            } else {
+                greensReward = 1; // Easy educational activities
+            }
+        }
+
+        // Recreational activities cost GREENs
+        if (activity.activity_category === 'recreational' || activity.title.toLowerCase().includes('football') || activity.title.toLowerCase().includes('recreation')) {
+            greensReward = 0;
+            greensCost = 1; // Cost GREENs to participate
+        }
+
+        // Special events
+        if (activity.activity_type === 'events' && !activity.title.toLowerCase().includes('lunch')) {
+            greensReward = 2;
+        }
+
+        const rewardText = greensReward > 1 ? `+${greensReward} GREENs` : greensReward === 1 ? '+1 GREEN' : '';
+        const costText = greensCost > 0 ? `${greensCost} GREEN${greensCost > 1 ? 's' : ''}` : 'Free';
+        const costClass = greensCost > 0 ? 'greens-cost has-cost' : 'greens-cost';
+
+        if (greensReward > 0) {
+            return `
+                <div class="greens-info">
+                    <span class="greens-reward">${rewardText}</span>
+                    <span class="${costClass}">${costText}</span>
+                </div>
+            `;
+        } else if (greensCost > 0) {
+            return `
+                <div class="greens-info">
+                    <span class="${costClass}">Costs ${costText}</span>
+                </div>
+            `;
+        }
+
+        return '';
     }
 
     getActivityIcon(type) {

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My GREENs Dashboard - GUIDAL</title>
+    <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="../../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Your <a href="https://alellagreentech.org" target="_blank" class="agt-link">GREENs Dashboard</a></p>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../../index.html#activities">Browse Activities</a></li>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#profile">Profile</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <!-- User Welcome Section -->
+        <section id="dashboard" class="dashboard-welcome">
+            <div class="welcome-header">
+                <div class="user-info">
+                    <h2>Welcome back, <span id="userName">Loading...</span>! 🌱</h2>
+                    <p id="userStats">Loading your stats...</p>
+                </div>
+                <div class="greens-balance">
+                    <div class="balance-card">
+                        <h3>Your GREENs Balance</h3>
+                        <div class="balance-amount" id="greensBalance">
+                            <span class="amount">0</span>
+                            <span class="currency">GREENs</span>
+                        </div>
+                        <div class="balance-stats">
+                            <div class="stat">
+                                <span class="stat-value" id="totalEarned">0</span>
+                                <span class="stat-label">Total Earned</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-value" id="totalSpent">0</span>
+                                <span class="stat-label">Total Spent</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section id="quick-actions" class="quick-actions">
+            <h2>Quick Actions</h2>
+            <div class="actions-grid">
+                <a href="../../index.html#activities" class="action-card">
+                    <div class="action-icon">🎓</div>
+                    <h3>Browse Activities</h3>
+                    <p>Find educational activities to earn GREENs</p>
+                </a>
+                <a href="#registered-activities" class="action-card">
+                    <div class="action-icon">📅</div>
+                    <h3>My Calendar</h3>
+                    <p>View your upcoming activities</p>
+                </a>
+                <a href="#transactions" class="action-card">
+                    <div class="action-icon">💰</div>
+                    <h3>Transaction History</h3>
+                    <p>See all your GREENs transactions</p>
+                </a>
+                <a href="#leaderboard" class="action-card">
+                    <div class="action-icon">🏆</div>
+                    <h3>Leaderboard</h3>
+                    <p>See top GREENs earners</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Registered Activities -->
+        <section id="registered-activities" class="registered-activities">
+            <h2>📅 Your Upcoming Activities</h2>
+            <div id="activitiesCalendar" class="activities-calendar">
+                <p class="loading">Loading your activities...</p>
+            </div>
+        </section>
+
+        <!-- Recent Transactions -->
+        <section id="transactions" class="transactions-section">
+            <h2>💰 Recent GREENs Transactions</h2>
+            <div id="transactionsTable" class="transactions-table">
+                <p class="loading">Loading your transactions...</p>
+            </div>
+        </section>
+
+        <!-- Activity Completions -->
+        <section id="completions" class="completions-section">
+            <h2>🏆 Your Activity Completions</h2>
+            <div id="completionsGrid" class="completions-grid">
+                <p class="loading">Loading your completions...</p>
+            </div>
+        </section>
+
+        <!-- Leaderboard -->
+        <section id="leaderboard" class="leaderboard-section">
+            <h2>🏆 GREENs Leaderboard</h2>
+            <div id="leaderboardTable" class="leaderboard-table">
+                <p class="loading">Loading leaderboard...</p>
+            </div>
+        </section>
+
+        <!-- User Profile -->
+        <section id="profile" class="profile-section">
+            <h2>👤 Your Profile</h2>
+            <div class="profile-container">
+                <div id="profileInfo" class="profile-info">
+                    <p class="loading">Loading your profile...</p>
+                </div>
+                <div class="profile-actions">
+                    <button id="editProfileBtn" class="btn btn-secondary">Edit Profile</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../../index.html">Back to GUIDAL</a></p>
+            <p>Keep earning GREENs and making a sustainable impact! 🌱</p>
+        </div>
+    </footer>
+    
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- GUIDAL Database Clients -->
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/greens-client.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const currentUser = GREENsDB.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = 'login-greens.html';
+                return;
+            }
+
+            // Initialize dashboard
+            initializeDashboard();
+
+            // Mobile menu functionality
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+            }
+
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    GREENsDB.logoutUser();
+                    window.location.href = 'index.html';
+                }
+            });
+
+            async function initializeDashboard() {
+                try {
+                    // Load user profile
+                    const userProfile = await GREENsDB.getUserProfile(currentUser.id);
+                    if (userProfile) {
+                        updateUserInfo(userProfile);
+                    } else {
+                        updateUserInfo(currentUser);
+                    }
+
+                    // Load all dashboard data
+                    await Promise.all([
+                        loadUserActivities(),
+                        loadUserTransactions(),
+                        loadUserCompletions(),
+                        loadLeaderboard()
+                    ]);
+
+                } catch (error) {
+                    console.error('Error loading dashboard:', error);
+                }
+            }
+
+            function updateUserInfo(user) {
+                document.getElementById('userName').textContent = user.full_name || user.username || 'User';
+                document.getElementById('greensBalance').querySelector('.amount').textContent = user.greens_balance || 0;
+                document.getElementById('totalEarned').textContent = user.total_greens_earned || 0;
+                document.getElementById('totalSpent').textContent = user.total_greens_spent || 0;
+                
+                const schoolName = user.school ? user.school.name : 'Independent';
+                document.getElementById('userStats').textContent = 
+                    `${user.user_type || 'Student'} at ${schoolName} | ${user.city || 'Unknown'}, ${user.country || 'Unknown'}`;
+
+                // Update profile section
+                const profileInfo = document.getElementById('profileInfo');
+                profileInfo.innerHTML = `
+                    <div class="profile-details">
+                        <div class="detail-row">
+                            <strong>Email:</strong> ${user.email}
+                        </div>
+                        <div class="detail-row">
+                            <strong>Username:</strong> ${user.username || 'Not set'}
+                        </div>
+                        <div class="detail-row">
+                            <strong>Age:</strong> ${user.age || 'Not provided'}
+                        </div>
+                        <div class="detail-row">
+                            <strong>School:</strong> ${schoolName}
+                        </div>
+                        <div class="detail-row">
+                            <strong>Grade Level:</strong> ${user.grade_level || 'Not specified'}
+                        </div>
+                        <div class="detail-row">
+                            <strong>Languages:</strong> ${user.languages ? user.languages.join(', ') : 'English'}
+                        </div>
+                        <div class="detail-row">
+                            <strong>Member Since:</strong> ${new Date(user.created_at).toLocaleDateString()}
+                        </div>
+                        <div class="detail-row">
+                            <strong>Last Campus Visit:</strong> ${user.last_campus_visit ? new Date(user.last_campus_visit).toLocaleDateString() : 'Never'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            async function loadUserActivities() {
+                try {
+                    const registrations = await GREENsDB.getUserRegistrations(currentUser.id);
+                    const activitiesCalendar = document.getElementById('activitiesCalendar');
+                    
+                    if (registrations.length === 0) {
+                        activitiesCalendar.innerHTML = '<p class="no-data">No upcoming activities. <a href="../../index.html#activities">Browse activities</a> to register!</p>';
+                        return;
+                    }
+
+                    activitiesCalendar.innerHTML = registrations.map(reg => `
+                        <div class="activity-card">
+                            <div class="activity-header">
+                                <h3>${reg.activity.title}</h3>
+                                <span class="status status-${reg.status}">${reg.status}</span>
+                            </div>
+                            <div class="activity-details">
+                                <p><strong>Date:</strong> ${reg.activity.date_time ? new Date(reg.activity.date_time).toLocaleDateString() : 'TBD'}</p>
+                                <p><strong>Location:</strong> ${reg.activity.location || 'Alella Green Tech'}</p>
+                                ${reg.activity.greens_cost > 0 ? `<p><strong>Cost:</strong> ${reg.activity.greens_cost} GREENs</p>` : ''}
+                                <p><strong>Registered:</strong> ${new Date(reg.registration_date).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('Error loading user activities:', error);
+                    document.getElementById('activitiesCalendar').innerHTML = '<p class="error">Error loading activities.</p>';
+                }
+            }
+
+            async function loadUserTransactions() {
+                try {
+                    const transactions = await GREENsDB.getUserGREENsTransactions(currentUser.id, 10);
+                    const transactionsTable = document.getElementById('transactionsTable');
+                    
+                    if (transactions.length === 0) {
+                        transactionsTable.innerHTML = '<p class="no-data">No transactions yet. Start participating in activities to earn GREENs!</p>';
+                        return;
+                    }
+
+                    transactionsTable.innerHTML = `
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Description</th>
+                                    <th>Blockchain</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${transactions.map(tx => `
+                                    <tr>
+                                        <td>${new Date(tx.created_at).toLocaleDateString()}</td>
+                                        <td>
+                                            <span class="transaction-type type-${tx.transaction_type}">
+                                                ${tx.transaction_type}
+                                            </span>
+                                        </td>
+                                        <td class="amount ${tx.transaction_type === 'spent' ? 'negative' : 'positive'}">
+                                            ${tx.transaction_type === 'spent' ? '-' : '+'}${tx.greens_amount} GREENs
+                                        </td>
+                                        <td>${tx.description}</td>
+                                        <td>
+                                            <span class="blockchain-status ${tx.blockchain_verified ? 'verified' : 'pending'}">
+                                                ${tx.blockchain_verified ? '✓ Verified' : '⏳ Pending'}
+                                            </span>
+                                            ${tx.blockchain_hash ? `<br><small class="hash">${tx.blockchain_hash.substring(0, 12)}...</small>` : ''}
+                                        </td>
+                                        <td>${tx.balance_after} GREENs</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    console.error('Error loading transactions:', error);
+                    document.getElementById('transactionsTable').innerHTML = '<p class="error">Error loading transactions.</p>';
+                }
+            }
+
+            async function loadUserCompletions() {
+                try {
+                    const completions = await GREENsDB.getUserCompletions(currentUser.id);
+                    const completionsGrid = document.getElementById('completionsGrid');
+                    
+                    if (completions.length === 0) {
+                        completionsGrid.innerHTML = '<p class="no-data">No completed activities yet. Complete activities to earn GREENs and build your portfolio!</p>';
+                        return;
+                    }
+
+                    completionsGrid.innerHTML = completions.map(comp => `
+                        <div class="completion-card">
+                            <h4>${comp.activity.title}</h4>
+                            <div class="completion-details">
+                                <p><strong>Completed:</strong> ${new Date(comp.completion_date).toLocaleDateString()}</p>
+                                <p><strong>GREENs Earned:</strong> ${comp.greens_earned}</p>
+                                ${comp.bonus_greens > 0 ? `<p><strong>Bonus:</strong> +${comp.bonus_greens} GREENs</p>` : ''}
+                                ${comp.participation_score ? `<p><strong>Score:</strong> ${comp.participation_score}/10</p>` : ''}
+                                ${comp.verified_by_user ? `<p><strong>Verified by:</strong> ${comp.verified_by_user.full_name}</p>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+
+                } catch (error) {
+                    console.error('Error loading completions:', error);
+                    document.getElementById('completionsGrid').innerHTML = '<p class="error">Error loading completions.</p>';
+                }
+            }
+
+            async function loadLeaderboard() {
+                try {
+                    const leaderboard = await GREENsDB.getGREENsLeaderboard(10);
+                    const leaderboardTable = document.getElementById('leaderboardTable');
+                    
+                    leaderboardTable.innerHTML = `
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Name</th>
+                                    <th>School</th>
+                                    <th>Total Earned</th>
+                                    <th>Current Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${leaderboard.map((user, index) => `
+                                    <tr ${user.username === currentUser.username ? 'class="current-user"' : ''}>
+                                        <td>
+                                            <span class="rank rank-${index + 1}">${index + 1}</span>
+                                        </td>
+                                        <td>${user.full_name}</td>
+                                        <td>${user.school ? user.school.name : 'Independent'}</td>
+                                        <td>${user.total_greens_earned} GREENs</td>
+                                        <td>${user.greens_balance} GREENs</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                } catch (error) {
+                    console.error('Error loading leaderboard:', error);
+                    document.getElementById('leaderboardTable').innerHTML = '<p class="error">Error loading leaderboard.</p>';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

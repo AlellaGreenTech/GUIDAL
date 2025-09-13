@@ -29,7 +29,7 @@
                 <li><a href="#events">Events</a></li>
                 <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
                 <li><a href="https://alellagreentech.com/shop/" target="_blank">Store</a></li>
-                <li><a href="login.html" class="login-btn">Login/Register</a></li>
+                <li><a href="pages/auth/login-greens.html" class="login-btn">Login/Register</a></li>
             </ul>
         </div>
     </nav>
@@ -79,9 +79,7 @@
             <div class="activity-cards" id="activity-grid">
                 <div class="activity-card" data-type="school-visits" data-date="2025-09-16">
                     <div class="activity-image">
-                        <div class="image-placeholder">
-                            <p>🏫 School Visit</p>
-                        </div>
+                        <img src="./images/school-visit-planting.png" alt="Students planting in the garden during school visit" class="activity-photo" onerror="console.log('Image failed to load:', this.src)">
                     </div>
                     <div class="activity-info">
                         <div class="activity-type">School Visit</div>
@@ -92,15 +90,17 @@
                             <span class="participants">70 students</span>
                             <span class="duration">6 hours</span>
                         </div>
-                        <a href="login.html" class="btn">Login to Visit</a>
+                        <div class="greens-info">
+                            <span class="greens-reward">+3 GREENs</span>
+                            <span class="greens-cost">Free</span>
+                        </div>
+                        <a href="pages/auth/login.html" class="btn">Login to Visit</a>
                     </div>
                 </div>
                 
                 <div class="activity-card" data-type="school-visits" data-date="2025-09-17">
                     <div class="activity-image">
-                        <div class="image-placeholder">
-                            <p>🏫 School Visit</p>
-                        </div>
+                        <img src="./images/school-visit-prague.png" alt="Students learning sustainable agriculture techniques" class="activity-photo" onerror="console.log('Image failed to load:', this.src)">
                     </div>
                     <div class="activity-info">
                         <div class="activity-type">School Visit</div>
@@ -110,6 +110,10 @@
                         <div class="activity-details">
                             <span class="participants">38 students</span>
                             <span class="duration">Half day + lunch</span>
+                        </div>
+                        <div class="greens-info">
+                            <span class="greens-reward">+2 GREENs</span>
+                            <span class="greens-cost">Free</span>
                         </div>
                         <a href="visits/international-school-prague-sept-2025.html" class="btn">Visit Details</a>
                     </div>
@@ -130,6 +134,10 @@
                             <span class="participants">15 guests max</span>
                             <span class="duration">3 hours</span>
                         </div>
+                        <div class="greens-info">
+                            <span class="greens-reward">+1 GREEN</span>
+                            <span class="greens-cost">Free</span>
+                        </div>
                         <a href="events/brainstorming-lunch-sept-2025.html" class="btn">Event Details</a>
                     </div>
                 </div>
@@ -148,6 +156,10 @@
                         <div class="activity-details">
                             <span class="participants">12 participants</span>
                             <span class="duration">4 hours</span>
+                        </div>
+                        <div class="greens-info">
+                            <span class="greens-reward">+3 GREENs</span>
+                            <span class="greens-cost">Free</span>
                         </div>
                         <a href="workshops/ram-pump-sept-2025.html" class="btn">Workshop Details</a>
                     </div>
@@ -168,6 +180,10 @@
                             <span class="participants">Open to all</span>
                             <span class="duration">Full day</span>
                         </div>
+                        <div class="greens-info">
+                            <span class="greens-reward">+2 GREENs</span>
+                            <span class="greens-cost">Free</span>
+                        </div>
                         <a href="events/sustainability-fair.html" class="btn">Event Details</a>
                     </div>
                 </div>
@@ -179,7 +195,7 @@
             <div class="quick-links-grid">
                 <a href="https://alellagreentech.com/shop/" target="_blank" class="quick-link">🛒 Online Shop</a>
                 <a href="lunch-menu.html" class="quick-link">🍽️ Lunch Menu</a>
-                <a href="#activities" class="quick-link">⚽ R&R Activities</a>
+                <a href="login-greens.html" class="quick-link">⚽ Spend GREENs</a>
                 <a href="#events" class="quick-link">📅 Events</a>
                 <a href="#internships" class="quick-link">🎓 Internships</a>
                 <a href="#camp" class="quick-link">🏕️ Summer Camp</a>
@@ -235,8 +251,9 @@
     <!-- Supabase JavaScript Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- GUIDAL Database Client -->
+    <!-- GUIDAL Database Clients -->
     <script src="js/supabase-client.js"></script>
+    <script src="js/greens-client.js"></script>
     
     <!-- Main Application Script -->
     <script src="js/app.js"></script>

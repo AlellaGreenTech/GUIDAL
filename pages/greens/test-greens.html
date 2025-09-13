@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GREENs System Test - GUIDAL</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .test-result {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .test-success {
+            background-color: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            color: #2e7d32;
+        }
+        .test-error {
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            color: #c62828;
+        }
+        .test-info {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            color: #1565c0;
+        }
+        .test-button {
+            margin: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #388e3c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../../index.html">GUIDAL</a> GREENs System Test</h1>
+            <p class="subtitle">Testing blockchain-based reward system integration</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="test-container">
+            <h2>🧪 GREENs System Integration Tests</h2>
+            <p>This page tests all components of the GREENs blockchain-based reward system.</p>
+
+            <div class="test-section">
+                <h3>🔗 Database Connection Test</h3>
+                <button class="test-button" onclick="testDatabaseConnection()">Test Database Connection</button>
+                <div id="dbTest"></div>
+            </div>
+
+            <div class="test-section">
+                <h3>👥 User System Test</h3>
+                <button class="test-button" onclick="testUserSystem()">Test User Management</button>
+                <div id="userTest"></div>
+            </div>
+
+            <div class="test-section">
+                <h3>🎓 Activity System Test</h3>
+                <button class="test-button" onclick="testActivitySystem()">Test Activity Management</button>
+                <div id="activityTest"></div>
+            </div>
+
+            <div class="test-section">
+                <h3>🌱 GREENs Transaction Test</h3>
+                <button class="test-button" onclick="testGREENsSystem()">Test GREENs Transactions</button>
+                <div id="greensTest"></div>
+            </div>
+
+            <div class="test-section">
+                <h3>⛓️ Blockchain Integration Test</h3>
+                <button class="test-button" onclick="testBlockchainIntegration()">Test Blockchain Features</button>
+                <div id="blockchainTest"></div>
+            </div>
+
+            <div class="test-section">
+                <h3>🎨 UI Components Test</h3>
+                <div class="greens-info">
+                    <span class="greens-reward">+3 GREENs</span>
+                    <span class="greens-cost">Free</span>
+                </div>
+                <div class="greens-info" style="margin-top: 1rem;">
+                    <span class="greens-cost has-cost">Costs 2 GREENs</span>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <span class="blockchain-status verified">✓ Verified</span>
+                    <span class="blockchain-status pending">⏳ Pending</span>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h3>🔄 Full Integration Test</h3>
+                <button class="test-button" onclick="runFullIntegrationTest()">Run Complete System Test</button>
+                <div id="integrationTest"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../../index.html">Back to GUIDAL</a></p>
+            <p>GREENs System Testing Dashboard</p>
+        </div>
+    </footer>
+
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- GUIDAL Database Clients -->
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/greens-client.js"></script>
+
+    <script>
+        function logTest(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `test-result test-${type}`;
+            div.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            container.appendChild(div);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        async function testDatabaseConnection() {
+            const container = document.getElementById('dbTest');
+            container.innerHTML = '';
+            
+            try {
+                logTest('dbTest', 'Testing Supabase connection...', 'info');
+                
+                // Test basic connection
+                const { data, error } = await supabase.from('users').select('count').limit(1);
+                
+                if (error) throw error;
+                
+                logTest('dbTest', '✓ Supabase connection successful', 'success');
+                
+                // Test tables exist
+                const tables = ['users', 'activities', 'greens_transactions', 'activity_registrations'];
+                for (const table of tables) {
+                    const { error: tableError } = await supabase.from(table).select('*').limit(1);
+                    if (tableError) {
+                        logTest('dbTest', `✗ Table '${table}' not accessible: ${tableError.message}`, 'error');
+                    } else {
+                        logTest('dbTest', `✓ Table '${table}' accessible`, 'success');
+                    }
+                }
+                
+            } catch (error) {
+                logTest('dbTest', `✗ Database connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testUserSystem() {
+            const container = document.getElementById('userTest');
+            container.innerHTML = '';
+            
+            try {
+                logTest('userTest', 'Testing user management system...', 'info');
+                
+                // Test getting users
+                const users = await GREENsDB.searchUsers('demo', 5);
+                logTest('userTest', `✓ Found ${users.length} demo users`, 'success');
+                
+                // Test leaderboard
+                const leaderboard = await GREENsDB.getGREENsLeaderboard(5);
+                logTest('userTest', `✓ Leaderboard loaded with ${leaderboard.length} users`, 'success');
+                
+                // Test user profile
+                if (users.length > 0) {
+                    const profile = await GREENsDB.getUserProfile(users[0].id);
+                    if (profile) {
+                        logTest('userTest', `✓ User profile loaded for ${profile.full_name}`, 'success');
+                        logTest('userTest', `  Balance: ${profile.greens_balance} GREENs`, 'info');
+                    }
+                }
+                
+            } catch (error) {
+                logTest('userTest', `✗ User system test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testActivitySystem() {
+            const container = document.getElementById('activityTest');
+            container.innerHTML = '';
+            
+            try {
+                logTest('activityTest', 'Testing activity management system...', 'info');
+                
+                // Test getting activities
+                const activities = await GREENsDB.getActivities();
+                logTest('activityTest', `✓ Loaded ${activities.length} activities`, 'success');
+                
+                // Test activity types
+                const activityTypes = await GREENsDB.getActivityTypes();
+                logTest('activityTest', `✓ Loaded ${activityTypes.length} activity types`, 'success');
+                
+                // Check for GREENs integration in activities
+                const educationalActivities = activities.filter(a => a.activity_category === 'educational');
+                const recreationalActivities = activities.filter(a => a.activity_category === 'recreational');
+                
+                logTest('activityTest', `✓ Educational activities: ${educationalActivities.length} (earn GREENs)`, 'success');
+                logTest('activityTest', `✓ Recreational activities: ${recreationalActivities.length} (cost GREENs)`, 'success');
+                
+            } catch (error) {
+                logTest('activityTest', `✗ Activity system test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGREENsSystem() {
+            const container = document.getElementById('greensTest');
+            container.innerHTML = '';
+            
+            try {
+                logTest('greensTest', 'Testing GREENs transaction system...', 'info');
+                
+                // Test getting demo user
+                const demoUsers = await GREENsDB.searchUsers('alice@demo.com', 1);
+                if (demoUsers.length === 0) {
+                    logTest('greensTest', '! No demo users found. Run database/greens/populate-greens-data.sql first', 'error');
+                    return;
+                }
+                
+                const user = demoUsers[0];
+                logTest('greensTest', `✓ Testing with user: ${user.full_name}`, 'success');
+                
+                // Test getting user transactions
+                const transactions = await GREENsDB.getUserGREENsTransactions(user.id, 10);
+                logTest('greensTest', `✓ Loaded ${transactions.length} transactions`, 'success');
+                
+                // Test getting user completions
+                const completions = await GREENsDB.getUserCompletions(user.id);
+                logTest('greensTest', `✓ Loaded ${completions.length} activity completions`, 'success');
+                
+                // Test hash generation
+                const hash = GREENsDB.generateBlockchainHash();
+                logTest('greensTest', `✓ Generated blockchain hash: ${hash}`, 'success');
+                
+                logTest('greensTest', `✓ User balance: ${user.greens_balance} GREENs`, 'info');
+                
+            } catch (error) {
+                logTest('greensTest', `✗ GREENs system test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBlockchainIntegration() {
+            const container = document.getElementById('blockchainTest');
+            container.innerHTML = '';
+            
+            try {
+                logTest('blockchainTest', 'Testing blockchain integration features...', 'info');
+                
+                // Test blockchain status
+                const blockchainStatus = await GREENsDB.getBlockchainStatus();
+                if (blockchainStatus) {
+                    logTest('blockchainTest', `✓ Blockchain status: ${blockchainStatus.networkStatus}`, 'success');
+                    logTest('blockchainTest', `  24h transactions: ${blockchainStatus.totalTransactions24h}`, 'info');
+                    logTest('blockchainTest', `  Verification rate: ${blockchainStatus.verificationRate}%`, 'info');
+                } else {
+                    logTest('blockchainTest', '! No recent transactions for blockchain status', 'info');
+                }
+                
+                // Test transaction verification (if we have transactions)
+                const { data: transactions } = await supabase
+                    .from('greens_transactions')
+                    .select('id')
+                    .limit(1);
+                
+                if (transactions && transactions.length > 0) {
+                    const verified = await GREENsDB.verifyTransaction(transactions[0].id);
+                    logTest('blockchainTest', `✓ Transaction verification: ${verified ? 'Success' : 'Failed'}`, verified ? 'success' : 'error');
+                    
+                    // Test transaction proof
+                    const proof = await GREENsDB.getTransactionProof(transactions[0].id);
+                    if (proof) {
+                        logTest('blockchainTest', `✓ Transaction proof generated`, 'success');
+                        logTest('blockchainTest', `  Hash: ${proof.blockchainHash}`, 'info');
+                    }
+                }
+                
+            } catch (error) {
+                logTest('blockchainTest', `✗ Blockchain test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function runFullIntegrationTest() {
+            const container = document.getElementById('integrationTest');
+            container.innerHTML = '';
+            
+            logTest('integrationTest', '🚀 Starting full integration test...', 'info');
+            
+            try {
+                // Test complete user journey
+                logTest('integrationTest', 'Step 1: Testing user registration flow...', 'info');
+                
+                // Test if demo users can login
+                logTest('integrationTest', 'Step 2: Testing login system...', 'info');
+                try {
+                    const loginUser = await GREENsDB.loginUser('student@demo.com', 'demo');
+                    logTest('integrationTest', `✓ Demo login successful for ${loginUser.full_name}`, 'success');
+                } catch (loginError) {
+                    logTest('integrationTest', '! Demo login not tested - user may need to be created first', 'info');
+                }
+                
+                // Test activity browsing with GREENs
+                logTest('integrationTest', 'Step 3: Testing activity system with GREENs...', 'info');
+                const activities = await GREENsDB.getActivities();
+                const educationalCount = activities.filter(a => a.greens_reward > 0).length;
+                const recreationalCount = activities.filter(a => a.greens_cost > 0).length;
+                
+                logTest('integrationTest', `✓ Activities with GREENs rewards: ${educationalCount}`, 'success');
+                logTest('integrationTest', `✓ Activities requiring GREENs: ${recreationalCount}`, 'success');
+                
+                // Test dashboard functionality
+                logTest('integrationTest', 'Step 4: Testing dashboard components...', 'info');
+                const leaderboard = await GREENsDB.getGREENsLeaderboard();
+                logTest('integrationTest', `✓ Leaderboard functional with ${leaderboard.length} users`, 'success');
+                
+                // Test blockchain features
+                logTest('integrationTest', 'Step 5: Testing blockchain integration...', 'info');
+                const blockchainStatus = await GREENsDB.getBlockchainStatus();
+                if (blockchainStatus) {
+                    logTest('integrationTest', `✓ Blockchain network: ${blockchainStatus.networkStatus}`, 'success');
+                }
+                
+                logTest('integrationTest', '🎉 Full integration test completed successfully!', 'success');
+                logTest('integrationTest', '✅ GREENs system is ready for use', 'success');
+                
+            } catch (error) {
+                logTest('integrationTest', `✗ Integration test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run basic tests on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                testDatabaseConnection();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

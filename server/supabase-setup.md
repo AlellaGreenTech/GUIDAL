@@ -19,7 +19,7 @@ Once your project is ready:
 ## 3. Run Database Schema
 
 1. Go to SQL Editor in your Supabase dashboard
-2. Copy and paste the entire contents of `database-schema.sql`
+2. Copy and paste the entire contents of `database/database-schema.sql` (legacy) or `database/greens/greens-schema-update.sql` (recommended)
 3. Click "Run" to create all tables and relationships
 
 ## 4. Configure Authentication

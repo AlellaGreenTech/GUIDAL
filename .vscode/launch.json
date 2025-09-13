@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch with Live Server",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "runtimeExecutable": "live-server",
+            "runtimeArgs": [
+                "--port=8000",
+                "--host=localhost",
+                "--open=/index.html"
+            ]
+        }
+    ]
+}

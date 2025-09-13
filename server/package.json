@@ -1,0 +1,25 @@
+{
+  "name": "guidal-greens-system",
+  "version": "1.0.0",
+  "description": "GUIDAL - GREENs Blockchain Reward System",
+  "main": "index.html",
+  "scripts": {
+    "start": "cd .. && node server/server.js",
+    "dev": "cd .. && node server/server.js",
+    "test": "cd .. && node server/server.js",
+    "simple": "cd .. && python3 -m http.server 8080",
+    "live-server": "cd .. && live-server --port=8080 --host=localhost --open=index.html"
+  },
+  "keywords": [
+    "education",
+    "blockchain",
+    "sustainability",
+    "greens",
+    "rewards"
+  ],
+  "author": "GUIDAL Team",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login to GREENs - GUIDAL</title>
+    <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="../../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Login to your <a href="https://alellagreentech.org" target="_blank" class="agt-link">GREENs Account</a></p>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../../index.html#activities">Activities</a></li>
+                <li><a href="register.html">Register</a></li>
+                <li><a href="#about-greens">About GREENs</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <section id="login" class="login-section">
+            <div class="login-container">
+                <h2>🌱 Login to GREENs</h2>
+                <p class="login-description">Access your account to view your GREENs balance, register for activities, and track your sustainable learning journey.</p>
+                
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="email">Email Address:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required>
+                        <small>For demo: Use any password</small>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">🔑 Login to GREENs</button>
+                    </div>
+                </form>
+                
+                <div class="login-help">
+                    <div class="demo-accounts">
+                        <h4>Demo Accounts</h4>
+                        <p>Try these accounts to explore the system:</p>
+                        <div class="demo-account">
+                            <strong>Student Account:</strong><br>
+                            Email: student@demo.com<br>
+                            Password: any
+                        </div>
+                        <div class="demo-account">
+                            <strong>Teacher Account:</strong><br>
+                            Email: teacher@demo.com<br>
+                            Password: any
+                        </div>
+                    </div>
+                    
+                    <div class="register-link">
+                        <h4>New to GREENs?</h4>
+                        <p><a href="register.html" class="btn btn-secondary">Create Account</a></p>
+                    </div>
+                    
+                    <div class="school-visits">
+                        <h4>School Visit Access</h4>
+                        <p>For school visits, use the <a href="login.html">simple school login</a> instead.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about-greens" class="greens-info">
+            <h2>About the GREENs System</h2>
+            <div class="greens-explanation">
+                <div class="greens-feature">
+                    <h3>🎓 How to Earn GREENs</h3>
+                    <ul>
+                        <li><strong>1 GREEN</strong> - Easy educational activities (presentations, simple workshops)</li>
+                        <li><strong>2 GREENs</strong> - Activities with manual work (planting, building, experiments)</li>
+                        <li><strong>3 GREENs</strong> - Full-day activities with manual work and instruction</li>
+                    </ul>
+                </div>
+                
+                <div class="greens-feature">
+                    <h3>⚽ How to Use GREENs</h3>
+                    <ul>
+                        <li><strong>1 GREEN</strong> - 30 minutes of recreational activities (football, games)</li>
+                        <li><strong>2 GREENs</strong> - Special recreational events</li>
+                        <li><strong>3 GREENs</strong> - Premium recreational experiences</li>
+                    </ul>
+                </div>
+                
+                <div class="greens-feature">
+                    <h3>🔗 Blockchain Technology</h3>
+                    <p>Every GREENs transaction is recorded on our blockchain system, ensuring transparency and preventing fraud. Your learning achievements are permanently documented!</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../../index.html">Back to GUIDAL</a></p>
+            <p>Sustainable learning powered by blockchain technology</p>
+        </div>
+    </footer>
+    
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- GUIDAL Database Clients -->
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/greens-client.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in
+            const currentUser = GREENsDB.getCurrentUser();
+            if (currentUser) {
+                window.location.href = '../greens/dashboard.html';
+                return;
+            }
+
+            // Mobile menu functionality
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+            }
+
+            // Login form handling
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    await handleLogin();
+                });
+            }
+
+            // Demo account buttons
+            document.querySelectorAll('.demo-account').forEach(account => {
+                account.addEventListener('click', function() {
+                    const emailText = this.textContent;
+                    const email = emailText.match(/Email: ([^\n\r]+)/)[1];
+                    document.getElementById('email').value = email;
+                    document.getElementById('password').value = 'demo';
+                });
+            });
+
+            async function handleLogin() {
+                try {
+                    const formData = new FormData(loginForm);
+                    const email = formData.get('email');
+                    const password = formData.get('password');
+
+                    // For demo purposes, we'll accept any password and check if user exists
+                    const { data: users, error } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('email', email);
+
+                    if (error || !users || users.length === 0) {
+                        // If user doesn't exist, create demo accounts
+                        if (email === 'student@demo.com') {
+                            await createDemoAccount('student', email);
+                        } else if (email === 'teacher@demo.com') {
+                            await createDemoAccount('teacher', email);
+                        } else {
+                            throw new Error('User not found. Please register first.');
+                        }
+                    }
+
+                    // Login user
+                    const user = await GREENsDB.loginUser(email, password);
+                    
+                    alert(`Welcome back, ${user.full_name}! 🌱`);
+                    
+                    // Redirect to dashboard
+                    window.location.href = '../greens/dashboard.html';
+
+                } catch (error) {
+                    console.error('Login error:', error);
+                    alert('Login failed: ' + error.message);
+                }
+            }
+
+            async function createDemoAccount(type, email) {
+                const userData = {
+                    email: email,
+                    fullName: type === 'student' ? 'Demo Student' : 'Demo Teacher',
+                    username: type === 'student' ? 'demo_student' : 'demo_teacher',
+                    age: type === 'student' ? 16 : 35,
+                    city: 'Barcelona',
+                    region: 'Catalonia',
+                    country: 'Spain',
+                    gradeLevel: type === 'student' ? 'High School' : 'Teacher',
+                    languages: ['English', 'Spanish']
+                };
+
+                const user = await GREENsDB.registerUser(userData);
+                
+                // Give demo accounts some starting GREENs
+                await GREENsDB.createGREENsTransaction(
+                    user.id,
+                    'bonus',
+                    type === 'student' ? 10 : 15,
+                    type === 'student' ? 10 : 15,
+                    null,
+                    null,
+                    'Demo account starting bonus'
+                );
+
+                return user;
+            }
+        });
+    </script>
+</body>
+</html>

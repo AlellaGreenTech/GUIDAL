@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join GREENs - GUIDAL</title>
+    <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="../../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Join the <a href="https://alellagreentech.org" target="_blank" class="agt-link">GREENs Community</a></p>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../../index.html#activities">Activities</a></li>
+                <li><a href="login-greens.html">Login</a></li>
+                <li><a href="#about-greens">About GREENs</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <section id="about-greens" class="greens-intro">
+            <div class="greens-hero">
+                <h2>🌱 Welcome to GREENs</h2>
+                <p class="greens-subtitle">The blockchain-based reward system for sustainable learning</p>
+                <div class="greens-benefits">
+                    <div class="benefit">
+                        <h3>🎓 Earn by Learning</h3>
+                        <p>Get rewarded for participating in educational activities</p>
+                    </div>
+                    <div class="benefit">
+                        <h3>⚽ Spend on Fun</h3>
+                        <p>Use your GREENs for recreational activities</p>
+                    </div>
+                    <div class="benefit">
+                        <h3>🏆 Track Progress</h3>
+                        <p>See your impact and compete with friends</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="register" class="register-section">
+            <div class="register-container">
+                <h2>Create Your GREENs Account</h2>
+                <p class="register-intro">Join our community and start earning GREENs for your sustainable learning journey!</p>
+                
+                <form id="registerForm" class="register-form">
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <h3>Personal Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullName">Full Name *</label>
+                                <input type="text" id="fullName" name="fullName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="username">Username *</label>
+                                <input type="text" id="username" name="username" required placeholder="Choose a unique username">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="birthday">Birthday</label>
+                                <input type="date" id="birthday" name="birthday">
+                            </div>
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input type="number" id="age" name="age" min="5" max="99">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location Information -->
+                    <div class="form-section">
+                        <h3>Location</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city">
+                            </div>
+                            <div class="form-group">
+                                <label for="region">Region/State</label>
+                                <input type="text" id="region" name="region">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <select id="country" name="country">
+                                <option value="">Select your country</option>
+                                <option value="Spain">Spain</option>
+                                <option value="France">France</option>
+                                <option value="Germany">Germany</option>
+                                <option value="UK">United Kingdom</option>
+                                <option value="USA">United States</option>
+                                <option value="Canada">Canada</option>
+                                <option value="Netherlands">Netherlands</option>
+                                <option value="Czech Republic">Czech Republic</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Educational Information -->
+                    <div class="form-section">
+                        <h3>Educational Background</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="schoolId">School</label>
+                                <select id="schoolId" name="schoolId">
+                                    <option value="">Select your school</option>
+                                    <!-- Will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="gradeLevel">Grade Level</label>
+                                <select id="gradeLevel" name="gradeLevel">
+                                    <option value="">Select grade</option>
+                                    <option value="Elementary">Elementary (K-5)</option>
+                                    <option value="Middle School">Middle School (6-8)</option>
+                                    <option value="High School">High School (9-12)</option>
+                                    <option value="University">University</option>
+                                    <option value="Adult">Adult</option>
+                                    <option value="Teacher">Teacher</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Languages and Social Media -->
+                    <div class="form-section">
+                        <h3>Languages & Social Media</h3>
+                        <div class="form-group">
+                            <label for="languages">Languages Spoken</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="languages" value="English" checked> English</label>
+                                <label><input type="checkbox" name="languages" value="Spanish"> Spanish</label>
+                                <label><input type="checkbox" name="languages" value="French"> French</label>
+                                <label><input type="checkbox" name="languages" value="German"> German</label>
+                                <label><input type="checkbox" name="languages" value="Catalan"> Catalan</label>
+                                <label><input type="checkbox" name="languages" value="Dutch"> Dutch</label>
+                                <label><input type="checkbox" name="languages" value="Czech"> Czech</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="instagram">Instagram Handle</label>
+                                <input type="text" id="instagram" name="instagram" placeholder="@yourusername">
+                            </div>
+                            <div class="form-group">
+                                <label for="tiktok">TikTok Handle</label>
+                                <input type="text" id="tiktok" name="tiktok" placeholder="@yourusername">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="form-section">
+                        <h3>Additional Information</h3>
+                        <div class="form-group">
+                            <label for="dietaryRestrictions">Dietary Restrictions/Allergies</label>
+                            <textarea id="dietaryRestrictions" name="dietaryRestrictions" rows="2" placeholder="Please list any food allergies or dietary restrictions..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="emergencyContact">Emergency Contact</label>
+                            <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Name and phone number">
+                        </div>
+                    </div>
+
+                    <!-- Terms and Submit -->
+                    <div class="form-section">
+                        <div class="terms-checkbox">
+                            <label>
+                                <input type="checkbox" id="acceptTerms" required>
+                                I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>
+                            </label>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">🌱 Create GREENs Account</button>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="login-link">
+                    <p>Already have an account? <a href="login-greens.html">Login here</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../../index.html">Back to GUIDAL</a></p>
+            <p>Start your sustainable learning journey with GREENs!</p>
+        </div>
+    </footer>
+    
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- GUIDAL Database Clients -->
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/greens-client.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu functionality
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+            }
+
+            // Load schools for dropdown
+            loadSchools();
+
+            // Registration form handling
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    await handleRegistration();
+                });
+            }
+
+            async function loadSchools() {
+                try {
+                    const schools = await GuidalDB.getSchools();
+                    const schoolSelect = document.getElementById('schoolId');
+                    
+                    schools.forEach(school => {
+                        const option = document.createElement('option');
+                        option.value = school.id;
+                        option.textContent = school.name;
+                        schoolSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error loading schools:', error);
+                }
+            }
+
+            async function handleRegistration() {
+                try {
+                    const formData = new FormData(registerForm);
+                    
+                    // Get selected languages
+                    const languageCheckboxes = document.querySelectorAll('input[name="languages"]:checked');
+                    const languages = Array.from(languageCheckboxes).map(cb => cb.value);
+                    
+                    // Build social media object
+                    const socialMedia = {};
+                    if (formData.get('instagram')) socialMedia.instagram = formData.get('instagram');
+                    if (formData.get('tiktok')) socialMedia.tiktok = formData.get('tiktok');
+                    
+                    // Prepare user data
+                    const userData = {
+                        email: formData.get('email'),
+                        fullName: formData.get('fullName'),
+                        username: formData.get('username'),
+                        age: formData.get('age') ? parseInt(formData.get('age')) : null,
+                        birthday: formData.get('birthday') || null,
+                        city: formData.get('city'),
+                        region: formData.get('region'),
+                        country: formData.get('country'),
+                        phone: formData.get('phone'),
+                        schoolId: formData.get('schoolId') || null,
+                        gradeLevel: formData.get('gradeLevel'),
+                        languages: languages,
+                        socialMedia: socialMedia,
+                        dietaryRestrictions: formData.get('dietaryRestrictions'),
+                        emergencyContact: formData.get('emergencyContact')
+                    };
+
+                    // Register user
+                    const user = await GREENsDB.registerUser(userData);
+                    
+                    // Welcome bonus: 5 GREENs for joining!
+                    await GREENsDB.createGREENsTransaction(
+                        user.id,
+                        'bonus',
+                        5,
+                        5,
+                        null,
+                        null,
+                        'Welcome to GREENs! Bonus for joining the community'
+                    );
+
+                    alert('🎉 Welcome to GREENs! You\'ve received 5 GREENs as a welcome bonus!');
+                    
+                    // Redirect to dashboard
+                    window.location.href = '../greens/dashboard.html';
+
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    alert('Registration failed. Please check your information and try again.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

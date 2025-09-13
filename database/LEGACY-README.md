@@ -14,8 +14,8 @@ This GUIDAL project is now fully integrated with Supabase for scalable database 
 
 ### 2. Database Schema Setup
 - [ ] Go to SQL Editor in Supabase dashboard
-- [ ] Run `database-schema.sql` to create all tables
-- [ ] Run `sample-data.sql` to populate with initial data
+- [ ] Run `database/database-schema.sql` to create all tables
+- [ ] Run `database/sample-data.sql` to populate with initial data
 - [ ] Verify all tables created successfully
 
 ### 3. Configuration
