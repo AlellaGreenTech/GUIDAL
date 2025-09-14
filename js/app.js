@@ -70,13 +70,32 @@ class GuidalApp {
     }
 
     async init() {
+        // Check authentication status
+        await this.checkAuthStatus();
+
         // Load initial data
         await this.loadActivityTypes();
         await this.loadActivities();
-        
+
         // Set up event listeners
         this.setupEventListeners();
         this.setupModalEventListeners();
+        this.setupAuthListener();
+    }
+
+    async checkAuthStatus() {
+        try {
+            this.currentUser = await GuidalDB.getCurrentUser();
+            if (this.currentUser) {
+                this.updateUIForLoggedInUser();
+            } else {
+                this.updateUIForLoggedOutUser();
+            }
+        } catch (error) {
+            console.error('Auth status check failed:', error);
+            this.currentUser = null;
+            this.updateUIForLoggedOutUser();
+        }
     }
 
     async loadActivityTypes() {
@@ -92,12 +111,15 @@ class GuidalApp {
 
     async loadActivities(filters = {}) {
         try {
+            console.log('🔍 Loading activities with filters:', filters);
             this.activities = await GuidalDB.getActivities(filters);
+            console.log('✅ Activities loaded:', this.activities.length, 'activities');
+            console.log('📊 First activity sample:', this.activities[0]);
             this.renderActivities();
         } catch (error) {
-            console.error('Error loading activities:', error);
-            // Fallback to static content if database fails
-            console.log('Using static content as fallback');
+            console.error('❌ Error loading activities:', error);
+            this.activities = [];
+            this.renderActivities();
         }
     }
 
@@ -120,25 +142,36 @@ class GuidalApp {
         const activityGrid = document.getElementById('activity-grid');
         if (!activityGrid) return;
 
-        // Only clear and re-render if we have activities from database
-        if (this.activities && this.activities.length > 0) {
-            // Clear existing static content
-            activityGrid.innerHTML = '';
+        // Always clear existing content and use database data
+        activityGrid.innerHTML = '';
 
+        if (this.activities && this.activities.length > 0) {
             this.activities.forEach(activity => {
                 const card = this.createActivityCard(activity);
                 activityGrid.appendChild(card);
             });
         } else {
-            // Keep static HTML content when no database activities
-            console.log('No database activities found, keeping static content');
+            // Show loading or no data message
+            activityGrid.innerHTML = `
+                <div class="no-activities-message">
+                    <p>Loading activities...</p>
+                    <p>If activities don't appear, please check your database connection.</p>
+                </div>
+            `;
         }
     }
 
     createActivityCard(activity) {
         const card = document.createElement('div');
         card.className = 'activity-card';
-        card.setAttribute('data-type', activity.activity_type);
+
+        // Get activity type from database structure (now joined)
+        const activityType = activity.activity_type || (this.activityTypes.find(type =>
+            type.id === activity.activity_type_id
+        ));
+        const activityTypeSlug = activityType ? activityType.slug : 'other';
+
+        card.setAttribute('data-type', activityTypeSlug);
         card.setAttribute('data-date', activity.date_time || 'TBD');
 
         const dateDisplay = activity.date_time 
@@ -149,9 +182,8 @@ class GuidalApp {
               })
             : 'Date: TBD';
 
-        const activityType = this.activityTypes.find(type => type.slug === activity.activity_type);
-        const participantInfo = activity.participant_count 
-            ? `${activity.participant_count} ${activity.activity_type === 'school-visits' ? 'students' : 'participants'}`
+        const participantInfo = activity.max_participants
+            ? `${activity.max_participants} ${activityTypeSlug === 'school-visits' ? 'students' : 'participants'}`
             : 'Open to all';
 
         // Get GREENs info for activity
@@ -171,7 +203,7 @@ class GuidalApp {
                 <p class="activity-description">${activity.description}</p>
                 <div class="activity-details">
                     <span class="participants">${participantInfo}</span>
-                    <span class="duration">${activity.duration}</span>
+                    <span class="duration">${this.formatActivityDuration(activity)}</span>
                 </div>
                 ${greensInfo}
                 ${this.getActivityButton(activity)}
@@ -201,51 +233,56 @@ class GuidalApp {
         // Fallback images when database doesn't have featured_image
         const defaultImages = {
             'Benjamin Franklin International School': 'images/school-visit-planting.png',
-            'International School of Prague': 'images/school-visit-prague.png',
-            'Brainstorming Lunch': 'images/lunch-event.png',
-            'Build Your Own Ram Pump': 'images/workshop-construction.png',
-            'Sustainability Fair': 'images/sustainability-fair.png'
+            'International School of Prague': 'images/prague-alella-bridge-vineyard.png',
+            'Brainstorming Lunch': 'images/brainstorming-lunch.png',
+            'Build Your Own Ram Pump': 'images/workshop-ram-pump.png',
+            'Sustainability Fair': 'images/event-sports-field.png',
+            '2022 Mayday 4 Ukraine': 'images/event-sports-field.png',
+            'Marina to the rescue': 'images/Marina to the rescue.png',
+            'Prague meets Alella': 'images/prague meets alella.png'
         };
-        
-        return defaultImages[activity.title] || null;
+
+        // If no specific image found, use generic images by activity type
+        if (!defaultImages[activity.title] && activity.activity_type) {
+            const typeDefaults = {
+                'School Visits': 'images/school-visit-permaculture.png',
+                'Workshops': 'images/workshop-ram-pump.png',
+                'Events': 'images/event-sports-field.png',
+                'Special Lunches': 'images/brainstorming-lunch.png',
+                'school-visits': 'images/school-visit-vineyard.png',
+                'workshops': 'images/workshop-ram-pump.png',
+                'events': 'images/event-sports-field.png',
+                'lunches': 'images/brainstorming-lunch.png'
+            };
+
+            return typeDefaults[activity.activity_type.name] ||
+                   typeDefaults[activity.activity_type.slug] ||
+                   'images/welcome-hero-new.png'; // Ultimate fallback
+        }
+
+        return defaultImages[activity.title] || 'images/welcome-hero-new.png';
     }
 
     getGREENsInfo(activity) {
-        // Determine GREENs reward based on activity type and characteristics
-        let greensReward = 1; // Default
-        let greensCost = 0;   // Default free
-
-        // Educational activities earn GREENs
-        if (activity.activity_category === 'educational' || activity.activity_type === 'workshops' || activity.activity_type === 'school-visits') {
-            if (activity.title.toLowerCase().includes('full day') || activity.title.toLowerCase().includes('workshop') || activity.title.toLowerCase().includes('ram pump')) {
-                greensReward = 3; // Full day with manual work
-            } else if (activity.title.toLowerCase().includes('planting') || activity.title.toLowerCase().includes('station') || activity.activity_type === 'school-visits') {
-                greensReward = 2; // Activities with manual work
-            } else {
-                greensReward = 1; // Easy educational activities
-            }
-        }
-
-        // Recreational activities cost GREENs
-        if (activity.activity_category === 'recreational' || activity.title.toLowerCase().includes('football') || activity.title.toLowerCase().includes('recreation')) {
-            greensReward = 0;
-            greensCost = 1; // Cost GREENs to participate
-        }
-
-        // Special events
-        if (activity.activity_type === 'events' && !activity.title.toLowerCase().includes('lunch')) {
-            greensReward = 2;
-        }
+        // Use database values for credits
+        const greensReward = activity.credits_earned || 0;
+        const greensCost = activity.credits_required || 0;
 
         const rewardText = greensReward > 1 ? `+${greensReward} GREENs` : greensReward === 1 ? '+1 GREEN' : '';
-        const costText = greensCost > 0 ? `${greensCost} GREEN${greensCost > 1 ? 's' : ''}` : 'Free';
+        const costText = greensCost > 0 ? `${greensCost} GREEN${greensCost > 1 ? 's' : ''}` : '';
         const costClass = greensCost > 0 ? 'greens-cost has-cost' : 'greens-cost';
 
-        if (greensReward > 0) {
+        if (greensReward > 0 && greensCost > 0) {
             return `
                 <div class="greens-info">
                     <span class="greens-reward">${rewardText}</span>
-                    <span class="${costClass}">${costText}</span>
+                    <span class="${costClass}">Costs ${costText}</span>
+                </div>
+            `;
+        } else if (greensReward > 0) {
+            return `
+                <div class="greens-info">
+                    <span class="greens-reward">${rewardText}</span>
                 </div>
             `;
         } else if (greensCost > 0) {
@@ -256,7 +293,11 @@ class GuidalApp {
             `;
         }
 
-        return '';
+        return `
+            <div class="greens-info">
+                <span class="greens-free">Free Activity</span>
+            </div>
+        `;
     }
 
     getActivityIcon(type) {
@@ -279,31 +320,116 @@ class GuidalApp {
         return `${hours}h ${mins}m`;
     }
 
+    formatActivityDuration(activity) {
+        if (activity.duration_minutes) {
+            return this.formatDuration(activity.duration_minutes);
+        }
+        // Fallback to parsed duration text
+        return activity.duration || 'Duration TBD';
+    }
+
     getActivityButton(activity) {
-        if (activity.activity_type === 'school-visits') {
-            if (activity.title === 'Benjamin Franklin International School') {
+        const currentDate = new Date();
+        const activityDate = activity.date_time ? new Date(activity.date_time) : null;
+        const isUpcoming = activity.status === 'published' && (!activityDate || activityDate > currentDate);
+        const isCompleted = activity.status === 'completed' || (activityDate && activityDate < currentDate);
+        const isFullyBooked = activity.max_participants && activity.current_participants >= activity.max_participants;
+
+        // Check if user is already registered
+        const isRegistered = this.currentUser && this.currentUser.registrations &&
+                             this.currentUser.registrations.some(reg => reg.activity_id === activity.id);
+
+        // Get activity type for special handling (now from joined data)
+        const activityType = activity.activity_type;
+        const activityTypeSlug = activityType ? activityType.slug : 'other';
+
+        if (activityTypeSlug === 'school-visits') {
+            // Special handling for school visits
+            if (activity.title.includes('Benjamin Franklin')) {
                 return `<button class="btn" onclick="app.openLoginModal('${activity.title}', 'visits/benjamin-franklin-sept-2025.html', 'bfis', 'alellagreentech')">Login to Visit</button>`;
+            } else if (activity.title.includes('International School of Prague')) {
+                return `<a href="visits/international-school-prague-sept-2025.html" class="btn">Visit Details</a>`;
+            } else if (isCompleted) {
+                return `<button class="btn btn-secondary" disabled>✅ Completed</button>`;
             } else {
-                return `<a href="${activity.page_url}" class="btn">Visit Details</a>`;
+                return `<a href="#" class="btn">Visit Details</a>`;
             }
         }
-        
-        return `<a href="${activity.page_url}" class="btn">${activity.activity_type === 'workshops' ? 'Workshop Details' : activity.activity_type === 'events' ? 'Event Details' : 'Details'}</a>`;
+
+        if (activityTypeSlug === 'annual-events' || activityTypeSlug === 'events') {
+            if (isCompleted) {
+                return `<button class="btn btn-secondary" disabled>✅ Completed</button>`;
+            } else if (!activityDate) {
+                return `<button class="btn btn-info" disabled>📅 Coming Soon</button>`;
+            }
+        }
+
+        // Regular activities with registration
+        if (isRegistered) {
+            return `<button class="btn btn-success" disabled>✓ Registered</button>`;
+        }
+
+        if (isCompleted) {
+            return `<button class="btn btn-secondary" disabled>Past Event</button>`;
+        }
+
+        if (isFullyBooked) {
+            return `<button class="btn btn-secondary" disabled>Fully Booked</button>`;
+        }
+
+        if (activity.requires_login && !this.currentUser) {
+            return `<button class="btn" onclick="app.showAuthModal('${activity.id}', '${activity.title}')">Login to Register</button>`;
+        }
+
+        if (isUpcoming) {
+            return `<button class="btn btn-primary" onclick="app.handleActivityRegistration('${activity.id}', '${activity.title}')">
+                        ${activity.credits_required > 0 ? `Register (${activity.credits_required} GREENs)` : 'Register'}
+                    </button>`;
+        }
+
+        return `<a href="#" class="btn">More Info</a>`;
     }
 
     async handleActivityRegistration(activityId, activityTitle) {
         if (!this.currentUser) {
-            this.showAuthModal();
+            this.showAuthModal(activityId, activityTitle);
             return;
         }
 
+        // Check if user has enough credits for paid activities
+        const activity = this.activities.find(a => a.id === activityId);
+        if (activity && activity.credits_required > 0) {
+            const userProfile = await GuidalDB.getProfile(this.currentUser.id);
+            if (userProfile.credits < activity.credits_required) {
+                this.showNotification(`Insufficient GREENs credits. You need ${activity.credits_required} GREENs but have ${userProfile.credits}.`, 'error');
+                return;
+            }
+        }
+
         try {
-            await GuidalDB.registerForActivity(activityId, this.currentUser.id);
+            await GuidalDB.registerForActivity(activityId, this.currentUser.id, {
+                credits_used: activity?.credits_required || 0
+            });
+
             this.showNotification(`Successfully registered for ${activityTitle}!`, 'success');
-            await this.loadActivities(); // Refresh to show updated participant count
+
+            // Create notification for user
+            if (this.currentUser) {
+                await GuidalDB.createNotification(
+                    this.currentUser.id,
+                    'Registration Confirmed',
+                    `You've been registered for ${activityTitle}. Check your email for details.`,
+                    'success'
+                );
+            }
+
+            // Refresh activities and user data
+            await this.loadActivities();
+            await this.checkAuthStatus();
         } catch (error) {
             console.error('Registration error:', error);
-            this.showNotification('Registration failed. Please try again.', 'error');
+            const message = GuidalDB.handleError(error, 'Activity Registration');
+            this.showNotification(message, 'error');
         }
     }
 
@@ -328,11 +454,13 @@ class GuidalApp {
     }
 
     async handleSearch(searchTerm) {
+        // Always use database search
         const filters = { search: searchTerm };
         const filterSelect = document.getElementById('activity-filter');
         if (filterSelect && filterSelect.value !== 'all') {
             filters.type = filterSelect.value;
         }
+
         await this.loadActivities(filters);
     }
 
@@ -342,15 +470,88 @@ class GuidalApp {
         if (searchInput && searchInput.value) {
             filters.search = searchInput.value;
         }
+
+        // Special handling for school visits to show counts
+        if (filterType === 'school-visits') {
+            this.showSchoolVisitCounts();
+        } else {
+            this.hideSchoolVisitCounts();
+        }
+
+        // Always use database filter
         await this.loadActivities(filters);
     }
 
+    showSchoolVisitCounts() {
+        // Count school visits from database data
+        const schoolVisits = this.activities.filter(activity =>
+            (activity.activity_type && activity.activity_type.slug === 'school-visits')
+        );
+
+        const currentDate = new Date();
+        const completedVisits = schoolVisits.filter(visit =>
+            visit.status === 'completed' ||
+            (visit.date_time && new Date(visit.date_time) < currentDate)
+        ).length;
+
+        const upcomingVisits = schoolVisits.filter(visit =>
+            visit.status === 'published' &&
+            (!visit.date_time || new Date(visit.date_time) >= currentDate)
+        ).length;
+
+        // Create or update the counts display
+        let countsElement = document.getElementById('school-visit-counts');
+        if (!countsElement) {
+            countsElement = document.createElement('div');
+            countsElement.id = 'school-visit-counts';
+            countsElement.className = 'school-visit-counts';
+
+            const activitiesSection = document.querySelector('.activities-section');
+            const searchContainer = document.querySelector('.search-container');
+            if (activitiesSection && searchContainer) {
+                activitiesSection.insertBefore(countsElement, searchContainer.nextSibling);
+            }
+        }
+
+        countsElement.innerHTML = `
+            <div class="visit-stats">
+                <span class="stat-item completed">
+                    <span class="stat-number">${completedVisits}</span>
+                    <span class="stat-label">Completed School Trips</span>
+                </span>
+                <span class="stat-item upcoming">
+                    <span class="stat-number">${upcomingVisits}</span>
+                    <span class="stat-label">Upcoming School Trips</span>
+                </span>
+            </div>
+        `;
+
+        countsElement.style.display = 'block';
+    }
+
+    hideSchoolVisitCounts() {
+        const countsElement = document.getElementById('school-visit-counts');
+        if (countsElement) {
+            countsElement.style.display = 'none';
+        }
+    }
+
+
     setupAuthListener() {
-        GuidalAuth.onAuthStateChange(async (event, session) => {
+        GuidalDB.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session) {
-                this.currentUser = await GuidalDB.getProfile(session.user.id);
+                this.currentUser = await GuidalDB.getCurrentUser();
                 this.updateUIForLoggedInUser();
                 this.hideAuthModal();
+
+                // If there was a pending registration, handle it
+                if (this.pendingRegistration) {
+                    await this.handleActivityRegistration(
+                        this.pendingRegistration.activityId,
+                        this.pendingRegistration.activityTitle
+                    );
+                    this.pendingRegistration = null;
+                }
             } else if (event === 'SIGNED_OUT') {
                 this.currentUser = null;
                 this.updateUIForLoggedOutUser();
@@ -361,9 +562,18 @@ class GuidalApp {
     updateUIForLoggedInUser() {
         const loginBtn = document.querySelector('.login-btn');
         if (loginBtn) {
-            loginBtn.textContent = this.currentUser.full_name || 'My Account';
+            const userName = this.currentUser.profile?.full_name || this.currentUser.email || 'My Account';
+            loginBtn.innerHTML = `
+                <span>${userName}</span>
+                <div class="user-dropdown">
+                    <a href="pages/profile.html">My Profile</a>
+                    <a href="#" onclick="app.logout()">Logout</a>
+                </div>
+            `;
+            loginBtn.classList.add('user-menu');
+            loginBtn.href = 'pages/profile.html';
         }
-        
+
         // Update activity buttons
         this.renderActivities();
     }
@@ -372,17 +582,45 @@ class GuidalApp {
         const loginBtn = document.querySelector('.login-btn');
         if (loginBtn) {
             loginBtn.textContent = 'Login/Register';
+            loginBtn.classList.remove('user-menu');
+            loginBtn.innerHTML = 'Login/Register';
+            loginBtn.href = 'pages/auth/login.html';
         }
-        
+
         // Update activity buttons
         this.renderActivities();
     }
 
-    showAuthModal() {
-        // TODO: Implement authentication modal
-        // For now, redirect to a simple auth page
-        console.log('Show authentication modal');
-        alert('Authentication system coming soon! For now, activities are open to all visitors.');
+    showAuthModal(activityId = null, activityTitle = null) {
+        // Store pending registration for after login
+        if (activityId && activityTitle) {
+            this.pendingRegistration = { activityId, activityTitle };
+        }
+
+        // Redirect to login page with return URL
+        const currentUrl = encodeURIComponent(window.location.href);
+        const loginUrl = `pages/auth/login.html?return_url=${currentUrl}`;
+
+        if (activityId) {
+            // Show a message about needing to login
+            const confirmed = confirm(`Please login to register for "${activityTitle}". You'll be redirected to the login page.`);
+            if (confirmed) {
+                window.location.href = loginUrl;
+            }
+        } else {
+            window.location.href = loginUrl;
+        }
+    }
+
+    async logout() {
+        try {
+            await GuidalDB.signOut();
+            this.showNotification('Successfully logged out', 'success');
+            // Page will reload via auth state change
+        } catch (error) {
+            console.error('Logout error:', error);
+            this.showNotification('Logout failed. Please try again.', 'error');
+        }
     }
 
     showUserMenu() {

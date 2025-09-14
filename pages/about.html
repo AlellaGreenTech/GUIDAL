@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Alella Green Tech</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Meet Our Team</p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#activities">Activities</a></li>
+                <li><a href="../pages/auth/login.html">Login/Register</a></li>
+                <li><a href="welcome.html">Welcome</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section id="about-hero" class="about-hero">
+            <div class="hero-content">
+                <h2>About Alella Green Tech</h2>
+                <p class="hero-description">Meet the passionate team behind our sustainable learning laboratory at Can Picard Farm, where innovation meets education in the heart of Catalonia.</p>
+            </div>
+        </section>
+
+        <section id="team" class="team-section">
+            <div class="team-grid">
+
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="../images/martin-picard.png" alt="Martin Picard" class="member-photo">
+                    </div>
+                    <div class="member-info">
+                        <h3>Martin Picard</h3>
+                        <p class="member-title">Founder</p>
+                        <p class="member-credentials">Harvard College '86</p>
+                        <p class="member-description">Serial entrepreneur now dedicated to giving back projects.</p>
+                        <blockquote class="member-quote">
+                            "If it flies, explodes, disappears, learns or grows...it's cool — let's make one!"
+                        </blockquote>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="../images/raimon-tarrades.png" alt="Raimon Tarrades" class="member-photo">
+                    </div>
+                    <div class="member-info">
+                        <h3>Raimon Tarrades</h3>
+                        <p class="member-title">Geologist, Resident Scientist/IoT Developer</p>
+                        <p class="member-description">Our expert in underground systems and connected technologies.</p>
+                        <blockquote class="member-quote">
+                            "If it's underground, underwater, or connected to Wi-Fi, I want to measure it."
+                        </blockquote>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="../images/john-crocket.png" alt="John Crocket" class="member-photo">
+                    </div>
+                    <div class="member-info">
+                        <h3>John Crocket</h3>
+                        <p class="member-title">Board Member/Advisor</p>
+                        <p class="member-credentials">University of London BA, SOAS London MSc</p>
+                        <p class="member-description">Strategic advisor guiding our sustainable growth initiatives.</p>
+                        <blockquote class="member-quote">
+                            "Helping brilliant ideas grow roots — sustainably."
+                        </blockquote>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="../images/marina-picard.png" alt="Marina Joelle Picard" class="member-photo">
+                    </div>
+                    <div class="member-info">
+                        <h3>Marina Joelle Picard</h3>
+                        <p class="member-title">Student Voice & Sustainability Advocate</p>
+                        <p class="member-credentials">8th Grade, Benjamin Franklin International School</p>
+                        <p class="member-description">Keeping our innovations grounded in environmental responsibility.</p>
+                        <blockquote class="member-quote">
+                            "When Dad wants to build a rocket, I remind him the planet needs solar panels first."
+                        </blockquote>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="mission" class="mission-section">
+            <div class="mission-content">
+                <h2>Our Mission</h2>
+                <p>At Alella Green Tech, we believe that the future of our planet depends on inspiring and educating the next generation of green-minded scientists, engineers, and innovators. Our living laboratory at Can Picard Farm provides hands-on experiences that bridge the gap between theoretical knowledge and real-world application.</p>
+
+                <div class="mission-values">
+                    <div class="value-card">
+                        <div class="value-icon">🌱</div>
+                        <h3>Innovation</h3>
+                        <p>Pushing the boundaries of sustainable technology through creative experimentation and learning.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">🎓</div>
+                        <h3>Education</h3>
+                        <p>Making complex environmental science accessible and engaging for young minds.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-icon">🌍</div>
+                        <h3>Sustainability</h3>
+                        <p>Every project and demonstration prioritizes environmental responsibility and long-term thinking.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech - The International Green Tech Foundation. All rights reserved.</p>
+            <p>Sustainable learning at Can Picard Farm, Alella</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu functionality
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

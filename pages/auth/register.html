@@ -3,15 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join GREENs - GUIDAL</title>
-    <link rel="stylesheet" href="../../styles.css">
+    <title>Welcome to Alella Green Tech</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <style>
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .info-message {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+
+        .activities-accordion {
+            margin: 2rem 0;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .accordion-title {
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #2e7d32;
+            cursor: pointer;
+            list-style: none;
+            background: linear-gradient(135deg, #f1f8e9, #e8f5e8);
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .accordion-title:hover {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+        }
+
+        .accordion-title::-webkit-details-marker {
+            display: none;
+        }
+
+        .accordion-title::before {
+            content: "▶ ";
+            margin-right: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        details[open] .accordion-title::before {
+            transform: rotate(90deg);
+        }
+
+        .activities-benefits {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="container">
             <p class="foundation-presents">The International Green Tech Foundation Presents</p>
             <h1><a href="../../index.html">GUIDAL</a></h1>
-            <p class="subtitle">Join the <a href="https://alellagreentech.org" target="_blank" class="agt-link">GREENs Community</a></p>
+            <p class="subtitle">Welcome to <a href="https://alellagreentech.org" target="_blank" class="agt-link">Alella Green Tech</a></p>
         </div>
     </header>
     
@@ -25,38 +100,46 @@
             <ul class="nav-menu">
                 <li><a href="../../index.html">Home</a></li>
                 <li><a href="../../index.html#activities">Activities</a></li>
-                <li><a href="login-greens.html">Login</a></li>
-                <li><a href="#about-greens">About GREENs</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="#about-activities">About Activities</a></li>
             </ul>
         </div>
     </nav>
     
     <main class="container">
-        <section id="about-greens" class="greens-intro">
-            <div class="greens-hero">
-                <h2>🌱 Welcome to GREENs</h2>
-                <p class="greens-subtitle">The blockchain-based reward system for sustainable learning</p>
-                <div class="greens-benefits">
-                    <div class="benefit">
-                        <h3>🎓 Earn by Learning</h3>
-                        <p>Get rewarded for participating in educational activities</p>
+        <section id="about-activities" class="activities-intro">
+            <div class="activities-hero">
+                <h2>🌱 Welcome to Alella Green Tech</h2>
+                <p class="activities-subtitle">Where you can think like a permaculture farmer and build like an engineer.</p>
+
+                <details class="activities-accordion">
+                    <summary class="accordion-title">What you'll do at Alella Green Tech</summary>
+                    <div class="activities-benefits">
+                        <div class="benefit">
+                            <h3>🎓 Learn by Doing</h3>
+                            <p>Participate in hands-on educational activities at our farm</p>
+                        </div>
+                        <div class="benefit">
+                            <h3>🌿 Connect with Nature</h3>
+                            <p>Experience sustainable technology in a real farm setting</p>
+                        </div>
+                        <div class="benefit">
+                            <h3>⚙️ Try Real Engineering in the Field</h3>
+                            <p>Learn Internet of Things (IoT) programming, smart irrigation, microcontrollers etc BY DOING IT.</p>
+                        </div>
+                        <div class="benefit">
+                            <h3>🏆 Track Your Journey</h3>
+                            <p>See your impact and learning progress over time</p>
+                        </div>
                     </div>
-                    <div class="benefit">
-                        <h3>⚽ Spend on Fun</h3>
-                        <p>Use your GREENs for recreational activities</p>
-                    </div>
-                    <div class="benefit">
-                        <h3>🏆 Track Progress</h3>
-                        <p>See your impact and compete with friends</p>
-                    </div>
-                </div>
+                </details>
             </div>
         </section>
 
         <section id="register" class="register-section">
             <div class="register-container">
-                <h2>Create Your GREENs Account</h2>
-                <p class="register-intro">Join our community and start earning GREENs for your sustainable learning journey!</p>
+                <h2>Create Your Account</h2>
+                <p class="register-intro">Once registered you can participate in educational or fun activities at our farm or online.</p>
                 
                 <form id="registerForm" class="register-form">
                     <!-- Personal Information -->
@@ -83,15 +166,24 @@
                                 <input type="tel" id="phone" name="phone">
                             </div>
                         </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="password">Password *</label>
+                                <input type="password" id="password" name="password" required
+                                       minlength="6" placeholder="At least 6 characters">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm Password *</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword" required
+                                       minlength="6" placeholder="Repeat your password">
+                            </div>
+                        </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="birthday">Birthday</label>
-                                <input type="date" id="birthday" name="birthday">
-                            </div>
-                            <div class="form-group">
-                                <label for="age">Age</label>
-                                <input type="number" id="age" name="age" min="5" max="99">
+                                <input type="date" id="birthday" name="birthday" value="2015-01-01">
                             </div>
                         </div>
                     </div>
@@ -99,57 +191,26 @@
                     <!-- Location Information -->
                     <div class="form-section">
                         <h3>Location</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="city">City</label>
-                                <input type="text" id="city" name="city">
-                            </div>
-                            <div class="form-group">
-                                <label for="region">Region/State</label>
-                                <input type="text" id="region" name="region">
-                            </div>
-                        </div>
-                        
                         <div class="form-group">
-                            <label for="country">Country</label>
-                            <select id="country" name="country">
-                                <option value="">Select your country</option>
-                                <option value="Spain">Spain</option>
-                                <option value="France">France</option>
-                                <option value="Germany">Germany</option>
-                                <option value="UK">United Kingdom</option>
-                                <option value="USA">United States</option>
-                                <option value="Canada">Canada</option>
-                                <option value="Netherlands">Netherlands</option>
-                                <option value="Czech Republic">Czech Republic</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            <label for="schoolCity">What city is your school in? (or where do you live)</label>
+                            <input type="text" id="schoolCity" name="schoolCity" placeholder="Enter city name">
                         </div>
                     </div>
 
                     <!-- Educational Information -->
                     <div class="form-section">
-                        <h3>Educational Background</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="schoolId">School</label>
-                                <select id="schoolId" name="schoolId">
-                                    <option value="">Select your school</option>
-                                    <!-- Will be populated dynamically -->
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="gradeLevel">Grade Level</label>
-                                <select id="gradeLevel" name="gradeLevel">
-                                    <option value="">Select grade</option>
-                                    <option value="Elementary">Elementary (K-5)</option>
-                                    <option value="Middle School">Middle School (6-8)</option>
-                                    <option value="High School">High School (9-12)</option>
-                                    <option value="University">University</option>
-                                    <option value="Adult">Adult</option>
-                                    <option value="Teacher">Teacher</option>
-                                </select>
-                            </div>
+                        <h3>School Information</h3>
+                        <div class="form-group">
+                            <label for="schoolId">Select your school/company</label>
+                            <select id="schoolId" name="schoolId">
+                                <option value="">Select your school/company</option>
+                                <!-- Will be populated dynamically with registered schools -->
+                                <option value="other">OTHER - I'll enter my school/company name</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="customSchoolGroup" style="display: none;">
+                            <label for="customSchool">Enter your school/company name</label>
+                            <input type="text" id="customSchool" name="customSchool" placeholder="School or company name">
                         </div>
                     </div>
 
@@ -206,13 +267,13 @@
                         
                         <div class="form-actions">
                             <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
-                            <button type="submit" class="btn btn-primary">🌱 Create GREENs Account</button>
+                            <button type="submit" class="btn btn-primary">🌱 Create Account</button>
                         </div>
                     </div>
                 </form>
                 
                 <div class="login-link">
-                    <p>Already have an account? <a href="login-greens.html">Login here</a></p>
+                    <p>Already have an account? <a href="login.html">Login here</a></p>
                 </div>
             </div>
         </section>
@@ -255,6 +316,16 @@
             // Load schools for dropdown
             loadSchools();
 
+            // Handle OTHER school selection
+            document.getElementById('schoolId').addEventListener('change', function() {
+                const customSchoolGroup = document.getElementById('customSchoolGroup');
+                if (this.value === 'other') {
+                    customSchoolGroup.style.display = 'block';
+                } else {
+                    customSchoolGroup.style.display = 'none';
+                }
+            });
+
             // Registration form handling
             const registerForm = document.getElementById('registerForm');
             if (registerForm) {
@@ -281,59 +352,95 @@
             }
 
             async function handleRegistration() {
+                const submitBtn = registerForm.querySelector('button[type="submit"]');
+
                 try {
+                    // Disable form during submission
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Creating Account...';
+                    registerForm.classList.add('loading');
+
                     const formData = new FormData(registerForm);
-                    
+
+                    // Validate passwords match
+                    const password = formData.get('password');
+                    const confirmPassword = formData.get('confirmPassword');
+
+                    if (password !== confirmPassword) {
+                        throw new Error('Passwords do not match');
+                    }
+
+                    if (password.length < 6) {
+                        throw new Error('Password must be at least 6 characters long');
+                    }
+
                     // Get selected languages
                     const languageCheckboxes = document.querySelectorAll('input[name="languages"]:checked');
                     const languages = Array.from(languageCheckboxes).map(cb => cb.value);
-                    
+
                     // Build social media object
                     const socialMedia = {};
                     if (formData.get('instagram')) socialMedia.instagram = formData.get('instagram');
                     if (formData.get('tiktok')) socialMedia.tiktok = formData.get('tiktok');
-                    
-                    // Prepare user data
+
+                    // Prepare user data for Supabase Auth
+                    const email = formData.get('email');
                     const userData = {
-                        email: formData.get('email'),
                         fullName: formData.get('fullName'),
-                        username: formData.get('username'),
-                        age: formData.get('age') ? parseInt(formData.get('age')) : null,
-                        birthday: formData.get('birthday') || null,
-                        city: formData.get('city'),
-                        region: formData.get('region'),
-                        country: formData.get('country'),
-                        phone: formData.get('phone'),
+                        userType: 'student',
                         schoolId: formData.get('schoolId') || null,
-                        gradeLevel: formData.get('gradeLevel'),
-                        languages: languages,
-                        socialMedia: socialMedia,
-                        dietaryRestrictions: formData.get('dietaryRestrictions'),
-                        emergencyContact: formData.get('emergencyContact')
+                        phone: formData.get('phone'),
+                        emergencyContact: formData.get('emergencyContact'),
+                        dietaryRestrictions: formData.get('dietaryRestrictions')
                     };
 
-                    // Register user
-                    const user = await GREENsDB.registerUser(userData);
-                    
-                    // Welcome bonus: 5 GREENs for joining!
-                    await GREENsDB.createGREENsTransaction(
-                        user.id,
-                        'bonus',
-                        5,
-                        5,
-                        null,
-                        null,
-                        'Welcome to GREENs! Bonus for joining the community'
-                    );
+                    // Create account using new auth system
+                    const { user, session } = await GuidalDB.signUp(email, password, userData);
 
-                    alert('🎉 Welcome to GREENs! You\'ve received 5 GREENs as a welcome bonus!');
-                    
-                    // Redirect to dashboard
-                    window.location.href = '../greens/dashboard.html';
+                    showMessage('Account created successfully! Please check your email to verify your account.', 'success');
+
+                    // Clear form
+                    registerForm.reset();
+
+                    // Redirect to login after a delay
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 3000);
 
                 } catch (error) {
                     console.error('Registration error:', error);
-                    alert('Registration failed. Please check your information and try again.');
+                    const message = GuidalDB.handleError(error, 'Registration');
+                    showMessage(message, 'error');
+                } finally {
+                    // Re-enable form
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🌱 Create Account';
+                    registerForm.classList.remove('loading');
+                }
+            }
+
+            // Add showMessage function for user feedback
+            function showMessage(message, type = 'info') {
+                // Remove existing messages
+                const existingMessages = document.querySelectorAll('.message');
+                existingMessages.forEach(msg => msg.remove());
+
+                // Create new message
+                const messageEl = document.createElement('div');
+                messageEl.className = `message ${type}-message`;
+                messageEl.innerHTML = `
+                    ${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'} ${message}
+                `;
+
+                // Insert at top of form
+                const registerContainer = document.querySelector('.register-container');
+                registerContainer.insertBefore(messageEl, registerContainer.firstChild);
+
+                // Auto-hide success messages
+                if (type !== 'error') {
+                    setTimeout(() => {
+                        messageEl.remove();
+                    }, 5000);
                 }
             }
         });

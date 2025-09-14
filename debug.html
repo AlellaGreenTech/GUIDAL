@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug GUIDAL Scripts</title>
+</head>
+<body>
+    <h1>Debug Page</h1>
+    <div id="results"></div>
+
+    <script>
+        console.log('🔍 Debug page loaded');
+        document.getElementById('results').innerHTML += '<p>✅ HTML loaded</p>';
+    </script>
+
+    <!-- Test Supabase loading -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        console.log('🔍 Supabase script tag executed');
+        if (typeof window.supabase !== 'undefined') {
+            console.log('✅ Supabase loaded successfully');
+            document.getElementById('results').innerHTML += '<p>✅ Supabase loaded</p>';
+        } else {
+            console.error('❌ Supabase failed to load');
+            document.getElementById('results').innerHTML += '<p>❌ Supabase failed to load</p>';
+        }
+    </script>
+
+    <!-- Test local script loading -->
+    <script src="js/supabase-client.js"></script>
+    <script>
+        console.log('🔍 Supabase client script tag executed');
+        if (typeof GuidalDB !== 'undefined') {
+            console.log('✅ GuidalDB loaded successfully');
+            document.getElementById('results').innerHTML += '<p>✅ GuidalDB loaded</p>';
+
+            // Test database connection
+            GuidalDB.testConnection().then(result => {
+                if (result) {
+                    console.log('✅ Database connection successful');
+                    document.getElementById('results').innerHTML += '<p>✅ Database connected</p>';
+
+                    // Test activities loading
+                    return GuidalDB.getActivities();
+                } else {
+                    throw new Error('Database connection failed');
+                }
+            }).then(activities => {
+                console.log('✅ Activities loaded:', activities.length, 'activities');
+                document.getElementById('results').innerHTML += `<p>✅ Loaded ${activities.length} activities</p>`;
+
+                activities.forEach((activity, index) => {
+                    document.getElementById('results').innerHTML += `<p>${index + 1}. ${activity.title}</p>`;
+                });
+            }).catch(error => {
+                console.error('❌ Error:', error);
+                document.getElementById('results').innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            });
+        } else {
+            console.error('❌ GuidalDB failed to load');
+            document.getElementById('results').innerHTML += '<p>❌ GuidalDB failed to load</p>';
+        }
+    </script>
+</body>
+</html>

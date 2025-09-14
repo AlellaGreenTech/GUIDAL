@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Supabase Test</title>
+</head>
+<body>
+    <h1>Simple Supabase Connection Test</h1>
+    <div id="results"></div>
+    <button onclick="testConnection()">Test Connection</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U'
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+        async function testConnection() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Testing...</p>';
+
+            try {
+                console.log('🔍 Testing direct Supabase connection...');
+
+                // Test 1: Simple select from activities
+                console.log('📊 Testing activities query...');
+                const { data: activities, error: activitiesError } = await supabase
+                    .from('activities')
+                    .select('id, title, status')
+                    .limit(5);
+
+                if (activitiesError) {
+                    console.error('❌ Activities error:', activitiesError);
+                    resultsDiv.innerHTML += `<p style="color: red;">❌ Activities Error: ${activitiesError.message}</p>`;
+                } else {
+                    console.log('✅ Activities success:', activities);
+                    resultsDiv.innerHTML += `<p style="color: green;">✅ Found ${activities.length} activities</p>`;
+                    resultsDiv.innerHTML += `<pre>${JSON.stringify(activities, null, 2)}</pre>`;
+                }
+
+                // Test 2: Test activity types
+                console.log('📊 Testing activity_types query...');
+                const { data: types, error: typesError } = await supabase
+                    .from('activity_types')
+                    .select('*');
+
+                if (typesError) {
+                    console.error('❌ Activity types error:', typesError);
+                    resultsDiv.innerHTML += `<p style="color: red;">❌ Activity Types Error: ${typesError.message}</p>`;
+                } else {
+                    console.log('✅ Activity types success:', types);
+                    resultsDiv.innerHTML += `<p style="color: green;">✅ Found ${types.length} activity types</p>`;
+                }
+
+                // Test 3: Test the JOIN query
+                console.log('📊 Testing JOIN query...');
+                const { data: joinData, error: joinError } = await supabase
+                    .from('activities')
+                    .select(`
+                        id,
+                        title,
+                        status,
+                        activity_type:activity_types!activity_type_id(id, name, slug)
+                    `)
+                    .eq('status', 'published')
+                    .limit(3);
+
+                if (joinError) {
+                    console.error('❌ JOIN error:', joinError);
+                    resultsDiv.innerHTML += `<p style="color: red;">❌ JOIN Error: ${joinError.message}</p>`;
+                } else {
+                    console.log('✅ JOIN success:', joinData);
+                    resultsDiv.innerHTML += `<p style="color: green;">✅ JOIN query returned ${joinData.length} results</p>`;
+                    resultsDiv.innerHTML += `<pre>${JSON.stringify(joinData, null, 2)}</pre>`;
+                }
+
+            } catch (error) {
+                console.error('💥 Unexpected error:', error);
+                resultsDiv.innerHTML += `<p style="color: red;">💥 Unexpected Error: ${error.message}</p>`;
+            }
+        }
+
+        // Auto-run test
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(testConnection, 500);
+        });
+    </script>
+</body>
+</html>
