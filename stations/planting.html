@@ -122,6 +122,26 @@
             opacity: 0.8;
         }
 
+        /* Form styling improvements */
+        .form-group.full-width {
+            flex: 1 1 100%;
+        }
+
+        .observations-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .observations-form .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .observations-form .form-group {
+            flex: 1;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .station-meta {
@@ -380,12 +400,47 @@
                 <div class="activity-step">
                     <div class="step-number">5</div>
                     <div class="step-content">
-                        <h3>Setup monitoring so that you may track progress and by comparison with other groups learn how your soil choices affected growth</h3>
-                        <p>Establish monitoring systems to track plant growth and compare results with other groups to understand the impact of different soil compositions.</p>
-                        <div class="activity-tools">
-                            <span class="tool">📊 Growth tracking</span>
-                            <span class="tool">📏 Measurement tools</span>
-                            <span class="tool">🔍 Comparison analysis</span>
+                        <h3>Observations</h3>
+                        <p>Record what you planted today and share your observations. Multiple observations per group are encouraged!</p>
+
+                        <!-- Observations Form moved here from bottom of page -->
+                        <div class="observations-input-section">
+                            <form id="observationsForm" class="observations-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="obsGroupNumber">Group Number:</label>
+                                        <select id="obsGroupNumber" name="groupNumber" required>
+                                            <option value="">Select your group</option>
+                                            <option value="1">Group 1</option>
+                                            <option value="2">Group 2</option>
+                                            <option value="3">Group 3</option>
+                                            <option value="4">Group 4</option>
+                                            <option value="5">Group 5</option>
+                                            <option value="6">Group 6</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="studentName">Your Name (optional):</label>
+                                        <input type="text" id="studentName" name="studentName" placeholder="Enter your name">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group full-width">
+                                        <label for="plantsToday">What did you plant today?</label>
+                                        <input type="text" id="plantsToday" name="plantsToday" placeholder="e.g., Basil, Cilantro, Lettuce..." required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group full-width">
+                                        <label for="observation">Observations:</label>
+                                        <textarea id="observation" name="observation" rows="4" placeholder="Share your observations about the planting process, soil, seedlings, or anything interesting you noticed..." required></textarea>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Submit Observation</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -416,39 +471,6 @@
                 </div>
 
 
-                <!-- Observations Input Form -->
-                <div class="observations-input-section">
-                    <h3>Add Your Observations</h3>
-                    <form id="observationsForm" class="observations-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="obsGroupNumber">Group Number:</label>
-                                <select id="obsGroupNumber" name="groupNumber" required>
-                                    <option value="">Select your group</option>
-                                    <option value="1">Group 1</option>
-                                    <option value="2">Group 2</option>
-                                    <option value="3">Group 3</option>
-                                    <option value="4">Group 4</option>
-                                    <option value="5">Group 5</option>
-                                    <option value="6">Group 6</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="studentName">Your Name (optional):</label>
-                                <input type="text" id="studentName" name="studentName" placeholder="Enter your name">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group full-width">
-                            <label for="observation">Observation:</label>
-                            <textarea id="observation" name="observation" rows="3" placeholder="What did you observe? Color, texture, smell, predictions..." required></textarea>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn obs-submit">📝 Add Observation</button>
-                        </div>
-                    </form>
-                </div>
             </div>
             
             <!-- Live Data Tables -->
@@ -812,6 +834,7 @@
                     const formData = new FormData(observationsForm);
                     const groupNumber = parseInt(formData.get('groupNumber'));
                     const studentName = formData.get('studentName') || 'Anonymous';
+                    const plantsToday = formData.get('plantsToday');
                     const observation = formData.get('observation');
 
                     try {
@@ -826,7 +849,7 @@
                         const observationData = {
                             visit_id: visit.id,
                             student_name: `Group ${groupNumber} - ${studentName}`,
-                            message: observation
+                            message: `Plants planted: ${plantsToday}\n\nObservations: ${observation}`
                         };
 
                         await GuidalDB.addGuestBookEntry(observationData);
