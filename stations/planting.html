@@ -467,7 +467,9 @@
                 <!-- Global Seeds Information -->
                 <div class="seeds-info">
                     <h3>🌱 Seeds Being Planted Today</h3>
-                    <p class="seeds-planted"><strong>All groups are planting:</strong> Basil, Cilantro, Parsley, and Lettuce</p>
+                    <div id="seedsPlantedDisplay" class="seeds-planted">
+                        <p><strong>Loading plants data...</strong></p>
+                    </div>
                 </div>
 
 
@@ -645,6 +647,7 @@
             // Load existing data on page load
             loadSoilMixturesTable();
             loadObservationsTable();
+            loadSeedsPlantedDisplay();
 
             // Check for existing group submission when group is selected
             const groupNumberSelect = document.getElementById('stationGroupNumber');
@@ -708,6 +711,82 @@
                 const statusDiv = document.getElementById('groupSubmissionStatus');
                 if (statusDiv) {
                     statusDiv.innerHTML = '';
+                }
+            }
+
+            // Load seeds planted display from database observations
+            async function loadSeedsPlantedDisplay() {
+                try {
+                    const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
+                    if (!visit) {
+                        document.getElementById('seedsPlantedDisplay').innerHTML =
+                            '<p><strong>No visit data found</strong></p>';
+                        return;
+                    }
+
+                    // Get all guest book entries (observations) for this visit
+                    const { data: observations, error } = await supabase
+                        .from('guest_book_entries')
+                        .select('*')
+                        .eq('visit_id', visit.id);
+
+                    if (error) {
+                        console.error('Error loading observations:', error);
+                        document.getElementById('seedsPlantedDisplay').innerHTML =
+                            '<p><strong>Error loading plant data</strong></p>';
+                        return;
+                    }
+
+                    // Extract plants from observation messages
+                    const plantsSet = new Set();
+                    let groupsReporting = new Set();
+
+                    observations.forEach(obs => {
+                        // Extract plants from messages that start with "Plants planted:"
+                        if (obs.message && obs.message.includes('Plants planted:')) {
+                            const plantsLine = obs.message.split('\n')[0];
+                            const plantsText = plantsLine.replace('Plants planted: ', '');
+
+                            // Split by comma and clean up each plant name
+                            const plants = plantsText.split(',').map(plant => plant.trim());
+                            plants.forEach(plant => {
+                                if (plant && plant.length > 0) {
+                                    plantsSet.add(plant);
+                                }
+                            });
+
+                            // Extract group number from student_name
+                            if (obs.student_name && obs.student_name.includes('Group ')) {
+                                const groupMatch = obs.student_name.match(/Group (\d+)/);
+                                if (groupMatch) {
+                                    groupsReporting.add(groupMatch[1]);
+                                }
+                            }
+                        }
+                    });
+
+                    // Display the results
+                    const seedsDisplay = document.getElementById('seedsPlantedDisplay');
+
+                    if (plantsSet.size > 0) {
+                        const plantsList = Array.from(plantsSet).sort().join(', ');
+                        const groupCount = groupsReporting.size;
+
+                        seedsDisplay.innerHTML = `
+                            <p><strong>Plants being grown by groups today:</strong> ${plantsList}</p>
+                            <p><small>${groupCount} group(s) have reported their plantings</small></p>
+                        `;
+                    } else {
+                        seedsDisplay.innerHTML = `
+                            <p><strong>No planting data yet</strong></p>
+                            <p><small>Groups will report their plantings in Step 5</small></p>
+                        `;
+                    }
+
+                } catch (error) {
+                    console.error('Error loading seeds display:', error);
+                    document.getElementById('seedsPlantedDisplay').innerHTML =
+                        '<p><strong>Error loading plant data</strong></p>';
                 }
             }
 
@@ -855,8 +934,9 @@
                         await GuidalDB.addGuestBookEntry(observationData);
                         alert('Observation added successfully! 📝');
 
-                        // Refresh the observations table
+                        // Refresh the observations table and seeds planted display
                         await loadObservationsTable();
+                        await loadSeedsPlantedDisplay();
                         
                         // Reset form
                         observationsForm.reset();
@@ -955,6 +1035,7 @@
             setInterval(() => {
                 loadSoilMixturesTable();
                 loadObservationsTable();
+                loadSeedsPlantedDisplay();
             }, 30000);
         });
 
