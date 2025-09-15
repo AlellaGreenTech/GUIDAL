@@ -57,11 +57,10 @@
             display: none;
         }
 
-        /* Remove border from Visit Overview accordion */
-        .accordion-section.learning-objectives {
-            border: none !important;
-            margin: 0;
-            border-radius: 0;
+        /* Style Visit Overview accordion without border */
+        .learning-objectives {
+            margin: 1rem 0;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -110,7 +109,7 @@
         </section>
 
         <section id="overview">
-            <div class="accordion-section learning-objectives">
+            <div class="learning-objectives">
                 <div class="accordion-header" onclick="toggleAccordion('learning-objectives')">
                     <h3>🎯 Visit Overview & Objectives</h3>
                     <span class="accordion-arrow">▼</span>
