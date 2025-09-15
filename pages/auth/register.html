@@ -162,8 +162,12 @@
                                 <input type="email" id="email" name="email" required>
                             </div>
                             <div class="form-group">
-                                <label for="phone">Phone Number</label>
-                                <input type="tel" id="phone" name="phone">
+                                <label for="phone">Phone Number (with country code)</label>
+                                <input type="tel" id="phone" name="phone"
+                                       placeholder="+34 612 345 678"
+                                       pattern="^\+[1-9]\d{1,14}$"
+                                       title="Please enter phone number with country code (e.g., +34 612 345 678)">
+                                <small style="color: #666; font-size: 0.85em;">Include country code for WhatsApp compatibility (e.g., +34 for Spain, +1 for US)</small>
                             </div>
                         </div>
 
@@ -316,6 +320,29 @@
             // Load schools for dropdown
             loadSchools();
 
+            // Phone number formatting and validation
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove all non-digits
+
+                // Auto-add + if user starts typing without it
+                if (value && !e.target.value.startsWith('+')) {
+                    e.target.value = '+' + value;
+                }
+
+                // Basic validation feedback
+                const isValid = e.target.value.match(/^\+[1-9]\d{1,14}$/);
+                e.target.style.borderColor = e.target.value === '' ? '' : (isValid ? '#28a745' : '#dc3545');
+            });
+
+            phoneInput.addEventListener('blur', function(e) {
+                if (e.target.value && !e.target.value.match(/^\+[1-9]\d{1,14}$/)) {
+                    e.target.setCustomValidity('Please enter a valid phone number with country code (e.g., +34 612 345 678)');
+                } else {
+                    e.target.setCustomValidity('');
+                }
+            });
+
             // Handle OTHER school selection
             document.getElementById('schoolId').addEventListener('change', function() {
                 const customSchoolGroup = document.getElementById('customSchoolGroup');
@@ -372,6 +399,12 @@
 
                     if (password.length < 6) {
                         throw new Error('Password must be at least 6 characters long');
+                    }
+
+                    // Validate phone number format if provided
+                    const phone = formData.get('phone');
+                    if (phone && !phone.match(/^\+[1-9]\d{1,14}$/)) {
+                        throw new Error('Phone number must include country code (e.g., +34 612 345 678)');
                     }
 
                     // Get selected languages
