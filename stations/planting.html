@@ -6,19 +6,16 @@
     <title>Station 1: Planting - GUIDAL</title>
     <link rel="stylesheet" href="../styles.css">
     <style>
-        /* Centered horizontal header layout */
-        .station-info-bar {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        /* Centered vertical header layout */
+        .station-header {
+            text-align: center;
             padding: 1.5rem 0;
             border-bottom: 1px solid #e0e0e0;
             margin-bottom: 2rem;
-            gap: 3rem;
         }
 
         .station-title {
-            text-align: center;
+            margin-bottom: 1.5rem;
         }
 
         .station-title h2 {
@@ -34,15 +31,14 @@
 
         .station-meta {
             display: flex;
-            gap: 2rem;
+            justify-content: center;
+            gap: 3rem;
             align-items: center;
-            text-align: center;
         }
 
         .meta-item {
             color: #666;
             font-size: 0.9rem;
-            text-align: center;
         }
 
         .meta-item strong {
@@ -95,16 +91,18 @@
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .station-info-bar {
-                flex-direction: column;
-                align-items: center;
-                gap: 1.5rem;
-            }
-
             .station-meta {
                 flex-wrap: wrap;
-                gap: 1rem;
+                gap: 1.5rem;
                 justify-content: center;
+            }
+
+            .station-title h2 {
+                font-size: 1.5rem;
+            }
+
+            .station-subtitle {
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -138,16 +136,14 @@
     
     <main class="container">
         <section id="station-header" class="station-header">
-            <div class="station-info-bar">
-                <div class="station-title">
-                    <h2>🌱 Station 1: Planting</h2>
-                    <p class="station-subtitle">Sustainable Agriculture & Soil Science</p>
-                </div>
-                <div class="station-meta">
-                    <span class="meta-item"><strong>40</strong> Minutes</span>
-                    <span class="meta-item"><strong>12</strong> Students Max</span>
-                    <span class="meta-item"><strong>5</strong> Green$</span>
-                </div>
+            <div class="station-title">
+                <h2>🌱 Station 1: Planting</h2>
+                <p class="station-subtitle">Sustainable Agriculture & Soil Science</p>
+            </div>
+            <div class="station-meta">
+                <span class="meta-item"><strong>40</strong> Minutes</span>
+                <span class="meta-item"><strong>12</strong> Students Max</span>
+                <span class="meta-item"><strong>5</strong> Green$</span>
             </div>
         </section>
 
