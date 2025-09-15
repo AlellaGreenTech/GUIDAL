@@ -208,8 +208,12 @@ class GuidalApp {
                     <span class="participants">${participantInfo}</span>
                     <span class="duration">${this.formatActivityDuration(activity)}</span>
                 </div>
-                ${greensInfo}
-                ${this.getActivityButton(activity)}
+                <div class="activity-actions">
+                    ${greensInfo}
+                    <div class="activity-button-wrapper">
+                        ${this.getActivityButton(activity)}
+                    </div>
+                </div>
             </div>
         `;
 

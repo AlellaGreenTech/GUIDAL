@@ -1311,9 +1311,19 @@ main.welcome-page .welcome-content {
     background-color: white;
     border: 2px solid #e2e8f0;
     border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Activity Actions - Green$ and Buttons Side by Side */
+.activity-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.activity-button-wrapper {
+    flex-shrink: 0;
 }
 
 .activity-card:hover {
@@ -1422,9 +1432,8 @@ main.welcome-page .welcome-content {
 .greens-info {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 1rem;
     align-items: center;
-    justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 .greens-reward {
