@@ -242,7 +242,19 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Small delay to ensure proper rendering
             setTimeout(() => {
+                console.log('🎯 Auto-expanding activities card');
                 toggleCard('activities');
+
+                // Debug: check if activities are rendered
+                setTimeout(() => {
+                    const activityGrid = document.getElementById('activity-grid');
+                    console.log('🔍 Activity grid children:', activityGrid?.children.length);
+                    if (activityGrid && activityGrid.children.length > 0) {
+                        console.log('✅ Activities are rendered in DOM');
+                    } else {
+                        console.log('❌ No activities in DOM');
+                    }
+                }, 2000);
             }, 500);
         });
     </script>

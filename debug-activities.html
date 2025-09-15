@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Activities</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Activities Debug Page</h1>
+    <div id="results"></div>
+
+    <script src="js/supabase-client.js"></script>
+    <script>
+        async function debugActivities() {
+            const resultsDiv = document.getElementById('results');
+
+            try {
+                // Check current user
+                resultsDiv.innerHTML += '<h2>Authentication Status:</h2>';
+                const user = await GuidalDB.getCurrentUser();
+                resultsDiv.innerHTML += `<p>Current user: ${user ? user.email : 'Not logged in'}</p>`;
+
+                // Test direct activities query
+                resultsDiv.innerHTML += '<h2>Activities Query Test:</h2>';
+                const activities = await GuidalDB.getActivities();
+                resultsDiv.innerHTML += `<p>Activities found: ${activities.length}</p>`;
+
+                if (activities.length > 0) {
+                    resultsDiv.innerHTML += '<h3>First activity:</h3>';
+                    resultsDiv.innerHTML += `<pre>${JSON.stringify(activities[0], null, 2)}</pre>`;
+                } else {
+                    resultsDiv.innerHTML += '<p>No activities returned</p>';
+                }
+
+                // Test activity types
+                resultsDiv.innerHTML += '<h2>Activity Types Test:</h2>';
+                const { data: types, error: typesError } = await supabase
+                    .from('activity_types')
+                    .select('*');
+
+                if (typesError) {
+                    resultsDiv.innerHTML += `<p>Activity types error: ${typesError.message}</p>`;
+                } else {
+                    resultsDiv.innerHTML += `<p>Activity types found: ${types.length}</p>`;
+                }
+
+                // Test direct supabase query
+                resultsDiv.innerHTML += '<h2>Direct Supabase Query:</h2>';
+                const { data: directData, error: directError } = await supabase
+                    .from('activities')
+                    .select('*')
+                    .limit(5);
+
+                if (directError) {
+                    resultsDiv.innerHTML += `<p>Direct query error: ${directError.message}</p>`;
+                } else {
+                    resultsDiv.innerHTML += `<p>Direct query found: ${directData.length} activities</p>`;
+                }
+
+            } catch (error) {
+                resultsDiv.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+                console.error('Debug error:', error);
+            }
+        }
+
+        // Run debug on page load
+        debugActivities();
+    </script>
+</body>
+</html>
