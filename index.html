@@ -245,12 +245,20 @@
                 console.log('🎯 Auto-expanding activities card');
                 toggleCard('activities');
 
-                // Debug: check if activities are rendered
+                // Debug: check if activities are rendered and re-expand if needed
                 setTimeout(() => {
                     const activityGrid = document.getElementById('activity-grid');
                     console.log('🔍 Activity grid children:', activityGrid?.children.length);
                     if (activityGrid && activityGrid.children.length > 0) {
                         console.log('✅ Activities are rendered in DOM');
+                        // Re-expand the activities card to ensure proper height calculation
+                        const activitiesCard = document.getElementById('activities-card');
+                        const activitiesContent = document.getElementById('activities-content');
+                        if (activitiesCard && activitiesContent) {
+                            activitiesCard.classList.add('active');
+                            activitiesContent.style.maxHeight = activitiesContent.scrollHeight + 'px';
+                            console.log('🔧 Re-expanded activities card with height:', activitiesContent.scrollHeight + 'px');
+                        }
                     } else {
                         console.log('❌ No activities in DOM');
                     }
