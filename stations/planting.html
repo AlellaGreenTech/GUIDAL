@@ -196,12 +196,124 @@
                 <div class="activity-step">
                     <div class="step-number">2</div>
                     <div class="step-content">
-                        <h3>Seed Selection & Planting (15 minutes)</h3>
-                        <p>Choose from various seed types (herbs, vegetables, flowers) based on your soil mixture. Plant seeds at proper depths and spacing while learning about each plant's specific needs.</p>
-                        <div class="activity-tools">
-                            <span class="tool">🌱 Variety of seeds</span>
-                            <span class="tool">🪴 Planting pots</span>
-                            <span class="tool">💧 Watering system</span>
+                        <h3>Lock in Your Group's Soil Mixture!</h3>
+                        <p>Record your group's final soil mixture decision using the form below.</p>
+
+                        <!-- Soil Mixture Form moved here from bottom of page -->
+                        <div class="soil-input-section">
+                            <form id="stationSoilForm" class="soil-mixture-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="stationGroupNumber">Group Number:</label>
+                                        <select id="stationGroupNumber" name="groupNumber" required>
+                                            <option value="">Select your group</option>
+                                            <option value="1">Group 1</option>
+                                            <option value="2">Group 2</option>
+                                            <option value="3">Group 3</option>
+                                            <option value="4">Group 4</option>
+                                            <option value="5">Group 5</option>
+                                            <option value="6">Group 6</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="cowManure">Cow Manure %:</label>
+                                        <select id="cowManure" name="cowManure" required>
+                                            <option value="">Select %</option>
+                                            <option value="0">0%</option>
+                                            <option value="5">5%</option>
+                                            <option value="10">10%</option>
+                                            <option value="15">15%</option>
+                                            <option value="20">20%</option>
+                                            <option value="25">25%</option>
+                                            <option value="30">30%</option>
+                                            <option value="35">35%</option>
+                                            <option value="40">40%</option>
+                                            <option value="45">45%</option>
+                                            <option value="50">50%</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="horseManure">Horse Manure %:</label>
+                                        <select id="horseManure" name="horseManure" required>
+                                            <option value="">Select %</option>
+                                            <option value="0">0%</option>
+                                            <option value="5">5%</option>
+                                            <option value="10">10%</option>
+                                            <option value="15">15%</option>
+                                            <option value="20">20%</option>
+                                            <option value="25">25%</option>
+                                            <option value="30">30%</option>
+                                            <option value="35">35%</option>
+                                            <option value="40">40%</option>
+                                            <option value="45">45%</option>
+                                            <option value="50">50%</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="saulo">Saulo %:</label>
+                                        <select id="saulo" name="saulo" required>
+                                            <option value="">Select %</option>
+                                            <option value="0">0%</option>
+                                            <option value="5">5%</option>
+                                            <option value="10">10%</option>
+                                            <option value="15">15%</option>
+                                            <option value="20">20%</option>
+                                            <option value="25">25%</option>
+                                            <option value="30">30%</option>
+                                            <option value="35">35%</option>
+                                            <option value="40">40%</option>
+                                            <option value="45">45%</option>
+                                            <option value="50">50%</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="recebo">Recebo %:</label>
+                                        <select id="recebo" name="recebo" required>
+                                            <option value="">Select %</option>
+                                            <option value="0">0%</option>
+                                            <option value="5">5%</option>
+                                            <option value="10">10%</option>
+                                            <option value="15">15%</option>
+                                            <option value="20">20%</option>
+                                            <option value="25">25%</option>
+                                            <option value="30">30%</option>
+                                            <option value="35">35%</option>
+                                            <option value="40">40%</option>
+                                            <option value="45">45%</option>
+                                            <option value="50">50%</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="moistureLevel">Moisture Level:</label>
+                                        <select id="moistureLevel" name="moistureLevel" required>
+                                            <option value="">Select moisture level</option>
+                                            <option value="dry">Dry</option>
+                                            <option value="moist">Moist</option>
+                                            <option value="wet">Wet</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="percentage-display">
+                                    <p id="totalDisplay">Total: <span id="stationTotalPercentage">0</span>%</p>
+                                    <p id="stationPercentageWarning" class="warning-text" style="display: none;">
+                                        ⚠️ Total must equal 100%
+                                    </p>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Submit Soil Mixture</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -244,123 +356,6 @@
                     <p class="seeds-planted"><strong>All groups are planting:</strong> Basil, Cilantro, Parsley, and Lettuce</p>
                 </div>
 
-                <!-- Soil Mixture Input Form -->
-                <div class="soil-input-section">
-                    <h3>Record Your Group's Soil Mixture</h3>
-                    <form id="stationSoilForm" class="soil-mixture-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="stationGroupNumber">Group Number:</label>
-                                <select id="stationGroupNumber" name="groupNumber" required>
-                                    <option value="">Select your group</option>
-                                    <option value="1">Group 1</option>
-                                    <option value="2">Group 2</option>
-                                    <option value="3">Group 3</option>
-                                    <option value="4">Group 4</option>
-                                    <option value="5">Group 5</option>
-                                    <option value="6">Group 6</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="cowManure">Cow Manure %:</label>
-                                <select id="cowManure" name="cowManure" required>
-                                    <option value="">Select %</option>
-                                    <option value="10">10%</option>
-                                    <option value="20">20%</option>
-                                    <option value="30">30%</option>
-                                    <option value="40">40%</option>
-                                    <option value="50">50%</option>
-                                    <option value="60">60%</option>
-                                    <option value="70">70%</option>
-                                    <option value="80">80%</option>
-                                    <option value="90">90%</option>
-                                    <option value="100">100%</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="horseManure">Horse Manure & Hay %:</label>
-                                <select id="horseManure" name="horseManure" required>
-                                    <option value="">Select %</option>
-                                    <option value="10">10%</option>
-                                    <option value="20">20%</option>
-                                    <option value="30">30%</option>
-                                    <option value="40">40%</option>
-                                    <option value="50">50%</option>
-                                    <option value="60">60%</option>
-                                    <option value="70">70%</option>
-                                    <option value="80">80%</option>
-                                    <option value="90">90%</option>
-                                    <option value="100">100%</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="saulo">Sauló %:</label>
-                                <select id="saulo" name="saulo" required>
-                                    <option value="">Select %</option>
-                                    <option value="10">10%</option>
-                                    <option value="20">20%</option>
-                                    <option value="30">30%</option>
-                                    <option value="40">40%</option>
-                                    <option value="50">50%</option>
-                                    <option value="60">60%</option>
-                                    <option value="70">70%</option>
-                                    <option value="80">80%</option>
-                                    <option value="90">90%</option>
-                                    <option value="100">100%</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="recebo">Recebo %:</label>
-                                <select id="recebo" name="recebo" required>
-                                    <option value="">Select %</option>
-                                    <option value="10">10%</option>
-                                    <option value="20">20%</option>
-                                    <option value="30">30%</option>
-                                    <option value="40">40%</option>
-                                    <option value="50">50%</option>
-                                    <option value="60">60%</option>
-                                    <option value="70">70%</option>
-                                    <option value="80">80%</option>
-                                    <option value="90">90%</option>
-                                    <option value="100">100%</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="stationMoistureLevel">Moisture Level:</label>
-                                <select id="stationMoistureLevel" name="moistureLevel" required>
-                                    <option value="">Select moisture</option>
-                                    <option value="dry">Dry</option>
-                                    <option value="moist">Moist</option>
-                                    <option value="wet">Wet</option>
-                                    <option value="saturated">Saturated</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <div class="total-display">
-                                    <label>Total Percentage:</label>
-                                    <div id="totalDisplay" class="total-percentage">0%</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div id="stationPercentageWarning" class="percentage-warning" style="display: none;">
-                            <p>⚠️ Total must equal 100%. Current total: <span id="stationTotalPercentage">0</span>%</p>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn soil-submit">🌱 Record Soil Mixture</button>
-                        </div>
-                    </form>
-                </div>
 
                 <!-- Observations Input Form -->
                 <div class="observations-input-section">
