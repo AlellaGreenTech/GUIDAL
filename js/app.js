@@ -199,7 +199,10 @@ class GuidalApp {
             <div class="activity-info">
                 <div class="activity-type">${activityType ? activityType.name : 'Activity'}</div>
                 <h3>${activity.title}</h3>
-                <p class="activity-date">${dateDisplay}</p>
+                <p class="activity-date">
+                    ${dateDisplay}
+                    ${this.getCompletedBadge(activity)}
+                </p>
                 <p class="activity-description">${activity.description}</p>
                 <div class="activity-details">
                     <span class="participants">${participantInfo}</span>
@@ -328,6 +331,17 @@ class GuidalApp {
         return activity.duration || 'Duration TBD';
     }
 
+    getCompletedBadge(activity) {
+        const currentDate = new Date();
+        const activityDate = activity.date_time ? new Date(activity.date_time) : null;
+        const isCompleted = activity.status === 'completed' || (activityDate && activityDate < currentDate);
+
+        if (isCompleted) {
+            return `<span class="completed-badge">✅ Completed</span>`;
+        }
+        return '';
+    }
+
     getActivityButton(activity) {
         const currentDate = new Date();
         const activityDate = activity.date_time ? new Date(activity.date_time) : null;
@@ -350,7 +364,7 @@ class GuidalApp {
             } else if (activity.title.includes('International School of Prague')) {
                 return `<a href="visits/international-school-prague-sept-2025.html" class="btn">Visit Details</a>`;
             } else if (isCompleted) {
-                return `<button class="btn btn-secondary" disabled>✅ Completed</button>`;
+                return ''; // No button for completed activities - badge shows status
             } else {
                 return `<a href="#" class="btn">Visit Details</a>`;
             }
@@ -358,7 +372,7 @@ class GuidalApp {
 
         if (activityTypeSlug === 'annual-events' || activityTypeSlug === 'events') {
             if (isCompleted) {
-                return `<button class="btn btn-secondary" disabled>✅ Completed</button>`;
+                return ''; // No button for completed activities - badge shows status
             } else if (!activityDate) {
                 return `<button class="btn btn-info" disabled>📅 Coming Soon</button>`;
             }
@@ -370,7 +384,7 @@ class GuidalApp {
         }
 
         if (isCompleted) {
-            return `<button class="btn btn-secondary" disabled>Past Event</button>`;
+            return ''; // No button for completed activities - badge shows status
         }
 
         if (isFullyBooked) {

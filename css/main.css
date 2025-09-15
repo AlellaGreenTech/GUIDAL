@@ -1370,6 +1370,20 @@ main.welcome-page .welcome-content {
     font-weight: 600;
     font-size: 1rem;
     margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.completed-badge {
+    font-size: 0.75rem;
+    color: #6b7280;
+    background-color: #f3f4f6;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    font-weight: 500;
+    opacity: 0.8;
 }
 
 .activity-description {
