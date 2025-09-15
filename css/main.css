@@ -965,6 +965,15 @@ main.welcome-page .welcome-content {
     .welcome-content p {
         font-size: 1.15rem;
     }
+
+    .station-credits {
+        text-align: left;
+    }
+
+    .earn-credits {
+        font-size: 0.9rem;
+        padding: 0.4rem 1rem;
+    }
 }
 
 /* About Page Styles */
@@ -2033,6 +2042,10 @@ main.welcome-page .welcome-content {
     border-radius: 6px;
     font-size: 0.85rem;
     font-weight: 600;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    min-width: fit-content;
 }
 
 /* Schedule Timeline */

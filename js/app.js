@@ -271,8 +271,8 @@ class GuidalApp {
         const greensReward = activity.credits_earned || 0;
         const greensCost = activity.credits_required || 0;
 
-        const rewardText = greensReward > 1 ? `+${greensReward} GREENs` : greensReward === 1 ? '+1 GREEN' : '';
-        const costText = greensCost > 0 ? `${greensCost} GREEN${greensCost > 1 ? 's' : ''}` : '';
+        const rewardText = greensReward > 1 ? `+${greensReward} Green$` : greensReward === 1 ? '+1 Green$' : '';
+        const costText = greensCost > 0 ? `${greensCost} Green$` : '';
         const costClass = greensCost > 0 ? 'greens-cost has-cost' : 'greens-cost';
 
         if (greensReward > 0 && greensCost > 0) {
@@ -397,7 +397,7 @@ class GuidalApp {
 
         if (isUpcoming) {
             return `<button class="btn btn-primary" onclick="app.handleActivityRegistration('${activity.id}', '${activity.title}')">
-                        ${activity.credits_required > 0 ? `Register (${activity.credits_required} GREENs)` : 'Register'}
+                        ${activity.credits_required > 0 ? `Register (${activity.credits_required} Green$)` : 'Register'}
                     </button>`;
         }
 
@@ -415,7 +415,7 @@ class GuidalApp {
         if (activity && activity.credits_required > 0) {
             const userProfile = await GuidalDB.getProfile(this.currentUser.id);
             if (userProfile.credits < activity.credits_required) {
-                this.showNotification(`Insufficient GREENs credits. You need ${activity.credits_required} GREENs but have ${userProfile.credits}.`, 'error');
+                this.showNotification(`Insufficient Green$. You need ${activity.credits_required} Green$ but have ${userProfile.credits}.`, 'error');
                 return;
             }
         }
