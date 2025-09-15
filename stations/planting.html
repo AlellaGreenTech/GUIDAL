@@ -5,6 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Station 1: Planting - GUIDAL</title>
     <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Subtle horizontal header layout */
+        .station-info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 2rem;
+        }
+
+        .station-title h2 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .station-subtitle {
+            margin: 0.5rem 0 0 0;
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .station-meta {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .meta-item {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .meta-item strong {
+            color: #2e7d32;
+            font-size: 1.1rem;
+        }
+
+        /* Accordion Styles */
+        .accordion-section {
+            margin: 1rem 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: #f0f0f0;
+        }
+
+        .accordion-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .accordion-arrow {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .accordion-content.open {
+            display: block;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .station-info-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .station-meta {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -35,51 +130,44 @@
     
     <main class="container">
         <section id="station-header" class="station-header">
-            <div class="station-hero">
-                <div class="station-info">
+            <div class="station-info-bar">
+                <div class="station-title">
                     <h2>🌱 Station 1: Planting</h2>
                     <p class="station-subtitle">Sustainable Agriculture & Soil Science</p>
-                    <div class="station-stats">
-                        <div class="stat">
-                            <div class="stat-number">40</div>
-                            <div class="stat-label">Minutes</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-number">12</div>
-                            <div class="stat-label">Students Max</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-number">5</div>
-                            <div class="stat-label">Green$</div>
-                        </div>
-                    </div>
                 </div>
-                <div class="station-image">
-                    <div class="image-placeholder station-visual">
-                        <p>🌿 Hands-on Planting Experience</p>
-                    </div>
+                <div class="station-meta">
+                    <span class="meta-item"><strong>40</strong> Minutes</span>
+                    <span class="meta-item"><strong>12</strong> Students Max</span>
+                    <span class="meta-item"><strong>5</strong> Green$</span>
                 </div>
             </div>
         </section>
 
         <section id="overview" class="station-overview">
-            <h2>What You'll Discover</h2>
-            <div class="overview-grid">
-                <div class="overview-card">
-                    <h3>🌱 Seed Science</h3>
-                    <p>Understanding germination, plant lifecycles, and optimal growing conditions for different species.</p>
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('overview')">
+                    <h2>What You'll Discover</h2>
+                    <span class="accordion-arrow">▼</span>
                 </div>
-                <div class="overview-card">
-                    <h3>🌍 Soil Composition</h3>
-                    <p>Hands-on analysis of soil types, pH levels, moisture content, and nutrient balance for healthy plant growth.</p>
-                </div>
-                <div class="overview-card">
-                    <h3>🔬 Scientific Method</h3>
-                    <p>Create hypotheses, conduct experiments, and record observations about plant growth variables.</p>
-                </div>
-                <div class="overview-card">
-                    <h3>♻️ Sustainability</h3>
-                    <p>Learn about composting, natural fertilizers, and environmentally-friendly farming practices.</p>
+                <div class="accordion-content" id="overview-content">
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <h3>🌱 Seed Science</h3>
+                            <p>Understanding germination, plant lifecycles, and optimal growing conditions for different species.</p>
+                        </div>
+                        <div class="overview-card">
+                            <h3>🌍 Soil Composition</h3>
+                            <p>Hands-on analysis of soil types, pH levels, moisture content, and nutrient balance for healthy plant growth.</p>
+                        </div>
+                        <div class="overview-card">
+                            <h3>🔬 Scientific Method</h3>
+                            <p>Create hypotheses, conduct experiments, and record observations about plant growth variables.</p>
+                        </div>
+                        <div class="overview-card">
+                            <h3>♻️ Sustainability</h3>
+                            <p>Learn about composting, natural fertilizers, and environmentally-friendly farming practices.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -711,6 +799,22 @@
                 loadObservationsTable();
             }, 30000);
         });
+
+        // Accordion functionality
+        function toggleAccordion(accordionId) {
+            const content = document.getElementById(accordionId + '-content');
+            const arrow = document.querySelector(`[onclick="toggleAccordion('${accordionId}')"] .accordion-arrow`);
+
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                arrow.style.transform = 'rotate(0deg)';
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('open');
+                arrow.style.transform = 'rotate(180deg)';
+                arrow.textContent = '▲';
+            }
+        }
     </script>
 </body>
 </html>
