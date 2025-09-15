@@ -162,6 +162,17 @@ class GuidalApp {
     }
 
     createActivityCard(activity) {
+        // Debug: Log BFIS activity details
+        if (activity.title && activity.title.includes('Benjamin Franklin')) {
+            console.log('🚨 DEBUG: BFIS Activity Details:', {
+                title: activity.title,
+                activity_type: activity.activity_type,
+                status: activity.status,
+                description: activity.description,
+                full_activity: activity
+            });
+        }
+
         const card = document.createElement('div');
         card.className = 'activity-card';
 
@@ -362,15 +373,17 @@ class GuidalApp {
         const activityTypeSlug = activityType ? activityType.slug : 'other';
 
         if (activityTypeSlug === 'school-visits') {
-            // Special handling for school visits
-            if (activity.title.includes('Benjamin Franklin')) {
-                return `<button class="btn" onclick="app.openLoginModal('${activity.title}', 'visits/benjamin-franklin-sept-2025.html', 'bfis', 'alellagreentech')">Login to Visit</button>`;
-            } else if (activity.title.includes('International School of Prague')) {
-                return `<a href="visits/international-school-prague-sept-2025.html" class="btn">Visit Details</a>`;
-            } else if (isCompleted) {
+            // All school visits require login
+            console.log('🔍 School visit detected:', activity.title, 'Type:', activityTypeSlug, 'Completed:', isCompleted);
+            if (isCompleted) {
                 return ''; // No button for completed activities - badge shows status
+            } else if (activity.title.includes('Benjamin Franklin')) {
+                console.log('✅ Benjamin Franklin visit detected - generating Visit Details button');
+                return `<button class="btn" onclick="openLoginModal('${activity.title}', 'visits/benjamin-franklin-sept-2025.html')">Visit Details</button>`;
+            } else if (activity.title.includes('International School of Prague')) {
+                return `<button class="btn" onclick="openLoginModal('${activity.title}', 'visits/international-school-prague-sept-2025.html')">Visit Details</button>`;
             } else {
-                return `<a href="#" class="btn">Visit Details</a>`;
+                return `<button class="btn" onclick="openLoginModal('${activity.title}', '#')">Visit Details</button>`;
             }
         }
 
@@ -684,32 +697,22 @@ class GuidalApp {
     }
 
     // Modal Login System
-    openLoginModal(schoolName, redirectUrl, username, password) {
+    openLoginModal(schoolName, redirectUrl) {
         const modal = document.getElementById('loginModal');
         const modalSchoolInfo = document.getElementById('modalSchoolInfo');
         const modalUsername = document.getElementById('modalUsername');
         const modalPassword = document.getElementById('modalPassword');
-        const modalLoginHelp = document.getElementById('modalLoginHelp');
-        
+
         // Set school-specific content
         modalSchoolInfo.innerHTML = `
             <h4>${schoolName}</h4>
             <p>September 16, 2025</p>
         `;
-        
-        // Pre-fill login credentials
-        modalUsername.value = username;
-        modalPassword.value = password;
-        
-        // Set login help content
-        modalLoginHelp.innerHTML = `
-            <p>For BFIS September 16, 2025 visit:</p>
-            <ul>
-                <li><strong>Username:</strong> ${username} (pre-filled)</li>
-                <li><strong>Password:</strong> ${password} (pre-filled)</li>
-            </ul>
-            <p>Simply click "Login to Visit" to access your visit details.</p>
-        `;
+
+        // Clear login fields - users must enter their own credentials
+        modalUsername.value = '';
+        modalPassword.value = '';
+        modalUsername.removeAttribute('readonly');
         
         // Store redirect URL for form submission
         modal.dataset.redirectUrl = redirectUrl;
@@ -756,25 +759,31 @@ class GuidalApp {
         modalLoginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const username = document.getElementById('modalUsername').value;
+            const email = document.getElementById('modalUsername').value;
             const password = document.getElementById('modalPassword').value;
             const redirectUrl = modal.dataset.redirectUrl;
-            
-            // Simple authentication for BFIS (same logic as original login page)
-            if (username === 'bfis' && password === 'alellagreentech') {
-                // Store login state
-                localStorage.setItem('schoolLogin', 'bfis');
-                localStorage.setItem('loginTime', new Date().getTime().toString());
-                
-                // Close modal
+
+            // Use proper Supabase authentication
+            this.authenticateUser(email, password, redirectUrl);
+        });
+    }
+
+    async authenticateUser(email, password, redirectUrl) {
+        try {
+            // Attempt to sign in with Supabase
+            const { user, session } = await GuidalDB.signIn(email, password);
+
+            if (user && session) {
+                // Successfully authenticated
                 this.closeLoginModal();
-                
+
                 // Redirect to visit page
                 window.location.href = redirectUrl;
-            } else {
-                alert('Invalid credentials. Please check your username and password.');
             }
-        });
+        } catch (error) {
+            console.error('Authentication error:', error);
+            alert('Invalid credentials. Please check your email and password, or register for an account.');
+        }
     }
 }
 
@@ -823,6 +832,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the main application
     window.app = new GuidalApp();
 });
+
+// Global function for onclick handlers (ensures it's available immediately)
+function openLoginModal(schoolName, redirectUrl) {
+    if (window.app && window.app.openLoginModal) {
+        window.app.openLoginModal(schoolName, redirectUrl);
+    } else {
+        console.error('App not ready yet, trying again...');
+        setTimeout(() => openLoginModal(schoolName, redirectUrl), 100);
+    }
+}
 
 // Legacy functions for backward compatibility
 function initializeEventSystem() {

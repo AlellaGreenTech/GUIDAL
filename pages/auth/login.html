@@ -88,6 +88,38 @@
             font-size: 0.9rem;
             margin-top: 1rem;
         }
+
+        .password-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-input-container input {
+            flex: 1;
+            padding-right: 3rem;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.25rem;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+
+        .password-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .password-toggle:focus {
+            outline: 2px solid var(--primary-green);
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
@@ -124,6 +156,10 @@
                     <h2>Login to GUIDAL</h2>
                     <p class="login-description">Access your account to register for activities, earn GREENs rewards, and track your sustainable learning progress. Individual students and school groups use the same system.</p>
 
+                    <div class="auth-links">
+                        <p>Don't have an account? <a href="register.html">Register here</a></p>
+                    </div>
+
                     <form id="loginForm" class="login-form">
                         <div class="form-group">
                             <label for="email">Email Address</label>
@@ -133,8 +169,13 @@
 
                         <div class="form-group">
                             <label for="loginPassword">Password</label>
-                            <input type="password" id="loginPassword" name="password" required
-                                   placeholder="Enter your password">
+                            <div class="password-input-container">
+                                <input type="password" id="loginPassword" name="password" required
+                                       placeholder="Enter your password">
+                                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')" aria-label="Toggle password visibility">
+                                    👁️
+                                </button>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn login-btn-submit">Login</button>
@@ -388,6 +429,22 @@
         document.addEventListener('DOMContentLoaded', () => {
             new LoginManager();
         });
+
+        // Password toggle functionality
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleButton = passwordInput.nextElementSibling;
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.textContent = '🙈';
+                toggleButton.setAttribute('aria-label', 'Hide password');
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.textContent = '👁️';
+                toggleButton.setAttribute('aria-label', 'Show password');
+            }
+        }
     </script>
 </body>
 </html>

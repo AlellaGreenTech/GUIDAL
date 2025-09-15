@@ -26,7 +26,7 @@ INSERT INTO public.activities (
 (
   'Benjamin Franklin International School Visit',
   'benjamin-franklin-sept-2025',
-  'Comprehensive sustainability workshop covering energy storage, soil management, and green construction techniques.',
+  'See science in action, build sustainably, create fertile soil...and plant veggies!',
   (SELECT id FROM public.activity_types WHERE slug = 'school-visits'),
   '2025-09-16 09:00:00+02',
   360,
