@@ -40,19 +40,19 @@ class GuidalDB {
   // Visits Management
   static async getVisits(filters = {}) {
     let query = supabase
-      .from('visits')
+      .from('school_visits')
       .select(`
         *,
         school:schools(name, country)
       `)
       .order('visit_date', { ascending: true })
-    
+
     if (filters.upcoming) {
       query = query.gte('visit_date', new Date().toISOString().split('T')[0])
     }
-    
+
     const { data, error } = await query
-    
+
     if (error) {
       console.error('Error fetching visits:', error)
       return []
@@ -62,14 +62,14 @@ class GuidalDB {
 
   static async getVisitByAccessCode(accessCode) {
     const { data, error } = await supabase
-      .from('visits')
+      .from('school_visits')
       .select(`
         *,
         school:schools(name, country)
       `)
       .eq('access_code', accessCode)
       .single()
-    
+
     if (error) {
       console.error('Error fetching visit by access code:', error)
       return null
@@ -79,10 +79,10 @@ class GuidalDB {
 
   static async addVisit(visitData) {
     const { data, error } = await supabase
-      .from('visits')
+      .from('school_visits')
       .insert([visitData])
       .select()
-    
+
     if (error) {
       console.error('Error adding visit:', error)
       throw error
@@ -123,46 +123,6 @@ class GuidalDB {
     return data[0]
   }
 
-  // Soil Mixtures (Station 1 - Planting)
-  static async getSoilMixtures() {
-    const { data, error } = await supabase
-      .from('soil_mixtures')
-      .select('*')
-      .order('group_number', { ascending: true })
-    
-    if (error) {
-      console.error('Error fetching soil mixtures:', error)
-      return []
-    }
-    return data || []
-  }
-
-  static async addSoilMixture(mixtureData) {
-    const { data, error } = await supabase
-      .from('soil_mixtures')
-      .insert([mixtureData])
-      .select()
-    
-    if (error) {
-      console.error('Error adding soil mixture:', error)
-      throw error
-    }
-    return data[0]
-  }
-
-  static async updateSoilMixture(groupNumber, mixtureData) {
-    const { data, error } = await supabase
-      .from('soil_mixtures')
-      .update(mixtureData)
-      .eq('group_number', groupNumber)
-      .select()
-    
-    if (error) {
-      console.error('Error updating soil mixture:', error)
-      throw error
-    }
-    return data[0]
-  }
 
   // Activities (for dynamic content)
   static async getActivities(filters = {}) {
@@ -292,20 +252,6 @@ class GuidalDB {
     return channel
   }
 
-  static subscribeToSoilMixtures(callback) {
-    let channel = supabase
-      .channel('soil_mixture_changes')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'soil_mixtures'
-      }, callback)
-      .subscribe((status) => {
-        console.log('Soil mixtures subscription status:', status)
-      })
-    
-    return channel
-  }
 
   // Authentication Management
   static async signUp(email, password, userData = {}) {
