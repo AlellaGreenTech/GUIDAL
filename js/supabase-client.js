@@ -43,7 +43,7 @@ class GuidalDB {
       .from('school_visits')
       .select(`
         *,
-        school:schools(name, country)
+        school:schools(name, address)
       `)
       .order('visit_date', { ascending: true })
 
@@ -63,10 +63,7 @@ class GuidalDB {
   static async getVisitByAccessCode(accessCode) {
     const { data, error } = await supabase
       .from('school_visits')
-      .select(`
-        *,
-        school:schools(name, country)
-      `)
+      .select('*')
       .eq('access_code', accessCode)
       .single()
 
@@ -90,37 +87,15 @@ class GuidalDB {
     return data[0]
   }
 
-  // Guest Book Entries
+  // Guest Book Entries - Disabled (table does not exist)
   static async getGuestBookEntries(visitId = null) {
-    let query = supabase
-      .from('guest_book_entries')
-      .select('*')
-      .order('created_at', { ascending: false })
-    
-    if (visitId) {
-      query = query.eq('visit_id', visitId)
-    }
-    
-    const { data, error } = await query
-    
-    if (error) {
-      console.error('Error fetching guest book entries:', error)
-      return []
-    }
-    return data || []
+    console.log('Guest book functionality disabled - table does not exist')
+    return []
   }
 
   static async addGuestBookEntry(entryData) {
-    const { data, error } = await supabase
-      .from('guest_book_entries')
-      .insert([entryData])
-      .select()
-    
-    if (error) {
-      console.error('Error adding guest book entry:', error)
-      throw error
-    }
-    return data[0]
+    console.log('Guest book functionality disabled - table does not exist')
+    return null
   }
 
 
@@ -235,21 +210,10 @@ class GuidalDB {
     return data || []
   }
 
-  // Real-time subscriptions
+  // Real-time subscriptions - Guest book disabled (table does not exist)
   static subscribeToGuestBookEntries(callback, visitId = null) {
-    let channel = supabase
-      .channel('guest_book_changes')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'guest_book_entries',
-        filter: visitId ? `visit_id=eq.${visitId}` : undefined
-      }, callback)
-      .subscribe((status) => {
-        console.log('Guest book subscription status:', status)
-      })
-    
-    return channel
+    console.log('Guest book subscription disabled - table does not exist')
+    return null
   }
 
 
