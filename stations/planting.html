@@ -89,6 +89,39 @@
             display: block;
         }
 
+        /* Group submission status styling */
+        .group-submission-status {
+            margin: 1rem 0;
+        }
+
+        .group-status {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            border: 2px solid;
+        }
+
+        .group-status.existing {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+
+        .group-status.new {
+            background-color: #d4edda;
+            border-color: #00b894;
+            color: #155724;
+        }
+
+        .group-status strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .group-status small {
+            opacity: 0.8;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .station-meta {
@@ -565,6 +598,71 @@
             loadSoilMixturesTable();
             loadObservationsTable();
 
+            // Check for existing group submission when group is selected
+            const groupNumberSelect = document.getElementById('stationGroupNumber');
+            if (groupNumberSelect) {
+                groupNumberSelect.addEventListener('change', async function() {
+                    const groupNumber = parseInt(this.value);
+                    if (groupNumber) {
+                        await checkExistingGroupSubmission(groupNumber);
+                    } else {
+                        clearGroupStatus();
+                    }
+                });
+            }
+
+            // Function to check if group already has a submission
+            async function checkExistingGroupSubmission(groupNumber) {
+                try {
+                    const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
+                    if (!visit) return;
+
+                    const existingMixtures = await GuidalDB.getSoilMixtures();
+                    const existingMixture = existingMixtures.find(m => m.group_number === groupNumber && m.visit_id === visit.id);
+
+                    const statusDiv = document.getElementById('groupSubmissionStatus') || createGroupStatusDiv();
+
+                    if (existingMixture) {
+                        statusDiv.innerHTML = `
+                            <div class="group-status existing">
+                                ⚠️ <strong>Group ${groupNumber} already has a submission!</strong><br>
+                                <small>Submitting again will update your existing mixture.</small>
+                            </div>
+                        `;
+                    } else {
+                        statusDiv.innerHTML = `
+                            <div class="group-status new">
+                                ✅ <strong>Group ${groupNumber} - Ready for first submission</strong><br>
+                                <small>This will be your group's official soil mixture.</small>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Error checking group submission:', error);
+                }
+            }
+
+            // Create the status div if it doesn't exist
+            function createGroupStatusDiv() {
+                const statusDiv = document.createElement('div');
+                statusDiv.id = 'groupSubmissionStatus';
+                statusDiv.className = 'group-submission-status';
+
+                const form = document.getElementById('stationSoilForm');
+                const firstFormRow = form.querySelector('.form-row');
+                firstFormRow.insertAdjacentElement('afterend', statusDiv);
+
+                return statusDiv;
+            }
+
+            // Clear group status display
+            function clearGroupStatus() {
+                const statusDiv = document.getElementById('groupSubmissionStatus');
+                if (statusDiv) {
+                    statusDiv.innerHTML = '';
+                }
+            }
+
             // Percentage validation for soil mixture form
             const percentageInputs = ['cowManure', 'horseManure', 'saulo', 'recebo'];
             percentageInputs.forEach(inputId => {
@@ -641,18 +739,29 @@
                             notes: `Cow Manure: ${cowManure}%, Horse Manure & Hay: ${horseManure}%, Sauló: ${saulo}%, Recebo: ${recebo}%`
                         };
 
-                        // Check if group already has data (for updates)
+                        // Check if group already has a submission (enforce one per group)
                         const existingMixtures = await GuidalDB.getSoilMixtures();
                         const existingMixture = existingMixtures.find(m => m.group_number === groupNumber && m.visit_id === visit.id);
 
                         if (existingMixture) {
-                            // Update existing mixture
-                            await GuidalDB.updateSoilMixture(groupNumber, soilData);
-                            alert('Soil mixture updated successfully! 🌱');
+                            // Ask user if they want to update their existing submission
+                            const confirmUpdate = confirm(
+                                `Group ${groupNumber} already has a soil mixture submission. ` +
+                                `Do you want to update your existing submission?\n\n` +
+                                `Click OK to update, or Cancel to keep your original submission.`
+                            );
+
+                            if (confirmUpdate) {
+                                await GuidalDB.updateSoilMixture(groupNumber, soilData);
+                                alert('✅ Soil mixture updated successfully! Your group\'s submission has been replaced.');
+                            } else {
+                                alert('❌ Submission cancelled. Your original soil mixture is preserved.');
+                                return;
+                            }
                         } else {
-                            // Add new mixture
+                            // Add new mixture (first submission for this group)
                             await GuidalDB.addSoilMixture(soilData);
-                            alert('Soil mixture recorded successfully! 🌱');
+                            alert('✅ Soil mixture recorded successfully! This is your group\'s official submission. 🌱');
                         }
 
                         // Refresh the table display
