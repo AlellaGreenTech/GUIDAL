@@ -67,6 +67,32 @@
             margin: 1rem 0;
             overflow: hidden;
         }
+
+        /* School visit header background image - easily changeable */
+        /* TO CHANGE IMAGE: Replace 'school-visit-bg.png' with your new image filename */
+        .visit-header {
+            background-image: url('../images/school-visit-bg.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        .visit-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: 1;
+        }
+
+        .visit-welcome {
+            position: relative;
+            z-index: 2;
+        }
     </style>
 </head>
 <body>
