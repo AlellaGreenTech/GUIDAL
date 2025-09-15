@@ -438,24 +438,40 @@
                         dietaryRestrictions: formData.get('dietaryRestrictions')
                     };
 
+                    // Check if user came from a visit page
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const returnTo = urlParams.get('returnTo') || document.referrer;
+                    const isFromVisitPage = returnTo && (returnTo.includes('/visits/') || returnTo.includes('benjamin-franklin') || returnTo.includes('prague'));
+
+                    // Store return URL in localStorage for after email confirmation
+                    if (isFromVisitPage) {
+                        localStorage.setItem('returnToAfterConfirmation', returnTo);
+                    }
+
                     // Create account using new auth system
                     const result = await GuidalDB.signUp(email, password, userData);
 
-                    // Show detailed success message
+                    // Show detailed success message with appropriate redirect info
+                    const redirectMessage = isFromVisitPage
+                        ? '⏳ After confirmation, you\'ll be redirected back to your visit page...'
+                        : '⏳ Redirecting to login in 5 seconds...';
+
                     showMessage(`
                         ✅ <strong>Account Created Successfully!</strong><br>
                         📧 Check your email: <strong>martin@alellagreentech.org</strong><br>
                         👆 Click the confirmation link to activate your account<br>
-                        ⏳ Redirecting to login in 5 seconds...
+                        ${redirectMessage}
                     `, 'success');
 
                     // Clear form
                     registerForm.reset();
 
-                    // Redirect to login after a delay
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 5000);
+                    // Redirect to login after a delay (if not from visit page)
+                    if (!isFromVisitPage) {
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 5000);
+                    }
 
                 } catch (error) {
                     console.error('Registration error:', error);

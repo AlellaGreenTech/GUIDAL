@@ -353,7 +353,14 @@
             }
 
             redirectAfterLogin() {
-                if (this.returnUrl) {
+                // Check for stored return URL from registration
+                const storedReturnUrl = localStorage.getItem('returnToAfterConfirmation');
+
+                if (storedReturnUrl) {
+                    // Clear the stored URL and redirect to visit page
+                    localStorage.removeItem('returnToAfterConfirmation');
+                    window.location.href = storedReturnUrl;
+                } else if (this.returnUrl) {
                     window.location.href = decodeURIComponent(this.returnUrl);
                 } else {
                     window.location.href = '../../index.html';

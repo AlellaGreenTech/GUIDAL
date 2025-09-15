@@ -611,17 +611,25 @@ class GuidalApp {
             this.pendingRegistration = { activityId, activityTitle };
         }
 
-        // Redirect to login page with return URL
+        // Use current URL for return after auth
         const currentUrl = encodeURIComponent(window.location.href);
-        const loginUrl = `pages/auth/login.html?return_url=${currentUrl}`;
 
         if (activityId) {
-            // Show a message about needing to login
-            const confirmed = confirm(`Please login to register for "${activityTitle}". You'll be redirected to the login page.`);
-            if (confirmed) {
+            // Ask user if they want to login or register
+            const isNewUser = confirm(`To register for "${activityTitle}", you need an account.\n\nClick OK to create a new account, or Cancel to login with existing account.`);
+
+            if (isNewUser) {
+                // Redirect to registration with return URL
+                const registerUrl = `pages/auth/register.html?returnTo=${currentUrl}`;
+                window.location.href = registerUrl;
+            } else {
+                // Redirect to login with return URL
+                const loginUrl = `pages/auth/login.html?return_url=${currentUrl}`;
                 window.location.href = loginUrl;
             }
         } else {
+            // Default to login
+            const loginUrl = `pages/auth/login.html?return_url=${currentUrl}`;
             window.location.href = loginUrl;
         }
     }
