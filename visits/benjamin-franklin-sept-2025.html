@@ -5,6 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Benjamin Franklin International - September 16, 2025 - GUIDAL</title>
     <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Accordion Styles */
+        .accordion-section {
+            margin: 1rem 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: linear-gradient(135deg, #45a049, #4CAF50);
+        }
+
+        .accordion-header h2, .accordion-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .accordion-arrow {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .accordion-content.open {
+            display: block;
+        }
+
+        /* Initial state for accordions */
+        #learning-objectives-content,
+        #agenda-content,
+        #rotation-schedule-content,
+        #stations-content {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -55,16 +107,21 @@
             <p><em>Today's focus is on IBDP Collaborative Sciences Projects</em></p>
             <p>You'll explore six innovative sustainability stations covering energy storage, soil management, water systems, automation, and natural construction techniques. Each station offers hands-on learning experiences designed to demonstrate real-world applications of collaborative science.</p>
             
-            <div class="learning-objectives">
-                <h3>Learning Objectives</h3>
-                <ul>
-                    <li>Understand renewable energy storage and distribution systems</li>
-                    <li>Learn sustainable soil management and waste reduction techniques</li>
-                    <li>Explore water conservation and natural engineering solutions</li>
-                    <li>Experience agricultural automation and precision farming</li>
-                    <li>Discover traditional sustainable construction methods</li>
-                    <li>Apply scientific principles to environmental challenges</li>
-                </ul>
+            <div class="accordion-section learning-objectives">
+                <div class="accordion-header" onclick="toggleAccordion('learning-objectives')">
+                    <h3>🎯 Learning Objectives</h3>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content" id="learning-objectives-content">
+                    <ul>
+                        <li>Understand renewable energy storage and distribution systems</li>
+                        <li>Learn sustainable soil management and waste reduction techniques</li>
+                        <li>Explore water conservation and natural engineering solutions</li>
+                        <li>Experience agricultural automation and precision farming</li>
+                        <li>Discover traditional sustainable construction methods</li>
+                        <li>Apply scientific principles to environmental challenges</li>
+                    </ul>
+                </div>
             </div>
         </section>
 
@@ -77,55 +134,62 @@
         </section>
 
         <section id="agenda" class="agenda-section">
-            <h2>📅 Today's Agenda</h2>
-            <div class="agenda-table">
-                <div class="agenda-item">
-                    <div class="agenda-time">8:45 AM</div>
-                    <div class="agenda-activity">Meet in the cafeteria</div>
+            <div class="accordion-section agenda-accordion">
+                <div class="accordion-header" onclick="toggleAccordion('agenda')">
+                    <h2>📅 Today's Agenda</h2>
+                    <span class="accordion-arrow">▼</span>
                 </div>
-                <div class="agenda-item">
-                    <div class="agenda-time">8:55 AM</div>
-                    <div class="agenda-activity">Walk to bus</div>
-                </div>
-                <div class="agenda-item">
-                    <div class="agenda-time">9:00 AM</div>
-                    <div class="agenda-activity">Leave for Alella Green Tech</div>
-                </div>
-                <div class="agenda-item">
-                    <div class="agenda-time">9:30 AM</div>
-                    <div class="agenda-activity">Arrive in Alella and walk to farm</div>
-                </div>
-                <div class="agenda-item">
-                    <div class="agenda-time">9:45 AM</div>
-                    <div class="agenda-activity">Intro Chat, Divide into groups</div>
-                </div>
-                <div class="agenda-item highlight">
-                    <div class="agenda-time">10:00 AM<br><small>(2 hours)</small></div>
-                    <div class="agenda-activity"><strong>Start rotations</strong><br>3 × 30-minute rotations with 10 mins transition time</div>
-                </div>
-                <div class="agenda-item lunch">
-                    <div class="agenda-time">12:00 PM<br><small>(1 hour)</small></div>
-                    <div class="agenda-activity"><strong>Lunch & Movement break</strong><br>Football in field! - Lunch will be a packed lunch</div>
-                </div>
-                <div class="agenda-item highlight">
-                    <div class="agenda-time">13:00<br><small>(2 hours)</small></div>
-                    <div class="agenda-activity"><strong>Finish rotations</strong><br>3 × 30-minute rotations with 10 mins transition time</div>
-                </div>
-                <div class="agenda-item">
-                    <div class="agenda-time">15:00</div>
-                    <div class="agenda-activity">Meet back together - Individual reflection?</div>
-                </div>
-                <div class="agenda-item">
-                    <div class="agenda-time">15:15</div>
-                    <div class="agenda-activity">Walk to the bus</div>
-                </div>
-                <div class="agenda-item">
-                    <div class="agenda-time">15:30</div>
-                    <div class="agenda-activity">Arrive at the bus</div>
-                </div>
-                <div class="agenda-item">
-                    <div class="agenda-time">16:00</div>
-                    <div class="agenda-activity">Arrive back at BFIS for dismissal</div>
+                <div class="accordion-content" id="agenda-content">
+                    <div class="agenda-table">
+                        <div class="agenda-item">
+                            <div class="agenda-time">8:45 AM</div>
+                            <div class="agenda-activity">Meet in the cafeteria</div>
+                        </div>
+                        <div class="agenda-item">
+                            <div class="agenda-time">8:55 AM</div>
+                            <div class="agenda-activity">Walk to bus</div>
+                        </div>
+                        <div class="agenda-item">
+                            <div class="agenda-time">9:00 AM</div>
+                            <div class="agenda-activity">Leave for Alella Green Tech</div>
+                        </div>
+                        <div class="agenda-item">
+                            <div class="agenda-time">9:30 AM</div>
+                            <div class="agenda-activity">Arrive in Alella and walk to farm</div>
+                        </div>
+                        <div class="agenda-item">
+                            <div class="agenda-time">9:45 AM</div>
+                            <div class="agenda-activity">Intro Chat, Divide into groups</div>
+                        </div>
+                        <div class="agenda-item highlight">
+                            <div class="agenda-time">10:00 AM<br><small>(2 hours)</small></div>
+                            <div class="agenda-activity"><strong>Start rotations</strong><br>3 × 30-minute rotations with 10 mins transition time</div>
+                        </div>
+                        <div class="agenda-item lunch">
+                            <div class="agenda-time">12:00 PM<br><small>(1 hour)</small></div>
+                            <div class="agenda-activity"><strong>Lunch & Movement break</strong><br>Football in field! - Lunch will be a packed lunch</div>
+                        </div>
+                        <div class="agenda-item highlight">
+                            <div class="agenda-time">13:00<br><small>(2 hours)</small></div>
+                            <div class="agenda-activity"><strong>Finish rotations</strong><br>3 × 30-minute rotations with 10 mins transition time</div>
+                        </div>
+                        <div class="agenda-item">
+                            <div class="agenda-time">15:00</div>
+                            <div class="agenda-activity">Meet back together - Individual reflection?</div>
+                        </div>
+                        <div class="agenda-item">
+                            <div class="agenda-time">15:15</div>
+                            <div class="agenda-activity">Walk to the bus</div>
+                        </div>
+                        <div class="agenda-item">
+                            <div class="agenda-time">15:30</div>
+                            <div class="agenda-activity">Arrive at the bus</div>
+                        </div>
+                        <div class="agenda-item">
+                            <div class="agenda-time">16:00</div>
+                            <div class="agenda-activity">Arrive back at BFIS for dismissal</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -156,170 +220,183 @@
         </section>
 
         <section id="rotation-schedule" class="rotation-section">
-            <h2>🔄 Rotation Schedule</h2>
-            <div class="rotation-table-container">
-                <table class="rotation-table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Station 1</th>
-                            <th>Station 2</th>
-                            <th>Station 3</th>
-                            <th>Station 4</th>
-                            <th>Station 5</th>
-                            <th>Station 6</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="time-slot">10:00-10:40 AM</td>
-                            <td class="group-cell group-1">Group 1</td>
-                            <td class="group-cell group-6">Group 6</td>
-                            <td class="group-cell group-5">Group 5</td>
-                            <td class="group-cell group-4">Group 4</td>
-                            <td class="group-cell group-3">Group 3</td>
-                            <td class="group-cell group-2">Group 2</td>
-                        </tr>
-                        <tr>
-                            <td class="time-slot">10:40-11:20 AM</td>
-                            <td class="group-cell group-2">Group 2</td>
-                            <td class="group-cell group-1">Group 1</td>
-                            <td class="group-cell group-6">Group 6</td>
-                            <td class="group-cell group-5">Group 5</td>
-                            <td class="group-cell group-4">Group 4</td>
-                            <td class="group-cell group-3">Group 3</td>
-                        </tr>
-                        <tr>
-                            <td class="time-slot">11:20-12:00 PM</td>
-                            <td class="group-cell group-3">Group 3</td>
-                            <td class="group-cell group-2">Group 2</td>
-                            <td class="group-cell group-1">Group 1</td>
-                            <td class="group-cell group-6">Group 6</td>
-                            <td class="group-cell group-5">Group 5</td>
-                            <td class="group-cell group-4">Group 4</td>
-                        </tr>
-                        <tr class="lunch-break">
-                            <td class="time-slot">12:00-1:00 PM</td>
-                            <td colspan="6" class="lunch-cell">🍽️ LUNCH & FOOTBALL BREAK</td>
-                        </tr>
-                        <tr>
-                            <td class="time-slot">1:00-1:40 PM</td>
-                            <td class="group-cell group-4">Group 4</td>
-                            <td class="group-cell group-3">Group 3</td>
-                            <td class="group-cell group-2">Group 2</td>
-                            <td class="group-cell group-1">Group 1</td>
-                            <td class="group-cell group-6">Group 6</td>
-                            <td class="group-cell group-5">Group 5</td>
-                        </tr>
-                        <tr>
-                            <td class="time-slot">1:40-2:20 PM</td>
-                            <td class="group-cell group-5">Group 5</td>
-                            <td class="group-cell group-4">Group 4</td>
-                            <td class="group-cell group-3">Group 3</td>
-                            <td class="group-cell group-2">Group 2</td>
-                            <td class="group-cell group-1">Group 1</td>
-                            <td class="group-cell group-6">Group 6</td>
-                        </tr>
-                        <tr>
-                            <td class="time-slot">2:20-3:00 PM</td>
-                            <td class="group-cell group-6">Group 6</td>
-                            <td class="group-cell group-5">Group 5</td>
-                            <td class="group-cell group-4">Group 4</td>
-                            <td class="group-cell group-3">Group 3</td>
-                            <td class="group-cell group-2">Group 2</td>
-                            <td class="group-cell group-1">Group 1</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="accordion-section rotation-accordion">
+                <div class="accordion-header" onclick="toggleAccordion('rotation-schedule')">
+                    <h2>🔄 Rotation Schedule</h2>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content" id="rotation-schedule-content">
+                    <div class="rotation-table-container">
+                        <table class="rotation-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Station 1</th>
+                                    <th>Station 2</th>
+                                    <th>Station 3</th>
+                                    <th>Station 4</th>
+                                    <th>Station 5</th>
+                                    <th>Station 6</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="time-slot">10:00-10:40 AM</td>
+                                    <td class="group-cell group-1">Group 1</td>
+                                    <td class="group-cell group-6">Group 6</td>
+                                    <td class="group-cell group-5">Group 5</td>
+                                    <td class="group-cell group-4">Group 4</td>
+                                    <td class="group-cell group-3">Group 3</td>
+                                    <td class="group-cell group-2">Group 2</td>
+                                </tr>
+                                <tr>
+                                    <td class="time-slot">10:40-11:20 AM</td>
+                                    <td class="group-cell group-2">Group 2</td>
+                                    <td class="group-cell group-1">Group 1</td>
+                                    <td class="group-cell group-6">Group 6</td>
+                                    <td class="group-cell group-5">Group 5</td>
+                                    <td class="group-cell group-4">Group 4</td>
+                                    <td class="group-cell group-3">Group 3</td>
+                                </tr>
+                                <tr>
+                                    <td class="time-slot">11:20-12:00 PM</td>
+                                    <td class="group-cell group-3">Group 3</td>
+                                    <td class="group-cell group-2">Group 2</td>
+                                    <td class="group-cell group-1">Group 1</td>
+                                    <td class="group-cell group-6">Group 6</td>
+                                    <td class="group-cell group-5">Group 5</td>
+                                    <td class="group-cell group-4">Group 4</td>
+                                </tr>
+                                <tr class="lunch-break">
+                                    <td class="time-slot">12:00-1:00 PM</td>
+                                    <td colspan="6" class="lunch-cell">🍽️ LUNCH & FOOTBALL BREAK</td>
+                                </tr>
+                                <tr>
+                                    <td class="time-slot">1:00-1:40 PM</td>
+                                    <td class="group-cell group-4">Group 4</td>
+                                    <td class="group-cell group-3">Group 3</td>
+                                    <td class="group-cell group-2">Group 2</td>
+                                    <td class="group-cell group-1">Group 1</td>
+                                    <td class="group-cell group-6">Group 6</td>
+                                    <td class="group-cell group-5">Group 5</td>
+                                </tr>
+                                <tr>
+                                    <td class="time-slot">1:40-2:20 PM</td>
+                                    <td class="group-cell group-5">Group 5</td>
+                                    <td class="group-cell group-4">Group 4</td>
+                                    <td class="group-cell group-3">Group 3</td>
+                                    <td class="group-cell group-2">Group 2</td>
+                                    <td class="group-cell group-1">Group 1</td>
+                                    <td class="group-cell group-6">Group 6</td>
+                                </tr>
+                                <tr>
+                                    <td class="time-slot">2:20-3:00 PM</td>
+                                    <td class="group-cell group-6">Group 6</td>
+                                    <td class="group-cell group-5">Group 5</td>
+                                    <td class="group-cell group-4">Group 4</td>
+                                    <td class="group-cell group-3">Group 3</td>
+                                    <td class="group-cell group-2">Group 2</td>
+                                    <td class="group-cell group-1">Group 1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
         
         <section id="stations" class="stations-grid">
-            <h2>Your Project Stations</h2>
-            <div class="station-cards">
-                <div class="station-card">
-                    <h3>Planting</h3>
-                    <p><strong>Station 1</strong></p>
-                    <p>Hands-on experience with sustainable planting techniques, seed propagation, and understanding plant growth cycles in different environmental conditions.</p>
-                    <div class="station-credits">
-                        <span class="earn-credits">+5 Credits for participation</span>
-                    </div>
-                    <a href="../stations/planting.html" class="btn">Visit Station</a>
+            <div class="accordion-section stations-accordion">
+                <div class="accordion-header" onclick="toggleAccordion('stations')">
+                    <h2>🧪 Your Project Stations</h2>
+                    <span class="accordion-arrow">▼</span>
                 </div>
-                
-                <div class="station-card">
-                    <h3>Composting</h3>
-                    <p><strong>Station 2</strong></p>
-                    <p>The many ways to build good soil - learn sustainable soil creation and organic waste management techniques.</p>
-                    <div class="station-credits">
-                        <span class="earn-credits">+5 Credits for participation</span>
+                <div class="accordion-content" id="stations-content">
+                    <div class="station-cards">
+                        <div class="station-card">
+                            <h3>Planting</h3>
+                            <p><strong>Station 1</strong></p>
+                            <p>Hands-on experience with sustainable planting techniques, seed propagation, and understanding plant growth cycles in different environmental conditions.</p>
+                            <div class="station-credits">
+                                <span class="earn-credits">+5 Credits for participation</span>
+                            </div>
+                            <a href="../stations/planting.html" class="btn">Visit Station</a>
+                        </div>
+
+                        <div class="station-card">
+                            <h3>Composting</h3>
+                            <p><strong>Station 2</strong></p>
+                            <p>The many ways to build good soil - learn sustainable soil creation and organic waste management techniques.</p>
+                            <div class="station-credits">
+                                <span class="earn-credits">+5 Credits for participation</span>
+                            </div>
+                            <a href="../stations/composting.html" class="btn">Visit Station</a>
+                        </div>
+
+                        <div class="station-card">
+                            <h3>Robotic Gardening</h3>
+                            <p><strong>Station 3</strong></p>
+                            <p>Tend your garden from 1,000km away - or let the bot do it! Explore automated agriculture and precision farming.</p>
+                            <div class="station-credits">
+                                <span class="earn-credits">+5 Credits for participation</span>
+                            </div>
+                            <a href="../stations/robotic-gardening.html" class="btn">Visit Station</a>
+                        </div>
+
+                        <div class="station-card">
+                            <h3>Wattle & Daub</h3>
+                            <p><strong>Station 4</strong></p>
+                            <p>Harvest clay, then build a home with mud, hay, and sticks - ancient sustainable construction techniques.</p>
+                            <div class="station-credits">
+                                <span class="earn-credits">+5 Credits for participation</span>
+                            </div>
+                            <a href="../stations/wattle-daub.html" class="btn">Visit Station</a>
+                        </div>
+
+                        <div class="station-card">
+                            <h3>Erosion Challenge</h3>
+                            <p><strong>Station 5</strong></p>
+                            <p>Stop erosion, retain water and create a fertile hillside through natural engineering solutions.</p>
+                            <div class="station-credits">
+                                <span class="earn-credits">+5 Credits for participation</span>
+                            </div>
+                            <a href="../stations/erosion-challenge.html" class="btn">Visit Station</a>
+                        </div>
+
+                        <div class="station-card">
+                            <h3>Pumped Hydro</h3>
+                            <p><strong>Station 6</strong></p>
+                            <p>Electrical energy from water - explore sustainable energy storage through gravity and water systems.</p>
+                            <div class="station-credits">
+                                <span class="earn-credits">+5 Credits for participation</span>
+                            </div>
+                            <a href="../stations/pumped-hydro.html" class="btn">Visit Station</a>
+                        </div>
                     </div>
-                    <a href="../stations/composting.html" class="btn">Visit Station</a>
+
+                    <div class="extra-demos">
+                        <h3>Extra Demonstrations (Time Allowing)</h3>
+                        <div class="demo-cards">
+                            <div class="demo-card">
+                                <h4>SchoolAIR</h4>
+                                <p>IoT air quality and weather station project - monitor environmental conditions in real-time using sensor networks.</p>
+                                <div class="demo-type">IoT & Environmental Monitoring</div>
+                            </div>
+
+                            <div class="demo-card">
+                                <h4>Smart Irrigation Demo</h4>
+                                <p>Automated watering systems that respond to soil moisture, weather data, and plant needs for optimal water efficiency.</p>
+                                <div class="demo-type">Agricultural Technology</div>
+                            </div>
+
+                            <div class="demo-card">
+                                <h4>Vineyard Disease, Wine Making & Drones</h4>
+                                <p>Using drone technology to monitor vineyard health, detect diseases early, and understand the winemaking process.</p>
+                                <div class="demo-type">Agricultural Innovation</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="station-card">
-                    <h3>Robotic Gardening</h3>
-                    <p><strong>Station 3</strong></p>
-                    <p>Tend your garden from 1,000km away - or let the bot do it! Explore automated agriculture and precision farming.</p>
-                    <div class="station-credits">
-                        <span class="earn-credits">+5 Credits for participation</span>
-                    </div>
-                    <a href="../stations/robotic-gardening.html" class="btn">Visit Station</a>
-                </div>
-                
-                <div class="station-card">
-                    <h3>Wattle & Daub</h3>
-                    <p><strong>Station 4</strong></p>
-                    <p>Harvest clay, then build a home with mud, hay, and sticks - ancient sustainable construction techniques.</p>
-                    <div class="station-credits">
-                        <span class="earn-credits">+5 Credits for participation</span>
-                    </div>
-                    <a href="../stations/wattle-daub.html" class="btn">Visit Station</a>
-                </div>
-                
-                <div class="station-card">
-                    <h3>Erosion Challenge</h3>
-                    <p><strong>Station 5</strong></p>
-                    <p>Stop erosion, retain water and create a fertile hillside through natural engineering solutions.</p>
-                    <div class="station-credits">
-                        <span class="earn-credits">+5 Credits for participation</span>
-                    </div>
-                    <a href="../stations/erosion-challenge.html" class="btn">Visit Station</a>
-                </div>
-                
-                <div class="station-card">
-                    <h3>Pumped Hydro</h3>
-                    <p><strong>Station 6</strong></p>
-                    <p>Electrical energy from water - explore sustainable energy storage through gravity and water systems.</p>
-                    <div class="station-credits">
-                        <span class="earn-credits">+5 Credits for participation</span>
-                    </div>
-                    <a href="../stations/pumped-hydro.html" class="btn">Visit Station</a>
-                </div>
-            </div>
-            
-            <div class="extra-demos">
-                <h3>Extra Demonstrations (Time Allowing)</h3>
-                <div class="demo-cards">
-                    <div class="demo-card">
-                        <h4>SchoolAIR</h4>
-                        <p>IoT air quality and weather station project - monitor environmental conditions in real-time using sensor networks.</p>
-                        <div class="demo-type">IoT & Environmental Monitoring</div>
-                    </div>
-                    
-                    <div class="demo-card">
-                        <h4>Smart Irrigation Demo</h4>
-                        <p>Automated watering systems that respond to soil moisture, weather data, and plant needs for optimal water efficiency.</p>
-                        <div class="demo-type">Agricultural Technology</div>
-                    </div>
-                    
-                    <div class="demo-card">
-                        <h4>Vineyard Disease, Wine Making & Drones</h4>
-                        <p>Using drone technology to monitor vineyard health, detect diseases early, and understand the winemaking process.</p>
-                        <div class="demo-type">Agricultural Innovation</div>
-                    </div>
-                </div>
-            </div>
             </div>
         </section>
 
@@ -344,93 +421,6 @@
             </div>
         </section>
 
-        <section id="soil-tracking" class="soil-tracking-section">
-            <div class="soil-tracking-container">
-                <h2>🌱 Station 1: Soil Mixture Tracking</h2>
-                <p class="soil-intro">Record your group's soil mixture composition and observations for collaborative learning and comparison across all groups.</p>
-                
-                <form id="soilMixtureForm" class="soil-mixture-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="groupNumber">Group Number:</label>
-                            <select id="groupNumber" name="groupNumber" required>
-                                <option value="">Select your group</option>
-                                <option value="1">Group 1</option>
-                                <option value="2">Group 2</option>
-                                <option value="3">Group 3</option>
-                                <option value="4">Group 4</option>
-                                <option value="5">Group 5</option>
-                                <option value="6">Group 6</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="soilType">Primary Soil Type:</label>
-                            <select id="soilType" name="soilType" required>
-                                <option value="">Choose soil type</option>
-                                <option value="clay">Clay</option>
-                                <option value="sand">Sand</option>
-                                <option value="loam">Loam</option>
-                                <option value="compost">Compost</option>
-                                <option value="mixed">Mixed</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="compostPercentage">Compost %:</label>
-                            <input type="number" id="compostPercentage" name="compostPercentage" min="0" max="100" step="0.1" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="sandPercentage">Sand %:</label>
-                            <input type="number" id="sandPercentage" name="sandPercentage" min="0" max="100" step="0.1" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="clayPercentage">Clay %:</label>
-                            <input type="number" id="clayPercentage" name="clayPercentage" min="0" max="100" step="0.1" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="phLevel">pH Level:</label>
-                            <input type="number" id="phLevel" name="phLevel" min="0" max="14" step="0.1">
-                        </div>
-                        <div class="form-group">
-                            <label for="moistureLevel">Moisture Level:</label>
-                            <select id="moistureLevel" name="moistureLevel">
-                                <option value="">Select moisture</option>
-                                <option value="dry">Dry</option>
-                                <option value="moist">Moist</option>
-                                <option value="wet">Wet</option>
-                                <option value="saturated">Saturated</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group full-width">
-                        <label for="soilNotes">Observations & Notes:</label>
-                        <textarea id="soilNotes" name="soilNotes" rows="3" placeholder="Color, texture, smell, any unique characteristics..."></textarea>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn soil-submit">🌱 Record Soil Mixture</button>
-                        <button type="button" id="viewAllMixtures" class="btn view-mixtures">📊 View All Group Data</button>
-                    </div>
-                </form>
-                
-                <div id="percentageWarning" class="percentage-warning" style="display: none;">
-                    <p>⚠️ Total percentage should equal 100%. Current total: <span id="totalPercentage">0</span>%</p>
-                </div>
-            </div>
-            
-            <div class="soil-mixtures-data" id="soilMixturesData" style="display: none;">
-                <h3>All Groups' Soil Mixture Data</h3>
-                <div class="mixtures-grid" id="mixturesGrid">
-                    <!-- Dynamic content will be loaded here -->
-                </div>
-            </div>
-        </section>
 
         <section id="guestbook" class="guestbook-section">
             <h2>📝 Student Guest Book</h2>
@@ -551,6 +541,20 @@
                     });
                 });
             }
+
+            // Accordion functionality
+            window.toggleAccordion = function(accordionId) {
+                const content = document.getElementById(accordionId + '-content');
+                const arrow = document.querySelector(`[onclick="toggleAccordion('${accordionId}')"] .accordion-arrow`);
+
+                if (content.style.display === 'none' || content.style.display === '') {
+                    content.style.display = 'block';
+                    arrow.textContent = '▲';
+                } else {
+                    content.style.display = 'none';
+                    arrow.textContent = '▼';
+                }
+            };
 
             // Guest Book functionality
             const guestBookForm = document.getElementById('guestBookForm');
@@ -753,171 +757,6 @@
                 });
             }
 
-            // Soil Mixture Tracking functionality
-            const soilMixtureForm = document.getElementById('soilMixtureForm');
-            const viewAllMixtures = document.getElementById('viewAllMixtures');
-            const soilMixturesData = document.getElementById('soilMixturesData');
-            const mixturesGrid = document.getElementById('mixturesGrid');
-            const percentageWarning = document.getElementById('percentageWarning');
-            const totalPercentageSpan = document.getElementById('totalPercentage');
-
-            // Load existing soil mixtures on page load
-            loadSoilMixtures();
-
-            // Percentage validation
-            const percentageInputs = ['compostPercentage', 'sandPercentage', 'clayPercentage'];
-            percentageInputs.forEach(inputId => {
-                const input = document.getElementById(inputId);
-                if (input) {
-                    input.addEventListener('input', validatePercentages);
-                }
-            });
-
-            function validatePercentages() {
-                const compost = parseFloat(document.getElementById('compostPercentage').value) || 0;
-                const sand = parseFloat(document.getElementById('sandPercentage').value) || 0;
-                const clay = parseFloat(document.getElementById('clayPercentage').value) || 0;
-                const total = compost + sand + clay;
-                
-                totalPercentageSpan.textContent = total.toFixed(1);
-                
-                if (total !== 100 && (compost > 0 || sand > 0 || clay > 0)) {
-                    percentageWarning.style.display = 'block';
-                    percentageWarning.style.color = total > 100 ? '#f44336' : '#ff9800';
-                } else {
-                    percentageWarning.style.display = 'none';
-                }
-            }
-
-            if (soilMixtureForm) {
-                soilMixtureForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    const formData = new FormData(soilMixtureForm);
-                    const groupNumber = parseInt(formData.get('groupNumber'));
-                    const soilType = formData.get('soilType');
-                    const compostPercentage = parseFloat(formData.get('compostPercentage'));
-                    const sandPercentage = parseFloat(formData.get('sandPercentage'));
-                    const clayPercentage = parseFloat(formData.get('clayPercentage'));
-                    const phLevel = parseFloat(formData.get('phLevel')) || null;
-                    const moistureLevel = formData.get('moistureLevel') || null;
-                    const notes = formData.get('soilNotes') || null;
-
-                    // Validate percentages
-                    const total = compostPercentage + sandPercentage + clayPercentage;
-                    if (Math.abs(total - 100) > 0.1) {
-                        alert(`Please ensure percentages add up to 100%. Current total: ${total.toFixed(1)}%`);
-                        return;
-                    }
-
-                    try {
-                        // Get visit ID by access code
-                        const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
-                        if (!visit) {
-                            alert('Visit not found. Please contact support.');
-                            return;
-                        }
-
-                        // Prepare soil mixture data
-                        const soilData = {
-                            visit_id: visit.id,
-                            group_number: groupNumber,
-                            group_name: `Group ${groupNumber}`,
-                            soil_type: soilType,
-                            compost_percentage: compostPercentage,
-                            sand_percentage: sandPercentage,
-                            clay_percentage: clayPercentage,
-                            ph_level: phLevel,
-                            moisture_level: moistureLevel,
-                            notes: notes
-                        };
-
-                        // Check if group already has data (for updates)
-                        const existingMixtures = await GuidalDB.getSoilMixtures();
-                        const existingMixture = existingMixtures.find(m => m.group_number === groupNumber && m.visit_id === visit.id);
-
-                        if (existingMixture) {
-                            // Update existing mixture
-                            await GuidalDB.updateSoilMixture(groupNumber, soilData);
-                            alert('Soil mixture data updated successfully! 🌱');
-                        } else {
-                            // Add new mixture
-                            await GuidalDB.addSoilMixture(soilData);
-                            alert('Soil mixture data recorded successfully! 🌱');
-                        }
-
-                        // Refresh the display
-                        await loadSoilMixtures();
-                        
-                        // Reset form
-                        soilMixtureForm.reset();
-                        percentageWarning.style.display = 'none';
-
-                    } catch (error) {
-                        console.error('Error saving soil mixture:', error);
-                        alert('There was an error saving your soil mixture data. Please try again.');
-                    }
-                });
-            }
-
-            if (viewAllMixtures) {
-                viewAllMixtures.addEventListener('click', function() {
-                    if (soilMixturesData.style.display === 'none') {
-                        soilMixturesData.style.display = 'block';
-                        viewAllMixtures.textContent = '🫣 Hide Group Data';
-                        soilMixturesData.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                        soilMixturesData.style.display = 'none';
-                        viewAllMixtures.textContent = '📊 View All Group Data';
-                    }
-                });
-            }
-
-            async function loadSoilMixtures() {
-                try {
-                    const mixtures = await GuidalDB.getSoilMixtures();
-                    
-                    if (mixtures.length === 0) {
-                        mixturesGrid.innerHTML = '<p class="no-data">No soil mixture data recorded yet. Be the first to record your group\'s data!</p>';
-                        return;
-                    }
-
-                    // Sort by group number
-                    mixtures.sort((a, b) => a.group_number - b.group_number);
-
-                    mixturesGrid.innerHTML = mixtures.map(mixture => `
-                        <div class="mixture-card">
-                            <h4>Group ${mixture.group_number}</h4>
-                            <div class="mixture-details">
-                                <p><strong>Soil Type:</strong> ${mixture.soil_type}</p>
-                                <div class="percentage-breakdown">
-                                    <span class="compost">Compost: ${mixture.compost_percentage}%</span>
-                                    <span class="sand">Sand: ${mixture.sand_percentage}%</span>
-                                    <span class="clay">Clay: ${mixture.clay_percentage}%</span>
-                                </div>
-                                ${mixture.ph_level ? `<p><strong>pH Level:</strong> ${mixture.ph_level}</p>` : ''}
-                                ${mixture.moisture_level ? `<p><strong>Moisture:</strong> ${mixture.moisture_level}</p>` : ''}
-                                ${mixture.notes ? `<p><strong>Notes:</strong> ${mixture.notes}</p>` : ''}
-                                <p class="recorded-time">Recorded: ${new Date(mixture.created_at).toLocaleString()}</p>
-                            </div>
-                        </div>
-                    `).join('');
-
-                    // Set up real-time subscription
-                    GuidalDB.subscribeToSoilMixtures(handleSoilMixtureUpdate);
-
-                } catch (error) {
-                    console.error('Error loading soil mixtures:', error);
-                    mixturesGrid.innerHTML = '<p class="error">Error loading soil mixture data. Please refresh the page.</p>';
-                }
-            }
-
-            function handleSoilMixtureUpdate(payload) {
-                if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-                    // Refresh the soil mixtures display
-                    loadSoilMixtures();
-                }
-            }
         });
     </script>
 </body>
