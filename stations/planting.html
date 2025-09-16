@@ -599,6 +599,12 @@
 
             // Function to check if group already has a submission
             async function checkExistingGroupSubmission(groupNumber) {
+                // Check if GuidalDB is initialized
+                if (!window.GuidalDB || !GuidalDB.supabase) {
+                    console.warn('GuidalDB not ready yet, skipping group check');
+                    return;
+                }
+
                 try {
                     const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
                     if (!visit) return;
@@ -625,6 +631,7 @@
                     }
                 } catch (error) {
                     console.error('Error checking group submission:', error);
+                    // Don't show error to user, just log it
                 }
             }
 

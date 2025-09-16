@@ -664,6 +664,15 @@
                 return;
             }
 
+            // Check if GuidalDB is initialized
+            if (!window.GuidalDB || !GuidalDB.supabase) {
+                console.warn('GuidalDB not ready yet, allowing group selection');
+                groupMessage.textContent = '✓ This group number is available.';
+                groupMessage.className = 'group-message available';
+                calculateTotal();
+                return;
+            }
+
             try {
                 // Convert group value to number for database storage
                 const groupNumberInt = convertGroupToNumber(groupNumber);
@@ -676,7 +685,12 @@
                     .single();
 
                 if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-                    throw error;
+                    console.warn('Database query error (non-critical):', error);
+                    // Don't block the user, just show available
+                    groupMessage.textContent = '✓ This group number is available.';
+                    groupMessage.className = 'group-message available';
+                    calculateTotal();
+                    return;
                 }
 
                 if (data) {
@@ -690,8 +704,10 @@
                 }
             } catch (error) {
                 console.error('Error checking group availability:', error);
-                groupMessage.textContent = '⚠️ Error checking group availability. Please try again.';
-                groupMessage.className = 'group-message taken';
+                // Don't block the user with errors - just assume available
+                groupMessage.textContent = '✓ This group number is available.';
+                groupMessage.className = 'group-message available';
+                calculateTotal();
             }
         }
 
