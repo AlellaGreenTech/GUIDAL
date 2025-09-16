@@ -525,13 +525,33 @@
                 // Scroll to top to ensure message is visible
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
-                // Auto-hide non-error messages
-                if (type !== 'error') {
+                // Add close button for success messages to require acknowledgment
+                if (type === 'success') {
+                    const closeBtn = document.createElement('button');
+                    closeBtn.innerHTML = '✓ Got it!';
+                    closeBtn.style.cssText = `
+                        display: block;
+                        margin: 1rem auto 0;
+                        padding: 0.75rem 1.5rem;
+                        background: #28a745;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        transition: background 0.3s ease;
+                    `;
+                    closeBtn.addEventListener('click', () => messageEl.remove());
+                    closeBtn.addEventListener('mouseover', () => closeBtn.style.background = '#1e7e34');
+                    closeBtn.addEventListener('mouseout', () => closeBtn.style.background = '#28a745');
+                    messageEl.appendChild(closeBtn);
+                } else if (type !== 'error') {
+                    // Auto-hide non-success, non-error messages
                     setTimeout(() => {
                         if (messageEl.parentNode) {
                             messageEl.remove();
                         }
-                    }, type === 'success' ? 6000 : 4000);
+                    }, 4000);
                 }
             }
         });
