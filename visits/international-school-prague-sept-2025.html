@@ -231,6 +231,77 @@
             border-radius: 15px;
             font-size: 0.9rem;
         }
+
+        /* Standard Accordion Styling */
+        .activities-accordion {
+            margin: 2rem 0;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .accordion-title {
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #2e7d32;
+            cursor: pointer;
+            list-style: none;
+            background: linear-gradient(135deg, #f1f8e9, #e8f5e8);
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .accordion-title:hover {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+        }
+
+        .accordion-title::-webkit-details-marker {
+            display: none;
+        }
+
+        .accordion-title::before {
+            content: "▶ ";
+            margin-right: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        details[open] .accordion-title::before {
+            transform: rotate(90deg);
+        }
+
+        .activities-benefits {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .benefit {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .benefit h3 {
+            color: #2e7d32;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .benefit p {
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .benefit ul {
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding-left: 1.2rem;
+        }
     </style>
 </head>
 <body>
