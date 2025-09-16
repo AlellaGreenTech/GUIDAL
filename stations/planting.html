@@ -266,6 +266,8 @@
                                             <option value="4">Group 4</option>
                                             <option value="5">Group 5</option>
                                             <option value="6">Group 6</option>
+                                            <option value="staff">Staff</option>
+                                            <option value="other">Other</option>
                                         </select>
                                     </div>
                                 </div>
@@ -417,6 +419,8 @@
                                             <option value="4">Group 4</option>
                                             <option value="5">Group 5</option>
                                             <option value="6">Group 6</option>
+                                            <option value="staff">Staff</option>
+                                            <option value="other">Other</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -824,13 +828,25 @@
                 }
             }
 
+        function convertGroupToNumber(groupValue) {
+            if (groupValue === 'staff') return -1;
+            if (groupValue === 'other') return -2;
+            return parseInt(groupValue);
+        }
+
+        function getGroupDisplayName(groupNumber) {
+            if (groupNumber === -1) return 'Staff';
+            if (groupNumber === -2) return 'Other';
+            return `Group ${groupNumber}`;
+        }
+
             // Soil mixture form submission
             if (stationSoilForm) {
                 stationSoilForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     const formData = new FormData(stationSoilForm);
-                    const groupNumber = parseInt(formData.get('groupNumber'));
+                    const groupNumber = convertGroupToNumber(formData.get('groupNumber'));
                     const cowManure = parseInt(formData.get('cowManure'));
                     const horseManure = parseInt(formData.get('horseManure'));
                     const saulo = parseInt(formData.get('saulo'));
@@ -911,7 +927,7 @@
                     e.preventDefault();
                     
                     const formData = new FormData(observationsForm);
-                    const groupNumber = parseInt(formData.get('groupNumber'));
+                    const groupNumber = convertGroupToNumber(formData.get('groupNumber'));
                     const studentName = formData.get('studentName') || 'Anonymous';
                     const plantsToday = formData.get('plantsToday');
                     const observation = formData.get('observation');
@@ -927,7 +943,7 @@
                         // Create guest book entry for observations
                         const observationData = {
                             visit_id: visit.id,
-                            student_name: `Group ${groupNumber} - ${studentName}`,
+                            student_name: `${getGroupDisplayName(groupNumber)} - ${studentName}`,
                             message: `Plants planted: ${plantsToday}\n\nObservations: ${observation}`
                         };
 
