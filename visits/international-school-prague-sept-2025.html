@@ -72,6 +72,165 @@
             font-style: italic;
             margin-top: 0.5rem;
         }
+
+        /* Station image styling */
+        .station-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 1rem;
+        }
+
+        .station-card {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .station-card h3,
+        .station-card p,
+        .station-card .station-credits,
+        .station-card .btn {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        .station-card h3 {
+            padding-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .station-card .btn {
+            margin: 1rem 1.5rem 1.5rem 1.5rem;
+            padding: 0.75rem 1.5rem;
+        }
+
+        /* Voting System Styling */
+        .station-voting-accordion {
+            margin: 2rem 0;
+            border: 2px solid #4caf50;
+            border-radius: 12px;
+            background: white;
+        }
+
+        .voting-content {
+            padding: 1.5rem;
+        }
+
+        .voting-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .vote-option {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .vote-option:hover {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+
+        .vote-option input[type="checkbox"] {
+            margin-right: 0.75rem;
+            transform: scale(1.2);
+        }
+
+        .vote-option.selected {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+        }
+
+        .station-name {
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        .voting-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .vote-counter {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #2196f3, #42a5f5);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .voting-results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .results-display {
+            min-height: 100px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .result-rank {
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .result-votes {
+            background: #4caf50;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -111,9 +270,9 @@
                 <div class="visit-details">
                     <p><strong>Date:</strong> September 17, 2025</p>
                     <p><strong>Time:</strong> Morning session with lunch until 14:00-14:30</p>
-                    <p><strong>Group Size:</strong> 38 Students (Grades 9-12, ages 14-17)</p>
+                    <p><strong>Students:</strong> 38 students in 4 groups with 7 teachers (Grades 9-12, ages 14-17)</p>
                     <p><strong>From:</strong> Czechia</p>
-                    <p><strong>Focus:</strong> IoT, Smart Farming, Robotics & Agricultural Drones</p>
+                    <p><strong>Focus:</strong> IoT, Smart Farming, Sustainability, Water, Wine & Tech</p>
                 </div>
                 <div class="access-code">
                     <h4>🇨🇿 Vítejte! Access Code: ISP-2025-SEP</h4>
@@ -122,123 +281,223 @@
                 <div class="photo-gallery-section">
                     <h4>📸 Trip Photo Gallery</h4>
                     <p>Share your photos from today's visit and see memories from other students!</p>
-                    <a href="#" target="_blank" class="btn gallery-btn">
+                    <a href="https://photos.app.goo.gl/Nh5F9zgSxEGC6JhDA" target="_blank" class="btn gallery-btn">
                         📷 View & Add Photos
                     </a>
                     <p><small>Click to add your station photos, group shots, and favorite moments</small></p>
-                    <p><small class="gallery-placeholder">🔗 Photo gallery link will be added before your visit</small></p>
                 </div>
             </div>
         </section>
 
         <section id="overview">
-            <h2>Your Visit Overview</h2>
-            <p>Welcome to your morning sustainability workshop! Based on your background in sustainability studies, Individuals and Societies coursework, and robotics experience, we've designed activities that combine seeing and doing.</p>
-            
-            <div class="learning-objectives">
-                <h3>Learning Objectives</h3>
-                <ul>
-                    <li>Explore Internet of Things (IoT) and smart sensors for data collection</li>
-                    <li>Experience automation with robotic gardening and mowing systems</li>
-                    <li>Visit the smartest automatic irrigation plant in the Maresme</li>
-                    <li>Learn 6,000-year-old wattle and daub construction techniques</li>
-                    <li>Discover vineyard management and wine-making processes</li>
-                    <li>See agricultural drone technology in action</li>
-                </ul>
-            </div>
-        </section>
-
-        <section id="groups" class="groups-section">
-            <h2>👥 Groups - Student Organization</h2>
-            <div class="groups-info">
-                <div class="group-stats">
-                    <div class="stat">
-                        <div class="stat-number">38</div>
-                        <div class="stat-label">Total Students</div>
+            <details class="activities-accordion">
+                <summary class="accordion-title">Your Visit Overview</summary>
+                <div class="activities-benefits">
+                    <div class="benefit">
+                        <h3>🎯 Tailored for Prague Students</h3>
+                        <p>Welcome to your morning sustainability workshop! Based on your background in sustainability studies, Individuals and Societies coursework, and robotics experience, we've designed activities that combine seeing and doing.</p>
                     </div>
-                    <div class="stat">
-                        <div class="stat-number">4</div>
-                        <div class="stat-label">Groups</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number">9-10</div>
-                        <div class="stat-label">Students per Group</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number">7</div>
-                        <div class="stat-label">Accompanying Teachers</div>
+                    <div class="benefit">
+                        <h3>📚 Learning Objectives</h3>
+                        <ul>
+                            <li>Explore Internet of Things (IoT) and smart sensors for data collection</li>
+                            <li>Experience automation with robotic gardening and mowing systems</li>
+                            <li>Visit the smartest automatic irrigation plant in the Maresme</li>
+                            <li>Learn 6,000-year-old wattle and daub construction techniques</li>
+                            <li>Discover vineyard management and wine-making processes</li>
+                            <li>See the amazing hydraulic ram pump in action</li>
+                        </ul>
                     </div>
                 </div>
-                <p class="groups-description">Students will rotate through stations in their assigned groups. Each group will experience multiple activities throughout the morning session.</p>
-            </div>
+            </details>
         </section>
 
         <section id="stations" class="stations-grid">
             <h2>Your Project Stations</h2>
             <div class="station-cards">
                 <div class="station-card">
+                    <img src="../images/school-visit-planting.png" alt="Students planting seeds" class="station-image">
                     <h3>Planting</h3>
                     <p><strong>Station 1</strong></p>
                     <p>Hands-on experience with sustainable planting techniques, seed propagation, and understanding plant growth cycles in different environmental conditions.</p>
                     <div class="station-credits">
                         <span class="earn-credits">+5 Green$ for participation</span>
                     </div>
-                    <a href="../stations/planting.html" class="btn">Visit Station</a>
+                    <a href="../stations/planting.html?visit=prague" class="btn">Visit Station</a>
                 </div>
-                
+
                 <div class="station-card">
+                    <img src="../images/school-visit-permaculture.png" alt="Composting demonstration" class="station-image">
                     <h3>Composting</h3>
                     <p><strong>Station 2</strong></p>
                     <p>The many ways to build good soil - learn sustainable soil creation and organic waste management techniques.</p>
                     <div class="station-credits">
                         <span class="earn-credits">+5 Green$ for participation</span>
                     </div>
-                    <a href="../stations/composting.html" class="btn">Visit Station</a>
+                    <a href="../stations/composting.html?visit=prague" class="btn">Visit Station</a>
                 </div>
-                
+
                 <div class="station-card">
+                    <img src="../images/martin and drone.png" alt="Robotic gardening and drone technology" class="station-image">
                     <h3>Robotic Gardening</h3>
                     <p><strong>Station 3</strong></p>
                     <p>Tend your garden from 1,000km away - or let the bot do it! Explore automated agriculture and precision farming - perfect for your robotics background!</p>
                     <div class="station-credits">
                         <span class="earn-credits">+5 Green$ for participation</span>
                     </div>
-                    <a href="../stations/robotic-gardening.html" class="btn">Visit Station</a>
+                    <a href="../stations/robotic-gardening.html?visit=prague" class="btn">Visit Station</a>
                 </div>
-                
+
                 <div class="station-card">
+                    <img src="../images/school-visit-bg.png" alt="Traditional construction techniques" class="station-image">
                     <h3>Wattle & Daub</h3>
                     <p><strong>Station 4</strong></p>
                     <p>Harvest clay, then build a home with mud, hay, and sticks - 6,000-year-old sustainable construction techniques!</p>
                     <div class="station-credits">
                         <span class="earn-credits">+5 Green$ for participation</span>
                     </div>
-                    <a href="../stations/wattle-daub.html" class="btn">Visit Station</a>
+                    <a href="../stations/wattle-daub.html?visit=prague" class="btn">Visit Station</a>
+                </div>
+
+                <div class="station-card">
+                    <img src="../images/swales.jpg" alt="Erosion control and water management" class="station-image">
+                    <h3>Erosion Challenge</h3>
+                    <p><strong>Station 5</strong></p>
+                    <p>Stop erosion, retain water and create a fertile hillside through natural engineering solutions.</p>
+                    <div class="station-credits">
+                        <span class="earn-credits">+5 Green$ for participation</span>
+                    </div>
+                    <a href="../stations/erosion-challenge.html?visit=prague" class="btn">Visit Station</a>
+                </div>
+
+                <div class="station-card">
+                    <img src="../images/workshop-ram-pump.png" alt="Hydraulic ram pump demonstration" class="station-image">
+                    <h3>Hydraulic Ram Pumps</h3>
+                    <p><strong>Station 6</strong></p>
+                    <p>Learn water hammer principles to pump water without electricity! Test the efficiency of our hydraulic ram pump - the amazing technology you'll see in action!</p>
+                    <div class="station-credits">
+                        <span class="earn-credits">+5 Green$ for participation</span>
+                    </div>
+                    <a href="../stations/ram-pumps.html?visit=prague" class="btn">Visit Station</a>
+                </div>
+
+                <div class="station-card">
+                    <img src="../images/schoolair-dashboard.png" alt="SchoolAIR real-time classroom air quality monitoring dashboard" class="station-image">
+                    <h3>SchoolAIR IoT Sensors</h3>
+                    <p><strong>Station 7</strong></p>
+                    <p>IoT air quality and weather station project - monitor environmental conditions in real-time using sensor networks that collect data and automate responses.</p>
+                    <div class="station-credits">
+                        <span class="earn-credits">+5 Green$ for participation</span>
+                    </div>
+                    <a href="https://schoolair.org" target="_blank" class="btn">Visit Station</a>
+                </div>
+
+                <div class="station-card">
+                    <img src="../images/school-visit-pond-canoe.png" alt="Smart irrigation and water management systems" class="station-image">
+                    <h3>Smart Irrigation Demo</h3>
+                    <p><strong>Station 8</strong></p>
+                    <p>Visit the smartest automatic irrigation plant in the Maresme - see precision water management and automated watering systems in action.</p>
+                    <div class="station-credits">
+                        <span class="earn-credits">+5 Green$ for participation</span>
+                    </div>
+                    <button class="btn" disabled>Visit Station</button>
+                </div>
+
+                <div class="station-card">
+                    <img src="../images/school-visit-vineyard.png" alt="Agricultural drones and vineyard management" class="station-image">
+                    <h3>Agricultural Drones & Vineyard</h3>
+                    <p><strong>Station 9</strong></p>
+                    <p>Show and tell using AGT's huge agricultural drone! See the latest state of the vines and learn about vineyard management and wine-making.</p>
+                    <div class="station-credits">
+                        <span class="earn-credits">+5 Green$ for participation</span>
+                    </div>
+                    <button class="btn" disabled>Visit Station</button>
                 </div>
             </div>
-            
-            <div class="extra-demos">
-                <h3>Extra Demonstrations (Time Allowing)</h3>
-                <div class="demo-cards">
-                    <div class="demo-card">
-                        <h4>SchoolAIR IoT Sensors</h4>
-                        <p>IoT air quality and weather station project - monitor environmental conditions in real-time using sensor networks that collect data and automate responses.</p>
-                        <div class="demo-type">IoT & Environmental Monitoring</div>
-                    </div>
-                    
-                    <div class="demo-card">
-                        <h4>Smart Irrigation Demo</h4>
-                        <p>Visit the smartest automatic irrigation plant in the Maresme - see precision water management and automated watering systems in action.</p>
-                        <div class="demo-type">Smart Farming Technology</div>
-                    </div>
-                    
-                    <div class="demo-card">
-                        <h4>Agricultural Drones & Vineyard</h4>
-                        <p>Show and tell using AGT's huge agricultural drone! See the latest state of the vines and learn about vineyard management and wine-making.</p>
-                        <div class="demo-type">Agricultural Innovation</div>
+
+            <!-- Station Voting System -->
+            <details class="station-voting-accordion">
+                <summary class="accordion-title">🗳️ Vote for Your 4 Favorite Stations</summary>
+                <div class="voting-content">
+                    <p><strong>Help us plan your visit!</strong> Select exactly 4 stations you're most excited to experience. Your votes help us prioritize which stations to set up for your group.</p>
+
+                    <form id="stationVotingForm" class="voting-form">
+                        <div class="voting-options">
+                            <label class="vote-option">
+                                <input type="checkbox" name="stationVote" value="planting" data-station="Planting">
+                                <span class="checkmark"></span>
+                                <span class="station-name">🌱 Planting</span>
+                            </label>
+
+                            <label class="vote-option">
+                                <input type="checkbox" name="stationVote" value="composting" data-station="Composting">
+                                <span class="checkmark"></span>
+                                <span class="station-name">🌿 Composting</span>
+                            </label>
+
+                            <label class="vote-option">
+                                <input type="checkbox" name="stationVote" value="robotic-gardening" data-station="Robotic Gardening">
+                                <span class="checkmark"></span>
+                                <span class="station-name">🤖 Robotic Gardening</span>
+                            </label>
+
+                            <label class="vote-option">
+                                <input type="checkbox" name="stationVote" value="wattle-daub" data-station="Wattle & Daub">
+                                <span class="checkmark"></span>
+                                <span class="station-name">🏠 Wattle & Daub</span>
+                            </label>
+
+                            <label class="vote-option">
+                                <input type="checkbox" name="stationVote" value="erosion-challenge" data-station="Erosion Challenge">
+                                <span class="checkmark"></span>
+                                <span class="station-name">⛰️ Erosion Challenge</span>
+                            </label>
+
+                            <label class="vote-option">
+                                <input type="checkbox" name="stationVote" value="ram-pumps" data-station="Hydraulic Ram Pumps">
+                                <span class="checkmark"></span>
+                                <span class="station-name">💧 Hydraulic Ram Pumps</span>
+                            </label>
+
+                            <label class="vote-option">
+                                <input type="checkbox" name="stationVote" value="schoolair" data-station="SchoolAIR IoT Sensors">
+                                <span class="checkmark"></span>
+                                <span class="station-name">📊 SchoolAIR IoT Sensors</span>
+                            </label>
+
+                            <label class="vote-option">
+                                <input type="checkbox" name="stationVote" value="smart-irrigation" data-station="Smart Irrigation Demo">
+                                <span class="checkmark"></span>
+                                <span class="station-name">💦 Smart Irrigation Demo</span>
+                            </label>
+
+                            <label class="vote-option">
+                                <input type="checkbox" name="stationVote" value="agricultural-drones" data-station="Agricultural Drones & Vineyard">
+                                <span class="checkmark"></span>
+                                <span class="station-name">🚁 Agricultural Drones & Vineyard</span>
+                            </label>
+                        </div>
+
+                        <div class="voting-actions">
+                            <div class="vote-counter">
+                                <span id="voteCount">0</span>/4 stations selected
+                            </div>
+                            <button type="submit" id="submitVote" class="btn btn-primary" disabled>Submit My Votes</button>
+                        </div>
+                    </form>
+
+                    <div class="voting-results">
+                        <div class="results-header">
+                            <h4>🏆 Current Top Stations</h4>
+                            <button id="refreshResults" class="btn btn-secondary">🔄 Refresh Results</button>
+                        </div>
+                        <div id="votingResults" class="results-display">
+                            <p>Loading voting results...</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </details>
+
         </section>
 
         <section id="lunch-special">
@@ -293,6 +552,197 @@
                     });
                 });
             }
+        });
+
+        // Station Voting System
+        let selectedStations = new Set();
+        const maxSelections = 4;
+
+        // Initialize voting system
+        function initializeVotingSystem() {
+            const checkboxes = document.querySelectorAll('input[name="stationVote"]');
+            const voteCounter = document.getElementById('voteCount');
+            const submitButton = document.getElementById('submitVote');
+            const refreshButton = document.getElementById('refreshResults');
+
+            // Handle checkbox changes
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const voteOption = this.closest('.vote-option');
+
+                    if (this.checked) {
+                        if (selectedStations.size < maxSelections) {
+                            selectedStations.add(this.value);
+                            voteOption.classList.add('selected');
+                        } else {
+                            this.checked = false;
+                            alert(`You can only select ${maxSelections} stations!`);
+                        }
+                    } else {
+                        selectedStations.delete(this.value);
+                        voteOption.classList.remove('selected');
+                    }
+
+                    updateVoteCounter();
+                });
+            });
+
+            // Handle form submission
+            document.getElementById('stationVotingForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await submitVotes();
+            });
+
+            // Handle refresh results
+            refreshButton.addEventListener('click', loadVotingResults);
+
+            // Initial load of results
+            loadVotingResults();
+        }
+
+        function updateVoteCounter() {
+            const voteCounter = document.getElementById('voteCount');
+            const submitButton = document.getElementById('submitVote');
+
+            voteCounter.textContent = selectedStations.size;
+
+            if (selectedStations.size === maxSelections) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit My Votes';
+            } else {
+                submitButton.disabled = true;
+                submitButton.textContent = `Select ${maxSelections - selectedStations.size} more stations`;
+            }
+        }
+
+        async function submitVotes() {
+            if (selectedStations.size !== maxSelections) {
+                alert(`Please select exactly ${maxSelections} stations!`);
+                return;
+            }
+
+            // Check if GuidalDB is available
+            if (!window.GuidalDB || !GuidalDB.supabase) {
+                alert('Voting system not available. Please try again later.');
+                return;
+            }
+
+            try {
+                const submitButton = document.getElementById('submitVote');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+
+                // Save votes to database
+                const votes = Array.from(selectedStations).map(station => ({
+                    visit_type: 'prague',
+                    station_id: station,
+                    created_at: new Date().toISOString()
+                }));
+
+                const { data, error } = await GuidalDB.supabase
+                    .from('station_votes')
+                    .insert(votes);
+
+                if (error) throw error;
+
+                alert('✅ Your votes have been submitted! Thank you for helping us plan your visit.');
+
+                // Reset form
+                selectedStations.clear();
+                document.querySelectorAll('input[name="stationVote"]').forEach(cb => {
+                    cb.checked = false;
+                    cb.closest('.vote-option').classList.remove('selected');
+                });
+                updateVoteCounter();
+
+                // Refresh results
+                loadVotingResults();
+
+            } catch (error) {
+                console.error('Error submitting votes:', error);
+                alert('Error submitting votes. Please try again.');
+
+                const submitButton = document.getElementById('submitVote');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit My Votes';
+            }
+        }
+
+        async function loadVotingResults() {
+            const resultsDiv = document.getElementById('votingResults');
+            resultsDiv.innerHTML = '<p>Loading voting results...</p>';
+
+            // Check if GuidalDB is available
+            if (!window.GuidalDB || !GuidalDB.supabase) {
+                resultsDiv.innerHTML = '<p>Voting results unavailable.</p>';
+                return;
+            }
+
+            try {
+                const { data, error } = await GuidalDB.supabase
+                    .from('station_votes')
+                    .select('station_id')
+                    .eq('visit_type', 'prague');
+
+                if (error) throw error;
+
+                // Count votes
+                const voteCounts = {};
+                const stationNames = {
+                    'planting': '🌱 Planting',
+                    'composting': '🌿 Composting',
+                    'robotic-gardening': '🤖 Robotic Gardening',
+                    'wattle-daub': '🏠 Wattle & Daub',
+                    'erosion-challenge': '⛰️ Erosion Challenge',
+                    'ram-pumps': '💧 Hydraulic Ram Pumps',
+                    'schoolair': '📊 SchoolAIR IoT Sensors',
+                    'smart-irrigation': '💦 Smart Irrigation Demo',
+                    'agricultural-drones': '🚁 Agricultural Drones & Vineyard'
+                };
+
+                data.forEach(vote => {
+                    voteCounts[vote.station_id] = (voteCounts[vote.station_id] || 0) + 1;
+                });
+
+                // Sort by vote count
+                const sortedResults = Object.entries(voteCounts)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 6); // Show top 6
+
+                if (sortedResults.length === 0) {
+                    resultsDiv.innerHTML = '<p>No votes yet. Be the first to vote!</p>';
+                    return;
+                }
+
+                // Display results
+                let resultsHTML = '';
+                sortedResults.forEach(([stationId, votes], index) => {
+                    const rank = index + 1;
+                    const stationName = stationNames[stationId] || stationId;
+
+                    resultsHTML += `
+                        <div class="result-item">
+                            <div>
+                                <span class="result-rank">${rank}.</span>
+                                <span class="station-name">${stationName}</span>
+                            </div>
+                            <span class="result-votes">${votes} vote${votes !== 1 ? 's' : ''}</span>
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = resultsHTML;
+
+            } catch (error) {
+                console.error('Error loading voting results:', error);
+                resultsDiv.innerHTML = '<p>Error loading results. Please try again.</p>';
+            }
+        }
+
+        // Initialize voting system when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Delay to ensure other scripts are loaded
+            setTimeout(initializeVotingSystem, 1000);
         });
     </script>
 </body>
