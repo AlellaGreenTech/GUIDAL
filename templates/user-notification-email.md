@@ -8,7 +8,7 @@ Hi [Name],
 
 ### 📸 **NEW: Share Your Trip Photos!**
 Add your photos from today's visit to our **shared photo gallery**:
-👉 [Benjamin Franklin School Trip Gallery](YOUR_GOOGLE_PHOTOS_LINK)
+👉 [Benjamin Franklin School Trip Gallery](https://photos.app.goo.gl/mynZK2hwMntcD3rp8)
 
 ### 🌱 **Access All Station Features:**
 - Submit your soil mixture experiments
