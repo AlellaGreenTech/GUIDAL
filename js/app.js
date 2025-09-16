@@ -349,7 +349,9 @@ class GuidalApp {
     getCompletedBadge(activity) {
         const currentDate = new Date();
         const activityDate = activity.date_time ? new Date(activity.date_time) : null;
-        const isCompleted = activity.status === 'completed' || (activityDate && activityDate < currentDate);
+        // Set activity completion cutoff to next day at midnight
+        const nextDay = activityDate ? new Date(activityDate.getTime() + 24 * 60 * 60 * 1000) : null;
+        const isCompleted = activity.status === 'completed' || (nextDay && currentDate >= nextDay);
 
         if (isCompleted) {
             return `<span class="completed-badge">✅ Completed</span>`;
@@ -361,7 +363,9 @@ class GuidalApp {
         const currentDate = new Date();
         const activityDate = activity.date_time ? new Date(activity.date_time) : null;
         const isUpcoming = activity.status === 'published' && (!activityDate || activityDate > currentDate);
-        const isCompleted = activity.status === 'completed' || (activityDate && activityDate < currentDate);
+        // Set activity completion cutoff to next day at midnight
+        const nextDay = activityDate ? new Date(activityDate.getTime() + 24 * 60 * 60 * 1000) : null;
+        const isCompleted = activity.status === 'completed' || (nextDay && currentDate >= nextDay);
         const isFullyBooked = activity.max_participants && activity.current_participants >= activity.max_participants;
 
         // Check if user is already registered
@@ -520,10 +524,11 @@ class GuidalApp {
         );
 
         const currentDate = new Date();
-        const completedVisits = schoolVisits.filter(visit =>
-            visit.status === 'completed' ||
-            (visit.date_time && new Date(visit.date_time) < currentDate)
-        ).length;
+        const completedVisits = schoolVisits.filter(visit => {
+            const visitDate = visit.date_time ? new Date(visit.date_time) : null;
+            const nextDay = visitDate ? new Date(visitDate.getTime() + 24 * 60 * 60 * 1000) : null;
+            return visit.status === 'completed' || (nextDay && currentDate >= nextDay);
+        }).length;
 
         const upcomingVisits = schoolVisits.filter(visit =>
             visit.status === 'published' &&
