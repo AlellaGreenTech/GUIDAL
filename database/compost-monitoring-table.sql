@@ -10,10 +10,21 @@ CREATE TABLE IF NOT EXISTS public.compost_monitoring_plans (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
--- Add constraint to ensure group_number is between 1 and 10
+-- Add constraint to ensure group_number is valid (1-10, or special values for staff/other)
+-- We'll store staff as -1 and other as -2 to maintain integer type
+-- Use IF NOT EXISTS equivalent by dropping and recreating
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.table_constraints
+               WHERE constraint_name = 'check_group_number_monitoring'
+               AND table_name = 'compost_monitoring_plans') THEN
+        ALTER TABLE public.compost_monitoring_plans DROP CONSTRAINT check_group_number_monitoring;
+    END IF;
+END $$;
+
 ALTER TABLE public.compost_monitoring_plans
 ADD CONSTRAINT check_group_number_monitoring
-CHECK (group_number >= 1 AND group_number <= 10);
+CHECK (group_number >= -2 AND group_number <= 10 AND group_number != 0);
 
 -- Create an index on group_number for faster lookups
 CREATE INDEX IF NOT EXISTS idx_compost_monitoring_plans_group_number
@@ -23,6 +34,9 @@ ON public.compost_monitoring_plans(group_number);
 ALTER TABLE public.compost_monitoring_plans ENABLE ROW LEVEL SECURITY;
 
 -- Create policy to allow everyone to read and insert (for educational purposes)
+-- Drop existing policy if it exists and recreate
+DROP POLICY IF EXISTS "Allow all operations for monitoring plans" ON public.compost_monitoring_plans;
+
 CREATE POLICY "Allow all operations for monitoring plans"
 ON public.compost_monitoring_plans
 FOR ALL

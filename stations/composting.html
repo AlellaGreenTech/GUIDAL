@@ -427,6 +427,8 @@
                             <option value="8">Group 8</option>
                             <option value="9">Group 9</option>
                             <option value="10">Group 10</option>
+                            <option value="staff">Staff</option>
+                            <option value="other">Other</option>
                         </select>
                         <div id="groupMessage" class="group-message"></div>
                     </div>
@@ -547,6 +549,8 @@
                                     <option value="8">Group 8</option>
                                     <option value="9">Group 9</option>
                                     <option value="10">Group 10</option>
+                                    <option value="staff">Staff</option>
+                                    <option value="other">Other</option>
                                 </select>
                             </div>
 
@@ -556,7 +560,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="weekendBuild"><strong>Will you come and build it during a weekend?</strong></label>
+                                <label for="weekendBuild"><strong>Will you come and build it during a weekend? Earn Green$!</strong></label>
                                 <select id="weekendBuild" required>
                                     <option value="">Select an option</option>
                                     <option value="yes">Yes, I can come during a weekend</option>
@@ -643,6 +647,12 @@
             }
         }
 
+        function convertGroupToNumber(groupValue) {
+            if (groupValue === 'staff') return -1;
+            if (groupValue === 'other') return -2;
+            return parseInt(groupValue);
+        }
+
         async function checkGroupAvailability() {
             const groupNumber = document.getElementById('groupNumber').value;
             const groupMessage = document.getElementById('groupMessage');
@@ -655,11 +665,14 @@
             }
 
             try {
+                // Convert group value to number for database storage
+                const groupNumberInt = convertGroupToNumber(groupNumber);
+
                 // Check if group already has a recipe saved
                 const { data, error } = await GuidalDB.supabase
                     .from('composting_recipes')
                     .select('id')
-                    .eq('group_number', groupNumber)
+                    .eq('group_number', groupNumberInt)
                     .single();
 
                 if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
@@ -692,7 +705,7 @@
             }
 
             const recipeData = {
-                group_number: parseInt(groupNumber),
+                group_number: convertGroupToNumber(groupNumber),
                 biomass: parseFloat(document.getElementById('biomass').value) || 0,
                 horse_manure: parseFloat(document.getElementById('horseManure').value) || 0,
                 cow_manure: parseFloat(document.getElementById('cowManure').value) || 0,
@@ -769,7 +782,7 @@
             }
 
             const monitoringData = {
-                group_number: parseInt(groupNumber),
+                group_number: convertGroupToNumber(groupNumber),
                 monitoring_system: monitoringSystem,
                 weekend_build: weekendBuild,
                 student_name: studentName || null,

@@ -21,10 +21,11 @@ ALTER TABLE public.composting_recipes
 ADD CONSTRAINT check_total_percentage
 CHECK (total_percentage = 100);
 
--- Add constraint to ensure group_number is between 1 and 10
+-- Add constraint to ensure group_number is valid (1-10, or special values for staff/other)
+-- We'll store staff as -1 and other as -2 to maintain integer type
 ALTER TABLE public.composting_recipes
 ADD CONSTRAINT check_group_number
-CHECK (group_number >= 1 AND group_number <= 10);
+CHECK (group_number >= -2 AND group_number <= 10 AND group_number != 0);
 
 -- Add constraint to ensure all percentages are non-negative and <= 100
 ALTER TABLE public.composting_recipes

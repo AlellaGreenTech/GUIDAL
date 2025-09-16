@@ -49,6 +49,23 @@
             display: block;
         }
 
+        /* Guest Book Interests Styling */
+        .entry-interests {
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .interests-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .interests-value {
+            color: #2e7d32;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
         /* Initial state for accordions */
         #learning-objectives-content,
         #agenda-content,
@@ -383,6 +400,16 @@
                             </div>
                             <a href="../stations/pumped-hydro.html" class="btn">Visit Station</a>
                         </div>
+
+                        <div class="station-card">
+                            <h3>Hydraulic Ram Pumps</h3>
+                            <p><strong>Station 7</strong></p>
+                            <p>Learn water hammer principles to pump water without electricity! Test the efficiency of our hydraulic ram pump - who knows how to do it?</p>
+                            <div class="station-credits">
+                                <span class="earn-credits">+5 Green$ for participation</span>
+                            </div>
+                            <a href="../stations/ram-pumps.html" class="btn">Visit Station</a>
+                        </div>
                     </div>
 
                     <div class="extra-demos">
@@ -415,14 +442,14 @@
             <h2>Additional Resources</h2>
             <div class="resource-cards">
                 <div class="resource-card">
-                    <h4>📱 GUIDAL Mobile App</h4>
-                    <p>Download our app to track your Green$, access station materials offline, and connect with other students.</p>
-                    <a href="#" class="btn">Download App</a>
+                    <h4>💼 Start a Green Business</h4>
+                    <p>Make use of AGT resources to start a business!</p>
+                    <a href="https://instagram.com/alellagreentech" target="_blank" class="btn">Contact us</a>
                 </div>
                 <div class="resource-card">
-                    <h4>📚 Pre-Visit Reading</h4>
-                    <p>Optional background materials to enhance your learning experience at each station.</p>
-                    <a href="#" class="btn">View Materials</a>
+                    <h4>🙋‍♀️ Sign Up As a Volunteer</h4>
+                    <p>Join our WhatsApp group for volunteering</p>
+                    <a href="https://chat.whatsapp.com/HOZMSog1LTQChid2rRsxDL?mode=ems_copy_c" target="_blank" class="btn">JOIN</a>
                 </div>
                 <div class="resource-card">
                     <h4>🏆 Credit System</h4>
@@ -473,6 +500,22 @@
                             <option value="Pumped Hydro">Station 6 - Pumped Hydro</option>
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label for="studentInterests">I am interested in:</label>
+                        <select id="studentInterests" name="studentInterests" required>
+                            <option value="">Select what interests you most</option>
+                            <option value="Volunteering">Volunteering</option>
+                            <option value="Building cool stuff">Building cool stuff</option>
+                            <option value="The gardening robot">The gardening robot</option>
+                            <option value="Doing R&D with microcontrollers">Doing R&D with microcontrollers</option>
+                            <option value="The SchoolAIR project">The SchoolAIR project</option>
+                            <option value="Tending animals">Tending animals</option>
+                            <option value="Gardening at AGT">Gardening at AGT</option>
+                            <option value="Starting a weekend workshop or similar business at AGT">Starting a weekend workshop or similar business at AGT</option>
+                            <option value="Receiving cool stuff to read">Receiving cool stuff to read</option>
+                        </select>
+                    </div>
                     
                     <div class="form-group">
                         <label for="studentMessage">Your Message:</label>
@@ -500,6 +543,10 @@
                             <strong>Sample Student</strong> <span class="entry-group">Group 1</span>
                             <span class="entry-station">💚 Loved Robotic Gardening</span>
                         </div>
+                        <div class="entry-interests">
+                            <span class="interests-label">🎯 Interested in:</span>
+                            <span class="interests-value">Building cool stuff</span>
+                        </div>
                         <p class="entry-message">"The robotic farming was amazing! I can't believe we can control plants remotely. This visit opened my eyes to sustainable technology!"</p>
                         <div class="entry-footer">
                             <span class="entry-time">Today at 2:30 PM</span>
@@ -526,30 +573,22 @@
     <!-- Mobile Menu Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu functionality
             const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
             const navMenu = document.querySelector('.nav-menu');
-            
+
             if (mobileMenuToggle && navMenu) {
                 mobileMenuToggle.addEventListener('click', function() {
                     navMenu.classList.toggle('active');
                     mobileMenuToggle.classList.toggle('active');
                 });
-                
+
                 // Close menu when clicking outside
                 document.addEventListener('click', function(e) {
                     if (!e.target.closest('.main-nav')) {
                         navMenu.classList.remove('active');
                         mobileMenuToggle.classList.remove('active');
                     }
-                });
-                
-                // Close menu when clicking a nav link
-                const navLinks = document.querySelectorAll('.nav-menu a');
-                navLinks.forEach(link => {
-                    link.addEventListener('click', function() {
-                        navMenu.classList.remove('active');
-                        mobileMenuToggle.classList.remove('active');
-                    });
                 });
             }
 
@@ -585,6 +624,7 @@
                     const name = formData.get('studentName');
                     const group = formData.get('studentGroup');
                     const station = formData.get('favoriteStation');
+                    const interests = formData.get('studentInterests');
                     const message = formData.get('studentMessage');
                     const photo = formData.get('studentPhoto');
                     
@@ -600,6 +640,9 @@
                         const entryData = {
                             visit_id: visit.id,
                             student_name: name,
+                            group_name: group,
+                            favorite_station: station,
+                            interests: interests,
                             message: message,
                             photo_url: null, // TODO: Handle photo upload later
                             instagram_handle: null
@@ -614,6 +657,7 @@
                             name: name,
                             group: group,
                             station: station,
+                            interests: interests,
                             message: message,
                             time: new Date(savedEntry.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                         };
@@ -703,9 +747,13 @@
                 
                 entryDiv.innerHTML = `
                     <div class="entry-header">
-                        <strong>${entry.name}</strong> 
+                        <strong>${entry.name}</strong>
                         <span class="entry-group">${entry.group}</span>
                         <span class="entry-station">💚 Loved ${entry.station}</span>
+                    </div>
+                    <div class="entry-interests">
+                        <span class="interests-label">🎯 Interested in:</span>
+                        <span class="interests-value">${entry.interests}</span>
                     </div>
                     <p class="entry-message">"${entry.message}"</p>
                     <div class="entry-footer">

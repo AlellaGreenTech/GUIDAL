@@ -16,12 +16,16 @@
     
     <nav class="main-nav">
         <div class="container">
-            <ul>
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
                 <li><a href="../index.html">Home</a></li>
                 <li><a href="../index.html#stations">All Stations</a></li>
                 <li><a href="#overview">Overview</a></li>
                 <li><a href="#demonstration">How It Works</a></li>
-                <li><a href="#learning">Learning Goals</a></li>
             </ul>
         </div>
     </nav>
@@ -51,6 +55,11 @@
         
         <section id="demonstration">
             <h2>How Ram Pumps Work</h2>
+
+            <div class="diagram-container">
+                <img src="../images/ram-pump-diagram-detailed.png" alt="Detailed Ram Pump Diagram showing air chamber, delivery pipe, check valve, waste valve, drive pipe, and waste water flow" class="pump-diagram">
+            </div>
+
             <div class="demo-sequence">
                 <div class="step">
                     <h4>1. Water Flow Begins</h4>
@@ -81,41 +90,86 @@
                 <p><strong>Lift Ratios:</strong> Can pump water 7-10 times higher than the driving head with proper design.</p>
             </div>
         </section>
-        
-        <section id="learning">
-            <h2>Learning Goals</h2>
-            <ul class="learning-goals">
-                <li>Understand fluid dynamics and water hammer physics</li>
-                <li>Learn about pressure, flow rate, and energy conservation</li>
-                <li>Calculate pumping ratios and system efficiency</li>
-                <li>Explore historical engineering solutions and their modern applications</li>
-                <li>Design ram pump systems for specific water needs</li>
-                <li>Understand the role of air chambers and valve timing</li>
-            </ul>
-        </section>
-        
-        <section class="activities">
-            <h2>Hands-On Activities</h2>
-            <div class="activity-cards">
-                <div class="activity">
-                    <h4>Build Your Own Ram Pump</h4>
-                    <p>Construct a working ram pump using PVC pipes and simple valves to see the principles in action.</p>
+
+        <section class="efficiency-testing">
+            <h2>Technical Deep Dive</h2>
+
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('efficiency-testing')">
+                    <h3>How to Determine the Efficiency of a Ram Pump</h3>
+                    <div class="accordion-chevron">›</div>
                 </div>
-                <div class="activity">
-                    <h4>Efficiency Testing</h4>
-                    <p>Measure input flow rates and delivery volumes to calculate system efficiency under different conditions.</p>
+                <div class="accordion-content" id="efficiency-testing-content">
+                    <div class="efficiency-content">
+                        <p>To test the efficiency of a ram pump, you need to compare the potential energy output to the potential energy input.</p>
+
+                        <div class="efficiency-steps">
+                            <div class="step">
+                                <h4>Potential Energy Output:</h4>
+                                <p>This is the useful work done by the pump. You can determine it by measuring the volume of water that reaches the final destination and the height it's lifted to.</p>
+                            </div>
+
+                            <div class="step">
+                                <h4>Potential Energy Input:</h4>
+                                <p>This is the energy consumed by the pump. You can calculate it by measuring the volume of water flowing from the reservoir into the pump and the vertical height of the reservoir above the pump.</p>
+                            </div>
+                        </div>
+
+                        <p>Essentially, the efficiency is the ratio of the energy you get out to the energy you put in, often expressed as a percentage. The formula is:</p>
+
+                        <div class="formula">
+                            <p><strong>Efficiency = (Energy Output / Energy Input) × 100%</strong></p>
+                        </div>
+                    </div>
                 </div>
-                <div class="activity">
-                    <h4>Design Challenge</h4>
-                    <p>Design a ram pump system for a specific scenario: village water supply, garden irrigation, or livestock watering.</p>
+            </div>
+
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('pump-failure')">
+                    <h3>How Does A Ram Pump Fail?</h3>
+                    <div class="accordion-chevron">›</div>
                 </div>
-                <div class="activity">
-                    <h4>Historical Research</h4>
-                    <p>Investigate how ram pumps have been used throughout history and their impact on rural development.</p>
+                <div class="accordion-content" id="pump-failure-content">
+                    <div class="failure-content">
+                        <p>Understanding how ram pumps fail helps you design better systems and troubleshoot problems. Here are the main failure modes to experiment with:</p>
+
+                        <div class="failure-experiments">
+                            <div class="experiment">
+                                <h4>🔧 Lift the Water Source Higher</h4>
+                                <p>Try raising the input water source. As the vertical distance between source and pump increases, flow rates decrease and the pump may stop working entirely due to insufficient driving head.</p>
+                            </div>
+
+                            <div class="experiment">
+                                <h4>📈 Raise the Delivery Outlet</h4>
+                                <p>Gradually increase the delivery height. Ram pumps have maximum lift limits - push beyond this and water won't reach the destination despite the pump still operating.</p>
+                            </div>
+
+                            <div class="experiment">
+                                <h4>💧 Create a Low Point in Delivery Tube</h4>
+                                <p>Introduce a sag or dip in the delivery pipe. This creates air pockets and breaks the siphon effect, preventing water from reaching the final destination.</p>
+                            </div>
+
+                            <div class="experiment">
+                                <h4>🚰 Other Failure Modes to Test:</h4>
+                                <ul>
+                                    <li><strong>Insufficient drive pipe length:</strong> Too short = poor water hammer effect</li>
+                                    <li><strong>Wrong valve timing:</strong> Valves that open/close at wrong intervals</li>
+                                    <li><strong>Air leaks:</strong> Loose connections disrupting pressure cycles</li>
+                                    <li><strong>Clogged valves:</strong> Debris preventing proper valve operation</li>
+                                    <li><strong>Undersized air chamber:</strong> Insufficient pressure storage</li>
+                                    <li><strong>Flow rate too low:</strong> Source doesn't provide minimum required flow</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="failure-tip">
+                            <p><strong>💡 Learning Tip:</strong> Each failure mode teaches you about the physics principles that make ram pumps work. Try inducing these failures systematically to understand the limits!</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
-        
+
         <section class="applications">
             <h2>Real-World Applications</h2>
             <div class="applications-grid">
@@ -144,5 +198,219 @@
             <p>&copy; 2024 Alella Green Tech. <a href="../index.html">Back to GUIDAL</a></p>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu functionality
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+            }
+
+            // Accordion functionality
+            window.toggleAccordion = function(id) {
+                const content = document.getElementById(id + '-content');
+                const header = content.previousElementSibling;
+                const chevron = header.querySelector('.accordion-chevron');
+
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    chevron.style.transform = 'rotate(0deg)';
+                    chevron.textContent = '›';
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    chevron.style.transform = 'rotate(90deg)';
+                    chevron.textContent = '‹';
+                }
+            };
+        });
+    </script>
+
+    <style>
+        /* Accordion Styles */
+        .accordion-section {
+            margin: 1rem 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: linear-gradient(135deg, #45a049, #4CAF50);
+        }
+
+        .accordion-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .accordion-chevron {
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            background-color: white;
+            transition: max-height 0.3s ease;
+        }
+
+        .efficiency-content {
+            padding: 1.5rem;
+        }
+
+        .efficiency-steps {
+            margin: 1.5rem 0;
+        }
+
+        .step {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+        }
+
+        .step h4 {
+            margin: 0 0 0.5rem 0;
+            color: #2e7d32;
+        }
+
+        .formula {
+            background-color: #e8f5e8;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            border: 2px solid #4CAF50;
+        }
+
+        .formula p {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        /* Failure modes styling */
+        .failure-content {
+            padding: 1.5rem;
+        }
+
+        .failure-experiments {
+            margin: 1.5rem 0;
+        }
+
+        .experiment {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            border-radius: 4px;
+        }
+
+        .experiment h4 {
+            margin: 0 0 0.5rem 0;
+            color: #e65100;
+        }
+
+        .experiment ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .experiment li {
+            margin: 0.5rem 0;
+        }
+
+        .failure-tip {
+            background-color: #e3f2fd;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 2px solid #2196f3;
+        }
+
+        .failure-tip p {
+            margin: 0;
+            color: #0d47a1;
+        }
+
+        /* Video content styling */
+        .video-content {
+            padding: 1.5rem;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            margin: 1rem 0;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+
+        /* Responsive video for smaller screens */
+        @media (max-width: 768px) {
+            .video-container {
+                padding-bottom: 56.25%;
+            }
+        }
+
+        /* Diagram styling */
+        .diagram-container {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+        }
+
+        .pump-diagram {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .pump-diagram {
+                max-width: 100%;
+            }
+        }
+    </style>
 </body>
 </html>

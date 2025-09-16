@@ -26,7 +26,7 @@
                 <li><a href="pages/welcome.html">Welcome</a></li>
                 <li><a href="pages/about.html">About Us</a></li>
                 <li><a href="#activities">Activities</a></li>
-                <li><a href="#events">Events</a></li>
+                <li><a href="#activities" onclick="filterActivitiesByType('events')">Events</a></li>
                 <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
                 <li><a href="https://alellagreentech.com/shop/" target="_blank">Store</a></li>
                 <li><a href="pages/auth/login.html" class="login-btn">Login/Register</a></li>
@@ -74,7 +74,7 @@
             </div>
 
             <!-- Activities Card -->
-            <div class="mobile-card activities-card" id="activities-card">
+            <div class="mobile-card activities-card" id="activities">
                 <div class="card-header" onclick="toggleCard('activities')">
                     <div class="card-icon">📅</div>
                     <div class="card-title">
@@ -118,9 +118,9 @@
                             <div class="link-icon">🛒</div>
                             <div class="link-text">Online Shop</div>
                         </a>
-                        <a href="lunch-menu.html" class="quick-link">
+                        <a href="https://alellagreentech.com/shop/" target="_blank" class="quick-link">
                             <div class="link-icon">🍽️</div>
-                            <div class="link-text">Lunch Menu</div>
+                            <div class="link-text">At the Snack bar</div>
                         </a>
                         <a href="pages/auth/login.html" class="quick-link">
                             <div class="link-icon">⚽</div>
@@ -232,21 +232,33 @@
 
         // Mobile App-Style Card Toggle Function
         function toggleCard(cardId) {
-            const card = document.getElementById(cardId + '-card');
+            // Handle the activities card which has ID 'activities' instead of 'activities-card'
+            const actualCardId = cardId === 'activities' ? 'activities' : cardId + '-card';
+            const card = document.getElementById(actualCardId);
             const content = document.getElementById(cardId + '-content');
-            const chevron = card.querySelector('.card-chevron');
+            const chevron = card ? card.querySelector('.card-chevron') : null;
+
+            // Check if elements exist before manipulating them
+            if (!card || !content) {
+                console.error('Card or content not found for cardId:', cardId);
+                return;
+            }
 
             // Toggle the active state
             card.classList.toggle('active');
 
             if (card.classList.contains('active')) {
                 content.style.maxHeight = content.scrollHeight + 'px';
-                chevron.style.transform = 'rotate(90deg)';
-                chevron.textContent = '‹';
+                if (chevron) {
+                    chevron.style.transform = 'rotate(90deg)';
+                    chevron.textContent = '‹';
+                }
             } else {
                 content.style.maxHeight = '0';
-                chevron.style.transform = 'rotate(0deg)';
-                chevron.textContent = '›';
+                if (chevron) {
+                    chevron.style.transform = 'rotate(0deg)';
+                    chevron.textContent = '›';
+                }
             }
         }
 
@@ -280,7 +292,7 @@
                     if (activityGrid && activityGrid.children.length > 0) {
                         console.log('✅ Activities are rendered in DOM');
                         // Re-expand the activities card to ensure proper height calculation
-                        const activitiesCard = document.getElementById('activities-card');
+                        const activitiesCard = document.getElementById('activities');
                         const activitiesContent = document.getElementById('activities-content');
                         if (activitiesCard && activitiesContent) {
                             activitiesCard.classList.add('active');
@@ -293,6 +305,36 @@
                 }, 2000);
             }, 500);
         });
+
+        // Function to filter activities by type when Events link is clicked
+        function filterActivitiesByType(filterType) {
+            // First expand the activities card if it's not already open
+            const activitiesCard = document.getElementById('activities');
+            const activitiesContent = document.getElementById('activities-content');
+
+            if (activitiesCard && activitiesContent) {
+                // Expand the activities card
+                activitiesCard.classList.add('active');
+                activitiesContent.style.maxHeight = activitiesContent.scrollHeight + 'px';
+
+                // Update the chevron
+                const chevron = activitiesCard.querySelector('.card-chevron');
+                if (chevron) {
+                    chevron.style.transform = 'rotate(90deg)';
+                    chevron.textContent = '‹';
+                }
+
+                // Set the filter dropdown to the specified type
+                setTimeout(() => {
+                    const filterSelect = document.getElementById('activity-filter');
+                    if (filterSelect) {
+                        filterSelect.value = filterType;
+                        // Trigger the change event if there's a handler
+                        filterSelect.dispatchEvent(new Event('change'));
+                    }
+                }, 100);
+            }
+        }
     </script>
 
     <!-- Required Scripts -->
