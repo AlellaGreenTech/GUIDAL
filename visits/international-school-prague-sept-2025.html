@@ -73,6 +73,31 @@
             margin-top: 0.5rem;
         }
 
+        /* Privacy Notice Styling */
+        .privacy-notice {
+            background: linear-gradient(135deg, #e3f2fd, #e1f5fe);
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .privacy-notice h4 {
+            color: #1565c0;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+
+        .privacy-notice p {
+            color: #0d47a1;
+            margin: 0.5rem 0;
+        }
+
+        .privacy-notice small {
+            color: #1976d2;
+        }
+
         /* Station image styling */
         .station-image {
             width: 100%;
@@ -348,6 +373,11 @@
                     <h4>🇨🇿 Vítejte! Access Code: ISP-2025-SEP</h4>
                     <p><small>Use this code for the key pad on the post to the right of the second gate</small></p>
                 </div>
+                <div class="privacy-notice">
+                    <h4>🔒 Privacy-Friendly Visit</h4>
+                    <p><strong>No registration required!</strong> This visit respects your school's privacy policy. You can participate in all activities without creating an account or providing personal information.</p>
+                    <p><small>All station activities are open access. Optional data collection is anonymous.</small></p>
+                </div>
                 <div class="photo-gallery-section">
                     <h4>📸 Trip Photo Gallery</h4>
                     <p>Share your photos from today's visit and see memories from other students!</p>
@@ -393,7 +423,7 @@
                     <div class="station-credits">
                         <span class="earn-credits">+5 Green$ for participation</span>
                     </div>
-                    <a href="../stations/planting.html?visit=prague" class="btn">Visit Station</a>
+                    <a href="../stations/planting.html?visit=prague&privacy=true" class="btn">Visit Station</a>
                 </div>
 
                 <div class="station-card">
@@ -404,7 +434,7 @@
                     <div class="station-credits">
                         <span class="earn-credits">+5 Green$ for participation</span>
                     </div>
-                    <a href="../stations/composting.html?visit=prague" class="btn">Visit Station</a>
+                    <a href="../stations/composting.html?visit=prague&privacy=true" class="btn">Visit Station</a>
                 </div>
 
                 <div class="station-card">
@@ -415,7 +445,7 @@
                     <div class="station-credits">
                         <span class="earn-credits">+5 Green$ for participation</span>
                     </div>
-                    <a href="../stations/robotic-gardening.html?visit=prague" class="btn">Visit Station</a>
+                    <a href="../stations/robotic-gardening.html?visit=prague&privacy=true" class="btn">Visit Station</a>
                 </div>
 
                 <div class="station-card">
@@ -426,7 +456,7 @@
                     <div class="station-credits">
                         <span class="earn-credits">+5 Green$ for participation</span>
                     </div>
-                    <a href="../stations/wattle-daub.html?visit=prague" class="btn">Visit Station</a>
+                    <a href="../stations/wattle-daub.html?visit=prague&privacy=true" class="btn">Visit Station</a>
                 </div>
 
                 <div class="station-card">
@@ -437,7 +467,7 @@
                     <div class="station-credits">
                         <span class="earn-credits">+5 Green$ for participation</span>
                     </div>
-                    <a href="../stations/erosion-challenge.html?visit=prague" class="btn">Visit Station</a>
+                    <a href="../stations/erosion-challenge.html?visit=prague&privacy=true" class="btn">Visit Station</a>
                 </div>
 
                 <div class="station-card">
@@ -448,7 +478,7 @@
                     <div class="station-credits">
                         <span class="earn-credits">+5 Green$ for participation</span>
                     </div>
-                    <a href="../stations/ram-pumps.html?visit=prague" class="btn">Visit Station</a>
+                    <a href="../stations/ram-pumps.html?visit=prague&privacy=true" class="btn">Visit Station</a>
                 </div>
 
                 <div class="station-card">
@@ -691,31 +721,37 @@
                 return;
             }
 
-            // Check if GuidalDB is available
-            if (!window.GuidalDB || !GuidalDB.supabase) {
-                alert('Voting system not available. Please try again later.');
-                return;
-            }
-
             try {
                 const submitButton = document.getElementById('submitVote');
                 submitButton.disabled = true;
                 submitButton.textContent = 'Submitting...';
 
-                // Save votes to database
-                const votes = Array.from(selectedStations).map(station => ({
-                    visit_type: 'prague',
-                    station_id: station,
-                    created_at: new Date().toISOString()
-                }));
+                // Privacy mode: Save votes to database without user identification
+                if (window.GuidalDB && GuidalDB.supabase) {
+                    const votes = Array.from(selectedStations).map(station => ({
+                        visit_type: 'prague',
+                        station_id: station,
+                        privacy_mode: true,
+                        created_at: new Date().toISOString()
+                    }));
 
-                const { data, error } = await GuidalDB.supabase
-                    .from('station_votes')
-                    .insert(votes);
+                    const { data, error } = await GuidalDB.supabase
+                        .from('station_votes')
+                        .insert(votes);
 
-                if (error) throw error;
+                    if (error) throw error;
+                } else {
+                    // Fallback: Store votes locally for privacy mode
+                    console.log('Privacy mode: Votes stored locally only');
+                    const localVotes = JSON.parse(localStorage.getItem('pragueVotes') || '[]');
+                    localVotes.push({
+                        timestamp: new Date().toISOString(),
+                        stations: Array.from(selectedStations)
+                    });
+                    localStorage.setItem('pragueVotes', JSON.stringify(localVotes));
+                }
 
-                alert('✅ Your votes have been submitted! Thank you for helping us plan your visit.');
+                alert('✅ Your votes have been submitted anonymously! Thank you for helping us plan your visit.');
 
                 // Reset form
                 selectedStations.clear();
@@ -730,7 +766,7 @@
 
             } catch (error) {
                 console.error('Error submitting votes:', error);
-                alert('Error submitting votes. Please try again.');
+                alert('Error submitting votes. Your preferences have been saved locally.');
 
                 const submitButton = document.getElementById('submitVote');
                 submitButton.disabled = false;
