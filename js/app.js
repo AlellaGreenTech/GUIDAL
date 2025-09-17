@@ -255,6 +255,8 @@ class GuidalApp {
             'International School of Prague': 'images/prague-alella-bridge-vineyard.png',
             'Brainstorming Lunch': 'images/brainstorming-lunch.png',
             'Build Your Own Ram Pump': 'images/workshop-ram-pump.png',
+            'Robotic Gardening': 'images/robotic-gardening-system.png',
+            'Robotic Gardening Workshop': 'images/robotic-gardening-system.png',
             'Sustainability Fair': 'images/event-sports-field.png',
             '2022 Mayday 4 Ukraine': 'images/event-sports-field.png',
             'Marina to the rescue': 'images/Marina to the rescue.png',
