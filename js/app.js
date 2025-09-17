@@ -628,6 +628,19 @@ class GuidalApp {
     }
 
     showAuthModal(activityId = null, activityTitle = null) {
+        // Check for Prague privacy mode
+        const urlParams = new URLSearchParams(window.location.search);
+        const isPrivacyMode = urlParams.get('privacy') === 'true';
+        const visitType = urlParams.get('visit');
+
+        if (isPrivacyMode && visitType === 'prague') {
+            // Redirect to simplified Prague registration
+            const currentUrl = encodeURIComponent(window.location.href);
+            const pragueRegisterUrl = `pages/auth/register-prague.html?returnTo=${currentUrl}`;
+            window.location.href = pragueRegisterUrl;
+            return;
+        }
+
         // Store pending registration for after login
         if (activityId && activityTitle) {
             this.pendingRegistration = { activityId, activityTitle };

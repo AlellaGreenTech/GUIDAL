@@ -577,7 +577,18 @@
             const totalDisplay = document.getElementById('totalDisplay');
             const stationPercentageWarning = document.getElementById('stationPercentageWarning');
             const stationTotalPercentageSpan = document.getElementById('stationTotalPercentage');
-            const visitAccessCode = 'bfis-sept-2025'; // BFIS visit access code
+            // Check for privacy mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const isPrivacyMode = urlParams.get('privacy') === 'true';
+            const visitType = urlParams.get('visit') || 'bfis';
+
+            let visitAccessCode;
+            if (isPrivacyMode && visitType === 'prague') {
+                visitAccessCode = 'isp-2025-sep'; // Prague privacy mode
+                console.log('Privacy mode enabled for Prague visit');
+            } else {
+                visitAccessCode = 'bfis-sept-2025'; // BFIS visit access code
+            }
 
             // Load existing data on page load
             loadSoilMixturesTable();

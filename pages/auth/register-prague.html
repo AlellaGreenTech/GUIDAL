@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Registration - Prague Visit - GUIDAL</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <style>
+        .quick-register-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .privacy-notice {
+            background: linear-gradient(135deg, #e3f2fd, #e1f5fe);
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .quick-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2e7d32;
+        }
+
+        .form-group input {
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #4caf50;
+            outline: none;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #388e3c, #4caf50);
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Quick Registration for Prague Visit</p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <ul class="nav-menu">
+                <li><a href="../../visits/international-school-prague-sept-2025.html">Back to Visit</a></li>
+                <li><a href="../../index.html">Home</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="quick-register-container">
+            <div class="privacy-notice">
+                <h3>🔒 Privacy-Friendly Registration</h3>
+                <p>Just your first name needed! No email verification required.</p>
+                <p><small>Your privacy is protected according to your school's policy.</small></p>
+            </div>
+
+            <form id="pragueRegisterForm" class="quick-form">
+                <div class="form-group">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" name="firstName" required placeholder="Enter your first name">
+                </div>
+
+                <div class="form-group">
+                    <label for="groupNumber">Group Number (optional)</label>
+                    <select id="groupNumber" name="groupNumber">
+                        <option value="">Select your group (optional)</option>
+                        <option value="1">Group 1</option>
+                        <option value="2">Group 2</option>
+                        <option value="3">Group 3</option>
+                        <option value="4">Group 4</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">🌱 Start Your Visit</button>
+            </form>
+
+            <div id="successMessage" class="success-message" style="display: none;">
+                <h3>✅ Welcome to Alella Green Tech!</h3>
+                <p>You're all set! You can now access all station activities.</p>
+                <p><a href="../../visits/international-school-prague-sept-2025.html" class="btn">Return to Your Visit</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. Privacy-friendly visit experience.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/supabase-client.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('pragueRegisterForm');
+            const successMessage = document.getElementById('successMessage');
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const firstName = document.getElementById('firstName').value.trim();
+                const groupNumber = document.getElementById('groupNumber').value;
+                const submitBtn = form.querySelector('.submit-btn');
+
+                if (!firstName) {
+                    alert('Please enter your first name');
+                    return;
+                }
+
+                try {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Creating your access...';
+
+                    // Create a simple session for Prague privacy mode
+                    const sessionData = {
+                        firstName: firstName,
+                        groupNumber: groupNumber,
+                        visitType: 'prague',
+                        privacyMode: true,
+                        timestamp: new Date().toISOString(),
+                        sessionId: 'prague_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+                    };
+
+                    // Store in localStorage for station access
+                    localStorage.setItem('pragueSession', JSON.stringify(sessionData));
+                    localStorage.setItem('schoolLogin', 'prague-privacy');
+                    localStorage.setItem('loginTime', Date.now().toString());
+
+                    // Optional: Store anonymized data in database if available
+                    if (window.GuidalDB && GuidalDB.supabase) {
+                        try {
+                            await GuidalDB.supabase
+                                .from('prague_sessions')
+                                .insert([{
+                                    session_id: sessionData.sessionId,
+                                    group_number: groupNumber ? parseInt(groupNumber) : null,
+                                    created_at: new Date().toISOString()
+                                }]);
+                        } catch (dbError) {
+                            console.log('Database storage failed, continuing with local session');
+                        }
+                    }
+
+                    // Show success and redirect
+                    form.style.display = 'none';
+                    successMessage.style.display = 'block';
+
+                    // Auto-redirect after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = '../../visits/international-school-prague-sept-2025.html';
+                    }, 3000);
+
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    alert('Registration failed. Please try again.');
+
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🌱 Start Your Visit';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
