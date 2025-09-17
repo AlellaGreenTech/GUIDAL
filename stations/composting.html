@@ -641,22 +641,27 @@
                         container.insertBefore(welcomeMsg, container.firstChild);
                     }
 
-                    // Pre-fill group number
+                    // Pre-fill group number (without database check in privacy mode)
                     setTimeout(() => {
                         const groupSelect = document.getElementById('groupNumber');
                         if (groupSelect && sessionData.groupNumber) {
                             groupSelect.value = sessionData.groupNumber;
-                            // Trigger change event to update availability
-                            if (typeof checkGroupAvailability === 'function') {
-                                checkGroupAvailability();
+                            // In privacy mode, just show group as available without database check
+                            const groupMessage = document.getElementById('groupMessage');
+                            if (groupMessage) {
+                                groupMessage.textContent = '✓ Privacy mode - all groups available.';
+                                groupMessage.className = 'group-message available';
                             }
                         }
                     }, 1000);
                 });
             }
+            // Early return for Prague privacy mode to prevent database calls
+            return;
         } else if (isPrivacyMode && !pragueSession) {
             // Redirect to Prague registration
             window.location.href = '../pages/auth/register-prague.html?returnTo=' + encodeURIComponent(window.location.href);
+            return;
         }
 
         function toggleAccordion(id) {

@@ -83,6 +83,7 @@ class GuidalApp {
         this.setupAuthListener();
     }
 
+
     async checkAuthStatus() {
         try {
             this.currentUser = await GuidalDB.getCurrentUser();
@@ -385,7 +386,7 @@ class GuidalApp {
                 console.log('✅ Benjamin Franklin visit detected - generating Visit Details button');
                 return `<button class="btn" onclick="openLoginModal('${activity.title}', 'visits/benjamin-franklin-sept-2025.html')">Visit Details</button>`;
             } else if (activity.title.includes('International School of Prague')) {
-                return `<button class="btn" onclick="openLoginModal('${activity.title}', 'visits/international-school-prague-sept-2025.html')">Visit Details</button>`;
+                return `<a href="visits/international-school-prague-sept-2025.html" class="btn">Visit Details</a>`;
             } else {
                 return `<button class="btn" onclick="openLoginModal('${activity.title}', '#')">Visit Details</button>`;
             }
