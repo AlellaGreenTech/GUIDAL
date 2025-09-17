@@ -592,6 +592,73 @@
     </footer>
 
     <script>
+        // Check for Prague privacy mode first
+        const urlParams = new URLSearchParams(window.location.search);
+        const isPrivacyMode = urlParams.get('privacy') === 'true';
+        const pragueSession = localStorage.getItem('pragueSession');
+
+        if (isPrivacyMode && pragueSession) {
+            // Prague privacy mode - enable station without authentication
+            console.log('Prague privacy mode detected for composting station');
+            const sessionData = JSON.parse(pragueSession);
+
+            // Show user info
+            if (sessionData.firstName) {
+                document.addEventListener('DOMContentLoaded', function() {
+                    const userInfo = document.createElement('div');
+                    userInfo.style.cssText = `
+                        position: fixed;
+                        top: 10px;
+                        right: 10px;
+                        background: #4caf50;
+                        color: white;
+                        padding: 0.5rem 1rem;
+                        border-radius: 20px;
+                        font-size: 0.9rem;
+                        z-index: 1000;
+                    `;
+                    userInfo.textContent = `👋 ${sessionData.firstName}${sessionData.groupNumber ? ' (Group ' + sessionData.groupNumber + ')' : ''}`;
+                    document.body.appendChild(userInfo);
+
+                    // Show welcome message
+                    const welcomeMsg = document.createElement('div');
+                    welcomeMsg.style.cssText = `
+                        background: #d4edda;
+                        color: #155724;
+                        border: 2px solid #c3e6cb;
+                        border-radius: 8px;
+                        padding: 1rem;
+                        margin: 1rem 0;
+                        text-align: center;
+                    `;
+                    welcomeMsg.innerHTML = `
+                        <strong>🌿 Welcome to the Composting Station!</strong><br>
+                        <small>Privacy mode active - no login required. Your data stays anonymous.</small>
+                    `;
+
+                    const container = document.querySelector('.container');
+                    if (container) {
+                        container.insertBefore(welcomeMsg, container.firstChild);
+                    }
+
+                    // Pre-fill group number
+                    setTimeout(() => {
+                        const groupSelect = document.getElementById('groupNumber');
+                        if (groupSelect && sessionData.groupNumber) {
+                            groupSelect.value = sessionData.groupNumber;
+                            // Trigger change event to update availability
+                            if (typeof checkGroupAvailability === 'function') {
+                                checkGroupAvailability();
+                            }
+                        }
+                    }, 1000);
+                });
+            }
+        } else if (isPrivacyMode && !pragueSession) {
+            // Redirect to Prague registration
+            window.location.href = '../pages/auth/register-prague.html?returnTo=' + encodeURIComponent(window.location.href);
+        }
+
         function toggleAccordion(id) {
             const content = document.getElementById(id);
             const header = content.previousElementSibling;

@@ -542,7 +542,124 @@
     <script src="../js/supabase-client.js"></script>
     
     <script>
+        function initializePragueMode() {
+            console.log('Initializing Prague privacy mode');
+
+            // Mobile menu functionality
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    });
+                });
+            }
+
+            // Initialize Prague-specific functionality
+            const pragueSession = JSON.parse(localStorage.getItem('pragueSession'));
+            console.log('Prague session:', pragueSession);
+
+            // Show user info
+            if (pragueSession && pragueSession.firstName) {
+                const userInfo = document.createElement('div');
+                userInfo.style.cssText = `
+                    position: fixed;
+                    top: 10px;
+                    right: 10px;
+                    background: #4caf50;
+                    color: white;
+                    padding: 0.5rem 1rem;
+                    border-radius: 20px;
+                    font-size: 0.9rem;
+                    z-index: 1000;
+                `;
+                userInfo.textContent = `👋 ${pragueSession.firstName}${pragueSession.groupNumber ? ' (Group ' + pragueSession.groupNumber + ')' : ''}`;
+                document.body.appendChild(userInfo);
+            }
+
+            // Enable forms with privacy mode
+            enablePragueStationForms(pragueSession);
+        }
+
+        function enablePragueStationForms(pragueSession) {
+            // Make all station forms work without authentication
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.style.opacity = '1';
+                form.style.pointerEvents = 'auto';
+
+                // Pre-fill student name if available
+                const nameInputs = form.querySelectorAll('input[name*="Name"], input[name*="name"]');
+                nameInputs.forEach(input => {
+                    if (pragueSession.firstName && !input.value) {
+                        input.value = pragueSession.firstName;
+                    }
+                });
+
+                // Pre-fill group number if available
+                const groupSelects = form.querySelectorAll('select[name*="group"], select[name*="Group"]');
+                groupSelects.forEach(select => {
+                    if (pragueSession.groupNumber && !select.value) {
+                        select.value = pragueSession.groupNumber;
+                    }
+                });
+            });
+
+            // Show success message
+            const welcomeMsg = document.createElement('div');
+            welcomeMsg.style.cssText = `
+                background: #d4edda;
+                color: #155724;
+                border: 2px solid #c3e6cb;
+                border-radius: 8px;
+                padding: 1rem;
+                margin: 1rem 0;
+                text-align: center;
+            `;
+            welcomeMsg.innerHTML = `
+                <strong>🌱 Welcome to the Planting Station!</strong><br>
+                <small>Privacy mode active - no login required. Your data stays anonymous.</small>
+            `;
+
+            const container = document.querySelector('.container');
+            if (container) {
+                container.insertBefore(welcomeMsg, container.firstChild);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for Prague privacy session first
+            const pragueSession = localStorage.getItem('pragueSession');
+            const urlParams = new URLSearchParams(window.location.search);
+            const isPrivacyMode = urlParams.get('privacy') === 'true';
+
+            if (isPrivacyMode && pragueSession) {
+                // Prague privacy mode - bypass all authentication
+                console.log('Prague privacy mode detected, skipping authentication');
+                initializePragueMode();
+                return;
+            } else if (isPrivacyMode && !pragueSession) {
+                // Redirect to Prague registration
+                window.location.href = '../pages/auth/register-prague.html?returnTo=' + encodeURIComponent(window.location.href);
+                return;
+            }
+
             // Mobile menu functionality
             const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
             const navMenu = document.querySelector('.nav-menu');
