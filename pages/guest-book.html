@@ -355,6 +355,24 @@
                     .select();
 
                 if (error) {
+                    // Check if table doesn't exist
+                    if (error.message && (error.message.includes('relation "public.guest_book_entries" does not exist') ||
+                        error.message.includes('table "guest_book_entries" does not exist') ||
+                        error.code === 'PGRST116')) {
+                        messageContainer.innerHTML = `
+                            <div class="error">
+                                <h4>Guest Book Not Available Yet</h4>
+                                <p>The guest book feature is currently being set up. Your feedback is important to us!</p>
+                                <p>Please share your experience with us through these alternative ways:</p>
+                                <ul style="margin: 1rem 0; padding-left: 2rem;">
+                                    <li>Speak with our staff during your visit</li>
+                                    <li><a href="https://alellagreentech.com/social/" target="_blank">Connect with us on social media</a></li>
+                                    <li>Email us your feedback directly</li>
+                                </ul>
+                            </div>
+                        `;
+                        return;
+                    }
                     throw error;
                 }
 
@@ -370,7 +388,13 @@
 
             } catch (error) {
                 console.error('Error submitting guest book entry:', error);
-                messageContainer.innerHTML = '<div class="error">Sorry, there was an error submitting your entry. Please try again.</div>';
+                messageContainer.innerHTML = `
+                    <div class="error">
+                        <h4>Unable to Submit Entry</h4>
+                        <p>Sorry, there was an error submitting your entry. Please try again or contact us directly.</p>
+                        <p><small>Error details: ${error.message}</small></p>
+                    </div>
+                `;
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Share Your Experience';
@@ -388,7 +412,38 @@
                     .limit(20);
 
                 if (error) {
-                    throw error;
+                    console.error('Database error:', error);
+
+                    // Check if table doesn't exist
+                    if (error.message && (error.message.includes('relation "public.guest_book_entries" does not exist') ||
+                        error.message.includes('table "guest_book_entries" does not exist') ||
+                        error.code === 'PGRST116')) {
+                        container.innerHTML = `
+                            <div class="info" style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: 6px; border: 1px solid #ffeeba;">
+                                <h3>Guest Book Coming Soon!</h3>
+                                <p>The guest book feature is currently being set up. Please check back soon to share your experience!</p>
+                                <p>In the meantime, you can share your thoughts with us through our other channels:</p>
+                                <ul style="margin: 1rem 0; padding-left: 2rem;">
+                                    <li><a href="https://alellagreentech.com/social/" target="_blank">Follow us on social media</a></li>
+                                    <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Read our blog</a></li>
+                                    <li>Contact us directly during your visit</li>
+                                </ul>
+                            </div>
+                        `;
+
+                        // Also disable the form
+                        const form = document.getElementById('guestBookForm');
+                        const submitBtn = document.getElementById('submitBtn');
+                        if (form && submitBtn) {
+                            form.style.opacity = '0.5';
+                            form.style.pointerEvents = 'none';
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = 'Coming Soon';
+                        }
+                        return;
+                    } else {
+                        throw error;
+                    }
                 }
 
                 if (entries && entries.length > 0) {
@@ -413,7 +468,13 @@
 
             } catch (error) {
                 console.error('Error loading guest book entries:', error);
-                container.innerHTML = '<div class="error">Error loading guest book entries. Please try again later.</div>';
+                container.innerHTML = `
+                    <div class="error">
+                        <h3>Unable to load guest book entries</h3>
+                        <p>There seems to be a technical issue. Please try refreshing the page or contact us if the problem persists.</p>
+                        <p><small>Error details: ${error.message}</small></p>
+                    </div>
+                `;
             }
         }
 
