@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Book - Alella Green Tech</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .guest-book-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .guest-book-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #c8e6c9;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: #4caf50;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #45a049;
+        }
+
+        .submit-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .guest-book-entries {
+            margin-top: 3rem;
+        }
+
+        .entry {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            border-left: 4px solid #4caf50;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .entry-name {
+            font-weight: 600;
+            color: #2e7d32;
+            font-size: 1.1rem;
+        }
+
+        .entry-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .entry-details {
+            margin-bottom: 1rem;
+        }
+
+        .entry-detail {
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        .entry-detail strong {
+            color: #2e7d32;
+        }
+
+        .entry-message {
+            font-style: italic;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .guest-book-container {
+                padding: 1rem;
+            }
+
+            .guest-book-form {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Guest Book - Share Your Experience</p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="welcome.html">Welcome</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="../index.html#activities">Activities</a></li>
+                <li><a href="../index.html#activities" onclick="filterActivitiesByType('events')">Events</a></li>
+                <li><a href="guest-book.html" class="active">Guest Book</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="https://alellagreentech.com/shop/" target="_blank">Store</a></li>
+                <li><a href="auth/login.html" class="login-btn">Login/Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="guest-book-container">
+        <div class="guest-book-form">
+            <h2>Share Your Experience</h2>
+            <p>Tell us about your visit to Alella Green Tech! Your feedback helps us improve and inspires others.</p>
+
+            <div id="messageContainer"></div>
+
+            <form id="guestBookForm">
+                <div class="form-group">
+                    <label for="studentName">Your Name *</label>
+                    <input type="text" id="studentName" name="studentName" required placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="groupName">Group/School Name</label>
+                    <input type="text" id="groupName" name="groupName" placeholder="Enter your group or school name">
+                </div>
+
+                <div class="form-group">
+                    <label for="favoriteStation">Favorite Station</label>
+                    <select id="favoriteStation" name="favoriteStation">
+                        <option value="">Select your favorite station</option>
+                        <option value="Robotic Gardening">🤖 Robotic Gardening</option>
+                        <option value="Wattle & Daub">🏠 Wattle & Daub Construction</option>
+                        <option value="Erosion Challenge">⛰️ Erosion Challenge</option>
+                        <option value="Hydraulic Ram Pumps">💧 Hydraulic Ram Pumps</option>
+                        <option value="SchoolAIR IoT Sensors">📊 SchoolAIR IoT Sensors</option>
+                        <option value="Smart Irrigation Demo">💦 Smart Irrigation Demo</option>
+                        <option value="Agricultural Drones">🚁 Agricultural Drones & Vineyard</option>
+                        <option value="Composting">🌱 Composting & Soil Science</option>
+                        <option value="Planting">🌿 Planting & Growing</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="interests">What interests you most?</label>
+                    <select id="interests" name="interests">
+                        <option value="">Select your interest</option>
+                        <option value="Volunteering">Volunteering</option>
+                        <option value="Building cool stuff">Building cool stuff</option>
+                        <option value="The gardening robot">The gardening robot</option>
+                        <option value="Doing R&D with microcontrollers">Doing R&D with microcontrollers</option>
+                        <option value="The SchoolAIR project">The SchoolAIR project</option>
+                        <option value="Tending animals">Tending animals</option>
+                        <option value="Gardening at AGT">Gardening at AGT</option>
+                        <option value="Starting a weekend workshop or similar business at AGT">Starting a weekend workshop or similar business at AGT</option>
+                        <option value="Receiving cool stuff to read">Receiving cool stuff to read</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="instagramHandle">Instagram Handle (optional)</label>
+                    <input type="text" id="instagramHandle" name="instagramHandle" placeholder="@yourhandle">
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Your Message *</label>
+                    <textarea id="message" name="message" required placeholder="Share your thoughts about your visit to Alella Green Tech..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Share Your Experience</button>
+            </form>
+        </div>
+
+        <div class="guest-book-entries">
+            <h2>Recent Visitor Messages</h2>
+            <div id="entriesContainer" class="loading">
+                Loading recent entries...
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. Sustainable learning for a better future.</p>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+                mobileMenuToggle.classList.toggle('active');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.main-nav')) {
+                    navMenu.classList.remove('active');
+                    mobileMenuToggle.classList.remove('active');
+                }
+            });
+
+            // Close menu when clicking a nav link
+            const navLinks = document.querySelectorAll('.nav-menu a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navMenu.classList.remove('active');
+                    mobileMenuToggle.classList.remove('active');
+                });
+            });
+        });
+    </script>
+
+    <!-- Required Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/privacy-config.js"></script>
+
+    <script>
+        let currentUser = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadGuestBookEntries();
+            setupForm();
+        });
+
+        async function checkAuthStatus() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                currentUser = user;
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        }
+
+        function setupForm() {
+            const form = document.getElementById('guestBookForm');
+            form.addEventListener('submit', handleFormSubmit);
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const messageContainer = document.getElementById('messageContainer');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const formData = new FormData(e.target);
+                const entry = {
+                    student_name: formData.get('studentName'),
+                    group_name: formData.get('groupName') || null,
+                    favorite_station: formData.get('favoriteStation') || null,
+                    interests: formData.get('interests') || null,
+                    instagram_handle: formData.get('instagramHandle') || null,
+                    message: formData.get('message')
+                };
+
+                console.log('Submitting guest book entry:', entry);
+
+                const { data, error } = await supabase
+                    .from('guest_book_entries')
+                    .insert([entry])
+                    .select();
+
+                if (error) {
+                    throw error;
+                }
+
+                console.log('Guest book entry created:', data);
+
+                messageContainer.innerHTML = '<div class="success">Thank you for sharing your experience! Your entry has been added to the guest book.</div>';
+
+                // Reset form
+                e.target.reset();
+
+                // Reload entries
+                loadGuestBookEntries();
+
+            } catch (error) {
+                console.error('Error submitting guest book entry:', error);
+                messageContainer.innerHTML = '<div class="error">Sorry, there was an error submitting your entry. Please try again.</div>';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Share Your Experience';
+            }
+        }
+
+        async function loadGuestBookEntries() {
+            const container = document.getElementById('entriesContainer');
+
+            try {
+                const { data: entries, error } = await supabase
+                    .from('guest_book_entries')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+
+                if (error) {
+                    throw error;
+                }
+
+                if (entries && entries.length > 0) {
+                    container.innerHTML = entries.map(entry => `
+                        <div class="entry">
+                            <div class="entry-header">
+                                <div class="entry-name">${escapeHtml(entry.student_name)}</div>
+                                <div class="entry-date">${new Date(entry.created_at).toLocaleDateString()}</div>
+                            </div>
+                            <div class="entry-details">
+                                ${entry.group_name ? `<div class="entry-detail"><strong>Group:</strong> ${escapeHtml(entry.group_name)}</div>` : ''}
+                                ${entry.favorite_station ? `<div class="entry-detail"><strong>Favorite Station:</strong> ${escapeHtml(entry.favorite_station)}</div>` : ''}
+                                ${entry.interests ? `<div class="entry-detail"><strong>Interests:</strong> ${escapeHtml(entry.interests)}</div>` : ''}
+                                ${entry.instagram_handle ? `<div class="entry-detail"><strong>Instagram:</strong> @${escapeHtml(entry.instagram_handle)}</div>` : ''}
+                            </div>
+                            <div class="entry-message">"${escapeHtml(entry.message)}"</div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p>No guest book entries yet. Be the first to share your experience!</p>';
+                }
+
+            } catch (error) {
+                console.error('Error loading guest book entries:', error);
+                container.innerHTML = '<div class="error">Error loading guest book entries. Please try again later.</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
