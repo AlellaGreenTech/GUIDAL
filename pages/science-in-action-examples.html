@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science in Action Examples - Alella Green Tech</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .examples-header {
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+            border: 2px solid #4caf50;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .examples-header h1 {
+            color: #2e7d32;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .examples-header p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #555;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .stations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .station-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid #e8f5e8;
+        }
+
+        .station-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            border-color: #4caf50;
+        }
+
+        .station-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .station-content {
+            padding: 1.5rem;
+        }
+
+        .station-content h3 {
+            color: #2e7d32;
+            margin-bottom: 0.5rem;
+            font-size: 1.4rem;
+        }
+
+        .station-meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .station-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .station-skills {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .station-skills h4 {
+            color: #2e7d32;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .skills-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .skills-list li {
+            padding: 0.25rem 0;
+            color: #555;
+        }
+
+        .skills-list li:before {
+            content: "🎯 ";
+            margin-right: 0.5rem;
+        }
+
+        .station-credits {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .station-btn {
+            background: #4caf50;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: background 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .station-btn:hover {
+            background: #45a049;
+            color: white;
+            text-decoration: none;
+        }
+
+        .section-header {
+            background: #2e7d32;
+            color: white;
+            padding: 1rem 2rem;
+            margin: 3rem 0 2rem 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .intro-text {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 6px;
+        }
+
+        .intro-text p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .stations-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .examples-header h1 {
+                font-size: 2rem;
+            }
+
+            .examples-header p {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Science in Action Examples</p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="welcome.html">Welcome</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="../index.html#activities">Activities</a></li>
+                <li><a href="../index.html#activities" onclick="filterActivitiesByType('events')">Events</a></li>
+                <li><a href="science-in-action-examples.html" class="active">Science Examples</a></li>
+                <li><a href="guest-book.html">Guest Book</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="https://alellagreentech.com/shop/" target="_blank">Store</a></li>
+                <li><a href="auth/login.html" class="login-btn">Login/Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="examples-header">
+            <h1>🔬 Science in Action Examples</h1>
+            <p>Here are some examples of the many activities our visitors tackle. These science-in-action stations challenge young people to apply what they have learnt in school to a real world situation.</p>
+        </div>
+
+        <div class="intro-text">
+            <p><strong>Real-World Learning:</strong> Each station combines theoretical knowledge with hands-on application, allowing students to see how science, technology, engineering, and environmental concepts work in practice. From robotics to sustainable construction, water management to precision agriculture - discover how academic learning translates into innovative solutions for our planet's challenges.</p>
+        </div>
+
+        <div class="section-header">
+            <h2>🤖 Technology & Innovation Stations</h2>
+        </div>
+
+        <div class="stations-grid">
+            <div class="station-card">
+                <img src="../images/robotic-gardening-system.png" alt="Robotic gardening and automated agriculture" class="station-image">
+                <div class="station-content">
+                    <h3>🤖 Robotic Gardening</h3>
+                    <div class="station-meta">Technology • Automation • Agriculture</div>
+                    <div class="station-description">
+                        <p>Tend your garden from 1,000km away - or let the bot do it! Explore automated agriculture and precision farming with real robotic systems.</p>
+                    </div>
+                    <div class="station-skills">
+                        <h4>Skills Applied:</h4>
+                        <ul class="skills-list">
+                            <li>Programming and coding</li>
+                            <li>Sensor technology and IoT</li>
+                            <li>Agricultural science</li>
+                            <li>Problem-solving and robotics</li>
+                        </ul>
+                    </div>
+                    <div class="station-credits">
+                        <span>+5 Green$ for participation</span>
+                    </div>
+                    <a href="../stations/robotic-gardening.html" class="station-btn">Explore Station</a>
+                </div>
+            </div>
+
+            <div class="station-card">
+                <img src="../images/agricultural-drone-vineyard.png" alt="Agricultural drone technology" class="station-image">
+                <div class="station-content">
+                    <h3>🚁 Agricultural Drones & Vineyard</h3>
+                    <div class="station-meta">Drones • Agriculture • Data Analysis</div>
+                    <div class="station-description">
+                        <p>Discover how drones monitor crop health, detect diseases early, and optimize vineyard management through aerial technology.</p>
+                    </div>
+                    <div class="station-skills">
+                        <h4>Skills Applied:</h4>
+                        <ul class="skills-list">
+                            <li>Drone operation and control</li>
+                            <li>Data collection and analysis</li>
+                            <li>Remote sensing technology</li>
+                            <li>Agricultural monitoring</li>
+                        </ul>
+                    </div>
+                    <div class="station-credits">
+                        <span>+5 Green$ for participation</span>
+                    </div>
+                    <a href="../stations/robotic-gardening.html" class="station-btn">Explore Station</a>
+                </div>
+            </div>
+
+            <div class="station-card">
+                <img src="../images/smart-irrigation-demo.png" alt="Smart irrigation and water management systems" class="station-image">
+                <div class="station-content">
+                    <h3>💦 Smart Irrigation Demo</h3>
+                    <div class="station-meta">IoT • Water Management • Automation</div>
+                    <div class="station-description">
+                        <p>Visit the smartest automatic irrigation plant in the Maresme - see precision water management and automated watering systems in action.</p>
+                    </div>
+                    <div class="station-skills">
+                        <h4>Skills Applied:</h4>
+                        <ul class="skills-list">
+                            <li>Water conservation principles</li>
+                            <li>Sensor networks and automation</li>
+                            <li>Environmental monitoring</li>
+                            <li>Resource optimization</li>
+                        </ul>
+                    </div>
+                    <div class="station-credits">
+                        <span>+5 Green$ for participation</span>
+                    </div>
+                    <a href="../stations/robotic-gardening.html" class="station-btn">Explore Station</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2>🌿 Environmental & Engineering Stations</h2>
+        </div>
+
+        <div class="stations-grid">
+            <div class="station-card">
+                <img src="../images/swales.jpg" alt="Erosion control and water management" class="station-image">
+                <div class="station-content">
+                    <h3>⛰️ Erosion Challenge</h3>
+                    <div class="station-meta">Environmental Engineering • Hydrology • Conservation</div>
+                    <div class="station-description">
+                        <p>Stop erosion, retain water and create a fertile hillside through natural engineering solutions and permaculture techniques.</p>
+                    </div>
+                    <div class="station-skills">
+                        <h4>Skills Applied:</h4>
+                        <ul class="skills-list">
+                            <li>Soil science and conservation</li>
+                            <li>Water management systems</li>
+                            <li>Environmental engineering</li>
+                            <li>Landscape design principles</li>
+                        </ul>
+                    </div>
+                    <div class="station-credits">
+                        <span>+5 Green$ for participation</span>
+                    </div>
+                    <a href="../stations/erosion-challenge.html" class="station-btn">Explore Station</a>
+                </div>
+            </div>
+
+            <div class="station-card">
+                <img src="../images/hydraulic-ram-pump-system.png" alt="Hydraulic ram pump water technology" class="station-image">
+                <div class="station-content">
+                    <h3>💧 Hydraulic Ram Pumps</h3>
+                    <div class="station-meta">Physics • Engineering • Water Technology</div>
+                    <div class="station-description">
+                        <p>Moving water up high without electricity! Discover genius inventions of the past that use water pressure to pump water uphill.</p>
+                    </div>
+                    <div class="station-skills">
+                        <h4>Skills Applied:</h4>
+                        <ul class="skills-list">
+                            <li>Fluid mechanics and physics</li>
+                            <li>Mechanical engineering principles</li>
+                            <li>Sustainable technology design</li>
+                            <li>Energy efficiency concepts</li>
+                        </ul>
+                    </div>
+                    <div class="station-credits">
+                        <span>+5 Green$ for participation</span>
+                    </div>
+                    <a href="../stations/ram-pumps.html" class="station-btn">Explore Station</a>
+                </div>
+            </div>
+
+            <div class="station-card">
+                <img src="../images/wattle-daub-construction.png" alt="Traditional sustainable construction" class="station-image">
+                <div class="station-content">
+                    <h3>🏠 Wattle & Daub Construction</h3>
+                    <div class="station-meta">Sustainable Building • History • Materials Science</div>
+                    <div class="station-description">
+                        <p>Harvest clay, then build a home with mud, hay, and sticks - 6,000-year-old sustainable construction techniques that still work today!</p>
+                    </div>
+                    <div class="station-skills">
+                        <h4>Skills Applied:</h4>
+                        <ul class="skills-list">
+                            <li>Materials science and properties</li>
+                            <li>Sustainable building techniques</li>
+                            <li>Historical technology analysis</li>
+                            <li>Hands-on construction skills</li>
+                        </ul>
+                    </div>
+                    <div class="station-credits">
+                        <span>+5 Green$ for participation</span>
+                    </div>
+                    <a href="../stations/wattle-daub.html" class="station-btn">Explore Station</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2>🌱 Agriculture & Life Sciences Stations</h2>
+        </div>
+
+        <div class="stations-grid">
+            <div class="station-card">
+                <img src="../images/composting-nitrogen-cycle.png" alt="Composting and soil science" class="station-image">
+                <div class="station-content">
+                    <h3>🌱 Composting & Soil Science</h3>
+                    <div class="station-meta">Biology • Chemistry • Sustainability</div>
+                    <div class="station-description">
+                        <p>Discover the science of decomposition, nutrient cycles, and soil health through hands-on composting and soil analysis.</p>
+                    </div>
+                    <div class="station-skills">
+                        <h4>Skills Applied:</h4>
+                        <ul class="skills-list">
+                            <li>Biological processes and cycles</li>
+                            <li>Chemistry of decomposition</li>
+                            <li>Soil analysis and testing</li>
+                            <li>Sustainable waste management</li>
+                        </ul>
+                    </div>
+                    <div class="station-credits">
+                        <span>+5 Green$ for participation</span>
+                    </div>
+                    <a href="../stations/composting.html" class="station-btn">Explore Station</a>
+                </div>
+            </div>
+
+            <div class="station-card">
+                <img src="../images/planting-seeds.jpg" alt="Planting and growing systems" class="station-image">
+                <div class="station-content">
+                    <h3>🌿 Planting & Growing</h3>
+                    <div class="station-meta">Botany • Agriculture • Data Collection</div>
+                    <div class="station-description">
+                        <p>Plant seeds, track growth, and discover the science of plant biology through hands-on gardening and data collection.</p>
+                    </div>
+                    <div class="station-skills">
+                        <h4>Skills Applied:</h4>
+                        <ul class="skills-list">
+                            <li>Plant biology and botany</li>
+                            <li>Scientific observation and data collection</li>
+                            <li>Agricultural practices</li>
+                            <li>Growth tracking and analysis</li>
+                        </ul>
+                    </div>
+                    <div class="station-credits">
+                        <span>+5 Green$ for participation</span>
+                    </div>
+                    <a href="../stations/planting.html" class="station-btn">Explore Station</a>
+                </div>
+            </div>
+
+            <div class="station-card">
+                <img src="../images/school-visit-pond-canoe.png" alt="SchoolAIR IoT environmental sensors" class="station-image">
+                <div class="station-content">
+                    <h3>📊 SchoolAIR IoT Sensors</h3>
+                    <div class="station-meta">IoT • Environmental Science • Data Analysis</div>
+                    <div class="station-description">
+                        <p>Build and program IoT environmental monitoring stations that collect real-time air quality and weather data.</p>
+                    </div>
+                    <div class="station-skills">
+                        <h4>Skills Applied:</h4>
+                        <ul class="skills-list">
+                            <li>IoT programming and sensors</li>
+                            <li>Environmental data collection</li>
+                            <li>Air quality monitoring</li>
+                            <li>Data visualization and analysis</li>
+                        </ul>
+                    </div>
+                    <div class="station-credits">
+                        <span>+5 Green$ for participation</span>
+                    </div>
+                    <a href="https://schoolair.org" target="_blank" class="station-btn">Visit SchoolAIR Project</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="intro-text" style="margin-top: 3rem;">
+            <p><strong>Ready to Experience Science in Action?</strong> These stations are available during our school visits and workshops. Each activity is designed to bridge the gap between classroom theory and real-world application, showing students how their academic knowledge can make a tangible difference in solving environmental and technological challenges.</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. Sustainable learning for a better future.</p>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+
+                // Close menu when clicking a nav link
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
