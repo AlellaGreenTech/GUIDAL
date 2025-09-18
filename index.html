@@ -200,8 +200,28 @@
             <p>&copy; 2024 Alella Green Tech. Sustainable learning for a better future.</p>
         </div>
     </footer>
-    
-    
+
+    <!-- Additional styles for completed visit buttons -->
+    <style>
+        .btn-disabled {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            cursor: not-allowed !important;
+            opacity: 0.65 !important;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: white !important;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268 !important;
+            border-color: #545b62 !important;
+        }
+    </style>
+
     <!-- Mobile Menu & Card Toggle Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -341,6 +361,7 @@
     <!-- Required Scripts -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+    <script src="js/privacy-config.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

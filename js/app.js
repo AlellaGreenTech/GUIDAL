@@ -370,6 +370,65 @@ class GuidalApp {
         return '';
     }
 
+    getCompletedVisitButton(activity) {
+        // Determine visit type and privacy mode
+        let visitType = 'unknown';
+        if (activity.title.includes('Benjamin Franklin')) {
+            visitType = 'benjamin-franklin';
+        } else if (activity.title.includes('International School of Prague')) {
+            visitType = 'prague';
+        }
+
+        // Use PrivacyManager if available, otherwise fallback to manual check
+        let isPrivacyMode = false;
+        if (typeof PrivacyManager !== 'undefined') {
+            isPrivacyMode = PrivacyManager.isPrivacyMode(visitType);
+        } else {
+            // Fallback: Prague is privacy mode
+            isPrivacyMode = visitType === 'prague';
+        }
+
+        if (isPrivacyMode) {
+            // Privacy visits: Anyone can access completed visits
+            if (activity.title.includes('International School of Prague')) {
+                return `<a href="visits/international-school-prague-sept-2025.html" class="btn btn-secondary">View Visit</a>`;
+            } else {
+                return `<button class="btn btn-secondary" onclick="openLoginModal('${activity.title}', '#')">View Visit</button>`;
+            }
+        } else {
+            // Secure visits: Only registered users for that school can access
+            if (activity.title.includes('Benjamin Franklin')) {
+                if (this.currentUser && this.isUserRegisteredForSchool(this.currentUser, 'benjamin-franklin')) {
+                    return `<button class="btn btn-secondary" onclick="openLoginModal('${activity.title}', 'visits/benjamin-franklin-sept-2025.html')">View Visit</button>`;
+                } else if (this.currentUser) {
+                    return `<button class="btn btn-disabled" disabled title="Only registered Benjamin Franklin students can access this completed visit">Access Restricted</button>`;
+                } else {
+                    return `<button class="btn" onclick="openLoginModal('${activity.title}', 'visits/benjamin-franklin-sept-2025.html')">Login to View</button>`;
+                }
+            } else {
+                return `<button class="btn" onclick="openLoginModal('${activity.title}', '#')">Login to View</button>`;
+            }
+        }
+    }
+
+    isUserRegisteredForSchool(user, schoolType) {
+        // Check if user is registered for activities from this school
+        // This could be enhanced to check user profile or registration data
+        if (!user || !user.registrations) return false;
+
+        // For now, check if user has any registrations for activities from this school
+        return user.registrations.some(reg => {
+            const activity = this.activities.find(act => act.id === reg.activity_id);
+            if (!activity) return false;
+
+            // Check if activity title contains the school identifier
+            if (schoolType === 'benjamin-franklin') {
+                return activity.title.includes('Benjamin Franklin');
+            }
+            return false;
+        });
+    }
+
     getActivityButton(activity) {
         const currentDate = new Date();
         const activityDate = activity.date_time ? new Date(activity.date_time) : null;
@@ -388,10 +447,11 @@ class GuidalApp {
         const activityTypeSlug = activityType ? activityType.slug : 'other';
 
         if (activityTypeSlug === 'school-visits') {
-            // All school visits require login
             console.log('🔍 School visit detected:', activity.title, 'Type:', activityTypeSlug, 'Completed:', isCompleted);
+
+            // Handle completed visits based on security/privacy mode
             if (isCompleted) {
-                return ''; // No button for completed activities - badge shows status
+                return this.getCompletedVisitButton(activity);
             } else if (activity.title.includes('Benjamin Franklin')) {
                 console.log('✅ Benjamin Franklin visit detected - generating Visit Details button');
                 return `<button class="btn" onclick="openLoginModal('${activity.title}', 'visits/benjamin-franklin-sept-2025.html')">Visit Details</button>`;
