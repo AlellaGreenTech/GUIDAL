@@ -86,12 +86,13 @@ GRANT ALL ON public.guest_book_entries TO authenticated;
 GRANT USAGE, SELECT ON SEQUENCE guest_book_entries_id_seq TO anon;
 GRANT USAGE, SELECT ON SEQUENCE guest_book_entries_id_seq TO authenticated;
 
--- Sample data for testing (optional)
-INSERT INTO public.guest_book_entries (
-    visit_id, student_name, group_name, favorite_station, interests, message
-) VALUES (
-    1, 'Test Student', 'Group 1', 'Robotic Gardening', 'Building cool stuff', 'Amazing experience learning about sustainable technology!'
-) ON CONFLICT DO NOTHING;
+-- Sample data for testing (optional - commented out to avoid issues)
+-- Uncomment and modify if you want to add test data:
+-- INSERT INTO public.guest_book_entries (
+--     student_name, group_name, favorite_station, interests, message
+-- ) VALUES (
+--     'Test Student', 'Group 1', 'Robotic Gardening', 'Building cool stuff', 'Amazing experience learning about sustainable technology!'
+-- );
 
 -- Verify the table structure
 SELECT

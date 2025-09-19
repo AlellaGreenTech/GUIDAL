@@ -26,10 +26,13 @@ SELECT
     COUNT(*) as total_users_today,
     COUNT(CASE WHEN email_confirmed_at IS NOT NULL THEN 1 END) as confirmed_users,
     COUNT(CASE WHEN email_confirmed_at IS NULL THEN 1 END) as still_unconfirmed,
-    ROUND(
-        (COUNT(CASE WHEN email_confirmed_at IS NOT NULL THEN 1 END)::numeric /
-        COUNT(*)::numeric * 100), 1
-    ) as success_rate_percent
+    CASE
+        WHEN COUNT(*) = 0 THEN 0.0
+        ELSE ROUND(
+            (COUNT(CASE WHEN email_confirmed_at IS NOT NULL THEN 1 END)::numeric /
+            COUNT(*)::numeric * 100), 1
+        )
+    END as success_rate_percent
 FROM auth.users
 WHERE DATE(created_at) = CURRENT_DATE;
 
