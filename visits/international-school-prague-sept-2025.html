@@ -728,7 +728,7 @@
                 submitButton.textContent = 'Submitting...';
 
                 // Privacy mode: Save votes to database without user identification
-                if (window.GuidalDB && GuidalDB.supabase) {
+                if (window.supabase) {
                     const votes = Array.from(selectedStations).map(station => ({
                         visit_type: 'prague',
                         station_id: station,
@@ -736,7 +736,7 @@
                         created_at: new Date().toISOString()
                     }));
 
-                    const { data, error } = await GuidalDB.supabase
+                    const { data, error } = await supabase
                         .from('station_votes')
                         .insert(votes);
 
@@ -779,14 +779,14 @@
             const resultsDiv = document.getElementById('votingResults');
             resultsDiv.innerHTML = '<p>Loading voting results...</p>';
 
-            // Check if GuidalDB is available
-            if (!window.GuidalDB || !GuidalDB.supabase) {
+            // Check if supabase client is available
+            if (!window.supabase) {
                 resultsDiv.innerHTML = '<p>Voting results unavailable.</p>';
                 return;
             }
 
             try {
-                const { data, error } = await GuidalDB.supabase
+                const { data, error } = await supabase
                     .from('station_votes')
                     .select('station_id')
                     .eq('visit_type', 'prague');
