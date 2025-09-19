@@ -149,12 +149,160 @@
             margin-bottom: 1rem;
         }
 
+        /* Social sharing modal styles */
+        .social-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .social-modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .social-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .social-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .social-modal h3 {
+            color: #2e7d32;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .social-sharing-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            justify-content: center;
+        }
+
+        .social-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s ease;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white;
+        }
+
+        .social-btn.facebook {
+            background: #1877f2;
+        }
+
+        .social-btn.instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+
+        .social-btn.twitter {
+            background: #1da1f2;
+        }
+
+        .incentive-box {
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+            border: 2px solid #4caf50;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .incentive-box h4 {
+            color: #2e7d32;
+            margin-bottom: 0.5rem;
+        }
+
+        .incentive-box p {
+            margin-bottom: 0.5rem;
+        }
+
+        .hashtag {
+            background: #4caf50;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .share-canvas {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 1rem 0;
+            max-width: 100%;
+        }
+
+        .preview-container {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .download-btn {
+            background: #4caf50;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0.5rem;
+            transition: background 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #45a049;
+        }
+
         @media (max-width: 768px) {
             .guest-book-container {
                 padding: 1rem;
             }
 
             .guest-book-form {
+                padding: 1.5rem;
+            }
+
+            .social-sharing-buttons {
+                flex-direction: column;
+            }
+
+            .social-modal-content {
                 padding: 1.5rem;
             }
         }
@@ -261,6 +409,54 @@
             </div>
         </div>
     </main>
+
+    <!-- Social Sharing Modal -->
+    <div id="socialModal" class="social-modal">
+        <div class="social-modal-content">
+            <button class="social-modal-close" onclick="closeSocialModal()">&times;</button>
+            <h3>🎉 Share Your Experience!</h3>
+
+            <div class="incentive-box">
+                <h4>💡 Win Amazing Prizes!</h4>
+                <p>Share your visit photo with <span class="hashtag">#alellagreentech</span> and tag us to win:</p>
+                <ul style="list-style: none; padding: 0; margin: 1rem 0;">
+                    <li>🌱 <strong>Free plant from our greenhouse</strong></li>
+                    <li>🎟️ <strong>20% discount on your next visit</strong></li>
+                    <li>📚 <strong>Exclusive sustainability guide</strong></li>
+                </ul>
+                <p><small>Winners announced monthly on our social media!</small></p>
+            </div>
+
+            <div class="preview-container">
+                <h4>Your Shareable Image:</h4>
+                <canvas id="shareCanvas" class="share-canvas" width="600" height="400"></canvas>
+                <br>
+                <button class="download-btn" onclick="downloadShareableImage()">📥 Download Image</button>
+            </div>
+
+            <div class="social-sharing-buttons">
+                <a href="#" class="social-btn facebook" id="facebookShare" target="_blank">
+                    📘 Share on Facebook
+                </a>
+                <a href="#" class="social-btn instagram" id="instagramShare" target="_blank">
+                    📷 Share on Instagram
+                </a>
+                <a href="#" class="social-btn twitter" id="twitterShare" target="_blank">
+                    🐦 Share on Twitter
+                </a>
+            </div>
+
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <p><strong>Don't forget to:</strong></p>
+                <ul style="list-style: none; padding: 0; margin: 1rem 0; text-align: left; display: inline-block;">
+                    <li>✅ Use hashtag <span class="hashtag">#alellagreentech</span></li>
+                    <li>✅ Tag us: <strong>@alellagreentech</strong></li>
+                    <li>✅ Include your favorite station from the visit</li>
+                    <li>✅ Share what you learned about sustainability</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="container">
@@ -380,6 +576,9 @@
 
                 messageContainer.innerHTML = '<div class="success">Thank you for sharing your experience! Your entry has been added to the guest book.</div>';
 
+                // Show social sharing modal
+                showSocialModal(entry);
+
                 // Reset form
                 e.target.reset();
 
@@ -483,6 +682,177 @@
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // Social sharing functionality
+        let currentEntry = null;
+
+        function showSocialModal(entry) {
+            currentEntry = entry;
+            const modal = document.getElementById('socialModal');
+
+            // Generate the shareable image
+            generateShareableImage(entry);
+
+            // Set up social sharing links
+            setupSocialLinks(entry);
+
+            // Show the modal
+            modal.classList.add('show');
+        }
+
+        function closeSocialModal() {
+            const modal = document.getElementById('socialModal');
+            modal.classList.remove('show');
+            currentEntry = null;
+        }
+
+        function generateShareableImage(entry) {
+            const canvas = document.getElementById('shareCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size
+            canvas.width = 600;
+            canvas.height = 400;
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 600, 400);
+            gradient.addColorStop(0, '#e8f5e8');
+            gradient.addColorStop(1, '#4caf50');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 600, 400);
+
+            // Add logo/title area
+            ctx.fillStyle = '#2e7d32';
+            ctx.font = 'bold 28px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('ALELLA GREEN TECH', 300, 50);
+
+            ctx.font = '16px Arial, sans-serif';
+            ctx.fillText('Sustainable Learning Experience', 300, 75);
+
+            // Add visitor message (word wrap)
+            const message = entry.message || 'Amazing experience at Alella Green Tech!';
+            const maxWidth = 520;
+            const lineHeight = 25;
+            let y = 130;
+
+            ctx.fillStyle = '#333';
+            ctx.font = '18px Arial, sans-serif';
+            ctx.textAlign = 'center';
+
+            // Simple word wrap
+            const words = message.split(' ');
+            let line = '';
+
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + ' ';
+                const metrics = ctx.measureText(testLine);
+                const testWidth = metrics.width;
+
+                if (testWidth > maxWidth && i > 0) {
+                    ctx.fillText(line.trim(), 300, y);
+                    line = words[i] + ' ';
+                    y += lineHeight;
+
+                    // Prevent text overflow
+                    if (y > 280) break;
+                } else {
+                    line = testLine;
+                }
+            }
+
+            if (line.trim().length > 0 && y <= 280) {
+                ctx.fillText(line.trim(), 300, y);
+            }
+
+            // Add visitor name
+            if (entry.student_name) {
+                y += 40;
+                ctx.fillStyle = '#2e7d32';
+                ctx.font = '16px Arial, sans-serif';
+                ctx.fillText(`- ${entry.student_name}`, 300, Math.min(y, 320));
+            }
+
+            // Add favorite station if provided
+            if (entry.favorite_station) {
+                y += 25;
+                ctx.fillStyle = '#666';
+                ctx.font = '14px Arial, sans-serif';
+                ctx.fillText(`Favorite station: ${entry.favorite_station}`, 300, Math.min(y, 340));
+            }
+
+            // Add hashtag and call-to-action
+            ctx.fillStyle = '#4caf50';
+            ctx.font = 'bold 16px Arial, sans-serif';
+            ctx.fillText('#alellagreentech #sustainability #greentech', 300, 375);
+        }
+
+        function setupSocialLinks(entry) {
+            const message = entry.message || 'Amazing experience at Alella Green Tech!';
+            const baseText = `Just visited @alellagreentech and learned about sustainable technology! ${message.substring(0, 100)}${message.length > 100 ? '...' : ''}`;
+            const hashtags = 'alellagreentech,sustainability,greentech,education';
+            const url = window.location.origin;
+
+            // Facebook
+            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(baseText + ' #' + hashtags.split(',').join(' #'))}`;
+            document.getElementById('facebookShare').href = facebookUrl;
+
+            // Twitter
+            const twitterText = `${baseText} #${hashtags.split(',').join(' #')}`;
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}&url=${encodeURIComponent(url)}`;
+            document.getElementById('twitterShare').href = twitterUrl;
+
+            // Instagram (opens Instagram web - users will need to copy the image and text)
+            const instagramUrl = `https://www.instagram.com/`;
+            document.getElementById('instagramShare').href = instagramUrl;
+            document.getElementById('instagramShare').addEventListener('click', function(e) {
+                e.preventDefault();
+                // Copy text to clipboard for Instagram
+                const instagramText = `${baseText}\n\n#${hashtags.split(',').join(' #')}\n\nTag @alellagreentech for a chance to win amazing prizes!`;
+
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(instagramText).then(() => {
+                        alert('Text copied to clipboard! Now opening Instagram where you can paste it with your downloaded image.');
+                        window.open(instagramUrl, '_blank');
+                    });
+                } else {
+                    // Fallback for older browsers
+                    prompt('Copy this text for your Instagram post:', instagramText);
+                    window.open(instagramUrl, '_blank');
+                }
+            });
+        }
+
+        function downloadShareableImage() {
+            const canvas = document.getElementById('shareCanvas');
+            const link = document.createElement('a');
+
+            // Convert canvas to blob and download
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                link.href = url;
+                link.download = `alella-green-tech-visit-${Date.now()}.png`;
+                link.click();
+
+                // Clean up
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            }, 'image/png');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('socialModal');
+            if (e.target === modal) {
+                closeSocialModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSocialModal();
+            }
+        });
     </script>
 </body>
 </html>
