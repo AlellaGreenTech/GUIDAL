@@ -87,15 +87,48 @@ class GuidalDB {
     return data[0]
   }
 
-  // Guest Book Entries - Disabled (table does not exist)
+  // Guest Book Entries
   static async getGuestBookEntries(visitId = null) {
-    console.log('Guest book functionality disabled - table does not exist')
-    return []
+    try {
+      let query = supabase
+        .from('guest_book_entries')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      if (visitId) {
+        query = query.eq('visit_id', visitId)
+      }
+
+      const { data, error } = await query
+
+      if (error) {
+        console.error('Error fetching guest book entries:', error)
+        return []
+      }
+      return data || []
+    } catch (error) {
+      console.error('Error in getGuestBookEntries:', error)
+      return []
+    }
   }
 
   static async addGuestBookEntry(entryData) {
-    console.log('Guest book functionality disabled - table does not exist')
-    return null
+    try {
+      const { data, error } = await supabase
+        .from('guest_book_entries')
+        .insert([entryData])
+        .select()
+
+      if (error) {
+        console.error('Error adding guest book entry:', error)
+        throw error
+      }
+      return data[0]
+    } catch (error) {
+      console.error('Error in addGuestBookEntry:', error)
+      throw error
+    }
   }
 
 
@@ -210,10 +243,29 @@ class GuidalDB {
     return data || []
   }
 
-  // Real-time subscriptions - Guest book disabled (table does not exist)
+  // Real-time subscriptions
   static subscribeToGuestBookEntries(callback, visitId = null) {
-    console.log('Guest book subscription disabled - table does not exist')
-    return null
+    try {
+      let filter = 'guest_book_entries:*'
+      if (visitId) {
+        filter = `guest_book_entries:visit_id=eq.${visitId}`
+      }
+
+      const subscription = supabase
+        .channel('guest-book-changes')
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'guest_book_entries',
+          filter: visitId ? `visit_id=eq.${visitId}` : undefined
+        }, callback)
+        .subscribe()
+
+      return subscription
+    } catch (error) {
+      console.error('Error setting up guest book subscription:', error)
+      return null
+    }
   }
 
 
