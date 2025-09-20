@@ -4,32 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Follow & Share - GUIDAL</title>
-    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../styles.css">
     <style>
-        .follow-post-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
         .follow-header {
+            background: linear-gradient(rgba(76, 175, 80, 0.7), rgba(46, 125, 50, 0.7)), url('../images/social-media-banner.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            padding: 3rem 0;
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
         .follow-header h1 {
-            color: #2e7d32;
             font-size: 2.5rem;
             margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .follow-header p {
+        .follow-subtitle {
             font-size: 1.2rem;
-            color: #666;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .follow-intro {
+            background: #f1f8e9;
+            border-left: 4px solid #4caf50;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 6px;
+        }
+
+        .follow-intro p {
+            margin: 0;
+            font-size: 1.1rem;
             line-height: 1.6;
+            color: #333;
         }
 
         .emoji-large {
@@ -205,23 +218,44 @@
     </style>
 </head>
 <body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">The Guide to All at <a href="https://alellagreentech.org" target="_blank" class="agt-link">Alella Green Tech</a></p>
+        </div>
+    </header>
+
     <nav class="main-nav">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <a href="../index.html">GUIDAL</a>
-            </div>
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
             <ul class="nav-menu">
                 <li><a href="../index.html">Home</a></li>
-                <li><a href="welcome.html">Student Guide</a></li>
+                <li><a href="welcome.html">Welcome</a></li>
+                <li><a href="science-in-action-examples.html">Science-in-Action</a></li>
+                <li><a href="../index.html#activities">Activities</a></li>
+                <li><a href="kits.html">Kits</a></li>
                 <li><a href="follow-post.html" class="active">Follow & Share</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="auth/login.html" class="login-btn">Login/Register</a></li>
             </ul>
         </div>
     </nav>
 
-    <div class="follow-post-container">
-        <div class="follow-header">
-            <h1><span class="emoji-large">👋</span> Loved your visit? <span class="emoji-large">🌱</span></h1>
-            <p><span class="emoji-large">📸</span> Follow us & share your day with friends!</p>
+    <div class="follow-header">
+        <div class="container">
+            <h1>📱 Follow & Share</h1>
+            <p class="follow-subtitle">Stay connected with our green tech community and share your sustainability journey!</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="follow-intro">
+            <p>📸 Follow us & share your day with friends! Help spread the word about sustainable technology and inspire others to join the green revolution.</p>
         </div>
 
         <!-- Instagram Section -->
@@ -345,6 +379,46 @@
             // Open Instagram
             window.open('https://www.instagram.com/', '_blank');
         }
+    </script>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../index.html">Back to GUIDAL</a></p>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+
+                // Close menu when clicking a nav link
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    });
+                });
+            }
+        });
     </script>
 </body>
 </html>
