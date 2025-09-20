@@ -5,7 +5,7 @@
 INSERT INTO public.activities (
   title, slug, description, activity_type_id, date_time, duration_minutes,
   location, max_participants, credits_required, credits_earned, featured_image, status,
-  learning_objectives, instructor, contact_email, page_url
+  learning_objectives, instructor, contact_email
 ) VALUES
 
 -- Composting Workshop
@@ -24,8 +24,7 @@ INSERT INTO public.activities (
   'published',
   ARRAY['Composting methods', 'Soil biology', 'Organic matter management', 'Sustainable gardening'],
   'Maria Santos',
-  'contact@alellagreentech.com',
-  'workshops/composting.html'
+  'contact@alellagreentech.com'
 ),
 
 -- Erosion Challenge Workshop
@@ -144,8 +143,7 @@ INSERT INTO public.activities (
   'published',
   ARRAY['Traditional construction', 'Natural materials', 'Building techniques', 'Sustainable architecture'],
   'Roberto Silva',
-  'contact@alellagreentech.com',
-  'workshops/wattle-daub.html'
+  'contact@alellagreentech.com'
 );
 
 -- Verify the workshop activities were created
@@ -156,8 +154,7 @@ SELECT
   date_time,
   max_participants,
   credits_required,
-  status,
-  page_url
+  status
 FROM public.activities
 WHERE slug LIKE '%-workshop'
 ORDER BY date_time;
