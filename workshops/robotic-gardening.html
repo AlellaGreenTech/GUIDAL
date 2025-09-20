@@ -50,6 +50,54 @@
             border-top: 1px solid #e0e0e0;
         }
 
+        /* Workshop Hero Styles */
+        .workshop-hero {
+            position: relative;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 2;
+        }
+
+        .hero-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+        }
+
         .learning-content {
             padding: 1.5rem;
         }
@@ -160,8 +208,16 @@
     </nav>
     
     <main class="container">
+        <div class="workshop-hero">
+            <img src="../images/robotic-gardening-system.png" alt="Robotic gardening and automated agriculture systems" class="hero-image">
+            <div class="hero-content">
+                <h1>🤖 Robotic Gardening Workshop</h1>
+                <p class="hero-subtitle">Tend Your Garden from 1,000km Away</p>
+            </div>
+        </div>
+
         <section id="overview">
-            <h2>Tend Your Garden from 1,000km Away</h2>
+            <h2>Workshop Overview</h2>
             <p>Explore automated agriculture systems that can monitor, maintain, and harvest crops with minimal human intervention. Learn how robotics and AI are revolutionizing sustainable food production.</p>
             
             <div class="station-info">
