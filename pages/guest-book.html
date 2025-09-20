@@ -289,6 +289,63 @@
             background: #45a049;
         }
 
+        /* Image upload section styles */
+        .image-upload-section {
+            margin: 1.5rem 0;
+        }
+
+        .image-upload-section h4 {
+            color: #2e7d32;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px dashed #4caf50;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .upload-area:hover {
+            border-color: #45a049;
+            background: #e8f5e8;
+        }
+
+        .upload-prompt {
+            color: #666;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .upload-prompt small {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: normal;
+            color: #888;
+        }
+
+        .uploaded-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        /* Better social button styling */
+        .social-btn svg {
+            margin-right: 0.5rem;
+        }
+
+        .social-modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
         @media (max-width: 768px) {
             .guest-book-container {
                 padding: 1rem;
@@ -427,22 +484,43 @@
                 <p><small>Winners announced monthly on our social media!</small></p>
             </div>
 
+            <div class="image-upload-section">
+                <h4>Add Your Photo:</h4>
+                <div class="upload-area" onclick="document.getElementById('photoUpload').click()">
+                    <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                    <div id="uploadPrompt" class="upload-prompt">
+                        📷 Click to select your visit photo
+                        <small>Choose a photo from your device to share</small>
+                    </div>
+                    <img id="uploadedImage" class="uploaded-image" style="display: none;">
+                </div>
+            </div>
+
             <div class="preview-container">
-                <h4>Your Shareable Image:</h4>
+                <h4>Your Shareable Post:</h4>
                 <canvas id="shareCanvas" class="share-canvas" width="600" height="400"></canvas>
                 <br>
-                <button class="download-btn" onclick="downloadShareableImage()">📥 Download Image</button>
+                <button class="download-btn" onclick="downloadShareableImage()">📥 Download for Sharing</button>
             </div>
 
             <div class="social-sharing-buttons">
                 <a href="#" class="social-btn facebook" id="facebookShare" target="_blank">
-                    📘 Share on Facebook
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    Share on Facebook
                 </a>
                 <a href="#" class="social-btn instagram" id="instagramShare" target="_blank">
-                    📷 Share on Instagram
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                    Share on Instagram
                 </a>
                 <a href="#" class="social-btn twitter" id="twitterShare" target="_blank">
-                    🐦 Share on Twitter
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                    </svg>
+                    Share on Twitter
                 </a>
             </div>
 
@@ -685,6 +763,7 @@
 
         // Social sharing functionality
         let currentEntry = null;
+        let uploadedImageData = null;
 
         function showSocialModal(entry) {
             currentEntry = entry;
@@ -704,6 +783,37 @@
             const modal = document.getElementById('socialModal');
             modal.classList.remove('show');
             currentEntry = null;
+            uploadedImageData = null;
+
+            // Reset image upload
+            const uploadPrompt = document.getElementById('uploadPrompt');
+            const uploadedImage = document.getElementById('uploadedImage');
+            uploadPrompt.style.display = 'block';
+            uploadedImage.style.display = 'none';
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImageData = e.target.result;
+
+                // Show the uploaded image
+                const uploadPrompt = document.getElementById('uploadPrompt');
+                const uploadedImage = document.getElementById('uploadedImage');
+
+                uploadedImage.src = uploadedImageData;
+                uploadPrompt.style.display = 'none';
+                uploadedImage.style.display = 'block';
+
+                // Regenerate the shareable image with the new photo
+                if (currentEntry) {
+                    generateShareableImage(currentEntry);
+                }
+            };
+            reader.readAsDataURL(file);
         }
 
         function generateShareableImage(entry) {
@@ -714,17 +824,61 @@
             canvas.width = 600;
             canvas.height = 400;
 
-            // Background gradient
-            const gradient = ctx.createLinearGradient(0, 0, 600, 400);
-            gradient.addColorStop(0, '#e8f5e8');
-            gradient.addColorStop(1, '#4caf50');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, 600, 400);
+            // Clear canvas
+            ctx.clearRect(0, 0, 600, 400);
 
-            // Add logo/title area
-            ctx.fillStyle = '#2e7d32';
+            // If user uploaded an image, use it as background
+            if (uploadedImageData) {
+                const img = new Image();
+                img.onload = function() {
+                    // Calculate dimensions to cover the canvas while maintaining aspect ratio
+                    const scale = Math.max(600 / img.width, 400 / img.height);
+                    const scaledWidth = img.width * scale;
+                    const scaledHeight = img.height * scale;
+                    const offsetX = (600 - scaledWidth) / 2;
+                    const offsetY = (400 - scaledHeight) / 2;
+
+                    // Draw the user image
+                    ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+
+                    // Add semi-transparent overlay for text readability
+                    const overlay = ctx.createLinearGradient(0, 0, 600, 400);
+                    overlay.addColorStop(0, 'rgba(46, 125, 50, 0.8)');
+                    overlay.addColorStop(1, 'rgba(76, 175, 80, 0.9)');
+                    ctx.fillStyle = overlay;
+                    ctx.fillRect(0, 0, 600, 400);
+
+                    // Continue with text overlay
+                    addTextToCanvas(ctx, entry);
+                };
+                img.src = uploadedImageData;
+            } else {
+                // Default background gradient
+                const gradient = ctx.createLinearGradient(0, 0, 600, 400);
+                gradient.addColorStop(0, '#e8f5e8');
+                gradient.addColorStop(1, '#4caf50');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 600, 400);
+
+                // Continue with text
+                addTextToCanvas(ctx, entry);
+            }
+        }
+
+        function addTextToCanvas(ctx, entry) {
+            // Add logo/title area with better contrast
+            ctx.fillStyle = uploadedImageData ? 'white' : '#2e7d32';
             ctx.font = 'bold 28px Arial, sans-serif';
             ctx.textAlign = 'center';
+
+            // Add text shadow for better readability on photos
+            if (uploadedImageData) {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+            }
+
             ctx.fillText('ALELLA GREEN TECH', 300, 50);
 
             ctx.font = '16px Arial, sans-serif';
@@ -736,7 +890,7 @@
             const lineHeight = 25;
             let y = 130;
 
-            ctx.fillStyle = '#333';
+            ctx.fillStyle = uploadedImageData ? 'white' : '#333';
             ctx.font = '18px Arial, sans-serif';
             ctx.textAlign = 'center';
 
@@ -768,7 +922,7 @@
             // Add visitor name
             if (entry.student_name) {
                 y += 40;
-                ctx.fillStyle = '#2e7d32';
+                ctx.fillStyle = uploadedImageData ? 'white' : '#2e7d32';
                 ctx.font = '16px Arial, sans-serif';
                 ctx.fillText(`- ${entry.student_name}`, 300, Math.min(y, 320));
             }
@@ -776,15 +930,21 @@
             // Add favorite station if provided
             if (entry.favorite_station) {
                 y += 25;
-                ctx.fillStyle = '#666';
+                ctx.fillStyle = uploadedImageData ? 'rgba(255, 255, 255, 0.9)' : '#666';
                 ctx.font = '14px Arial, sans-serif';
                 ctx.fillText(`Favorite station: ${entry.favorite_station}`, 300, Math.min(y, 340));
             }
 
             // Add hashtag and call-to-action
-            ctx.fillStyle = '#4caf50';
+            ctx.fillStyle = uploadedImageData ? 'white' : '#4caf50';
             ctx.font = 'bold 16px Arial, sans-serif';
             ctx.fillText('#alellagreentech #sustainability #greentech', 300, 375);
+
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
         }
 
         function setupSocialLinks(entry) {
