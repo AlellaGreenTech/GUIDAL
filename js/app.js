@@ -70,6 +70,8 @@ class GuidalApp {
     }
 
     async init() {
+        console.log('🚀 Initializing GUIDAL app...');
+
         // Check authentication status
         await this.checkAuthStatus();
 
@@ -81,12 +83,23 @@ class GuidalApp {
         this.setupEventListeners();
         this.setupModalEventListeners();
         this.setupAuthListener();
+
+        console.log('✅ GUIDAL app initialized successfully');
     }
 
 
     async checkAuthStatus() {
         try {
-            this.currentUser = await GuidalDB.getCurrentUser();
+            // Add timeout to auth check
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Auth timeout')), 2000)
+            );
+
+            this.currentUser = await Promise.race([
+                GuidalDB.getCurrentUser(),
+                timeoutPromise
+            ]);
+
             if (this.currentUser) {
                 this.updateUIForLoggedInUser();
             } else {
@@ -113,7 +126,17 @@ class GuidalApp {
     async loadActivities(filters = {}) {
         try {
             console.log('🔍 Loading activities with filters:', filters);
-            this.activities = await GuidalDB.getActivities(filters);
+
+            // Add timeout to database call
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Database timeout')), 3000)
+            );
+
+            this.activities = await Promise.race([
+                GuidalDB.getActivities(filters),
+                timeoutPromise
+            ]);
+
             console.log('✅ Activities loaded:', this.activities.length, 'activities');
             console.log('📊 First activity sample:', this.activities[0]);
             this.renderActivities();
