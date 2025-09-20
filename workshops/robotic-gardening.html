@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robotic Gardening Workshop - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <style>
+        /* Accordion Styles */
+        .accordion-section {
+            margin: 1rem 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: linear-gradient(135deg, #45a049, #4CAF50);
+        }
+
+        .accordion-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .accordion-chevron {
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            background-color: white;
+            transition: max-height 0.3s ease;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .learning-content {
+            padding: 1.5rem;
+        }
+
+        .learning-content .learning-goals {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .learning-content .learning-goals li {
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Business Form Styles */
+        .business-content {
+            padding: 1.5rem;
+        }
+
+        .business-form {
+            max-width: 600px;
+            margin-top: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2e7d32;
+            box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+        }
+
+        .form-actions {
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .validation-message {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .validation-message.error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .validation-message.success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Robotic Gardening Station</p>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#activities">All Workshops</a></li>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#learning">Learning Goals</a></li>
+                <li><a href="../pages/follow-post.html">Follow & Share</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <section id="overview">
+            <h2>Tend Your Garden from 1,000km Away</h2>
+            <p>Explore automated agriculture systems that can monitor, maintain, and harvest crops with minimal human intervention. Learn how robotics and AI are revolutionizing sustainable food production.</p>
+            
+            <div class="station-info">
+                <div class="info-card">
+                    <h3>Remote Monitoring</h3>
+                    <p>Use sensors and cameras to monitor soil moisture, plant health, weather conditions, and pest activity from anywhere in the world.</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Automated Care</h3>
+                    <p>Program robots to water, weed, prune, and harvest crops based on real-time data and AI decision-making.</p>
+                </div>
+                
+                <div class="info-card">
+                    <h3>Precision Agriculture</h3>
+                    <p>Optimize resource use through precise application of water, nutrients, and treatments exactly where and when needed.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="learning">
+            <h2>Learning Goals</h2>
+
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('learning-goals-content')">
+                    <h3>What will you learn in this station?</h3>
+                    <div class="accordion-chevron">›</div>
+                </div>
+                <div class="accordion-content" id="learning-goals-content">
+                    <div class="learning-content">
+                        <ul class="learning-goals">
+                            <li>Understand IoT sensors and wireless communication protocols</li>
+                            <li>Program basic automation sequences and conditional logic</li>
+                            <li>Learn computer vision for plant identification and health assessment</li>
+                            <li>Explore machine learning applications in agriculture</li>
+                            <li>Design user interfaces for remote garden management</li>
+                            <li>Analyze cost-benefit ratios of automated vs. manual labor</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="activities">
+            <h2>Let's Build Our Own Robotic Veggie Patch!</h2>
+            <div class="activity-cards">
+                <div class="activity">
+                    <h4>Prepare the soil</h4>
+                    <p>The key to any garden is great soil - got any?</p>
+                </div>
+                <div class="activity">
+                    <h4>Plan the Robot's Work</h4>
+                    <p>Think strategy - how should it work?</p>
+                </div>
+                <div class="activity">
+                    <h4>Write the Code!</h4>
+                    <p>Use scratch or LUA. Make it RELIABLE</p>
+                </div>
+                <div class="activity">
+                    <h4>How will You Monitor it From School?</h4>
+                    <p>Make a plan!</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="weekend-business">
+            <h2>Weekend Business Opportunity</h2>
+
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('weekend-business-content')">
+                    <h3>Who wants to start a weekend business (making real money) running Robotic Gardening Workshops?</h3>
+                    <div class="accordion-chevron">›</div>
+                </div>
+                <div class="accordion-content" id="weekend-business-content">
+                    <div class="business-content">
+                        <p><strong>Turn your passion for robotics and gardening into a profitable weekend venture!</strong></p>
+
+                        <form id="businessForm" class="business-form">
+                            <div class="form-group">
+                                <label for="businessName"><strong>Your Name:</strong></label>
+                                <input type="text" id="businessName" placeholder="Enter your full name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="businessEmail"><strong>Email Address:</strong></label>
+                                <input type="email" id="businessEmail" placeholder="your.email@example.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="businessInterest"><strong>What are you interested in?</strong></label>
+                                <textarea id="businessInterest" rows="4" placeholder="Describe what aspects of robotic gardening workshops interest you most (teaching kids, building robots, entrepreneurship, etc.)" required></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" onclick="saveBusinessInterest()" class="btn btn-primary">Submit Interest</button>
+                                <div id="businessMessage" class="validation-message"></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../index.html">Back to GUIDAL</a></p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const header = content.previousElementSibling;
+            const chevron = header.querySelector('.accordion-chevron');
+
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                chevron.style.transform = 'rotate(0deg)';
+                chevron.textContent = '›';
+            } else {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                chevron.style.transform = 'rotate(90deg)';
+                chevron.textContent = '‹';
+            }
+        }
+
+        async function saveBusinessInterest() {
+            const name = document.getElementById('businessName').value.trim();
+            const email = document.getElementById('businessEmail').value.trim();
+            const interest = document.getElementById('businessInterest').value.trim();
+
+            if (!name || !email || !interest) {
+                alert('Please fill in all fields (Name, Email, and Interest Description).');
+                return;
+            }
+
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            const businessData = {
+                name: name,
+                email: email,
+                interest_description: interest,
+                workshop_type: 'robotic_gardening',
+                created_at: new Date().toISOString()
+            };
+
+            try {
+                const { data, error } = await GuidalDB.supabase
+                    .from('weekend_business_interest')
+                    .insert([businessData]);
+
+                if (error) throw error;
+
+                alert('✓ Thank you for your interest! We will contact you soon about weekend business opportunities.');
+
+                // Clear the form
+                document.getElementById('businessForm').reset();
+
+                const messageDiv = document.getElementById('businessMessage');
+                messageDiv.textContent = '✓ Interest submitted successfully!';
+                messageDiv.className = 'validation-message success';
+
+            } catch (error) {
+                console.error('Error saving business interest:', error);
+
+                const messageDiv = document.getElementById('businessMessage');
+                if (error.code === '23505') { // Unique constraint violation
+                    messageDiv.textContent = '⚠️ This email has already been submitted. Thank you for your interest!';
+                } else {
+                    messageDiv.textContent = '⚠️ Error submitting interest. Please try again.';
+                }
+                messageDiv.className = 'validation-message error';
+            }
+        }
+    </script>
+</body>
+</html>

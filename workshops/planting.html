@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Station 1: Planting Workshop - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Centered vertical header layout */
+        .station-header {
+            text-align: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 2rem;
+        }
+
+        .station-title {
+            margin-bottom: 1.5rem;
+        }
+
+        .station-title h2 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .station-subtitle {
+            margin: 0.5rem 0 0 0;
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .station-meta {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .meta-item {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .meta-item strong {
+            color: #2e7d32;
+            font-size: 1.1rem;
+        }
+
+        /* Accordion Styles */
+        .accordion-section {
+            margin: 1rem 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: #f0f0f0;
+        }
+
+        .accordion-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .accordion-arrow {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .accordion-content.open {
+            display: block;
+        }
+
+        /* Group submission status styling */
+        .group-submission-status {
+            margin: 1rem 0;
+        }
+
+        .group-status {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            border: 2px solid;
+        }
+
+        .group-status.existing {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+
+        .group-status.new {
+            background-color: #d4edda;
+            border-color: #00b894;
+            color: #155724;
+        }
+
+        .group-status strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .group-status small {
+            opacity: 0.8;
+        }
+
+        /* Form styling improvements */
+        .form-group.full-width {
+            flex: 1 1 100%;
+        }
+
+        .observations-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .observations-form .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .observations-form .form-group {
+            flex: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .station-meta {
+                flex-wrap: wrap;
+                gap: 1.5rem;
+                justify-content: center;
+            }
+
+            .station-title h2 {
+                font-size: 1.5rem;
+            }
+
+            .station-subtitle {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Station 1: Planting at <a href="https://alellagreentech.org" target="_blank" class="agt-link">Alella Green Tech</a></p>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../visits/benjamin-franklin-sept-2025.html">← Back to Visit</a></li>
+                <li><a href="#overview">Station Overview</a></li>
+                <li><a href="#activities">Activities</a></li>
+                <li><a href="#soil-tracking">Soil Tracking</a></li>
+                <li><a href="../pages/follow-post.html">Follow & Share</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <section id="station-header" class="station-header">
+            <div class="station-title">
+                <h2>🌱 Station 1: Planting</h2>
+                <p class="station-subtitle">Sustainable Agriculture & Soil Science</p>
+            </div>
+            <div class="station-meta">
+                <span class="meta-item"><strong>40</strong> Minutes</span>
+                <span class="meta-item"><strong>12</strong> Students Max</span>
+                <span class="meta-item"><strong>5</strong> Green$</span>
+            </div>
+        </section>
+
+        <section id="overview" class="station-overview">
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('overview')">
+                    <h2>What You'll Discover</h2>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content" id="overview-content">
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <h3>🌱 No-Till Agriculture</h3>
+                            <p>Discover sustainable farming techniques that preserve soil ecosystem integrity by minimizing disturbance to beneficial microorganisms and soil structure.</p>
+                        </div>
+                        <div class="overview-card">
+                            <h3>🧠 Strategic Soil Planning</h3>
+                            <p>Learn the science behind careful soil mixture formulation, balancing structure, water retention, organic matter, and living organisms for optimal plant growth.</p>
+                        </div>
+                        <div class="overview-card">
+                            <h3>📊 Data-Driven Monitoring</h3>
+                            <p>Experience how precision agriculture uses systematic tracking and measurement to understand plant growth patterns and optimize farming decisions.</p>
+                        </div>
+                        <div class="overview-card">
+                            <h3>🔬 Comparative Analysis</h3>
+                            <p>Conduct real scientific research by comparing your group's soil choices with others to understand cause-and-effect relationships in agriculture.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="activities" class="activities-section">
+            <h2>Station Steps</h2>
+            <div class="activity-timeline">
+                <div class="activity-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Soil Mixture Planning</h3>
+                        <p>Decide amongst yourselves the formula for the perfect soil using only the ingredients in the table.<br>Submit one entry for your group.</p>
+                        <div class="activity-tools">
+                            <span class="tool">🏗️ Structure (sand)</span>
+                            <span class="tool">💧 Water Retention (clay)</span>
+                            <span class="tool">🌿 Organic Matter (biomass)</span>
+                            <span class="tool">🦠 Soil Food Web (living organisms)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Lock in Your Group's Soil Mixture!</h3>
+                        <p>Record your group's final soil mixture decision using the form below.</p>
+
+                        <!-- Soil Mixture Form moved here from bottom of page -->
+                        <div class="soil-input-section">
+                            <form id="stationSoilForm" class="soil-mixture-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="stationGroupNumber">Group Number:</label>
+                                        <select id="stationGroupNumber" name="groupNumber" required>
+                                            <option value="">Select your group</option>
+                                            <option value="1">Group 1</option>
+                                            <option value="2">Group 2</option>
+                                            <option value="3">Group 3</option>
+                                            <option value="4">Group 4</option>
+                                            <option value="5">Group 5</option>
+                                            <option value="6">Group 6</option>
+                                            <option value="staff">Staff</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="cowManure">Cow Manure %:</label>
+                                        <select id="cowManure" name="cowManure" required>
+                                            <option value="">Select %</option>
+                                            <option value="0">0%</option>
+                                            <option value="5">5%</option>
+                                            <option value="10">10%</option>
+                                            <option value="15">15%</option>
+                                            <option value="20">20%</option>
+                                            <option value="25">25%</option>
+                                            <option value="30">30%</option>
+                                            <option value="35">35%</option>
+                                            <option value="40">40%</option>
+                                            <option value="45">45%</option>
+                                            <option value="50">50%</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="horseManure">Horse Manure %:</label>
+                                        <select id="horseManure" name="horseManure" required>
+                                            <option value="">Select %</option>
+                                            <option value="0">0%</option>
+                                            <option value="5">5%</option>
+                                            <option value="10">10%</option>
+                                            <option value="15">15%</option>
+                                            <option value="20">20%</option>
+                                            <option value="25">25%</option>
+                                            <option value="30">30%</option>
+                                            <option value="35">35%</option>
+                                            <option value="40">40%</option>
+                                            <option value="45">45%</option>
+                                            <option value="50">50%</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="saulo">Saulo %:</label>
+                                        <select id="saulo" name="saulo" required>
+                                            <option value="">Select %</option>
+                                            <option value="0">0%</option>
+                                            <option value="5">5%</option>
+                                            <option value="10">10%</option>
+                                            <option value="15">15%</option>
+                                            <option value="20">20%</option>
+                                            <option value="25">25%</option>
+                                            <option value="30">30%</option>
+                                            <option value="35">35%</option>
+                                            <option value="40">40%</option>
+                                            <option value="45">45%</option>
+                                            <option value="50">50%</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="recebo">Recebo %:</label>
+                                        <select id="recebo" name="recebo" required>
+                                            <option value="">Select %</option>
+                                            <option value="0">0%</option>
+                                            <option value="5">5%</option>
+                                            <option value="10">10%</option>
+                                            <option value="15">15%</option>
+                                            <option value="20">20%</option>
+                                            <option value="25">25%</option>
+                                            <option value="30">30%</option>
+                                            <option value="35">35%</option>
+                                            <option value="40">40%</option>
+                                            <option value="45">45%</option>
+                                            <option value="50">50%</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="moistureLevel">Moisture Level:</label>
+                                        <select id="moistureLevel" name="moistureLevel" required>
+                                            <option value="">Select moisture level</option>
+                                            <option value="dry">Dry</option>
+                                            <option value="moist">Moist</option>
+                                            <option value="wet">Wet</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="percentage-display">
+                                    <p id="totalDisplay">Total: <span id="stationTotalPercentage">0</span>%</p>
+                                    <p id="stationPercentageWarning" class="warning-text" style="display: none;">
+                                        ⚠️ Total must equal 100%
+                                    </p>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Submit Soil Mixture</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Prepare the Earth for Planting!</h3>
+                        <p>We use the no-till methodology to minimize damage to the top soil ecosystem.</p>
+                        <div class="activity-tools">
+                            <span class="tool">🌱 No-till techniques</span>
+                            <span class="tool">🌍 Soil ecosystem protection</span>
+                            <span class="tool">🔧 Minimal disturbance tools</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Choose the seedlings best matched to this season and our region. Plant them!</h3>
+                        <p>Select appropriate seedlings for our Mediterranean climate and current growing season, then carefully plant them using proper techniques.</p>
+                        <div class="activity-tools">
+                            <span class="tool">🌱 Seasonal seedlings</span>
+                            <span class="tool">🌍 Regional varieties</span>
+                            <span class="tool">🌿 Planting techniques</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Observations</h3>
+                        <p>Record what you planted today and share your observations. Multiple observations per group are encouraged!</p>
+
+                        <!-- Observations Form moved here from bottom of page -->
+                        <div class="observations-input-section">
+                            <form id="observationsForm" class="observations-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="obsGroupNumber">Group Number:</label>
+                                        <select id="obsGroupNumber" name="groupNumber" required>
+                                            <option value="">Select your group</option>
+                                            <option value="1">Group 1</option>
+                                            <option value="2">Group 2</option>
+                                            <option value="3">Group 3</option>
+                                            <option value="4">Group 4</option>
+                                            <option value="5">Group 5</option>
+                                            <option value="6">Group 6</option>
+                                            <option value="staff">Staff</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="studentName">Your Name (optional):</label>
+                                        <input type="text" id="studentName" name="studentName" placeholder="Enter your name">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group full-width">
+                                        <label for="plantsToday">What did you plant today?</label>
+                                        <input type="text" id="plantsToday" name="plantsToday" placeholder="e.g., Basil, Cilantro, Lettuce..." required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group full-width">
+                                        <label for="observation">Observations:</label>
+                                        <textarea id="observation" name="observation" rows="4" placeholder="Share your observations about the planting process, soil, seedlings, or anything interesting you noticed..." required></textarea>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Submit Observation</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="activity-step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h3>If you have enough Green$ credits, come back to Alella Green Tech in 3 months for the HARVEST!</h3>
+                        <p>Return in three months to harvest your plants and see the results of your soil mixture choices. This requires sufficient Green$ credits earned through station participation.</p>
+                        <div class="activity-tools">
+                            <span class="tool">💰 Green$ credits</span>
+                            <span class="tool">🌾 Harvest experience</span>
+                            <span class="tool">📅 3-month return visit</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="soil-tracking" class="soil-tracking-section">
+            <div class="soil-tracking-container">
+                <h2>🌱 Station 1: Soil Mixture & Observations</h2>
+                
+                <!-- Global Seeds Information -->
+                <div class="seeds-info">
+                    <h3>🌱 Seeds Being Planted Today</h3>
+                    <div id="seedsPlantedDisplay" class="seeds-planted">
+                        <p><strong>Loading plants data...</strong></p>
+                    </div>
+                </div>
+
+
+            </div>
+            
+            <!-- Live Data Tables -->
+            <div class="live-data-section">
+                <h2>📊 Live Station Data - All Groups</h2>
+                
+                <!-- Soil Mixtures Table -->
+                <div class="data-table-container">
+                    <h3>Soil Mixture Compositions</h3>
+                    <table class="data-table" id="soilMixturesTable">
+                        <thead>
+                            <tr>
+                                <th>Group</th>
+                                <th>Cow Manure %</th>
+                                <th>Horse Manure & Hay %</th>
+                                <th>Sauló %</th>
+                                <th>Recebo %</th>
+                                <th>Total %</th>
+                                <th>Moisture Level</th>
+                            </tr>
+                        </thead>
+                        <tbody id="soilMixturesTableBody">
+                            <tr class="empty-row">
+                                <td colspan="7">No soil mixture data yet. Be the first to record your group's mixture!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Observations Table -->
+                <div class="data-table-container">
+                    <h3>Group Observations</h3>
+                    <table class="data-table" id="observationsTable">
+                        <thead>
+                            <tr>
+                                <th>Group</th>
+                                <th>Observation</th>
+                                <th>Student Name</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="observationsTableBody">
+                            <tr class="empty-row">
+                                <td colspan="4">No observations yet. Share your first observation!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../visits/benjamin-franklin-sept-2025.html">Back to Your Visit</a></p>
+            <p><strong>Station Coordinator:</strong> Dr. Elena Rodriguez | <strong>Questions:</strong> <a href="mailto:stations@allellagreentech.com">stations@allellagreentech.com</a></p>
+        </div>
+    </footer>
+    
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- GUIDAL Database Client -->
+    <script src="../js/supabase-client.js"></script>
+    
+    <script>
+        function initializePragueMode() {
+            console.log('Initializing Prague privacy mode');
+
+            // Mobile menu functionality
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    });
+                });
+            }
+
+            // Initialize Prague-specific functionality
+            const pragueSession = JSON.parse(localStorage.getItem('pragueSession'));
+            console.log('Prague session:', pragueSession);
+
+            // Show user info
+            if (pragueSession && pragueSession.firstName) {
+                const userInfo = document.createElement('div');
+                userInfo.style.cssText = `
+                    position: fixed;
+                    top: 10px;
+                    right: 10px;
+                    background: #4caf50;
+                    color: white;
+                    padding: 0.5rem 1rem;
+                    border-radius: 20px;
+                    font-size: 0.9rem;
+                    z-index: 1000;
+                `;
+                userInfo.textContent = `👋 ${pragueSession.firstName}${pragueSession.groupNumber ? ' (Group ' + pragueSession.groupNumber + ')' : ''}`;
+                document.body.appendChild(userInfo);
+            }
+
+            // Enable forms with privacy mode
+            enablePragueStationForms(pragueSession);
+        }
+
+        function enablePragueStationForms(pragueSession) {
+            // Make all station forms work without authentication
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.style.opacity = '1';
+                form.style.pointerEvents = 'auto';
+
+                // Pre-fill student name if available
+                const nameInputs = form.querySelectorAll('input[name*="Name"], input[name*="name"]');
+                nameInputs.forEach(input => {
+                    if (pragueSession.firstName && !input.value) {
+                        input.value = pragueSession.firstName;
+                    }
+                });
+
+                // Pre-fill group number if available
+                const groupSelects = form.querySelectorAll('select[name*="group"], select[name*="Group"]');
+                groupSelects.forEach(select => {
+                    if (pragueSession.groupNumber && !select.value) {
+                        select.value = pragueSession.groupNumber;
+                    }
+                });
+            });
+
+            // Show success message
+            const welcomeMsg = document.createElement('div');
+            welcomeMsg.style.cssText = `
+                background: #d4edda;
+                color: #155724;
+                border: 2px solid #c3e6cb;
+                border-radius: 8px;
+                padding: 1rem;
+                margin: 1rem 0;
+                text-align: center;
+            `;
+            welcomeMsg.innerHTML = `
+                <strong>🌱 Welcome to the Planting Station!</strong><br>
+                <small>Privacy mode active - no login required. Your data stays anonymous.</small>
+            `;
+
+            const container = document.querySelector('.container');
+            if (container) {
+                container.insertBefore(welcomeMsg, container.firstChild);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for Prague privacy session first
+            const pragueSession = localStorage.getItem('pragueSession');
+            const urlParams = new URLSearchParams(window.location.search);
+            const isPrivacyMode = urlParams.get('privacy') === 'true';
+
+            if (isPrivacyMode && pragueSession) {
+                // Prague privacy mode - bypass all authentication
+                console.log('Prague privacy mode detected, skipping authentication');
+                initializePragueMode();
+                return;
+            } else if (isPrivacyMode && !pragueSession) {
+                // Redirect to Prague registration
+                window.location.href = '../pages/auth/register-prague.html?returnTo=' + encodeURIComponent(window.location.href);
+                return;
+            }
+
+            // Mobile menu functionality
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+                
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    });
+                });
+            }
+
+            // Station 1 soil mixture and observations tracking
+            const stationSoilForm = document.getElementById('stationSoilForm');
+            const observationsForm = document.getElementById('observationsForm');
+            const soilMixturesTableBody = document.getElementById('soilMixturesTableBody');
+            const observationsTableBody = document.getElementById('observationsTableBody');
+            const totalDisplay = document.getElementById('totalDisplay');
+            const stationPercentageWarning = document.getElementById('stationPercentageWarning');
+            const stationTotalPercentageSpan = document.getElementById('stationTotalPercentage');
+            // Only run database functions if NOT in privacy mode (privacy mode already returned early)
+            const visitAccessCode = 'bfis-sept-2025'; // BFIS visit access code
+
+            // Load existing data on page load (BFIS only)
+            loadSoilMixturesTable();
+            loadObservationsTable();
+            loadSeedsPlantedDisplay();
+
+            // Check for existing group submission when group is selected
+            const groupNumberSelect = document.getElementById('stationGroupNumber');
+            if (groupNumberSelect) {
+                groupNumberSelect.addEventListener('change', async function() {
+                    const groupNumber = parseInt(this.value);
+                    if (groupNumber) {
+                        await checkExistingGroupSubmission(groupNumber);
+                    } else {
+                        clearGroupStatus();
+                    }
+                });
+            }
+
+            // Function to check if group already has a submission
+            async function checkExistingGroupSubmission(groupNumber) {
+                // Check if GuidalDB is initialized
+                if (!window.GuidalDB || !GuidalDB.supabase) {
+                    console.warn('GuidalDB not ready yet, skipping group check');
+                    return;
+                }
+
+                try {
+                    const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
+                    if (!visit) return;
+
+                    const existingMixtures = await GuidalDB.getSoilMixtures();
+                    const existingMixture = existingMixtures.find(m => m.group_number === groupNumber && m.visit_id === visit.id);
+
+                    const statusDiv = document.getElementById('groupSubmissionStatus') || createGroupStatusDiv();
+
+                    if (existingMixture) {
+                        statusDiv.innerHTML = `
+                            <div class="group-status existing">
+                                ⚠️ <strong>Group ${groupNumber} already has a submission!</strong><br>
+                                <small>Submitting again will update your existing mixture.</small>
+                            </div>
+                        `;
+                    } else {
+                        statusDiv.innerHTML = `
+                            <div class="group-status new">
+                                ✅ <strong>Group ${groupNumber} - Ready for first submission</strong><br>
+                                <small>This will be your group's official soil mixture.</small>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Error checking group submission:', error);
+                    // Don't show error to user, just log it
+                }
+            }
+
+            // Create the status div if it doesn't exist
+            function createGroupStatusDiv() {
+                const statusDiv = document.createElement('div');
+                statusDiv.id = 'groupSubmissionStatus';
+                statusDiv.className = 'group-submission-status';
+
+                const form = document.getElementById('stationSoilForm');
+                const firstFormRow = form.querySelector('.form-row');
+                firstFormRow.insertAdjacentElement('afterend', statusDiv);
+
+                return statusDiv;
+            }
+
+            // Clear group status display
+            function clearGroupStatus() {
+                const statusDiv = document.getElementById('groupSubmissionStatus');
+                if (statusDiv) {
+                    statusDiv.innerHTML = '';
+                }
+            }
+
+            // Load seeds planted display from database observations
+            async function loadSeedsPlantedDisplay() {
+                try {
+                    const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
+                    if (!visit) {
+                        document.getElementById('seedsPlantedDisplay').innerHTML =
+                            '<p><strong>No visit data found</strong></p>';
+                        return;
+                    }
+
+                    // Get all guest book entries (observations) for this visit
+                    const { data: observations, error } = await supabase
+                        .from('guest_book_entries')
+                        .select('*')
+                        .eq('visit_id', visit.id);
+
+                    if (error) {
+                        console.error('Error loading observations:', error);
+                        document.getElementById('seedsPlantedDisplay').innerHTML =
+                            '<p><strong>Error loading plant data</strong></p>';
+                        return;
+                    }
+
+                    // Extract plants from observation messages
+                    const plantsSet = new Set();
+                    let groupsReporting = new Set();
+
+                    observations.forEach(obs => {
+                        // Extract plants from messages that start with "Plants planted:"
+                        if (obs.message && obs.message.includes('Plants planted:')) {
+                            const plantsLine = obs.message.split('\n')[0];
+                            const plantsText = plantsLine.replace('Plants planted: ', '');
+
+                            // Split by comma and clean up each plant name
+                            const plants = plantsText.split(',').map(plant => plant.trim());
+                            plants.forEach(plant => {
+                                if (plant && plant.length > 0) {
+                                    plantsSet.add(plant);
+                                }
+                            });
+
+                            // Extract group number from student_name
+                            if (obs.student_name && obs.student_name.includes('Group ')) {
+                                const groupMatch = obs.student_name.match(/Group (\d+)/);
+                                if (groupMatch) {
+                                    groupsReporting.add(groupMatch[1]);
+                                }
+                            }
+                        }
+                    });
+
+                    // Display the results
+                    const seedsDisplay = document.getElementById('seedsPlantedDisplay');
+
+                    if (plantsSet.size > 0) {
+                        const plantsList = Array.from(plantsSet).sort().join(', ');
+                        const groupCount = groupsReporting.size;
+
+                        seedsDisplay.innerHTML = `
+                            <p><strong>Plants being grown by groups today:</strong> ${plantsList}</p>
+                            <p><small>${groupCount} group(s) have reported their plantings</small></p>
+                        `;
+                    } else {
+                        seedsDisplay.innerHTML = `
+                            <p><strong>No planting data yet</strong></p>
+                            <p><small>Groups will report their plantings in Step 5</small></p>
+                        `;
+                    }
+
+                } catch (error) {
+                    console.error('Error loading seeds display:', error);
+                    document.getElementById('seedsPlantedDisplay').innerHTML =
+                        '<p><strong>Error loading plant data</strong></p>';
+                }
+            }
+
+            // Percentage validation for soil mixture form
+            const percentageInputs = ['cowManure', 'horseManure', 'saulo', 'recebo'];
+            percentageInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('change', validatePercentages);
+                }
+            });
+
+            function validatePercentages() {
+                const cowManure = parseInt(document.getElementById('cowManure').value) || 0;
+                const horseManure = parseInt(document.getElementById('horseManure').value) || 0;
+                const saulo = parseInt(document.getElementById('saulo').value) || 0;
+                const recebo = parseInt(document.getElementById('recebo').value) || 0;
+                const total = cowManure + horseManure + saulo + recebo;
+                
+                totalDisplay.textContent = total + '%';
+                stationTotalPercentageSpan.textContent = total;
+                
+                if (total === 100) {
+                    totalDisplay.style.backgroundColor = '#d4edda';
+                    totalDisplay.style.color = '#155724';
+                    stationPercentageWarning.style.display = 'none';
+                } else if (total > 0) {
+                    totalDisplay.style.backgroundColor = '#f8d7da';
+                    totalDisplay.style.color = '#721c24';
+                    stationPercentageWarning.style.display = 'block';
+                } else {
+                    totalDisplay.style.backgroundColor = '#e8f5e8';
+                    totalDisplay.style.color = '#2d7d32';
+                    stationPercentageWarning.style.display = 'none';
+                }
+            }
+
+        function convertGroupToNumber(groupValue) {
+            if (groupValue === 'staff') return -1;
+            if (groupValue === 'other') return -2;
+            return parseInt(groupValue);
+        }
+
+        function getGroupDisplayName(groupNumber) {
+            if (groupNumber === -1) return 'Staff';
+            if (groupNumber === -2) return 'Other';
+            return `Group ${groupNumber}`;
+        }
+
+            // Soil mixture form submission
+            if (stationSoilForm) {
+                stationSoilForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(stationSoilForm);
+                    const groupNumber = convertGroupToNumber(formData.get('groupNumber'));
+                    const cowManure = parseInt(formData.get('cowManure'));
+                    const horseManure = parseInt(formData.get('horseManure'));
+                    const saulo = parseInt(formData.get('saulo'));
+                    const recebo = parseInt(formData.get('recebo'));
+                    const moistureLevel = formData.get('moistureLevel');
+
+                    // Validate percentages
+                    const total = cowManure + horseManure + saulo + recebo;
+                    if (total !== 100) {
+                        alert(`Total must equal 100%. Current total: ${total}%`);
+                        return;
+                    }
+
+                    try {
+                        // Get visit ID by access code
+                        const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
+                        if (!visit) {
+                            alert('Visit not found. Please contact support.');
+                            return;
+                        }
+
+                        // Prepare soil mixture data for new structure
+                        const soilData = {
+                            visit_id: visit.id,
+                            group_number: groupNumber,
+                            group_name: `Group ${groupNumber}`,
+                            soil_type: 'mixed', // Since we have specific components now
+                            compost_percentage: cowManure, // Using compost field for cow manure
+                            sand_percentage: horseManure, // Using sand field for horse manure
+                            clay_percentage: saulo, // Using clay field for saulo
+                            ph_level: recebo, // Using ph_level field for recebo (temporary storage)
+                            moisture_level: moistureLevel,
+                            notes: `Cow Manure: ${cowManure}%, Horse Manure & Hay: ${horseManure}%, Sauló: ${saulo}%, Recebo: ${recebo}%`
+                        };
+
+                        // Check if group already has a submission (enforce one per group)
+                        const existingMixtures = await GuidalDB.getSoilMixtures();
+                        const existingMixture = existingMixtures.find(m => m.group_number === groupNumber && m.visit_id === visit.id);
+
+                        if (existingMixture) {
+                            // Ask user if they want to update their existing submission
+                            const confirmUpdate = confirm(
+                                `Group ${groupNumber} already has a soil mixture submission. ` +
+                                `Do you want to update your existing submission?\n\n` +
+                                `Click OK to update, or Cancel to keep your original submission.`
+                            );
+
+                            if (confirmUpdate) {
+                                await GuidalDB.updateSoilMixture(groupNumber, soilData);
+                                alert('✅ Soil mixture updated successfully! Your group\'s submission has been replaced.');
+                            } else {
+                                alert('❌ Submission cancelled. Your original soil mixture is preserved.');
+                                return;
+                            }
+                        } else {
+                            // Add new mixture (first submission for this group)
+                            await GuidalDB.addSoilMixture(soilData);
+                            alert('✅ Soil mixture recorded successfully! This is your group\'s official submission. 🌱');
+                        }
+
+                        // Refresh the table display
+                        await loadSoilMixturesTable();
+                        
+                        // Reset form
+                        stationSoilForm.reset();
+                        validatePercentages(); // Reset total display
+
+                    } catch (error) {
+                        console.error('Error saving soil mixture:', error);
+                        alert('Error saving soil mixture. Please try again.');
+                    }
+                });
+            }
+
+            // Observations form submission
+            if (observationsForm) {
+                observationsForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(observationsForm);
+                    const groupNumber = convertGroupToNumber(formData.get('groupNumber'));
+                    const studentName = formData.get('studentName') || 'Anonymous';
+                    const plantsToday = formData.get('plantsToday');
+                    const observation = formData.get('observation');
+
+                    try {
+                        // Get visit ID by access code
+                        const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
+                        if (!visit) {
+                            alert('Visit not found. Please contact support.');
+                            return;
+                        }
+
+                        // Create guest book entry for observations
+                        const observationData = {
+                            visit_id: visit.id,
+                            student_name: `${getGroupDisplayName(groupNumber)} - ${studentName}`,
+                            message: `Plants planted: ${plantsToday}\n\nObservations: ${observation}`
+                        };
+
+                        await GuidalDB.addGuestBookEntry(observationData);
+                        alert('Observation added successfully! 📝');
+
+                        // Refresh the observations table and seeds planted display
+                        await loadObservationsTable();
+                        await loadSeedsPlantedDisplay();
+                        
+                        // Reset form
+                        observationsForm.reset();
+
+                    } catch (error) {
+                        console.error('Error saving observation:', error);
+                        alert('Error saving observation. Please try again.');
+                    }
+                });
+            }
+
+            async function loadSoilMixturesTable() {
+                try {
+                    const mixtures = await GuidalDB.getSoilMixtures();
+                    
+                    if (mixtures.length === 0) {
+                        soilMixturesTableBody.innerHTML = '<tr class="empty-row"><td colspan="7">No soil mixture data yet. Be the first to record your group\'s mixture!</td></tr>';
+                        return;
+                    }
+
+                    // Sort by group number
+                    mixtures.sort((a, b) => a.group_number - b.group_number);
+
+                    soilMixturesTableBody.innerHTML = mixtures.map(mixture => {
+                        const cowManure = mixture.compost_percentage || 0;
+                        const horseManure = mixture.sand_percentage || 0;
+                        const saulo = mixture.clay_percentage || 0;
+                        const recebo = mixture.ph_level || 0;
+                        const total = cowManure + horseManure + saulo + recebo;
+                        const totalClass = total === 100 ? 'total-ok' : 'total-error';
+                        
+                        return `
+                            <tr>
+                                <td><strong>Group ${mixture.group_number}</strong></td>
+                                <td>${cowManure}%</td>
+                                <td>${horseManure}%</td>
+                                <td>${saulo}%</td>
+                                <td>${recebo}%</td>
+                                <td class="${totalClass}">${total}%</td>
+                                <td>${mixture.moisture_level || 'Not recorded'}</td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('Error loading soil mixtures table:', error);
+                    soilMixturesTableBody.innerHTML = '<tr class="empty-row"><td colspan="7">Error loading data. Please refresh the page.</td></tr>';
+                }
+            }
+
+            async function loadObservationsTable() {
+                try {
+                    // Get visit by access code
+                    const visit = await GuidalDB.getVisitByAccessCode(visitAccessCode);
+                    if (!visit) return;
+                    
+                    // Get observations from guest book entries
+                    const observations = await GuidalDB.getGuestBookEntries(visit.id);
+                    
+                    // Filter for group observations (entries that start with "Group")
+                    const groupObservations = observations.filter(obs => 
+                        obs.student_name.startsWith('Group')
+                    );
+                    
+                    if (groupObservations.length === 0) {
+                        observationsTableBody.innerHTML = '<tr class="empty-row"><td colspan="4">No observations yet. Share your first observation!</td></tr>';
+                        return;
+                    }
+
+                    // Sort by most recent
+                    groupObservations.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                    observationsTableBody.innerHTML = groupObservations.map(obs => {
+                        const nameParts = obs.student_name.split(' - ');
+                        const groupName = nameParts[0] || 'Unknown Group';
+                        const studentName = nameParts[1] || 'Anonymous';
+                        const time = new Date(obs.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        
+                        return `
+                            <tr>
+                                <td><strong>${groupName}</strong></td>
+                                <td>${obs.message}</td>
+                                <td>${studentName}</td>
+                                <td>${time}</td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('Error loading observations table:', error);
+                    observationsTableBody.innerHTML = '<tr class="empty-row"><td colspan="4">Error loading observations. Please refresh the page.</td></tr>';
+                }
+            }
+
+            // Set up real-time updates (refresh tables every 30 seconds)
+            setInterval(() => {
+                loadSoilMixturesTable();
+                loadObservationsTable();
+                loadSeedsPlantedDisplay();
+            }, 30000);
+        });
+
+        // Accordion functionality
+        function toggleAccordion(accordionId) {
+            const content = document.getElementById(accordionId + '-content');
+            const arrow = document.querySelector(`[onclick="toggleAccordion('${accordionId}')"] .accordion-arrow`);
+
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                arrow.style.transform = 'rotate(0deg)';
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('open');
+                arrow.style.transform = 'rotate(180deg)';
+                arrow.textContent = '▲';
+            }
+        }
+    </script>
+</body>
+</html>
