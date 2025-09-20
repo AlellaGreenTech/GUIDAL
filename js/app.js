@@ -366,6 +366,8 @@ class GuidalApp {
             'Build Your Own Ram Pump': 'images/hydraulic-ram-pump-system.png',
             'Hydraulic Ram Pumps': 'images/hydraulic-ram-pump-system.png',
             'Ram Pump Workshop': 'images/hydraulic-ram-pump-system.png',
+            'Pumped Hydro': 'images/pumped-hydro-simulation.png',
+            'Pumped Hydro Workshop': 'images/pumped-hydro-simulation.png',
             'Robotic Gardening': 'images/robotic-gardening-system.png',
             'Robotic Gardening Workshop': 'images/robotic-gardening-system.png',
             'Wattle & Daub': 'images/wattle-daub-construction.png',

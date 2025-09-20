@@ -77,7 +77,7 @@ INSERT INTO public.activities (
   10,
   3,
   0,
-  'images/pumped-hydro-system.png',
+  'images/pumped-hydro-simulation.png',
   'published',
   ARRAY['Energy storage', 'Hydroelectric principles', 'Grid systems', 'Renewable energy'],
   'Dr. Elena Vasquez',
