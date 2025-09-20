@@ -152,27 +152,6 @@ class GuidalApp {
         const staticActivities = [
             {
                 id: 'demo-1',
-                title: 'Build Your Own Ram Pump Workshop',
-                description: 'Hands-on workshop to construct a working ram pump system. Take home your creation and learn water hammer physics.',
-                activity_type: {
-                    id: 'workshops',
-                    name: 'Workshops',
-                    slug: 'workshops',
-                    color: '#ff9800',
-                    icon: '🔧'
-                },
-                date_time: '2025-09-25T10:00:00+02:00',
-                duration_minutes: 240,
-                location: 'Alella Green Tech Campus',
-                max_participants: 12,
-                current_participants: 8,
-                credits_earned: 3,
-                credits_required: 0,
-                status: 'published',
-                featured_image: 'images/hydraulic-ram-pump-system.png'
-            },
-            {
-                id: 'demo-2',
                 title: 'Composting Workshop',
                 description: 'Learn the essential ingredients for good soil. Master different composting methods and create rich, fertile soil for sustainable gardening.',
                 activity_type: {
@@ -193,7 +172,7 @@ class GuidalApp {
                 featured_image: 'images/school-visit-permaculture.png'
             },
             {
-                id: 'demo-3',
+                id: 'demo-2',
                 title: 'Erosion Challenge Workshop',
                 description: 'Stop erosion, retain water, create fertile hillsides. Learn natural engineering techniques and soil conservation.',
                 activity_type: {
@@ -214,7 +193,7 @@ class GuidalApp {
                 featured_image: 'images/school-visit-bg.png'
             },
             {
-                id: 'demo-4',
+                id: 'demo-3',
                 title: 'Planting Workshop',
                 description: 'Seeds being planted today! Learn optimal planting techniques for sustainable gardens and food production.',
                 activity_type: {
