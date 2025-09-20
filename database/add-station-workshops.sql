@@ -1,4 +1,4 @@
--- Add Station-Based Workshops
+-- Add Station-Based Workshops (FIXED VERSION)
 -- This creates workshop versions of all stations for individual booking
 
 -- Add workshop activities based on existing stations
@@ -62,14 +62,14 @@ INSERT INTO public.activities (
   'published',
   ARRAY['Planting techniques', 'Soil preparation', 'Seed selection', 'Garden planning'],
   'Elena Martinez',
-  'contact@alellagreentech.com',
+  'contact@alellagreentech.com'
 ),
 
 -- Pumped Hydro Workshop
 (
   'Pumped Hydro Workshop',
   'pumped-hydro-workshop',
-  'Electrical energy from water! Discover how pumped hydro storage systems work as the world''s largest form of grid energy storage.',
+  'Electrical energy from water! Discover how pumped hydro storage systems work as the worlds largest form of grid energy storage.',
   (SELECT id FROM public.activity_types WHERE slug = 'workshops'),
   '2025-11-02 10:00:00+02',
   180,
@@ -81,14 +81,14 @@ INSERT INTO public.activities (
   'published',
   ARRAY['Energy storage', 'Hydroelectric principles', 'Grid systems', 'Renewable energy'],
   'Dr. Elena Vasquez',
-  'contact@alellagreentech.com',
+  'contact@alellagreentech.com'
 ),
 
--- Ram Pumps Workshop (Alternative to existing one)
+-- Ram Pumps Workshop
 (
   'Ram Pumps Workshop',
   'ram-pumps-workshop',
-  'Move water MUCH higher with NO electrical energy! Learn Joseph-Michel Montgolfier''s ingenious 1796 invention using water hammer principles.',
+  'Move water MUCH higher with NO electrical energy! Learn Joseph-Michel Montgolfiers ingenious 1796 invention using water hammer principles.',
   (SELECT id FROM public.activity_types WHERE slug = 'workshops'),
   '2025-11-08 10:00:00+02',
   240,
@@ -100,7 +100,7 @@ INSERT INTO public.activities (
   'published',
   ARRAY['Water hammer physics', 'Pump construction', 'Historical engineering', 'Mechanical principles'],
   'Dr. Elena Vasquez',
-  'contact@alellagreentech.com',
+  'contact@alellagreentech.com'
 ),
 
 -- Robotic Gardening Workshop
@@ -119,14 +119,14 @@ INSERT INTO public.activities (
   'published',
   ARRAY['Automation systems', 'Agricultural robotics', 'Remote monitoring', 'AI in farming'],
   'Alex Thompson',
-  'contact@alellagreentech.com',
+  'contact@alellagreentech.com'
 ),
 
--- Wattle & Daub Workshop
+-- Wattle and Daub Workshop
 (
-  'Wattle & Daub Workshop',
+  'Wattle and Daub Workshop',
   'wattle-daub-workshop',
-  'Harvest clay, build a home with mud, hay, and sticks! Master one of humanity''s oldest and most sustainable building techniques.',
+  'Harvest clay, build a home with mud, hay, and sticks! Master one of humanitys oldest and most sustainable building techniques.',
   (SELECT id FROM public.activity_types WHERE slug = 'workshops'),
   '2025-11-15 09:00:00+02',
   300,
