@@ -26,7 +26,10 @@ main.container {
 
 /* Header Styles */
 header {
-    background: linear-gradient(135deg, #2d7d32, #388e3c);
+    background: linear-gradient(rgba(45, 125, 50, 0.5), rgba(56, 142, 60, 0.5)), url('../images/vineyard-child-quad.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     color: white;
     text-align: center;
     padding: 2rem 0;
