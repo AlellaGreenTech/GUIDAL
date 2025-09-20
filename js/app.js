@@ -178,9 +178,7 @@ class GuidalApp {
         card.className = 'activity-card';
 
         // Get activity type from database structure (now joined)
-        const activityType = activity.activity_type || (this.activityTypes.find(type =>
-            type.id === activity.activity_type_id
-        ));
+        const activityType = activity.activity_type;
         const activityTypeSlug = activityType ? activityType.slug : 'other';
 
         card.setAttribute('data-type', activityTypeSlug);
@@ -209,7 +207,7 @@ class GuidalApp {
                 ${activityImage}
             </div>
             <div class="activity-info">
-                <div class="activity-type">${activityType ? activityType.name : 'Activity'}</div>
+                <div class="activity-type">${activityType?.name || 'Activity'}</div>
                 <h3>${activity.title}</h3>
                 <p class="activity-date">
                     ${dateDisplay}
@@ -239,11 +237,11 @@ class GuidalApp {
         if (imageSrc) {
             return `<img src="${imageSrc}" alt="${activity.title}" class="activity-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="image-placeholder" style="display:none;">
-                        <p>${this.getActivityIcon(activity.activity_type)} ${activity.activity_type}</p>
+                        <p>${this.getActivityIcon(activity.activity_type?.slug)} ${activity.activity_type?.name || 'Activity'}</p>
                     </div>`;
         } else {
             return `<div class="image-placeholder">
-                        <p>${this.getActivityIcon(activity.activity_type)} ${activity.activity_type}</p>
+                        <p>${this.getActivityIcon(activity.activity_type?.slug)} ${activity.activity_type?.name || 'Activity'}</p>
                     </div>`;
         }
     }
@@ -284,8 +282,12 @@ class GuidalApp {
                 'lunches': 'images/brainstorming-lunch.png'
             };
 
-            return typeDefaults[activity.activity_type.name] ||
-                   typeDefaults[activity.activity_type.slug] ||
+            // activity_type is the joined object from Supabase
+            const typeName = activity.activity_type?.name;
+            const typeSlug = activity.activity_type?.slug;
+
+            return typeDefaults[typeName] ||
+                   typeDefaults[typeSlug] ||
                    'images/welcome-hero-new.png'; // Ultimate fallback
         }
 
@@ -444,7 +446,7 @@ class GuidalApp {
 
         // Get activity type for special handling (now from joined data)
         const activityType = activity.activity_type;
-        const activityTypeSlug = activityType ? activityType.slug : 'other';
+        const activityTypeSlug = activityType?.slug || 'other';
 
         if (activityTypeSlug === 'school-visits') {
             console.log('🔍 School visit detected:', activity.title, 'Type:', activityTypeSlug, 'Completed:', isCompleted);
@@ -591,7 +593,7 @@ class GuidalApp {
     showSchoolVisitCounts() {
         // Count school visits from database data
         const schoolVisits = this.activities.filter(activity =>
-            (activity.activity_type && activity.activity_type.slug === 'school-visits')
+            (activity.activity_type?.slug === 'school-visits')
         );
 
         const currentDate = new Date();
