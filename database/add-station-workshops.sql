@@ -43,8 +43,7 @@ INSERT INTO public.activities (
   'published',
   ARRAY['Erosion control', 'Water retention', 'Natural engineering', 'Slope stabilization'],
   'Dr. James Rodriguez',
-  'contact@alellagreentech.com',
-  'workshops/erosion-challenge.html'
+  'contact@alellagreentech.com'
 ),
 
 -- Planting Workshop
@@ -64,7 +63,6 @@ INSERT INTO public.activities (
   ARRAY['Planting techniques', 'Soil preparation', 'Seed selection', 'Garden planning'],
   'Elena Martinez',
   'contact@alellagreentech.com',
-  'workshops/planting.html'
 ),
 
 -- Pumped Hydro Workshop
@@ -84,7 +82,6 @@ INSERT INTO public.activities (
   ARRAY['Energy storage', 'Hydroelectric principles', 'Grid systems', 'Renewable energy'],
   'Dr. Elena Vasquez',
   'contact@alellagreentech.com',
-  'workshops/pumped-hydro.html'
 ),
 
 -- Ram Pumps Workshop (Alternative to existing one)
@@ -104,7 +101,6 @@ INSERT INTO public.activities (
   ARRAY['Water hammer physics', 'Pump construction', 'Historical engineering', 'Mechanical principles'],
   'Dr. Elena Vasquez',
   'contact@alellagreentech.com',
-  'workshops/ram-pumps.html'
 ),
 
 -- Robotic Gardening Workshop
@@ -124,7 +120,6 @@ INSERT INTO public.activities (
   ARRAY['Automation systems', 'Agricultural robotics', 'Remote monitoring', 'AI in farming'],
   'Alex Thompson',
   'contact@alellagreentech.com',
-  'workshops/robotic-gardening.html'
 ),
 
 -- Wattle & Daub Workshop
