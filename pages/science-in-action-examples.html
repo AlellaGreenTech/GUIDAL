@@ -119,24 +119,48 @@
             margin-bottom: 1rem;
         }
 
+        .station-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
         .station-btn {
-            background: #4caf50;
-            color: white;
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 1rem;
             border: none;
             border-radius: 6px;
             text-decoration: none;
             display: inline-block;
             font-weight: 600;
-            transition: background 0.3s ease;
-            width: 100%;
+            transition: all 0.3s ease;
             text-align: center;
+            font-size: 0.9rem;
         }
 
-        .station-btn:hover {
+        .station-btn-primary {
+            background: #4caf50;
+            color: white;
+        }
+
+        .station-btn-primary:hover {
             background: #45a049;
             color: white;
             text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .station-btn-secondary {
+            background: white;
+            color: #4caf50;
+            border: 2px solid #4caf50;
+        }
+
+        .station-btn-secondary:hover {
+            background: #4caf50;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
         }
 
         .section-header {
@@ -181,6 +205,16 @@
             .examples-header p {
                 font-size: 1.1rem;
             }
+
+            .station-buttons {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .station-btn {
+                font-size: 0.85rem;
+                padding: 0.6rem 0.8rem;
+            }
         }
     </style>
 </head>
@@ -204,8 +238,8 @@
                 <li><a href="../index.html">Home</a></li>
                 <li><a href="welcome.html">Welcome</a></li>
                 <li><a href="about.html">About Us</a></li>
-                <li><a href="../index.html#activities">Activities</a></li>
                 <li><a href="science-in-action-examples.html" class="active">Science Examples</a></li>
+                <li><a href="../index.html#activities">Activities</a></li>
                 <li><a href="follow-post.html">Follow & Share</a></li>
                 <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
                 <li><a href="https://alellagreentech.com/shop/" target="_blank">Store</a></li>
@@ -246,10 +280,10 @@
                             <li>Problem-solving and robotics</li>
                         </ul>
                     </div>
-                    <div class="station-credits">
-                        <span>+5 Green$ for participation</span>
+                    <div class="station-buttons">
+                        <a href="../stations/robotic-gardening.html" class="station-btn station-btn-secondary">📖 Learn More</a>
+                        <a href="../workshops/robotic-gardening.html" class="station-btn station-btn-primary">📅 Book Workshop</a>
                     </div>
-                    <a href="../stations/robotic-gardening.html" class="station-btn">Explore Station</a>
                 </div>
             </div>
 
@@ -270,10 +304,10 @@
                             <li>Agricultural monitoring</li>
                         </ul>
                     </div>
-                    <div class="station-credits">
-                        <span>+5 Green$ for participation</span>
+                    <div class="station-buttons">
+                        <a href="../stations/robotic-gardening.html" class="station-btn station-btn-secondary">📖 Learn More</a>
+                        <a href="../workshops/robotic-gardening.html" class="station-btn station-btn-primary">📅 Book Workshop</a>
                     </div>
-                    <a href="../stations/robotic-gardening.html" class="station-btn">Explore Station</a>
                 </div>
             </div>
 
@@ -294,10 +328,10 @@
                             <li>Resource optimization</li>
                         </ul>
                     </div>
-                    <div class="station-credits">
-                        <span>+5 Green$ for participation</span>
+                    <div class="station-buttons">
+                        <a href="../stations/robotic-gardening.html" class="station-btn station-btn-secondary">📖 Learn More</a>
+                        <a href="../workshops/robotic-gardening.html" class="station-btn station-btn-primary">📅 Book Workshop</a>
                     </div>
-                    <a href="../stations/robotic-gardening.html" class="station-btn">Explore Station</a>
                 </div>
             </div>
         </div>
@@ -324,10 +358,10 @@
                             <li>Landscape design principles</li>
                         </ul>
                     </div>
-                    <div class="station-credits">
-                        <span>+5 Green$ for participation</span>
+                    <div class="station-buttons">
+                        <a href="../stations/erosion-challenge.html" class="station-btn station-btn-secondary">📖 Learn More</a>
+                        <a href="../workshops/erosion-challenge.html" class="station-btn station-btn-primary">📅 Book Workshop</a>
                     </div>
-                    <a href="../stations/erosion-challenge.html" class="station-btn">Explore Station</a>
                 </div>
             </div>
 
@@ -348,10 +382,10 @@
                             <li>Energy efficiency concepts</li>
                         </ul>
                     </div>
-                    <div class="station-credits">
-                        <span>+5 Green$ for participation</span>
+                    <div class="station-buttons">
+                        <a href="../stations/ram-pumps.html" class="station-btn station-btn-secondary">📖 Learn More</a>
+                        <a href="../workshops/ram-pumps.html" class="station-btn station-btn-primary">📅 Book Workshop</a>
                     </div>
-                    <a href="../stations/ram-pumps.html" class="station-btn">Explore Station</a>
                 </div>
             </div>
 
@@ -372,10 +406,10 @@
                             <li>Hands-on construction skills</li>
                         </ul>
                     </div>
-                    <div class="station-credits">
-                        <span>+5 Green$ for participation</span>
+                    <div class="station-buttons">
+                        <a href="../stations/wattle-daub.html" class="station-btn station-btn-secondary">📖 Learn More</a>
+                        <a href="../workshops/wattle-daub.html" class="station-btn station-btn-primary">📅 Book Workshop</a>
                     </div>
-                    <a href="../stations/wattle-daub.html" class="station-btn">Explore Station</a>
                 </div>
             </div>
         </div>
@@ -402,10 +436,10 @@
                             <li>Sustainable waste management</li>
                         </ul>
                     </div>
-                    <div class="station-credits">
-                        <span>+5 Green$ for participation</span>
+                    <div class="station-buttons">
+                        <a href="../stations/composting.html" class="station-btn station-btn-secondary">📖 Learn More</a>
+                        <a href="../workshops/composting.html" class="station-btn station-btn-primary">📅 Book Workshop</a>
                     </div>
-                    <a href="../stations/composting.html" class="station-btn">Explore Station</a>
                 </div>
             </div>
 
@@ -426,10 +460,10 @@
                             <li>Growth tracking and analysis</li>
                         </ul>
                     </div>
-                    <div class="station-credits">
-                        <span>+5 Green$ for participation</span>
+                    <div class="station-buttons">
+                        <a href="../stations/planting.html" class="station-btn station-btn-secondary">📖 Learn More</a>
+                        <a href="../workshops/planting.html" class="station-btn station-btn-primary">📅 Book Workshop</a>
                     </div>
-                    <a href="../stations/planting.html" class="station-btn">Explore Station</a>
                 </div>
             </div>
 
@@ -450,10 +484,10 @@
                             <li>Data visualization and analysis</li>
                         </ul>
                     </div>
-                    <div class="station-credits">
-                        <span>+5 Green$ for participation</span>
+                    <div class="station-buttons">
+                        <a href="https://schoolair.org" target="_blank" class="station-btn station-btn-secondary">📖 Learn More</a>
+                        <a href="https://schoolair.org" target="_blank" class="station-btn station-btn-primary">📅 Visit Project</a>
                     </div>
-                    <a href="https://schoolair.org" target="_blank" class="station-btn">Visit SchoolAIR Project</a>
                 </div>
             </div>
         </div>
