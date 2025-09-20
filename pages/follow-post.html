@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Follow & Share - GUIDAL</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .follow-post-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .follow-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .follow-header h1 {
+            color: #2e7d32;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .follow-header p {
+            font-size: 1.2rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .emoji-large {
+            font-size: 2rem;
+            margin: 0 0.5rem;
+        }
+
+        .social-platform {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .social-platform:hover {
+            border-color: #4caf50;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+        }
+
+        .platform-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .platform-logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 1rem;
+        }
+
+        .platform-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .button-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .follow-btn {
+            background: #4caf50;
+            color: white;
+        }
+
+        .follow-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .post-btn {
+            background: #2196f3;
+            color: white;
+        }
+
+        .post-btn:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+        }
+
+        .instagram .follow-btn {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+
+        .facebook .follow-btn {
+            background: #1877f2;
+        }
+
+        .facebook .follow-btn:hover {
+            background: #166fe5;
+        }
+
+        .pre-filled-text {
+            background: #fff;
+            border: 2px dashed #4caf50;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-style: italic;
+            color: #555;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #45a049;
+        }
+
+        .copy-btn.copied {
+            background: #2e7d32;
+        }
+
+        .tips-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .tips-header {
+            color: #2e7d32;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tip-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        @media (max-width: 768px) {
+            .follow-post-container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            .button-row {
+                grid-template-columns: 1fr;
+            }
+
+            .follow-header h1 {
+                font-size: 2rem;
+            }
+
+            .platform-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .platform-logo {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="../index.html">GUIDAL</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="welcome.html">Student Guide</a></li>
+                <li><a href="follow-post.html" class="active">Follow & Share</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="follow-post-container">
+        <div class="follow-header">
+            <h1><span class="emoji-large">👋</span> Loved your visit? <span class="emoji-large">🌱</span></h1>
+            <p><span class="emoji-large">📸</span> Follow us & share your day with friends!</p>
+        </div>
+
+        <!-- Instagram Section -->
+        <div class="social-platform instagram">
+            <div class="platform-header">
+                <svg class="platform-logo" viewBox="0 0 24 24" fill="url(#instagram-gradient)">
+                    <defs>
+                        <linearGradient id="instagram-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#f09433"/>
+                            <stop offset="25%" style="stop-color:#e6683c"/>
+                            <stop offset="50%" style="stop-color:#dc2743"/>
+                            <stop offset="75%" style="stop-color:#cc2366"/>
+                            <stop offset="100%" style="stop-color:#bc1888"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+                <div class="platform-name">Instagram</div>
+            </div>
+
+            <div class="button-row">
+                <a href="https://www.instagram.com/alellagreentech/" target="_blank" class="social-btn follow-btn">
+                    📱 Follow us on Instagram
+                </a>
+                <button class="social-btn post-btn" onclick="openInstagramPost()">
+                    📸 Post your visit
+                </button>
+            </div>
+
+            <div class="pre-filled-text">
+                <button class="copy-btn" onclick="copyText('instagram-text')">Copy</button>
+                <div id="instagram-text">We had an amazing day learning about sustainability at @alellagreentech! 🌱 #AGTVisit #Sustainability #GreenTech #Education</div>
+            </div>
+        </div>
+
+        <!-- Facebook Section -->
+        <div class="social-platform facebook">
+            <div class="platform-header">
+                <svg class="platform-logo" viewBox="0 0 24 24" fill="#1877f2">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+                <div class="platform-name">Facebook</div>
+            </div>
+
+            <div class="button-row">
+                <a href="https://www.facebook.com/AlellaGreenTech/" target="_blank" class="social-btn follow-btn">
+                    👍 Follow us on Facebook
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://alellagreentech.com" target="_blank" class="social-btn post-btn">
+                    📤 Share on Facebook
+                </a>
+            </div>
+
+            <div class="pre-filled-text">
+                <button class="copy-btn" onclick="copyText('facebook-text')">Copy</button>
+                <div id="facebook-text">Just visited Alella Green Tech and learned so much about sustainable technology and environmental solutions! 🌱 If you're interested in sustainability, education, or green innovation, definitely check them out. #Sustainability #GreenTech #Education #Environment</div>
+            </div>
+        </div>
+
+        <div class="tips-section">
+            <div class="tips-header">💡 Sharing Tips</div>
+
+            <div class="tip-item">
+                <strong>📱 Tag us!</strong> Use @alellagreentech on Instagram and tag @AlellaGreenTech on Facebook so we can see and share your posts!
+            </div>
+
+            <div class="tip-item">
+                <strong>📸 Add photos!</strong> Share pictures from your visit - the stations, activities, or group photos. Visual content gets more engagement!
+            </div>
+
+            <div class="tip-item">
+                <strong>#️⃣ Use hashtags:</strong> #AGTVisit #Sustainability #GreenTech #Education #Environment help others discover us too!
+            </div>
+
+            <div class="tip-item">
+                <strong>🏆 Win prizes!</strong> Best posts each month get featured on our social media and win cool sustainability prizes!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyText(elementId) {
+            const textElement = document.getElementById(elementId);
+            const text = textElement.textContent;
+            const button = textElement.parentElement.querySelector('.copy-btn');
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    button.textContent = 'Copied!';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = 'Copy';
+                        button.classList.remove('copied');
+                    }, 2000);
+                });
+            } else {
+                // Fallback for older browsers
+                const tempInput = document.createElement('textarea');
+                tempInput.value = text;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }
+        }
+
+        function openInstagramPost() {
+            // Copy the Instagram text to clipboard first
+            copyText('instagram-text');
+
+            // Show helpful message
+            alert('Text copied to clipboard! Opening Instagram where you can paste it with your photos. Don\'t forget to tag @alellagreentech!');
+
+            // Open Instagram
+            window.open('https://www.instagram.com/', '_blank');
+        }
+    </script>
+</body>
+</html>
