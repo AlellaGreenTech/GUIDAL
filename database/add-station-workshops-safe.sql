@@ -20,7 +20,7 @@ INSERT INTO public.activities (
   15,
   2,
   0,
-  'images/composting-station.png',
+  'images/school-visit-bg.png',
   'published',
   ARRAY['Composting methods', 'Soil biology', 'Organic matter management', 'Sustainable gardening'],
   'Maria Santos',

@@ -169,7 +169,7 @@ class GuidalApp {
                 credits_earned: 2,
                 credits_required: 0,
                 status: 'published',
-                featured_image: 'images/school-visit-permaculture.png'
+                featured_image: 'images/school-visit-bg.png'
             },
             {
                 id: 'demo-2',
@@ -385,7 +385,7 @@ class GuidalApp {
         // If no specific image found, use generic images by activity type
         if (!defaultImages[activity.title] && activity.activity_type) {
             const typeDefaults = {
-                'School Visits': 'images/school-visit-permaculture.png',
+                'School Visits': 'images/school-visit-bg.png',
                 'Workshops': 'images/workshop-ram-pump.png',
                 'Events': 'images/event-sports-field.png',
                 'Special Lunches': 'images/brainstorming-lunch.png',
