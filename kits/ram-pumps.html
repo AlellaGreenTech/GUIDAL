@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ram Pumps Kit - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .kit-header {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .kit-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .kit-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .kit-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .kit-video {
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #ccc;
+        }
+
+        .video-placeholder {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .kit-info {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .kit-info h2 {
+            color: #ff9800;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .kit-description {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        .kit-features {
+            margin-bottom: 2rem;
+        }
+
+        .kit-features h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+
+        .features-list li:before {
+            content: "✅ ";
+            margin-right: 0.5rem;
+        }
+
+        .kit-price {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .price-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-amount {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .buy-button {
+            background: #ff9800;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .buy-button:hover {
+            background: #f57c00;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .buy-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .coming-soon {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #1976d2;
+            font-weight: 600;
+        }
+
+        .related-links {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .related-links h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .link-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .link-btn {
+            background: white;
+            color: #333;
+            padding: 0.75rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .link-btn:hover {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .kit-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .kit-header h1 {
+                font-size: 2rem;
+            }
+
+            .link-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">The Guide to All at <a href="https://alellagreentech.org" target="_blank" class="agt-link">Alella Green Tech</a></p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../pages/welcome.html">Welcome</a></li>
+                <li><a href="../pages/about.html">About Us</a></li>
+                <li><a href="../pages/science-in-action-examples.html">Science Examples</a></li>
+                <li><a href="../index.html#activities">Activities</a></li>
+                <li><a href="../pages/follow-post.html">Follow & Share</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="https://alellagreentech.com/shop/" target="_blank">Store</a></li>
+                <li><a href="../pages/auth/login.html" class="login-btn">Login/Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="kit-header">
+        <div class="container">
+            <h1>💧 Ram Pumps Kit</h1>
+            <p class="kit-subtitle">Harness the power of water! Build your own hydraulic ram pump and learn about sustainable water transportation systems.</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="kit-content">
+            <div class="kit-video">
+                <div class="video-placeholder">
+                    🎥 Kit demonstration video coming soon!<br>
+                    <small>Watch how to build and test your ram pump system</small>
+                </div>
+            </div>
+
+            <div class="kit-info">
+                <h2>What's Included</h2>
+                <div class="kit-description">
+                    <p>Discover the ingenious technology of hydraulic ram pumps! This kit teaches you how to build a working pump that uses the energy of flowing water to lift water to higher elevations - no electricity required!</p>
+                </div>
+
+                <div class="kit-features">
+                    <h3>Kit Contents:</h3>
+                    <ul class="features-list">
+                        <li>Pre-cut PVC pipes and fittings</li>
+                        <li>Check valves and pressure chamber</li>
+                        <li>Water reservoir and tubing</li>
+                        <li>Flow regulation components</li>
+                        <li>Mounting hardware and tools</li>
+                        <li>Assembly instruction manual</li>
+                        <li>Physics explanation guide</li>
+                        <li>Real-world application examples</li>
+                    </ul>
+                </div>
+
+                <div class="coming-soon">
+                    🚧 Kit currently in development - Coming Soon!
+                </div>
+
+                <div class="kit-price">
+                    <div class="price-label">Estimated Price</div>
+                    <div class="price-amount">€65</div>
+                </div>
+
+                <button class="buy-button" disabled>
+                    🛒 Pre-order Coming Soon
+                </button>
+
+                <div class="related-links">
+                    <h3>Learn More About This Activity</h3>
+                    <div class="link-buttons">
+                        <a href="../stations/ram-pumps.html" class="link-btn">📖 Detailed Guide</a>
+                        <a href="../workshops/ram-pumps.html" class="link-btn">📅 Book Workshop</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../index.html">Back to GUIDAL</a></p>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+
+                // Close menu when clicking a nav link
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

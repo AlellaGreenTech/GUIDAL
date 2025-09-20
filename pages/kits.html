@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIY Science Kits - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .kits-header {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .kits-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .kits-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .kits-intro {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 6px;
+        }
+
+        .kits-intro p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .kits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .kit-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid #fff3e0;
+        }
+
+        .kit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            border-color: #ff9800;
+        }
+
+        .kit-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+
+        .kit-content {
+            padding: 1.5rem;
+        }
+
+        .kit-content h3 {
+            color: #ff9800;
+            margin-bottom: 0.5rem;
+            font-size: 1.4rem;
+        }
+
+        .kit-price {
+            color: #4caf50;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .kit-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .kit-status {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 6px;
+            padding: 0.75rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #1976d2;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .kit-btn {
+            background: #ff9800;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .kit-btn:hover {
+            background: #f57c00;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .coming-soon-banner {
+            background: linear-gradient(135deg, #2196f3, #1976d2);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .coming-soon-banner h2 {
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .coming-soon-banner p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .kits-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .kits-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">The Guide to All at <a href="https://alellagreentech.org" target="_blank" class="agt-link">Alella Green Tech</a></p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="welcome.html">Welcome</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="science-in-action-examples.html">Science Examples</a></li>
+                <li><a href="../index.html#activities">Activities</a></li>
+                <li><a href="kits.html" class="active">Kits</a></li>
+                <li><a href="follow-post.html">Follow & Share</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="https://alellagreentech.com/shop/" target="_blank">Store</a></li>
+                <li><a href="auth/login.html" class="login-btn">Login/Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="kits-header">
+        <div class="container">
+            <h1>🛒 DIY Science Kits</h1>
+            <p class="kits-subtitle">Bring the Alella Green Tech experience home! Build, learn, and experiment with our hands-on science kits.</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="kits-intro">
+            <p><strong>Learn by Doing at Home:</strong> Each kit contains everything you need to recreate our workshop experiences in your own space. Perfect for families, homeschoolers, or anyone curious about sustainable technology and environmental science.</p>
+        </div>
+
+        <div class="kits-grid">
+            <div class="kit-card">
+                <div class="kit-image">🤖</div>
+                <div class="kit-content">
+                    <h3>Robotic Gardening Kit</h3>
+                    <div class="kit-price">€89</div>
+                    <div class="kit-description">
+                        <p>Build your own automated garden system! Control plants remotely and explore the future of agriculture.</p>
+                    </div>
+                    <div class="kit-status">🚧 Coming Soon</div>
+                    <a href="../kits/robotic-gardening.html" class="kit-btn">View Kit Details</a>
+                </div>
+            </div>
+
+            <div class="kit-card">
+                <div class="kit-image">🏔️</div>
+                <div class="kit-content">
+                    <h3>Erosion Challenge Kit</h3>
+                    <div class="kit-price">€45</div>
+                    <div class="kit-description">
+                        <p>Explore erosion forces and prevention methods through hands-on experiments and natural engineering.</p>
+                    </div>
+                    <div class="kit-status">🚧 Coming Soon</div>
+                    <a href="../kits/erosion-challenge.html" class="kit-btn">View Kit Details</a>
+                </div>
+            </div>
+
+            <div class="kit-card">
+                <div class="kit-image">💧</div>
+                <div class="kit-content">
+                    <h3>Ram Pumps Kit</h3>
+                    <div class="kit-price">€65</div>
+                    <div class="kit-description">
+                        <p>Build hydraulic ram pumps for sustainable water transportation using water hammer principles.</p>
+                    </div>
+                    <div class="kit-status">🚧 Coming Soon</div>
+                    <a href="../kits/ram-pumps.html" class="kit-btn">View Kit Details</a>
+                </div>
+            </div>
+
+            <div class="kit-card">
+                <div class="kit-image">🏠</div>
+                <div class="kit-content">
+                    <h3>Wattle & Daub Kit</h3>
+                    <div class="kit-price">€35</div>
+                    <div class="kit-description">
+                        <p>Learn traditional construction techniques using natural materials like clay, straw, and wood.</p>
+                    </div>
+                    <div class="kit-status">🚧 Coming Soon</div>
+                    <a href="../kits/wattle-daub.html" class="kit-btn">View Kit Details</a>
+                </div>
+            </div>
+
+            <div class="kit-card">
+                <div class="kit-image">🌱</div>
+                <div class="kit-content">
+                    <h3>Composting Kit</h3>
+                    <div class="kit-price">€25</div>
+                    <div class="kit-description">
+                        <p>Transform waste into nutrient-rich soil through composting and learn about soil biology.</p>
+                    </div>
+                    <div class="kit-status">🚧 Coming Soon</div>
+                    <a href="../kits/composting.html" class="kit-btn">View Kit Details</a>
+                </div>
+            </div>
+
+            <div class="kit-card">
+                <div class="kit-image">🌿</div>
+                <div class="kit-content">
+                    <h3>Planting Kit</h3>
+                    <div class="kit-price">€30</div>
+                    <div class="kit-description">
+                        <p>Complete garden starter kit for sustainable growing with seeds, tools, and growing guides.</p>
+                    </div>
+                    <div class="kit-status">🚧 Coming Soon</div>
+                    <a href="../kits/planting.html" class="kit-btn">View Kit Details</a>
+                </div>
+            </div>
+
+            <div class="kit-card">
+                <div class="kit-image">📊</div>
+                <div class="kit-content">
+                    <h3>SchoolAIR IoT Kit</h3>
+                    <div class="kit-price">€95</div>
+                    <div class="kit-description">
+                        <p>Build IoT sensors for environmental monitoring and learn about air quality and data collection.</p>
+                    </div>
+                    <div class="kit-status">🚧 Coming Soon</div>
+                    <a href="../kits/schoolair-iot.html" class="kit-btn">View Kit Details</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="coming-soon-banner">
+            <h2>🔧 Kits in Development</h2>
+            <p>We're currently developing these exciting DIY kits based on our popular workshops. Stay tuned for launch announcements and pre-order opportunities!</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. <a href="../index.html">Back to GUIDAL</a></p>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+
+                // Close menu when clicking a nav link
+                const navLinks = document.querySelectorAll('.nav-menu a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
