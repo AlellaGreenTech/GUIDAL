@@ -119,9 +119,118 @@ class GuidalApp {
             this.renderActivities();
         } catch (error) {
             console.error('❌ Error loading activities:', error);
-            this.activities = [];
+            console.log('🔄 Falling back to static demo data');
+            this.activities = this.getFallbackActivities(filters);
             this.renderActivities();
         }
+    }
+
+    getFallbackActivities(filters = {}) {
+        const staticActivities = [
+            {
+                id: 'demo-1',
+                title: 'Build Your Own Ram Pump Workshop',
+                description: 'Hands-on workshop to construct a working ram pump system. Take home your creation and learn water hammer physics.',
+                activity_type: {
+                    id: 'workshops',
+                    name: 'Workshops',
+                    slug: 'workshops',
+                    color: '#ff9800',
+                    icon: '🔧'
+                },
+                date_time: '2025-09-25T10:00:00+02:00',
+                duration_minutes: 240,
+                location: 'Alella Green Tech Campus',
+                max_participants: 12,
+                current_participants: 8,
+                credits_earned: 3,
+                credits_required: 0,
+                status: 'published',
+                featured_image: 'images/hydraulic-ram-pump-system.png'
+            },
+            {
+                id: 'demo-2',
+                title: 'Composting Workshop',
+                description: 'Learn the essential ingredients for good soil. Master different composting methods and create rich, fertile soil for sustainable gardening.',
+                activity_type: {
+                    id: 'workshops',
+                    name: 'Workshops',
+                    slug: 'workshops',
+                    color: '#ff9800',
+                    icon: '🔧'
+                },
+                date_time: '2025-10-15T14:00:00+02:00',
+                duration_minutes: 180,
+                location: 'Alella Green Tech Campus',
+                max_participants: 15,
+                current_participants: 10,
+                credits_earned: 2,
+                credits_required: 0,
+                status: 'published',
+                featured_image: 'images/school-visit-permaculture.png'
+            },
+            {
+                id: 'demo-3',
+                title: 'Erosion Challenge Workshop',
+                description: 'Stop erosion, retain water, create fertile hillsides. Learn natural engineering techniques and soil conservation.',
+                activity_type: {
+                    id: 'workshops',
+                    name: 'Workshops',
+                    slug: 'workshops',
+                    color: '#ff9800',
+                    icon: '🔧'
+                },
+                date_time: '2025-10-20T09:00:00+02:00',
+                duration_minutes: 300,
+                location: 'Alella Green Tech Campus',
+                max_participants: 20,
+                current_participants: 12,
+                credits_earned: 4,
+                credits_required: 0,
+                status: 'published',
+                featured_image: 'images/school-visit-bg.png'
+            },
+            {
+                id: 'demo-4',
+                title: 'Planting Workshop',
+                description: 'Seeds being planted today! Learn optimal planting techniques for sustainable gardens and food production.',
+                activity_type: {
+                    id: 'workshops',
+                    name: 'Workshops',
+                    slug: 'workshops',
+                    color: '#ff9800',
+                    icon: '🔧'
+                },
+                date_time: '2025-10-25T10:30:00+02:00',
+                duration_minutes: 240,
+                location: 'Alella Green Tech Campus',
+                max_participants: 18,
+                current_participants: 15,
+                credits_earned: 3,
+                credits_required: 0,
+                status: 'published',
+                featured_image: 'images/school-visit-planting.png'
+            }
+        ];
+
+        // Apply filters if any
+        let filteredActivities = staticActivities;
+
+        if (filters.type && filters.type !== 'all') {
+            filteredActivities = filteredActivities.filter(activity =>
+                activity.activity_type.slug === filters.type
+            );
+        }
+
+        if (filters.search) {
+            const searchTerm = filters.search.toLowerCase();
+            filteredActivities = filteredActivities.filter(activity =>
+                activity.title.toLowerCase().includes(searchTerm) ||
+                activity.description.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        return filteredActivities;
     }
 
     populateActivityTypeFilter() {
