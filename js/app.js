@@ -169,7 +169,7 @@ class GuidalApp {
                 credits_earned: 2,
                 credits_required: 0,
                 status: 'published',
-                featured_image: 'images/school-visit-bg.png'
+                featured_image: 'images/composting-farm-scene.png'
             },
             {
                 id: 'demo-2',
