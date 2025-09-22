@@ -259,21 +259,21 @@
             </div>
 
             <div class="dashboard-card">
-                <h3>🏫 Active Schools</h3>
+                <h3>🏫 Total Schools</h3>
                 <div class="dashboard-stat" id="schoolCount">-</div>
-                <div class="dashboard-label">Unique schools</div>
+                <div class="dashboard-label">All time unique</div>
             </div>
 
             <div class="dashboard-card">
                 <h3>👥 Total Students</h3>
                 <div class="dashboard-stat" id="studentCount">-</div>
-                <div class="dashboard-label">This month</div>
+                <div class="dashboard-label">All visits combined</div>
             </div>
 
             <div class="dashboard-card">
                 <h3>✅ Completed Visits</h3>
                 <div class="dashboard-stat" id="completedCount">-</div>
-                <div class="dashboard-label">Last 2 weeks</div>
+                <div class="dashboard-label">Total completed</div>
             </div>
         </div>
 
@@ -340,24 +340,26 @@
                         .select('*', { count: 'exact', head: true })
                         .gte('submitted_at', startOfMonth.toISOString());
 
-                    // Get unique schools this month
+                    // Get this month's data for student count
                     const { data: monthlyRequests } = await supabaseClient
                         .from('visits')
                         .select('school_name, student_count')
                         .gte('submitted_at', startOfMonth.toISOString());
 
-                    const uniqueSchools = [...new Set(monthlyRequests?.map(r => r.school_name))].length;
-                    const totalStudents = monthlyRequests?.reduce((sum, r) => sum + (r.student_count || 0), 0) || 0;
+                    // Get ALL unique schools and student counts (not just this month)
+                    const { data: allVisits } = await supabaseClient
+                        .from('visits')
+                        .select('school_name, student_count');
 
-                    // Get completed visits in last 2 weeks
-                    const twoWeeksAgo = new Date();
-                    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+                    const uniqueSchools = [...new Set(allVisits?.map(r => r.school_name))].length;
+                    // Get ALL students from all visits
+                    const totalStudents = allVisits?.reduce((sum, r) => sum + (r.student_count || 0), 0) || 0;
 
+                    // Get total completed visits
                     const { count: completedCount } = await supabaseClient
                         .from('visits')
                         .select('*', { count: 'exact', head: true })
-                        .eq('status', 'completed')
-                        .gte('preferred_date', twoWeeksAgo.toISOString());
+                        .eq('status', 'completed');
 
                     // Update dashboard
                     document.getElementById('pendingCount').textContent = pendingCount || 0;

@@ -125,6 +125,19 @@
             border-bottom: none;
         }
 
+        .table-headers {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 120px;
+            gap: 1rem;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #495057;
+            background: #f8f9fa;
+        }
+
         .request-header {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 120px;
@@ -289,6 +302,10 @@
         @media (max-width: 768px) {
             .filters {
                 grid-template-columns: 1fr;
+            }
+
+            .table-headers {
+                display: none;
             }
 
             .request-header {
@@ -619,7 +636,7 @@
                                 </div>
                                 <div class="request-actions" style="margin-top: 0.5rem;">
                                     <button class="btn btn-primary btn-sm" onclick="toggleDetails('${request.id}')">
-                                        Details
+                                        Actions
                                     </button>
                                     ${request.status === 'completed' && request.invoice_status === 'not-invoiced' ?
                                         `<button class="btn btn-warning btn-sm" onclick="generateInvoice('${request.id}')" style="background: #ffc107; color: #000;">

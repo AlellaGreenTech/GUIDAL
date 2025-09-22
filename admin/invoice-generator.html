@@ -366,7 +366,20 @@
                     </div>
                 </div>
 
+                <!-- Custom Items Section -->
+                <div id="customItemsSection" style="display: none; margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+                    <h4>Add Custom Items</h4>
+                    <div style="display: grid; grid-template-columns: 2fr 80px 100px 100px auto; gap: 0.5rem; align-items: end; margin-bottom: 0.5rem;">
+                        <input type="text" id="customDescription" placeholder="Item description" style="padding: 0.5rem;">
+                        <input type="number" id="customQuantity" placeholder="Qty" min="1" value="1" style="padding: 0.5rem;">
+                        <input type="number" id="customPrice" placeholder="€0.00" step="0.01" style="padding: 0.5rem;">
+                        <button class="btn btn-success btn-sm" onclick="addCustomItem()">+ Add</button>
+                    </div>
+                    <div id="customItemsList"></div>
+                </div>
+
                 <div id="invoiceActions" style="display: none;">
+                    <button class="btn btn-primary btn-block" onclick="toggleCustomItems()" id="customItemsBtn">➕ Add Custom Items</button>
                     <button class="btn btn-primary btn-block" onclick="printInvoice()">🖨️ Print Invoice</button>
                     <button class="btn btn-success btn-block" onclick="markAsInvoiced()">✅ Mark as Invoiced</button>
                     <button class="btn btn-primary btn-block" onclick="downloadPDF()">📄 Download PDF</button>
@@ -375,7 +388,10 @@
         </div>
     </main>
 
+    <!-- Load required scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-client.js"></script>
+    <script src="js/auth-guard.js"></script>
     <script>
         class InvoiceGenerator {
             constructor() {
@@ -387,14 +403,26 @@
             async init() {
                 console.log('💰 Initializing Invoice Generator...');
                 await this.loadPricingData();
-                await this.loadVisits();
-                this.setupEventHandlers();
 
                 // Check for pre-selected visit from URL parameter
                 const urlParams = new URLSearchParams(window.location.search);
                 const visitId = urlParams.get('visit');
+
+                if (visitId) {
+                    console.log('🔍 URL visitId found:', visitId);
+                    // Set filter to "all" to ensure we can find any visit
+                    document.getElementById('statusFilter').value = 'all';
+                }
+
+                await this.loadVisits();
+                this.setupEventHandlers();
+
                 if (visitId && this.visitsData && this.visitsData[visitId]) {
+                    console.log('✅ Auto-selecting visit:', visitId);
                     this.selectVisit(visitId);
+                } else if (visitId) {
+                    console.log('❌ Visit not found with ID:', visitId);
+                    alert(`Visit with ID ${visitId} not found. Please select a visit manually.`);
                 }
             }
 
@@ -402,24 +430,19 @@
                 try {
                     // Load standard pricing
                     const { data: standardPricing } = await supabaseClient
-                        .from('pricing')
+                        .from('pricing_config')
                         .select('*')
+                        .eq('is_active', true)
                         .single();
-
-                    // Load pricing tiers
-                    const { data: pricingTiers } = await supabaseClient
-                        .from('pricing_tiers')
-                        .select('*')
-                        .eq('is_active', true);
 
                     // Load school overrides
                     const { data: schoolPricing } = await supabaseClient
-                        .from('school_pricing')
-                        .select('*');
+                        .from('school_pricing_overrides')
+                        .select('*')
+                        .eq('is_active', true);
 
                     this.pricingData = {
                         standard: standardPricing,
-                        tiers: pricingTiers || [],
                         schools: schoolPricing || []
                     };
 
@@ -454,6 +477,12 @@
                     const { data: visits, error } = await query;
 
                     if (error) throw error;
+
+                    // Store visits data for later use
+                    this.visitsData = visits.reduce((acc, visit) => {
+                        acc[visit.id] = visit;
+                        return acc;
+                    }, {});
 
                     this.renderVisitsList(visits);
 
@@ -490,12 +519,6 @@
                 `).join('');
 
                 container.innerHTML = html;
-
-                // Store visits data for selection
-                this.visitsData = visits.reduce((acc, visit) => {
-                    acc[visit.id] = visit;
-                    return acc;
-                }, {});
             }
 
             getVisitTypeIcon(visitType) {
@@ -530,8 +553,11 @@
                     card.classList.remove('selected');
                 });
 
-                // Add selection to clicked card
-                document.querySelector(`[data-visit-id="${visitId}"]`).classList.add('selected');
+                // Add selection to clicked card if it exists
+                const cardElement = document.querySelector(`[data-visit-id="${visitId}"]`);
+                if (cardElement) {
+                    cardElement.classList.add('selected');
+                }
 
                 // Store selected visit
                 this.selectedVisit = this.visitsData[visitId];
@@ -624,25 +650,23 @@
 
                 document.getElementById('invoiceContent').innerHTML = html;
                 document.getElementById('invoiceActions').style.display = 'block';
+                document.getElementById('customItemsSection').style.display = 'none';
+
+                // Store original pricing for recalculation with custom items
+                this.originalPricing = pricing;
             }
 
             calculatePricing(visit) {
                 const lineItems = [];
                 let subtotal = 0;
 
-                // Find applicable pricing tier
-                const tier = this.pricingData.tiers.find(t =>
-                    t.visit_type === visit.visit_type &&
-                    (t.visit_format === visit.visit_format || !t.visit_format)
-                );
-
                 // Check for school-specific pricing
                 const schoolPricing = this.pricingData.schools.find(s =>
                     s.school_name === visit.school_name
                 );
 
-                // Determine pricing rates
-                const rates = schoolPricing || tier || this.pricingData.standard;
+                // Determine pricing rates (use school override or standard pricing)
+                const rates = schoolPricing || this.pricingData.standard;
 
                 if (!rates) {
                     console.error('No pricing rates found');
@@ -651,7 +675,7 @@
 
                 // Calculate visit fees
                 if (visit.student_count > 0) {
-                    const childPrice = rates.child_visit_price || rates.price_per_child || 15;
+                    const childPrice = rates.visit_price_child || 15;
                     const childTotal = visit.student_count * childPrice;
                     lineItems.push({
                         description: `Visit - Children (${visit.student_count} participants)`,
@@ -663,7 +687,7 @@
                 }
 
                 if (visit.teacher_count > 0) {
-                    const adultPrice = rates.adult_visit_price || rates.price_per_adult || 25;
+                    const adultPrice = rates.visit_price_adult || 25;
                     const adultTotal = visit.teacher_count * adultPrice;
                     lineItems.push({
                         description: `Visit - Adults (${visit.teacher_count} participants)`,
@@ -676,8 +700,8 @@
 
                 // Calculate meal fees if applicable
                 if (visit.lunch_needs && visit.lunch_needs !== 'none' && visit.lunch_needs !== 'own_lunch') {
-                    const childMealPrice = rates.child_meal_price || rates.meal_price_child || 8;
-                    const adultMealPrice = rates.adult_meal_price || rates.meal_price_adult || 12;
+                    const childMealPrice = rates.meal_price_child || 8;
+                    const adultMealPrice = rates.meal_price_adult || 12;
 
                     if (visit.student_count > 0) {
                         const childMealTotal = visit.student_count * childMealPrice;
@@ -774,6 +798,170 @@
         function downloadPDF() {
             // This would integrate with a PDF generation service
             alert('PDF download functionality would be implemented here with a service like jsPDF or server-side PDF generation');
+        }
+
+        // Custom items functionality
+        let customItems = [];
+
+        function toggleCustomItems() {
+            const section = document.getElementById('customItemsSection');
+            const btn = document.getElementById('customItemsBtn');
+
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                btn.textContent = '➖ Hide Custom Items';
+            } else {
+                section.style.display = 'none';
+                btn.textContent = '➕ Add Custom Items';
+            }
+        }
+
+        function addCustomItem() {
+            const description = document.getElementById('customDescription').value;
+            const quantity = parseInt(document.getElementById('customQuantity').value) || 1;
+            const price = parseFloat(document.getElementById('customPrice').value) || 0;
+
+            if (!description || price <= 0) {
+                alert('Please enter a description and valid price');
+                return;
+            }
+
+            const customItem = {
+                id: Date.now(),
+                description,
+                quantity,
+                unitPrice: price,
+                total: quantity * price
+            };
+
+            customItems.push(customItem);
+            updateCustomItemsList();
+            regenerateInvoiceWithCustomItems();
+
+            // Clear form
+            document.getElementById('customDescription').value = '';
+            document.getElementById('customQuantity').value = '1';
+            document.getElementById('customPrice').value = '';
+        }
+
+        function removeCustomItem(itemId) {
+            customItems = customItems.filter(item => item.id !== itemId);
+            updateCustomItemsList();
+            regenerateInvoiceWithCustomItems();
+        }
+
+        function updateCustomItemsList() {
+            const container = document.getElementById('customItemsList');
+
+            if (customItems.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const html = customItems.map(item => `
+                <div style="display: grid; grid-template-columns: 2fr 80px 100px 100px auto; gap: 0.5rem; align-items: center; padding: 0.5rem; background: white; border-radius: 4px; margin-bottom: 0.25rem;">
+                    <div>${item.description}</div>
+                    <div>${item.quantity}</div>
+                    <div>€${item.unitPrice.toFixed(2)}</div>
+                    <div>€${item.total.toFixed(2)}</div>
+                    <button class="btn btn-danger btn-sm" onclick="removeCustomItem(${item.id})" style="background: #dc3545; color: white; padding: 0.25rem 0.5rem;">✕</button>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        function regenerateInvoiceWithCustomItems() {
+            if (!invoiceGenerator.selectedVisit || !invoiceGenerator.originalPricing) return;
+
+            // Combine original items with custom items
+            const allLineItems = [...invoiceGenerator.originalPricing.lineItems, ...customItems];
+
+            // Recalculate totals
+            const subtotal = allLineItems.reduce((sum, item) => sum + item.total, 0);
+            const vatRate = invoiceGenerator.originalPricing.vatRate;
+            const vatAmount = subtotal * (vatRate / 100);
+            const total = subtotal + vatAmount;
+
+            // Update the invoice display
+            const visit = invoiceGenerator.selectedVisit;
+            const invoiceNumber = `INV-${visit.id.substring(0, 8).toUpperCase()}-${new Date().getFullYear()}`;
+            const invoiceDate = new Date().toLocaleDateString();
+
+            const html = `
+                <div class="invoice-header">
+                    <h2>INVOICE</h2>
+                    <div class="invoice-number">Invoice #: ${invoiceNumber}</div>
+                    <div class="invoice-number">Date: ${invoiceDate}</div>
+                </div>
+
+                <div class="invoice-section">
+                    <h3>From:</h3>
+                    <strong>Alella Green Tech Foundation</strong><br>
+                    International Green Tech Foundation<br>
+                    Alella, Spain<br>
+                    Email: info@alellagreentech.org
+                </div>
+
+                <div class="invoice-section">
+                    <h3>To:</h3>
+                    <strong>${visit.school_name}</strong><br>
+                    Contact: ${visit.contact_name}<br>
+                    Email: ${visit.contact_email}<br>
+                    ${visit.contact_phone ? `Phone: ${visit.contact_phone}<br>` : ''}
+                </div>
+
+                <div class="invoice-section">
+                    <h3>Visit Details:</h3>
+                    <strong>${invoiceGenerator.getVisitTypeIcon(visit.visit_type)} ${invoiceGenerator.getVisitTypeLabel(visit.visit_type)}</strong><br>
+                    Date: ${new Date(visit.preferred_date).toLocaleDateString()}<br>
+                    Duration: ${visit.visit_duration}<br>
+                    Educational Focus: ${visit.educational_focus || 'General'}
+                </div>
+
+                <table class="pricing-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th class="amount">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${allLineItems.map(item => `
+                            <tr>
+                                <td>${item.description}</td>
+                                <td>${item.quantity}</td>
+                                <td>€${item.unitPrice.toFixed(2)}</td>
+                                <td class="amount">€${item.total.toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="total-section">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span>€${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div class="total-row">
+                        <span>VAT (${vatRate}%):</span>
+                        <span>€${vatAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="total-row final">
+                        <span>Total:</span>
+                        <span>€${total.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; font-size: 0.9rem; color: #666;">
+                    <p><strong>Payment Terms:</strong> Net 30 days</p>
+                    <p><strong>Notes:</strong> ${visit.additional_requests || 'Thank you for visiting Alella Green Tech!'}</p>
+                </div>
+            `;
+
+            document.getElementById('invoiceContent').innerHTML = html;
         }
 
         // Initialize when DOM is loaded
