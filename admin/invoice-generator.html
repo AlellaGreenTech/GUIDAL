@@ -966,12 +966,40 @@
 
         // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof supabaseClient === 'undefined') {
-                console.error('❌ Supabase client not loaded');
-                return;
+            // Enhanced initialization with retry mechanism
+            let initAttempts = 0;
+            const maxAttempts = 10;
+
+            function tryInitialization() {
+                initAttempts++;
+                console.log(`🔄 Attempt ${initAttempts}: Checking for supabaseClient...`);
+
+                if (typeof supabaseClient !== 'undefined') {
+                    console.log('✅ Supabase client found, initializing invoice generator...');
+                    invoiceGenerator = new InvoiceGenerator();
+                } else if (initAttempts < maxAttempts) {
+                    console.log('⏳ Waiting for supabaseClient...');
+                    setTimeout(tryInitialization, 500);
+                } else {
+                    console.error('❌ Failed to load Supabase client after', maxAttempts, 'attempts');
+                    // Show error message to user
+                    const container = document.querySelector('main .container');
+                    if (container) {
+                        container.innerHTML = `
+                            <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 1rem; border-radius: 4px; margin: 2rem 0;">
+                                <h3>⚠️ Loading Error</h3>
+                                <p>Unable to connect to the database. Please check your internet connection and try refreshing the page.</p>
+                                <button onclick="location.reload()" style="background: #721c24; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
+                                    🔄 Retry
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
             }
 
-            invoiceGenerator = new InvoiceGenerator();
+            // Start trying to initialize
+            tryInitialization();
         });
     </script>
 </body>

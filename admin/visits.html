@@ -267,7 +267,7 @@
             border-radius: 4px;
             font-size: 0.8rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-top: 0.125rem;
         }
 
         .focus-badge {
@@ -278,6 +278,18 @@
             border-radius: 4px;
             font-size: 0.8rem;
             font-weight: 600;
+            margin-top: 0.125rem;
+        }
+
+        .lunch-badge {
+            display: inline-block;
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.125rem;
         }
 
         .status-actions {
@@ -614,14 +626,27 @@
                                 <div class="visit-date" style="font-size: 1.1rem; font-weight: bold; color: #1565c0;">
                                     📅 ${visitDate}
                                 </div>
-                                <div class="visit-format">${request.student_count || 0} students</div>
-                                <div class="visit-format">${request.visit_duration || 'Duration TBD'}</div>
+                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.25rem;">
+                                    ${request.visit_duration || 'Duration TBD'}
+                                </div>
                             </div>
                             <div class="visit-details-column">
-                                <div class="visit-participants">${request.student_count || 0} students, ${request.teacher_count || 0} teachers</div>
-                                <div class="format-badge">${formatDisplay}</div>
-                                <div class="focus-badge">${focusDisplay}</div>
-                                ${request.lunch_needs && request.lunch_needs !== 'none' ? `<div class="lunch-badge">🍽️ ${request.lunch_needs}</div>` : ''}
+                                <div class="visit-participants" style="font-weight: 600; margin-bottom: 0.5rem;">
+                                    👥 ${request.student_count || 0} students, ${request.teacher_count || 0} teachers
+                                </div>
+                                <div style="margin-bottom: 0.25rem;">
+                                    <span style="font-size: 0.8rem; color: #666;">Format:</span>
+                                    <div class="format-badge">${formatDisplay}</div>
+                                </div>
+                                <div style="margin-bottom: 0.25rem;">
+                                    <span style="font-size: 0.8rem; color: #666;">Focus:</span>
+                                    <div class="focus-badge">${focusDisplay}</div>
+                                </div>
+                                ${request.lunch_needs && request.lunch_needs !== 'none' ? `
+                                <div style="margin-bottom: 0.25rem;">
+                                    <span style="font-size: 0.8rem; color: #666;">Lunch:</span>
+                                    <div class="lunch-badge">🍽️ ${request.lunch_needs}</div>
+                                </div>` : ''}
                             </div>
                             <div class="status-actions-column">
                                 <span class="status-badge status-${getStatusDisplay(request)}">${getStatusDisplay(request)}</span>
@@ -632,7 +657,7 @@
                                     '<div class="invoice-status">✅ Invoiced</div>' : ''
                                 }
                                 <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
-                                    Submitted: ${submittedDate}
+                                    📝 Request submitted: ${submittedDate}
                                 </div>
                                 <div class="request-actions" style="margin-top: 0.5rem;">
                                     <button class="btn btn-primary btn-sm" onclick="toggleDetails('${request.id}')">
@@ -822,10 +847,6 @@
             }
         }
 
-        function generateInvoice(requestId) {
-            // Navigate to invoice generation page
-            window.location.href = `invoices.html?request=${requestId}`;
-        }
 
         function applyFilters() {
             if (window.visitRequestsManager) {
