@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events & Workshops Management - GUIDAL Admin</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .admin-nav {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .admin-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .admin-nav a {
+            text-decoration: none;
+            color: #495057;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav a:hover,
+        .admin-nav a.active {
+            background: #1565c0;
+            color: white;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .event-type-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #1565c0;
+        }
+
+        .event-type-card h3 {
+            margin: 0 0 1rem 0;
+            color: #1565c0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pricing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .pricing-table th,
+        .pricing-table td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .pricing-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #1565c0;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0d47a1;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .quick-booking {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .booking-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="container">
+            <h1>🎯 Events & Workshops Management</h1>
+            <p>Manage workshops, special lunches, and events alongside school visits</p>
+        </div>
+    </div>
+
+    <nav class="admin-nav">
+        <div class="container">
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="visits.html">Visits</a></li>
+                <li><a href="events-management.html" class="active">Events & Workshops</a></li>
+                <li><a href="pricing-management.html">Pricing</a></li>
+                <li><a href="invoices.html">Invoices</a></li>
+                <li><a href="../index.html">Back to Site</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="upcomingWorkshops">-</div>
+                <div class="stat-label">Upcoming Workshops</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="specialLunches">-</div>
+                <div class="stat-label">Special Lunches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="familyVisits">-</div>
+                <div class="stat-label">Family Visits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="corporateEvents">-</div>
+                <div class="stat-label">Corporate Events</div>
+            </div>
+        </div>
+
+        <!-- Quick Booking -->
+        <div class="quick-booking">
+            <h3>🚀 Quick Event Booking</h3>
+            <form class="booking-form" id="quickBookingForm">
+                <div class="form-group">
+                    <label for="eventType">Event Type</label>
+                    <select id="eventType" required>
+                        <option value="">Select event type...</option>
+                        <option value="workshop">Workshop</option>
+                        <option value="special-lunch">Special Lunch</option>
+                        <option value="family-visit">Family Visit</option>
+                        <option value="corporate-visit">Corporate Event</option>
+                        <option value="individual-visit">Individual Visit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="contactName">Contact Name</label>
+                    <input type="text" id="contactName" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactEmail">Email</label>
+                    <input type="email" id="contactEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="participantCount">Participants</label>
+                    <input type="number" id="participantCount" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="preferredDate">Preferred Date</label>
+                    <input type="date" id="preferredDate" required>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary">Create Booking</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Event Types Grid -->
+        <div class="events-grid">
+            <!-- Workshops -->
+            <div class="event-type-card">
+                <h3>🔬 Workshops</h3>
+                <p>Hands-on learning experiences for specialized topics</p>
+
+                <table class="pricing-table">
+                    <thead>
+                        <tr>
+                            <th>Workshop Type</th>
+                            <th>Duration</th>
+                            <th>Price/Person</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Technology Workshop</td>
+                            <td>2 hours</td>
+                            <td><span class="price">€20 child / €30 adult</span></td>
+                        </tr>
+                        <tr>
+                            <td>Permaculture Workshop</td>
+                            <td>4 hours + lunch</td>
+                            <td><span class="price">€35 child / €45 adult</span></td>
+                        </tr>
+                        <tr>
+                            <td>Cooking Workshop</td>
+                            <td>2 hours</td>
+                            <td><span class="price">€25 child / €35 adult</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 1rem;">
+                    <a href="#" class="btn btn-primary btn-sm" onclick="filterEvents('workshop')">View All Workshops</a>
+                </div>
+            </div>
+
+            <!-- Special Lunches -->
+            <div class="event-type-card">
+                <h3>🍽️ Special Lunches</h3>
+                <p>Farm-to-table dining experiences</p>
+
+                <table class="pricing-table">
+                    <thead>
+                        <tr>
+                            <th>Experience</th>
+                            <th>Duration</th>
+                            <th>Price/Person</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Special Lunch Only</td>
+                            <td>1-2 hours</td>
+                            <td><span class="price">€15 child / €20 adult</span></td>
+                        </tr>
+                        <tr>
+                            <td>Lunch & Tour</td>
+                            <td>3 hours</td>
+                            <td><span class="price">€25 child / €35 adult</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 1rem;">
+                    <a href="#" class="btn btn-primary btn-sm" onclick="filterEvents('special-lunch')">View All Lunches</a>
+                </div>
+            </div>
+
+            <!-- Family Visits -->
+            <div class="event-type-card">
+                <h3>👨‍👩‍👧‍👦 Family Experiences</h3>
+                <p>Perfect for families with children</p>
+
+                <table class="pricing-table">
+                    <thead>
+                        <tr>
+                            <th>Experience</th>
+                            <th>Duration</th>
+                            <th>Price/Person</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Family Afternoon</td>
+                            <td>3 hours</td>
+                            <td><span class="price">€12 child / €18 adult</span></td>
+                        </tr>
+                        <tr>
+                            <td>+ Optional Lunch</td>
+                            <td>+1 hour</td>
+                            <td><span class="price">+€8 child / +€12 adult</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 1rem;">
+                    <a href="#" class="btn btn-primary btn-sm" onclick="filterEvents('family-visit')">View Family Visits</a>
+                </div>
+            </div>
+
+            <!-- Corporate Events -->
+            <div class="event-type-card">
+                <h3>🏢 Corporate Events</h3>
+                <p>Team building and corporate experiences</p>
+
+                <table class="pricing-table">
+                    <thead>
+                        <tr>
+                            <th>Experience</th>
+                            <th>Duration</th>
+                            <th>Price/Person</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Team Building</td>
+                            <td>Custom</td>
+                            <td><span class="price">€40 per person</span></td>
+                        </tr>
+                        <tr>
+                            <td>+ Corporate Lunch</td>
+                            <td>+1-2 hours</td>
+                            <td><span class="price">+€20 per person</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 1rem;">
+                    <a href="#" class="btn btn-primary btn-sm" onclick="filterEvents('corporate-visit')">View Corporate Events</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Bookings -->
+        <div style="background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3>📅 Recent Event Bookings</h3>
+            <div id="recentEvents">
+                <div style="text-align: center; padding: 2rem; color: #666;">
+                    Loading recent events...
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="visits.html" class="btn btn-primary">View All Events & Visits</a>
+            </div>
+        </div>
+    </main>
+
+    <footer style="margin-top: 3rem; padding: 2rem 0; background: #f8f9fa; text-align: center;">
+        <div class="container">
+            <p>&copy; 2024 GUIDAL Events Management - Alella Green Tech</p>
+        </div>
+    </footer>
+
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        class EventsManager {
+            constructor() {
+                this.init();
+            }
+
+            async init() {
+                console.log('🎯 Initializing Events Manager...');
+                await this.loadEventStats();
+                await this.loadRecentEvents();
+                this.setupEventHandlers();
+            }
+
+            async loadEventStats() {
+                try {
+                    // Get upcoming workshops
+                    const { count: workshopCount } = await supabaseClient
+                        .from('visits')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('visit_type', 'workshop')
+                        .gte('preferred_date', new Date().toISOString().split('T')[0]);
+
+                    // Get special lunches
+                    const { count: lunchCount } = await supabaseClient
+                        .from('visits')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('visit_type', 'special-lunch')
+                        .gte('preferred_date', new Date().toISOString().split('T')[0]);
+
+                    // Get family visits
+                    const { count: familyCount } = await supabaseClient
+                        .from('visits')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('visit_type', 'family-visit')
+                        .gte('preferred_date', new Date().toISOString().split('T')[0]);
+
+                    // Get corporate events
+                    const { count: corporateCount } = await supabaseClient
+                        .from('visits')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('visit_type', 'corporate-visit')
+                        .gte('preferred_date', new Date().toISOString().split('T')[0]);
+
+                    document.getElementById('upcomingWorkshops').textContent = workshopCount || 0;
+                    document.getElementById('specialLunches').textContent = lunchCount || 0;
+                    document.getElementById('familyVisits').textContent = familyCount || 0;
+                    document.getElementById('corporateEvents').textContent = corporateCount || 0;
+
+                } catch (error) {
+                    console.error('Error loading event stats:', error);
+                }
+            }
+
+            async loadRecentEvents() {
+                try {
+                    const { data: events, error } = await supabaseClient
+                        .from('visits')
+                        .select('*')
+                        .in('visit_type', ['workshop', 'special-lunch', 'family-visit', 'corporate-visit', 'individual-visit'])
+                        .order('submitted_at', { ascending: false })
+                        .limit(5);
+
+                    if (error) throw error;
+
+                    const container = document.getElementById('recentEvents');
+
+                    if (!events || events.length === 0) {
+                        container.innerHTML = '<p style="text-align: center; color: #666;">No recent events found.</p>';
+                        return;
+                    }
+
+                    const html = events.map(event => `
+                        <div style="border-bottom: 1px solid #e9ecef; padding: 1rem 0; display: grid; grid-template-columns: 2fr 1fr 1fr 100px; gap: 1rem; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600;">${this.getEventTypeLabel(event.visit_type)} - ${event.contact_name}</div>
+                                <div style="font-size: 0.9rem; color: #666;">
+                                    ${event.student_count} participants • ${event.grade_level || 'Various ages'}
+                                </div>
+                            </div>
+                            <div style="font-size: 0.9rem; color: #666;">
+                                ${new Date(event.preferred_date).toLocaleDateString()}
+                            </div>
+                            <div>
+                                <span style="padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; background: ${this.getStatusColor(event.status)};">
+                                    ${event.status}
+                                </span>
+                            </div>
+                            <div>
+                                <a href="visits.html?id=${event.id}" class="btn btn-primary btn-sm">View</a>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    container.innerHTML = html;
+
+                } catch (error) {
+                    console.error('Error loading recent events:', error);
+                    document.getElementById('recentEvents').innerHTML =
+                        '<div style="text-align: center; color: #721c24; background: #f8d7da; padding: 1rem; border-radius: 4px;">Error loading recent events</div>';
+                }
+            }
+
+            getEventTypeLabel(visitType) {
+                const labels = {
+                    'workshop': '🔬 Workshop',
+                    'special-lunch': '🍽️ Special Lunch',
+                    'family-visit': '👨‍👩‍👧‍👦 Family Visit',
+                    'corporate-visit': '🏢 Corporate Event',
+                    'individual-visit': '👤 Individual Visit'
+                };
+                return labels[visitType] || visitType;
+            }
+
+            getStatusColor(status) {
+                const colors = {
+                    'pending': '#fff3cd',
+                    'approved': '#d1ecf1',
+                    'completed': '#d4edda',
+                    'cancelled': '#f8d7da',
+                    'scheduled': '#e2e3e5'
+                };
+                return colors[status] || '#e2e3e5';
+            }
+
+            setupEventHandlers() {
+                const form = document.getElementById('quickBookingForm');
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    await this.createQuickBooking();
+                });
+            }
+
+            async createQuickBooking() {
+                try {
+                    const formData = new FormData(document.getElementById('quickBookingForm'));
+                    const eventType = document.getElementById('eventType').value;
+                    const contactName = document.getElementById('contactName').value;
+                    const contactEmail = document.getElementById('contactEmail').value;
+                    const participantCount = parseInt(document.getElementById('participantCount').value);
+                    const preferredDate = document.getElementById('preferredDate').value;
+
+                    const booking = {
+                        visit_type: eventType,
+                        contact_name: contactName,
+                        contact_email: contactEmail,
+                        school_name: `${this.getEventTypeLabel(eventType)} - ${contactName}`,
+                        student_count: participantCount,
+                        teacher_count: eventType === 'family-visit' ? Math.ceil(participantCount / 4) : 1,
+                        grade_level: 'Mixed ages',
+                        preferred_date: preferredDate,
+                        visit_duration: this.getDefaultDuration(eventType),
+                        lunch_needs: this.getDefaultLunchNeeds(eventType),
+                        visit_format: this.getDefaultFormat(eventType),
+                        educational_focus: this.getDefaultFocus(eventType),
+                        status: 'pending',
+                        submitted_at: new Date().toISOString()
+                    };
+
+                    const { error } = await supabaseClient
+                        .from('visits')
+                        .insert([booking]);
+
+                    if (error) throw error;
+
+                    alert('✅ Booking created successfully!');
+                    document.getElementById('quickBookingForm').reset();
+                    await this.loadEventStats();
+                    await this.loadRecentEvents();
+
+                } catch (error) {
+                    console.error('Error creating booking:', error);
+                    alert('❌ Error creating booking. Please try again.');
+                }
+            }
+
+            getDefaultDuration(visitType) {
+                const durations = {
+                    'workshop': '2-4 hours',
+                    'special-lunch': '1-3 hours',
+                    'family-visit': '3 hours',
+                    'corporate-visit': '4-6 hours',
+                    'individual-visit': '2-3 hours'
+                };
+                return durations[visitType] || '3 hours';
+            }
+
+            getDefaultLunchNeeds(visitType) {
+                const lunchNeeds = {
+                    'workshop': 'pizza',
+                    'special-lunch': 'required',
+                    'family-visit': 'pizza',
+                    'corporate-visit': 'required',
+                    'individual-visit': 'none'
+                };
+                return lunchNeeds[visitType] || 'none';
+            }
+
+            getDefaultFormat(visitType) {
+                const formats = {
+                    'workshop': 'workshop-2hr',
+                    'special-lunch': 'lunch-only',
+                    'family-visit': 'afternoon-session',
+                    'corporate-visit': 'custom',
+                    'individual-visit': 'custom'
+                };
+                return formats[visitType] || 'custom';
+            }
+
+            getDefaultFocus(visitType) {
+                const focuses = {
+                    'workshop': 'technology-workshop',
+                    'special-lunch': 'sustainability',
+                    'family-visit': 'family-experience',
+                    'corporate-visit': 'team-building',
+                    'individual-visit': 'balanced-mix'
+                };
+                return focuses[visitType] || 'other';
+            }
+        }
+
+        function filterEvents(eventType) {
+            window.location.href = `visits.html?filter=${eventType}`;
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof supabaseClient === 'undefined') {
+                console.error('❌ Supabase client not loaded');
+                return;
+            }
+
+            new EventsManager();
+        });
+    </script>
+</body>
+</html>

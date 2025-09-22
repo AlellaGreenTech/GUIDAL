@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUIDAL Admin Dashboard</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .admin-header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .admin-nav {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .admin-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .admin-nav a {
+            text-decoration: none;
+            color: #495057;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav a:hover,
+        .admin-nav a.active {
+            background: #1565c0;
+            color: white;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #1565c0;
+        }
+
+        .dashboard-card h3 {
+            margin: 0 0 1rem 0;
+            color: #1565c0;
+            font-size: 1.2rem;
+        }
+
+        .dashboard-stat {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .recent-requests {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .recent-requests h3 {
+            margin: 0 0 1.5rem 0;
+            color: #1565c0;
+            border-bottom: 2px solid #e3f2fd;
+            padding-bottom: 0.5rem;
+        }
+
+        .request-item {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 0;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 100px;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .request-item:last-child {
+            border-bottom: none;
+        }
+
+        .request-school {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .request-details {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .request-date {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-reviewing {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #1565c0;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0d47a1;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .request-item {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .admin-nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="container">
+            <h1>🛡️ GUIDAL Admin Dashboard</h1>
+            <p>Manage visits, workshops, and educational activities</p>
+        </div>
+    </div>
+
+    <nav class="admin-nav">
+        <div class="container">
+            <ul>
+                <li><a href="index.html" class="active">Dashboard</a></li>
+                <li><a href="visits.html">Visits</a></li>
+                <li><a href="events-management.html">Events & Workshops</a></li>
+                <li><a href="pricing-management.html">Pricing</a></li>
+                <li><a href="invoice-generator.html">Invoice Generator</a></li>
+                <li><a href="invoices.html">Invoices</a></li>
+                <li><a href="form-editor.html">Form Editor</a></li>
+                <li><a href="../index.html">Back to Site</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="quick-actions">
+            <a href="visits.html?filter=pending" class="btn btn-primary">View Pending Visits</a>
+            <a href="form-editor.html" class="btn btn-primary">Edit Trip Form</a>
+            <a href="reports.html" class="btn btn-primary">Generate Report</a>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>📋 Pending Visits</h3>
+                <div class="dashboard-stat" id="pendingCount">-</div>
+                <div class="dashboard-label">Awaiting review</div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>📅 This Month</h3>
+                <div class="dashboard-stat" id="monthlyCount">-</div>
+                <div class="dashboard-label">New visits</div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>🏫 Active Schools</h3>
+                <div class="dashboard-stat" id="schoolCount">-</div>
+                <div class="dashboard-label">Unique schools</div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>👥 Total Students</h3>
+                <div class="dashboard-stat" id="studentCount">-</div>
+                <div class="dashboard-label">This month</div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>✅ Completed Visits</h3>
+                <div class="dashboard-stat" id="completedCount">-</div>
+                <div class="dashboard-label">Last 2 weeks</div>
+            </div>
+        </div>
+
+        <div class="recent-requests">
+            <h3>📝 Recent Visits</h3>
+            <div id="recentRequestsList">
+                <div class="loading">Loading recent visits...</div>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="visits.html" class="btn btn-primary">View All Visits</a>
+            </div>
+        </div>
+    </main>
+
+    <footer style="margin-top: 3rem; padding: 2rem 0; background: #f8f9fa; text-align: center;">
+        <div class="container">
+            <p>&copy; 2024 GUIDAL Admin Dashboard - Alella Green Tech</p>
+        </div>
+    </footer>
+
+    <!-- Load required scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script>
+        // Admin Dashboard JavaScript
+        class AdminDashboard {
+            constructor() {
+                this.init();
+            }
+
+            async init() {
+                try {
+                    console.log('🛡️ Initializing Admin Dashboard...');
+
+                    // Check admin authentication (you can enhance this)
+                    // For now, we'll load data directly - add proper auth later
+
+                    await this.loadDashboardStats();
+                    await this.loadRecentVisits();
+
+                    console.log('✅ Admin Dashboard initialized');
+                } catch (error) {
+                    console.error('❌ Error initializing dashboard:', error);
+                    this.showError('Failed to load dashboard data');
+                }
+            }
+
+            async loadDashboardStats() {
+                try {
+                    // Get pending requests count
+                    const { count: pendingCount } = await supabaseClient
+                        .from('visits')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('status', 'pending');
+
+                    // Get this month's requests
+                    const startOfMonth = new Date();
+                    startOfMonth.setDate(1);
+                    startOfMonth.setHours(0, 0, 0, 0);
+
+                    const { count: monthlyCount } = await supabaseClient
+                        .from('visits')
+                        .select('*', { count: 'exact', head: true })
+                        .gte('submitted_at', startOfMonth.toISOString());
+
+                    // Get unique schools this month
+                    const { data: monthlyRequests } = await supabaseClient
+                        .from('visits')
+                        .select('school_name, student_count')
+                        .gte('submitted_at', startOfMonth.toISOString());
+
+                    const uniqueSchools = [...new Set(monthlyRequests?.map(r => r.school_name))].length;
+                    const totalStudents = monthlyRequests?.reduce((sum, r) => sum + (r.student_count || 0), 0) || 0;
+
+                    // Get completed visits in last 2 weeks
+                    const twoWeeksAgo = new Date();
+                    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
+                    const { count: completedCount } = await supabaseClient
+                        .from('visits')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('status', 'completed')
+                        .gte('preferred_date', twoWeeksAgo.toISOString());
+
+                    // Update dashboard
+                    document.getElementById('pendingCount').textContent = pendingCount || 0;
+                    document.getElementById('monthlyCount').textContent = monthlyCount || 0;
+                    document.getElementById('schoolCount').textContent = uniqueSchools;
+                    document.getElementById('studentCount').textContent = totalStudents;
+                    document.getElementById('completedCount').textContent = completedCount || 0;
+
+                } catch (error) {
+                    console.error('Error loading dashboard stats:', error);
+                }
+            }
+
+            async loadRecentVisits() {
+                try {
+                    const { data: requests, error } = await supabaseClient
+                        .from('visits')
+                        .select('*')
+                        .order('submitted_at', { ascending: false })
+                        .limit(5);
+
+                    if (error) throw error;
+
+                    const listElement = document.getElementById('recentRequestsList');
+
+                    if (!requests || requests.length === 0) {
+                        listElement.innerHTML = '<p>No visits yet.</p>';
+                        return;
+                    }
+
+                    const html = requests.map(request => `
+                        <div class="request-item">
+                            <div>
+                                <div class="request-school">${request.school_name}</div>
+                                <div class="request-details">
+                                    ${request.contact_name} • ${request.student_count} students • ${request.grade_level}
+                                </div>
+                            </div>
+                            <div class="request-date">
+                                ${new Date(request.preferred_date).toLocaleDateString()}
+                            </div>
+                            <div>
+                                <span class="status-badge status-${request.status}">${request.status}</span>
+                            </div>
+                            <div>
+                                <a href="visits.html?id=${request.id}" class="btn btn-primary btn-sm">View</a>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    listElement.innerHTML = html;
+
+                } catch (error) {
+                    console.error('Error loading recent visits:', error);
+                    document.getElementById('recentRequestsList').innerHTML =
+                        '<div class="error-message">Error loading recent visits</div>';
+                }
+            }
+
+            showError(message) {
+                const container = document.querySelector('main .container');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = message;
+                container.insertBefore(errorDiv, container.firstChild);
+            }
+        }
+
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced initialization with retry mechanism
+            let initAttempts = 0;
+            const maxAttempts = 10;
+
+            function tryInitialization() {
+                initAttempts++;
+                console.log(`🔄 Attempt ${initAttempts}: Checking for supabaseClient...`);
+
+                if (typeof supabaseClient !== 'undefined') {
+                    console.log('✅ Supabase client found, initializing dashboard...');
+                    new AdminDashboard();
+                } else if (initAttempts < maxAttempts) {
+                    console.log('⏳ Waiting for supabaseClient...');
+                    setTimeout(tryInitialization, 500);
+                } else {
+                    console.error('❌ Failed to load Supabase client after', maxAttempts, 'attempts');
+                    // Show error message to user
+                    const container = document.querySelector('main .container');
+                    if (container) {
+                        container.innerHTML = `
+                            <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 1rem; border-radius: 4px; margin: 2rem 0;">
+                                <h3>⚠️ Loading Error</h3>
+                                <p>Unable to connect to the database. Please check your internet connection and try refreshing the page.</p>
+                                <button onclick="location.reload()" style="background: #721c24; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">
+                                    🔄 Retry
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            // Start trying to initialize
+            tryInitialization();
+        });
+    </script>
+</body>
+</html>

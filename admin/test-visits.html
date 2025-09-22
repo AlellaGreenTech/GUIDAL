@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Visits Filtering</title>
+</head>
+<body>
+    <h1>Test Visits Data and Filtering</h1>
+
+    <div>
+        <label>Filter by Status:</label>
+        <select id="statusFilter">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+            <option value="approved">Approved</option>
+            <option value="cancelled">Cancelled</option>
+        </select>
+    </div>
+
+    <div id="results">Loading...</div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        let allVisits = [];
+
+        async function loadVisits() {
+            try {
+                console.log('🔍 Loading all visits...');
+
+                const { data, error } = await supabaseClient
+                    .from('trip_requests')
+                    .select('*')
+                    .order('submitted_at', { ascending: false });
+
+                if (error) {
+                    console.error('❌ Error loading visits:', error);
+                    document.getElementById('results').innerHTML =
+                        `<p style="color: red;">Error: ${error.message}</p>`;
+                    return;
+                }
+
+                allVisits = data || [];
+                console.log('✅ Loaded', allVisits.length, 'visits');
+
+                // Show status breakdown
+                const statusCount = {};
+                allVisits.forEach(visit => {
+                    statusCount[visit.status] = (statusCount[visit.status] || 0) + 1;
+                });
+
+                console.log('📊 Status breakdown:', statusCount);
+                displayVisits(allVisits);
+
+            } catch (err) {
+                console.error('❌ Script error:', err);
+                document.getElementById('results').innerHTML =
+                    `<p style="color: red;">Script error: ${err.message}</p>`;
+            }
+        }
+
+        function displayVisits(visits) {
+            const results = document.getElementById('results');
+
+            if (visits.length === 0) {
+                results.innerHTML = '<p>No visits found</p>';
+                return;
+            }
+
+            const html = `
+                <h3>Found ${visits.length} visits</h3>
+                <table border="1" style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <th>Entity/Person</th>
+                        <th>Contact</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Students</th>
+                    </tr>
+                    ${visits.map(visit => `
+                        <tr>
+                            <td>${visit.school_name}</td>
+                            <td>${visit.contact_name}</td>
+                            <td><strong>${visit.status}</strong></td>
+                            <td>${visit.preferred_date}</td>
+                            <td>${visit.student_count}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+            `;
+
+            results.innerHTML = html;
+        }
+
+        function filterVisits() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            console.log('🔍 Filtering by status:', statusFilter || 'All');
+
+            let filtered = allVisits;
+            if (statusFilter) {
+                filtered = allVisits.filter(visit => visit.status === statusFilter);
+                console.log('✅ Filtered to', filtered.length, 'visits');
+            }
+
+            displayVisits(filtered);
+        }
+
+        // Setup
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof supabaseClient === 'undefined') {
+                console.error('❌ Supabase client not loaded');
+                return;
+            }
+
+            loadVisits();
+
+            document.getElementById('statusFilter').addEventListener('change', filterVisits);
+        });
+    </script>
+</body>
+</html>

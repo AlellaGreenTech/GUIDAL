@@ -5,7 +5,45 @@ const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U'
 
 // Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+let supabase = null;
+
+// Wait for Supabase library to be available
+function initializeSupabase() {
+  if (window.supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('🔗 Supabase client initialized');
+
+    // Export immediately after creation
+    if (typeof window !== 'undefined') {
+      window.supabaseClient = supabase;
+      console.log('📤 supabaseClient exported to window');
+    }
+
+    return true;
+  }
+  return false;
+}
+
+// Try to initialize immediately
+if (!initializeSupabase()) {
+  // If not available, wait and try again with more attempts
+  console.log('⏳ Waiting for Supabase library...');
+  let attempts = 0;
+  const maxAttempts = 50; // Try for 5 seconds
+
+  const tryInitialize = () => {
+    attempts++;
+    if (initializeSupabase()) {
+      console.log('✅ Supabase client initialized after', attempts, 'attempts');
+    } else if (attempts < maxAttempts) {
+      setTimeout(tryInitialize, 100);
+    } else {
+      console.error('❌ Failed to initialize Supabase client after', maxAttempts, 'attempts');
+    }
+  };
+
+  setTimeout(tryInitialize, 100);
+}
 
 // Database service functions
 class GuidalDB {
@@ -706,7 +744,7 @@ class GuidalDB {
     try {
       const { data, error } = await supabase
         .from('schools')
-        .select('count(*)')
+        .select('id')
         .limit(1)
 
       if (error) throw error
@@ -740,4 +778,8 @@ class GuidalDB {
 // Export for use in other files
 if (typeof window !== 'undefined') {
   window.GuidalDB = GuidalDB
+  // supabaseClient is exported in initializeSupabase() function above
+  if (supabase && !window.supabaseClient) {
+    window.supabaseClient = supabase;
+  }
 }

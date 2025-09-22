@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Migrate Historical Visits</title>
+</head>
+<body>
+    <h1>Migrate Historical Visit Data</h1>
+    <div id="status">Starting migration...</div>
+    <div id="results"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        async function migrateHistoricalVisits() {
+            try {
+                const statusDiv = document.getElementById('status');
+                const resultsDiv = document.getElementById('results');
+
+                statusDiv.innerHTML = '🔍 Searching for existing visit data...';
+
+                // Check all possible tables that might contain visit data
+                const tablesToCheck = [
+                    'school_visits',
+                    'activities',
+                    'user_activities',
+                    'registrations',
+                    'school_registrations'
+                ];
+
+                let foundData = {};
+
+                for (const table of tablesToCheck) {
+                    try {
+                        const { data, error } = await supabaseClient
+                            .from(table)
+                            .select('*')
+                            .limit(5); // Just check if table exists and has data
+
+                        if (!error && data && data.length > 0) {
+                            foundData[table] = data;
+                            console.log(`✅ Found data in ${table}:`, data);
+                        }
+                    } catch (err) {
+                        console.log(`⚠️ Table ${table} doesn't exist or no access`);
+                    }
+                }
+
+                // Display what we found
+                let html = '<h2>Found Historical Data:</h2>';
+
+                if (Object.keys(foundData).length === 0) {
+                    html += '<p>No existing visit data found in common tables.</p>';
+                    html += '<p>We\'ll proceed with the sample data in trip_requests.</p>';
+                } else {
+                    Object.keys(foundData).forEach(table => {
+                        html += `<h3>${table} (${foundData[table].length}+ records)</h3>`;
+                        html += '<pre>' + JSON.stringify(foundData[table][0], null, 2) + '</pre>';
+                    });
+                }
+
+                resultsDiv.innerHTML = html;
+
+                // If we found school_visits data, migrate it
+                if (foundData.school_visits) {
+                    statusDiv.innerHTML = '📋 Migrating school_visits to trip_requests...';
+                    await migrateSchoolVisits(foundData.school_visits);
+                } else if (foundData.activities) {
+                    statusDiv.innerHTML = '📋 Migrating activities to trip_requests...';
+                    await migrateActivities(foundData.activities);
+                } else {
+                    statusDiv.innerHTML = '✅ Using existing sample data in trip_requests';
+                }
+
+            } catch (err) {
+                console.error('❌ Migration error:', err);
+                document.getElementById('status').innerHTML = `❌ Error: ${err.message}`;
+            }
+        }
+
+        async function migrateSchoolVisits(visits) {
+            // Get all school_visits and convert to trip_requests format
+            const { data: allVisits, error } = await supabaseClient
+                .from('school_visits')
+                .select(`
+                    *,
+                    schools!inner(name, address),
+                    activities!inner(title, date_time)
+                `);
+
+            if (error) {
+                console.error('Error fetching visits:', error);
+                return;
+            }
+
+            console.log('Found school visits:', allVisits);
+
+            // Convert to trip_requests format
+            const tripRequests = allVisits.map(visit => ({
+                school_name: visit.schools.name,
+                contact_name: visit.teacher_name,
+                contact_email: visit.teacher_email,
+                contact_phone: visit.teacher_phone,
+                student_count: visit.student_count,
+                grade_level: visit.grade_level,
+                preferred_date: visit.activities.date_time.split('T')[0], // Extract date
+                visit_duration: '6 hours', // Default
+                status: 'completed', // Historical visits are completed
+                additional_requests: visit.special_instructions,
+                lunch_needs: visit.lunch_required ? 'required' : 'none',
+                transportation: visit.transport_details,
+                internal_notes: `Migrated from school_visits. Access code: ${visit.access_code}`,
+                submitted_at: visit.created_at || new Date().toISOString(),
+                created_at: visit.created_at || new Date().toISOString()
+            }));
+
+            // Insert into trip_requests
+            const { data: inserted, error: insertError } = await supabaseClient
+                .from('trip_requests')
+                .insert(tripRequests);
+
+            if (insertError) {
+                console.error('Error inserting migrated data:', insertError);
+            } else {
+                console.log('✅ Migrated', tripRequests.length, 'historical visits');
+                document.getElementById('status').innerHTML =
+                    `✅ Successfully migrated ${tripRequests.length} historical visits!`;
+            }
+        }
+
+        async function migrateActivities(activities) {
+            // If activities contain visit data, convert them
+            const schoolActivities = activities.filter(a =>
+                a.title && a.title.toLowerCase().includes('school')
+            );
+
+            if (schoolActivities.length === 0) {
+                document.getElementById('status').innerHTML =
+                    '⚠️ No school visit activities found to migrate';
+                return;
+            }
+
+            // Convert activities to trip_requests (this would need customization based on your data structure)
+            console.log('Found school activities to migrate:', schoolActivities);
+            document.getElementById('status').innerHTML =
+                `📋 Found ${schoolActivities.length} school activities - manual review needed`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof supabaseClient === 'undefined') {
+                console.error('❌ Supabase client not loaded');
+                return;
+            }
+            migrateHistoricalVisits();
+        });
+    </script>
+</body>
+</html>

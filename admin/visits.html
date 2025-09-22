@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visits - GUIDAL Admin</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .admin-nav {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .admin-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .admin-nav a {
+            text-decoration: none;
+            color: #495057;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+
+        .admin-nav a:hover,
+        .admin-nav a.active {
+            background: #1565c0;
+            color: white;
+        }
+
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+            overflow: visible !important;
+            position: relative;
+            z-index: 1;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: visible;
+        }
+
+        .filter-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            position: relative;
+            z-index: 10;
+            background: white;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #1565c0;
+        }
+
+        /* Ensure parent containers don't interfere */
+        main.container {
+            overflow: visible !important;
+        }
+
+        .requests-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .requests-list {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .request-card {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .request-card:hover {
+            background: #f8f9fa;
+        }
+
+        .request-card:last-child {
+            border-bottom: none;
+        }
+
+        .request-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 120px;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .school-info h4 {
+            margin: 0 0 0.25rem 0;
+            color: #1565c0;
+            font-size: 1.1rem;
+        }
+
+        .school-details {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .visit-info {
+            font-size: 0.9rem;
+        }
+
+        .visit-date {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .visit-format {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-reviewing { background: #d1ecf1; color: #0c5460; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-scheduled { background: #d1ecf1; color: #0c5460; }
+        .status-completed { background: #e2e3e5; color: #383d41; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+
+        .request-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary { background: #1565c0; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; color: white; }
+
+        .request-details {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+            grid-column: 1 / -1;
+        }
+
+        .request-details.expanded {
+            display: block;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .detail-group h5 {
+            margin: 0 0 0.5rem 0;
+            color: #1565c0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .detail-group p {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .workshops-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .workshops-list li {
+            background: #f8f9fa;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .format-badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .focus-badge {
+            display: inline-block;
+            background: #f3e5f5;
+            color: #7b1fa2;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .no-requests {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .request-header {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .admin-nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="container">
+            <h1>📋 Visits Management</h1>
+            <p>View and manage educational visit requests from schools</p>
+        </div>
+    </div>
+
+    <nav class="admin-nav">
+        <div class="container">
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="visits.html" class="active">Visits</a></li>
+                <li><a href="events-management.html">Events & Workshops</a></li>
+                <li><a href="form-editor.html">Form Editor</a></li>
+                <li><a href="invoice-generator.html">Invoice Generator</a></li>
+                <li><a href="invoices.html">Invoices</a></li>
+                <li><a href="reports.html">Reports</a></li>
+                <li><a href="../index.html">Back to Site</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="statusFilter">Status</label>
+                <select id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="reviewing">Reviewing</option>
+                    <option value="approved">Approved</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="schoolFilter">Entity/Person</label>
+                <select id="schoolFilter">
+                    <option value="">All Entities</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="countryFilter">Country</label>
+                <select id="countryFilter">
+                    <option value="">All Countries</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="formatFilter">Visit Format</label>
+                <select id="formatFilter">
+                    <option value="">All Formats</option>
+                    <option value="full_day_pizza_lunch">Full Day with Pizza</option>
+                    <option value="morning_no_lunch">Morning No Lunch</option>
+                    <option value="morning_with_lunch">Morning with Lunch</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+            </div>
+        </div>
+
+        <!-- Summary Header -->
+        <div class="summary-header" id="summaryHeader" style="background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1rem; display: none;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div>
+                    <strong style="color: #1565c0;">📊 Total Visits:</strong>
+                    <span id="totalVisits" style="font-size: 1.2rem; font-weight: bold; color: #333;">-</span>
+                </div>
+                <div>
+                    <strong style="color: #1565c0;">🏫 Unique Entities:</strong>
+                    <span id="uniqueSchools" style="font-size: 1.2rem; font-weight: bold; color: #333;">-</span>
+                </div>
+                <div>
+                    <strong style="color: #1565c0;">✅ Completed:</strong>
+                    <span id="completedCount" style="font-size: 1.2rem; font-weight: bold; color: #4caf50;">-</span>
+                </div>
+                <div>
+                    <strong style="color: #1565c0;">⏳ Pending:</strong>
+                    <span id="pendingCount" style="font-size: 1.2rem; font-weight: bold; color: #ff9800;">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="requests-table">
+            <div class="table-header">
+                <h3>Visits</h3>
+                <div>
+                    <button class="btn btn-success btn-sm" onclick="exportRequests()">📊 Export</button>
+                    <button class="btn btn-primary btn-sm" onclick="refreshRequests()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <!-- Table Headers -->
+            <div class="table-headers">
+                <div class="header-school">School & Contact</div>
+                <div class="header-date">Visit Date</div>
+                <div class="header-details">Participants & Format</div>
+                <div class="header-status">Status & Actions</div>
+            </div>
+
+            <div class="requests-list" id="requestsList">
+                <div class="loading">Loading visit requests...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Load required scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script>
+        class VisitRequestsManager {
+            constructor() {
+                this.currentFilters = {};
+                this.allRequests = [];
+                this.allWorkshops = [];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    console.log('📋 Initializing Visits Manager...');
+
+                    // Load workshops for reference
+                    await this.loadWorkshops();
+
+                    // Load visit requests
+                    await this.loadVisitRequests();
+
+                    // Setup filter event listeners
+                    this.setupFilters();
+
+                    console.log('✅ Visits Manager initialized');
+                } catch (error) {
+                    console.error('❌ Error initializing:', error);
+                    this.showError('Failed to load visit requests');
+                }
+            }
+
+            async loadWorkshops() {
+                try {
+                    const { data: workshops, error } = await supabaseClient
+                        .from('activities')
+                        .select('id, title, activity_type:activity_types(name)');
+
+                    if (error) throw error;
+
+                    this.allWorkshops = workshops || [];
+                    console.log(`Loaded ${this.allWorkshops.length} workshops for reference`);
+                } catch (error) {
+                    console.error('Error loading workshops:', error);
+                }
+            }
+
+            async loadVisitRequests() {
+                try {
+                    const { data: requests, error } = await supabaseClient
+                        .from('visits')
+                        .select('*')
+                        .order('submitted_at', { ascending: false });
+
+                    if (error) throw error;
+
+                    this.allRequests = requests || [];
+                    console.log(`Loaded ${this.allRequests.length} visit requests`);
+
+                    // Update summary statistics
+                    this.updateSummaryStats(this.allRequests);
+
+                    // Populate filters
+                    this.populateFilters();
+
+                    // Render requests
+                    this.renderRequests(this.allRequests);
+
+                } catch (error) {
+                    console.error('Error loading visit requests:', error);
+                    this.showError('Failed to load visit requests');
+                }
+            }
+
+            updateSummaryStats(requests) {
+                // Calculate statistics
+                const totalVisits = requests.length;
+                const uniqueSchools = [...new Set(requests.map(r => r.school_name))].length;
+                const completedCount = requests.filter(r => r.status === 'completed').length;
+                const pendingCount = requests.filter(r => r.status === 'pending').length;
+
+                // Update UI
+                document.getElementById('totalVisits').textContent = totalVisits;
+                document.getElementById('uniqueSchools').textContent = uniqueSchools;
+                document.getElementById('completedCount').textContent = completedCount;
+                document.getElementById('pendingCount').textContent = pendingCount;
+
+                // Show the summary header
+                document.getElementById('summaryHeader').style.display = 'block';
+
+                console.log(`📊 Summary: ${totalVisits} visits, ${uniqueSchools} unique entities, ${completedCount} completed, ${pendingCount} pending`);
+            }
+
+            populateFilters() {
+                // Populate school filter
+                const schools = [...new Set(this.allRequests.map(r => r.school_name))].sort();
+                const schoolSelect = document.getElementById('schoolFilter');
+                schoolSelect.innerHTML = '<option value="">All Entities</option>';
+                schools.forEach(school => {
+                    const option = document.createElement('option');
+                    option.value = school;
+                    option.textContent = school;
+                    schoolSelect.appendChild(option);
+                });
+
+                // Populate country filter
+                const countries = [...new Set(this.allRequests.map(r => r.country_of_origin).filter(c => c))].sort();
+                const countrySelect = document.getElementById('countryFilter');
+                countrySelect.innerHTML = '<option value="">All Countries</option>';
+                countries.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country;
+                    option.textContent = country;
+                    countrySelect.appendChild(option);
+                });
+            }
+
+            renderRequests(requests) {
+                const listElement = document.getElementById('requestsList');
+
+                if (requests.length === 0) {
+                    listElement.innerHTML = '<div class="no-requests">No visit requests found.</div>';
+                    return;
+                }
+
+                const html = requests.map(request => this.renderRequestCard(request)).join('');
+                listElement.innerHTML = html;
+            }
+
+            renderRequestCard(request) {
+                const submittedDate = new Date(request.submitted_at).toLocaleDateString();
+                const visitDate = request.preferred_date ? new Date(request.preferred_date).toLocaleDateString() : 'Date TBD';
+                const selectedWorkshops = this.getWorkshopNames(request.selected_workshops || []);
+
+                // Format visit format display
+                const formatDisplayMap = {
+                    'full_day_pizza_lunch': 'Full Day with Pizza',
+                    'morning_no_lunch': 'Morning No Lunch',
+                    'morning_with_lunch': 'Morning with Lunch',
+                    'other': 'Other Format'
+                };
+
+                const formatDisplay = formatDisplayMap[request.visit_format] || 'Not specified';
+
+                // Format educational focus display
+                const focusDisplayMap = {
+                    'seeing_real_world_science': 'Real World Science Examples',
+                    'hands_on_permaculture': 'Hands-on Permaculture',
+                    'balanced_mix': 'Balanced Mix',
+                    'other': 'Other Focus'
+                };
+
+                const focusDisplay = focusDisplayMap[request.educational_focus] || request.educational_focus || 'Focus TBD';
+
+                // Smart status display with date awareness
+                function getStatusDisplay(request) {
+                    const visitDate = new Date(request.preferred_date);
+                    const today = new Date();
+
+                    if (request.status === 'scheduled' && visitDate < today) {
+                        return request.status === 'completed' ? 'completed' : 'overdue';
+                    }
+                    return request.status;
+                }
+
+                return `
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="school-info">
+                                <h4>${request.school_name}</h4>
+                                <div class="school-details">
+                                    ${request.contact_name || 'Contact TBD'}<br>
+                                    ${request.contact_email}
+                                </div>
+                            </div>
+                            <div class="visit-info">
+                                <div class="visit-date" style="font-size: 1.1rem; font-weight: bold; color: #1565c0;">
+                                    📅 ${visitDate}
+                                </div>
+                                <div class="visit-format">${request.student_count || 0} students</div>
+                                <div class="visit-format">${request.visit_duration || 'Duration TBD'}</div>
+                            </div>
+                            <div class="visit-details-column">
+                                <div class="visit-participants">${request.student_count || 0} students, ${request.teacher_count || 0} teachers</div>
+                                <div class="format-badge">${formatDisplay}</div>
+                                <div class="focus-badge">${focusDisplay}</div>
+                                ${request.lunch_needs && request.lunch_needs !== 'none' ? `<div class="lunch-badge">🍽️ ${request.lunch_needs}</div>` : ''}
+                            </div>
+                            <div class="status-actions-column">
+                                <span class="status-badge status-${getStatusDisplay(request)}">${getStatusDisplay(request)}</span>
+                                ${request.invoice_status === 'not-invoiced' && request.status === 'completed' ?
+                                    '<div class="invoice-needed">💰 Needs Invoice</div>' : ''
+                                }
+                                ${request.invoice_status === 'invoiced' ?
+                                    '<div class="invoice-status">✅ Invoiced</div>' : ''
+                                }
+                                <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                                    Submitted: ${submittedDate}
+                                </div>
+                                <div class="request-actions" style="margin-top: 0.5rem;">
+                                    <button class="btn btn-primary btn-sm" onclick="toggleDetails('${request.id}')">
+                                        Details
+                                    </button>
+                                    ${request.status === 'completed' && request.invoice_status === 'not-invoiced' ?
+                                        `<button class="btn btn-warning btn-sm" onclick="generateInvoice('${request.id}')" style="background: #ffc107; color: #000;">
+                                            💰 Invoice
+                                        </button>` : ''
+                                    }
+                                    ${request.status === 'pending' ?
+                                        `<button class="btn btn-success btn-sm" onclick="updateStatus('${request.id}', 'approved')">
+                                            Approve
+                                        </button>` : ''
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="request-details" id="details-${request.id}">
+                            <div class="details-grid">
+                                <div class="detail-group">
+                                    <h5>Contact Information</h5>
+                                    <p><strong>Lead Teacher:</strong> ${request.lead_teacher_contact}</p>
+                                    <p><strong>Email:</strong> ${request.contact_email}</p>
+                                    <p><strong>Entity:</strong> ${request.school_name}</p>
+                                    <p><strong>Country:</strong> ${request.country_of_origin || 'Not specified'}</p>
+                                </div>
+
+                                <div class="detail-group">
+                                    <h5>Visit Details</h5>
+                                    <p><strong>Students:</strong> ${request.number_of_students}</p>
+                                    ${request.number_of_adults ? `<p><strong>Adults:</strong> ${request.number_of_adults}</p>` : ''}
+                                    <p><strong>Preferred Dates:</strong> ${request.potential_visit_dates || 'Flexible'}</p>
+                                    ${request.preferred_language ? `<p><strong>Language:</strong> ${request.preferred_language}</p>` : ''}
+                                </div>
+
+                                <div class="detail-group">
+                                    <h5>Visit Preferences</h5>
+                                    <p><strong>Format:</strong> ${formatDisplay}</p>
+                                    ${request.visit_format_other ? `<p><strong>Other Format:</strong> ${request.visit_format_other}</p>` : ''}
+                                    <p><strong>Educational Focus:</strong> ${focusDisplay}</p>
+                                    ${request.educational_focus_other ? `<p><strong>Other Focus:</strong> ${request.educational_focus_other}</p>` : ''}
+                                </div>
+
+                                ${selectedWorkshops.length > 0 ? `
+                                <div class="detail-group">
+                                    <h5>Selected Workshops</h5>
+                                    <ul class="workshops-list">
+                                        ${selectedWorkshops.map(workshop => `<li>${workshop}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                ` : ''}
+
+                                <div class="detail-group">
+                                    <h5>Additional Information</h5>
+                                    ${request.food_preferences && request.food_preferences.length > 0 ? `<p><strong>Food Preferences:</strong> ${request.food_preferences.join(', ')}</p>` : ''}
+                                    ${request.additional_comments ? `<p><strong>Comments:</strong> ${request.additional_comments}</p>` : ''}
+                                </div>
+
+                                ${request.internal_notes ? `
+                                <div class="detail-group">
+                                    <h5>Internal Notes</h5>
+                                    <p>${request.internal_notes}</p>
+                                </div>
+                                ` : ''}
+                            </div>
+
+                            <div class="status-actions">
+                                <button class="btn btn-warning btn-sm" onclick="updateStatus('${request.id}', 'reviewing')">
+                                    Mark as Reviewing
+                                </button>
+                                <button class="btn btn-success btn-sm" onclick="updateStatus('${request.id}', 'approved')">
+                                    Approve Request
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="updateStatus('${request.id}', 'scheduled')">
+                                    Mark as Scheduled
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="updateStatus('${request.id}', 'cancelled')">
+                                    Cancel Request
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="generateInvoice('${request.id}')">
+                                    📄 Generate Invoice
+                                </button>
+                                <button class="btn btn-warning btn-sm" onclick="addInternalNote('${request.id}')">
+                                    📝 Add Note
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getWorkshopNames(workshopIds) {
+                return workshopIds.map(id => {
+                    const workshop = this.allWorkshops.find(w => w.id === id);
+                    return workshop ? workshop.title : `Workshop ${id}`;
+                });
+            }
+
+            setupFilters() {
+                const filters = ['statusFilter', 'schoolFilter', 'countryFilter', 'formatFilter'];
+                filters.forEach(filterId => {
+                    document.getElementById(filterId).addEventListener('change', () => {
+                        this.applyFilters();
+                    });
+                });
+            }
+
+            applyFilters() {
+                const status = document.getElementById('statusFilter').value;
+                const school = document.getElementById('schoolFilter').value;
+                const country = document.getElementById('countryFilter').value;
+                const format = document.getElementById('formatFilter').value;
+
+                let filtered = this.allRequests;
+
+                if (status) {
+                    filtered = filtered.filter(r => r.status === status);
+                }
+
+                if (school) {
+                    filtered = filtered.filter(r => r.school_name === school);
+                }
+
+                if (country) {
+                    filtered = filtered.filter(r => r.country_of_origin === country);
+                }
+
+                if (format) {
+                    filtered = filtered.filter(r => r.visit_format === format);
+                }
+
+                this.renderRequests(filtered);
+            }
+
+            showError(message) {
+                document.getElementById('requestsList').innerHTML =
+                    `<div class="error-message">${message}</div>`;
+            }
+        }
+
+        // Global functions for button clicks
+        function toggleDetails(requestId) {
+            const details = document.getElementById(`details-${requestId}`);
+            details.classList.toggle('expanded');
+        }
+
+        async function updateStatus(requestId, newStatus) {
+            try {
+                const { error } = await supabaseClient
+                    .from('visits')
+                    .update({ status: newStatus })
+                    .eq('id', requestId);
+
+                if (error) throw error;
+
+                // Refresh the display
+                location.reload();
+            } catch (error) {
+                console.error('Error updating status:', error);
+                alert('Failed to update status');
+            }
+        }
+
+        function generateInvoice(requestId) {
+            // Redirect to invoice generator with pre-selected visit
+            window.open(`invoice-generator.html?visit=${requestId}`, '_blank');
+        }
+
+        async function addInternalNote(requestId) {
+            const note = prompt('Enter internal note:');
+            if (!note) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('visits')
+                    .update({ internal_notes: note })
+                    .eq('id', requestId);
+
+                if (error) throw error;
+
+                location.reload();
+            } catch (error) {
+                console.error('Error adding note:', error);
+                alert('Failed to add note');
+            }
+        }
+
+        function generateInvoice(requestId) {
+            // Navigate to invoice generation page
+            window.location.href = `invoices.html?request=${requestId}`;
+        }
+
+        function applyFilters() {
+            if (window.visitRequestsManager) {
+                window.visitRequestsManager.applyFilters();
+            }
+        }
+
+        function refreshRequests() {
+            location.reload();
+        }
+
+        function exportRequests() {
+            // TODO: Implement CSV export
+            alert('Export functionality coming soon!');
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof supabaseClient === 'undefined') {
+                console.error('❌ Supabase client not loaded');
+                return;
+            }
+
+            window.visitRequestsManager = new VisitRequestsManager();
+        });
+    </script>
+</body>
+</html>

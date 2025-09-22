@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head><title>Activities Test</title></head>
+<body>
+<h1>Activities Database Test</h1>
+<div id="results">Testing...</div>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script>
+setTimeout(async () => {
+  try {
+    if (!window.supabaseClient) throw new Error("No supabase client");
+    
+    const {data, error} = await window.supabaseClient
+      .from("activities")
+      .select("id, title, activity_type_id")
+      .limit(10);
+    
+    if (error) {
+      document.getElementById("results").innerHTML = "❌ Activities error: " + error.message;
+    } else {
+      let html = "✅ Found " + (data?.length || 0) + " activities<br>";
+      if (data) {
+        data.forEach(activity => {
+          html += "- " + activity.title + "<br>";
+        });
+      }
+      document.getElementById("results").innerHTML = html;
+    }
+  } catch(e) {
+    document.getElementById("results").innerHTML = "❌ Error: " + e.message;
+  }
+}, 2000);
+</script>
+</body>
+</html>

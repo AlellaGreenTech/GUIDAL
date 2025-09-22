@@ -1,136 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Connection Test</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .test { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .success { background-color: #d4edda; color: #155724; }
-        .error { background-color: #f8d7da; color: #721c24; }
-        .info { background-color: #d1ecf1; color: #0c5460; }
-        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
-    </style>
-</head>
+<html>
+<head><title>DB Test</title></head>
 <body>
-    <h1>GUIDAL Database Connection Test</h1>
-
-    <div id="test-results"></div>
-
-    <button onclick="runTests()">Run Tests</button>
-
-    <!-- Supabase JavaScript Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- GUIDAL Database Client -->
-    <script src="js/supabase-client.js"></script>
-
-    <script>
-        async function runTests() {
-            const resultsDiv = document.getElementById('test-results');
-            resultsDiv.innerHTML = '';
-
-            function addResult(message, type = 'info') {
-                const div = document.createElement('div');
-                div.className = `test ${type}`;
-                div.innerHTML = message;
-                resultsDiv.appendChild(div);
-            }
-
-            // Test 1: Check if Supabase is loaded
-            addResult('Test 1: Checking Supabase client...', 'info');
-            if (typeof window.supabase !== 'undefined') {
-                addResult('✅ Supabase client is loaded', 'success');
-            } else {
-                addResult('❌ Supabase client not loaded', 'error');
-                return;
-            }
-
-            // Test 2: Check if GuidalDB is available
-            addResult('Test 2: Checking GuidalDB...', 'info');
-            if (typeof window.GuidalDB !== 'undefined') {
-                addResult('✅ GuidalDB class is available', 'success');
-            } else {
-                addResult('❌ GuidalDB class not found', 'error');
-                return;
-            }
-
-            // Test 3: Test basic connection
-            addResult('Test 3: Testing database connection...', 'info');
-            try {
-                const connected = await GuidalDB.testConnection();
-                if (connected) {
-                    addResult('✅ Database connection successful', 'success');
-                } else {
-                    addResult('❌ Database connection failed', 'error');
-                }
-            } catch (error) {
-                addResult(`❌ Connection error: ${error.message}`, 'error');
-            }
-
-            // Test 4: Check activity types
-            addResult('Test 4: Checking activity types...', 'info');
-            try {
-                const query = window.supabase.createClient(
-                    'https://lmsuyhzcmgdpjynosxvp.supabase.co',
-                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U'
-                );
-
-                const { data: types, error: typesError } = await query
-                    .from('activity_types')
-                    .select('*');
-
-                if (typesError) {
-                    addResult(`❌ Activity types error: ${typesError.message}`, 'error');
-                } else {
-                    addResult(`✅ Found ${types.length} activity types`, 'success');
-                    addResult(`<pre>${JSON.stringify(types, null, 2)}</pre>`, 'info');
-                }
-            } catch (error) {
-                addResult(`❌ Activity types test failed: ${error.message}`, 'error');
-            }
-
-            // Test 5: Check activities count
-            addResult('Test 5: Checking activities count...', 'info');
-            try {
-                const query = window.supabase.createClient(
-                    'https://lmsuyhzcmgdpjynosxvp.supabase.co',
-                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U'
-                );
-
-                const { data: activities, error: activitiesError } = await query
-                    .from('activities')
-                    .select('id, title, status');
-
-                if (activitiesError) {
-                    addResult(`❌ Activities query error: ${activitiesError.message}`, 'error');
-                } else {
-                    addResult(`✅ Found ${activities.length} activities in database`, 'success');
-                    addResult(`<pre>${JSON.stringify(activities.slice(0, 3), null, 2)}</pre>`, 'info');
-                }
-            } catch (error) {
-                addResult(`❌ Activities test failed: ${error.message}`, 'error');
-            }
-
-            // Test 6: Test the getActivities function
-            addResult('Test 6: Testing getActivities function...', 'info');
-            try {
-                const activities = await GuidalDB.getActivities();
-                addResult(`✅ getActivities returned ${activities.length} activities`, 'success');
-                if (activities.length > 0) {
-                    addResult(`<pre>First activity: ${JSON.stringify(activities[0], null, 2)}</pre>`, 'info');
-                }
-            } catch (error) {
-                addResult(`❌ getActivities failed: ${error.message}`, 'error');
-                console.error('getActivities error details:', error);
-            }
-        }
-
-        // Auto-run tests when page loads
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(runTests, 1000);
-        });
-    </script>
+<h1>Database Test</h1>
+<div id="results">Testing...</div>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script>
+setTimeout(async () => {
+  try {
+    if (!window.supabaseClient) throw new Error("No client");
+    const {data, error} = await window.supabaseClient.from("visit_requests").select("id").limit(1);
+    document.getElementById("results").innerHTML = error ? 
+      "❌ visit_requests table missing: " + error.message : 
+      "✅ visit_requests table exists";
+  } catch(e) {
+    document.getElementById("results").innerHTML = "❌ Error: " + e.message;
+  }
+}, 2000);
+</script>
 </body>
 </html>

@@ -28,9 +28,11 @@
                 <li><a href="pages/science-in-action-examples.html">Science-in-Action</a></li>
                 <li><a href="#activities">Activities</a></li>
                 <li><a href="pages/kits.html">Kits</a></li>
+                <li><a href="pages/visit-planning.html">Plan Visit</a></li>
                 <li><a href="pages/follow-post.html">Follow & Share</a></li>
                 <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
                 <li><a href="pages/auth/login.html" class="login-btn">Login/Register</a></li>
+                <li><a href="admin/index.html" class="admin-btn" style="color: #666; font-size: 0.9rem;">🛡️ Admin</a></li>
             </ul>
         </div>
     </nav>
@@ -72,7 +74,7 @@
             </div>
 
             <!-- Activities Card -->
-            <div class="mobile-card activities-card" id="activities">
+            <div class="mobile-card activities-card" id="activities" style="margin-top: 1rem;">
                 <div class="card-header" onclick="toggleCard('activities')">
                     <div class="card-icon">📅</div>
                     <div class="card-title">
@@ -81,21 +83,22 @@
                     </div>
                     <div class="card-chevron">›</div>
                 </div>
+
+                <!-- Search moved up to reduce white space -->
+                <div class="search-container" style="padding: 1rem; border-bottom: 1px solid #eee;">
+                    <input type="text" id="activity-search" placeholder="Search activities..." class="search-input">
+                    <select id="activity-filter" class="filter-select">
+                        <option value="all">All Activities</option>
+                        <option value="school-visits">School Visits</option>
+                        <option value="workshops">Workshops</option>
+                        <option value="lunches">Special Lunches</option>
+                    </select>
+                </div>
+
                 <div class="card-content" id="activities-content">
-                    <div class="activities-section">
-                        <div class="search-container">
-                            <input type="text" id="activity-search" placeholder="Search activities..." class="search-input">
-                            <select id="activity-filter" class="filter-select">
-                                <option value="all">All Activities</option>
-                                <option value="school-visits">School Visits</option>
-                                <option value="workshops">Workshops</option>
-                                <option value="lunches">Special Lunches</option>
-                            </select>
-                        </div>
-            
-            <div class="activity-cards" id="activity-grid">
-                <!-- Activities will be loaded dynamically from database -->
-            </div>
+                    <div class="activity-cards" id="activity-grid">
+                        <!-- Activities will be loaded dynamically from database -->
+                    </div>
                 </div>
             </div>
 

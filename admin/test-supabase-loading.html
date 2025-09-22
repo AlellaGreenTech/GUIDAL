@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Supabase Loading Test</title>
+</head>
+<body>
+    <h1>Admin Supabase Loading Test</h1>
+    <div id="status">Testing...</div>
+
+    <!-- Load scripts exactly like admin/auth.html -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔍 Testing Supabase loading sequence...');
+
+            function checkSupabase() {
+                const status = document.getElementById('status');
+
+                console.log('window.supabase:', typeof window.supabase);
+                console.log('window.supabaseClient:', typeof window.supabaseClient);
+
+                if (typeof window.supabase === 'undefined') {
+                    status.innerHTML = '❌ Supabase library not loaded';
+                    console.error('❌ Supabase library not loaded');
+                    return;
+                }
+
+                if (typeof window.supabaseClient === 'undefined') {
+                    status.innerHTML = '⏳ Supabase library loaded, waiting for client...';
+                    console.log('⏳ Supabase library loaded, waiting for client...');
+                    setTimeout(checkSupabase, 100);
+                    return;
+                }
+
+                // Both loaded successfully
+                status.innerHTML = '✅ Both Supabase library and client loaded successfully!';
+                console.log('✅ Both Supabase library and client loaded successfully!');
+
+                // Test a simple operation
+                window.supabaseClient.from('user_profiles')
+                    .select('count', { count: 'exact', head: true })
+                    .then(({ error, count }) => {
+                        if (error) {
+                            status.innerHTML += '<br>❌ Database test failed: ' + error.message;
+                            console.log('❌ Database test failed:', error.message);
+                        } else {
+                            status.innerHTML += '<br>✅ Database connection works!';
+                            console.log('✅ Database connection works!');
+                        }
+                    });
+            }
+
+            checkSupabase();
+        });
+    </script>
+</body>
+</html>

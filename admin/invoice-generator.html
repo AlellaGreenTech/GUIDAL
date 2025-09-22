@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator - GUIDAL Admin</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .admin-nav {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .admin-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .admin-nav a {
+            text-decoration: none;
+            color: #495057;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav a:hover,
+        .admin-nav a.active {
+            background: #1565c0;
+            color: white;
+        }
+
+        .invoice-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .visit-selector {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .invoice-preview {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 2rem;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .visit-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .visit-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-color: #1565c0;
+        }
+
+        .visit-card.selected {
+            border-color: #1565c0;
+            background: #e3f2fd;
+        }
+
+        .visit-card h4 {
+            margin: 0 0 0.5rem 0;
+            color: #1565c0;
+        }
+
+        .visit-details {
+            font-size: 0.9rem;
+            color: #666;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            width: fit-content;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-needs-invoice {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .invoice-header {
+            border-bottom: 2px solid #1565c0;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .invoice-header h2 {
+            margin: 0;
+            color: #1565c0;
+        }
+
+        .invoice-header .invoice-number {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .invoice-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .invoice-section h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .pricing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .pricing-table th,
+        .pricing-table td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .pricing-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .pricing-table .amount {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .total-section {
+            border-top: 2px solid #1565c0;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+        }
+
+        .total-row.final {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1565c0;
+            border-top: 1px solid #dee2e6;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #1565c0;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0d47a1;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-block {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .form-group select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 1024px) {
+            .invoice-container {
+                grid-template-columns: 1fr;
+            }
+
+            .invoice-preview {
+                position: static;
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .visit-details {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        @media print {
+            .admin-header,
+            .admin-nav,
+            .visit-selector,
+            .btn,
+            body > *:not(.invoice-preview) {
+                display: none !important;
+            }
+
+            .invoice-preview {
+                position: static !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .invoice-container {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="container">
+            <h1>💰 Invoice Generator</h1>
+            <p>Generate invoices for completed visits and events</p>
+        </div>
+    </div>
+
+    <nav class="admin-nav">
+        <div class="container">
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="visits.html">Visits</a></li>
+                <li><a href="events-management.html">Events & Workshops</a></li>
+                <li><a href="pricing-management.html">Pricing</a></li>
+                <li><a href="invoice-generator.html" class="active">Invoice Generator</a></li>
+                <li><a href="../index.html">Back to Site</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="invoice-container">
+            <!-- Visit Selector -->
+            <div class="visit-selector">
+                <h3>🏫 Select Visit to Invoice</h3>
+
+                <!-- Filters -->
+                <div class="filter-section">
+                    <div class="filter-grid">
+                        <div class="form-group">
+                            <label for="statusFilter">Status Filter</label>
+                            <select id="statusFilter">
+                                <option value="needs-invoice">Needs Invoice</option>
+                                <option value="completed">All Completed</option>
+                                <option value="all">All Visits</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="typeFilter">Visit Type</label>
+                            <select id="typeFilter">
+                                <option value="all">All Types</option>
+                                <option value="school-visit">School Visits</option>
+                                <option value="workshop">Workshops</option>
+                                <option value="special-lunch">Special Lunches</option>
+                                <option value="family-visit">Family Visits</option>
+                                <option value="corporate-visit">Corporate Events</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visit List -->
+                <div id="visitsList">
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        Loading visits...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invoice Preview -->
+            <div class="invoice-preview">
+                <div id="invoiceContent">
+                    <div style="text-align: center; padding: 3rem; color: #666;">
+                        Select a visit to generate invoice
+                    </div>
+                </div>
+
+                <div id="invoiceActions" style="display: none;">
+                    <button class="btn btn-primary btn-block" onclick="printInvoice()">🖨️ Print Invoice</button>
+                    <button class="btn btn-success btn-block" onclick="markAsInvoiced()">✅ Mark as Invoiced</button>
+                    <button class="btn btn-primary btn-block" onclick="downloadPDF()">📄 Download PDF</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        class InvoiceGenerator {
+            constructor() {
+                this.selectedVisit = null;
+                this.pricingData = null;
+                this.init();
+            }
+
+            async init() {
+                console.log('💰 Initializing Invoice Generator...');
+                await this.loadPricingData();
+                await this.loadVisits();
+                this.setupEventHandlers();
+
+                // Check for pre-selected visit from URL parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const visitId = urlParams.get('visit');
+                if (visitId && this.visitsData && this.visitsData[visitId]) {
+                    this.selectVisit(visitId);
+                }
+            }
+
+            async loadPricingData() {
+                try {
+                    // Load standard pricing
+                    const { data: standardPricing } = await supabaseClient
+                        .from('pricing')
+                        .select('*')
+                        .single();
+
+                    // Load pricing tiers
+                    const { data: pricingTiers } = await supabaseClient
+                        .from('pricing_tiers')
+                        .select('*')
+                        .eq('is_active', true);
+
+                    // Load school overrides
+                    const { data: schoolPricing } = await supabaseClient
+                        .from('school_pricing')
+                        .select('*');
+
+                    this.pricingData = {
+                        standard: standardPricing,
+                        tiers: pricingTiers || [],
+                        schools: schoolPricing || []
+                    };
+
+                    console.log('✅ Pricing data loaded');
+                } catch (error) {
+                    console.error('Error loading pricing data:', error);
+                }
+            }
+
+            async loadVisits() {
+                try {
+                    const statusFilter = document.getElementById('statusFilter').value;
+                    const typeFilter = document.getElementById('typeFilter').value;
+
+                    let query = supabaseClient
+                        .from('visits')
+                        .select('*')
+                        .order('preferred_date', { ascending: false });
+
+                    // Apply status filter
+                    if (statusFilter === 'needs-invoice') {
+                        query = query.eq('status', 'completed').eq('invoice_status', 'not-invoiced');
+                    } else if (statusFilter === 'completed') {
+                        query = query.eq('status', 'completed');
+                    }
+
+                    // Apply type filter
+                    if (typeFilter !== 'all') {
+                        query = query.eq('visit_type', typeFilter);
+                    }
+
+                    const { data: visits, error } = await query;
+
+                    if (error) throw error;
+
+                    this.renderVisitsList(visits);
+
+                } catch (error) {
+                    console.error('Error loading visits:', error);
+                    document.getElementById('visitsList').innerHTML =
+                        '<div style="text-align: center; color: #721c24; background: #f8d7da; padding: 1rem; border-radius: 4px;">Error loading visits</div>';
+                }
+            }
+
+            renderVisitsList(visits) {
+                const container = document.getElementById('visitsList');
+
+                if (!visits || visits.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666;">No visits found for the selected filters.</p>';
+                    return;
+                }
+
+                const html = visits.map(visit => `
+                    <div class="visit-card" onclick="selectVisit('${visit.id}')" data-visit-id="${visit.id}">
+                        <h4>${this.getVisitTypeIcon(visit.visit_type)} ${visit.school_name}</h4>
+                        <div class="visit-details">
+                            <div><strong>Contact:</strong> ${visit.contact_name}</div>
+                            <div><strong>Date:</strong> ${new Date(visit.preferred_date).toLocaleDateString()}</div>
+                            <div><strong>Participants:</strong> ${visit.student_count + (visit.teacher_count || 0)}</div>
+                            <div><strong>Type:</strong> ${this.getVisitTypeLabel(visit.visit_type)}</div>
+                        </div>
+                        <div style="margin-top: 0.5rem;">
+                            <span class="status-badge ${visit.invoice_status === 'not-invoiced' ? 'status-needs-invoice' : 'status-completed'}">
+                                ${visit.invoice_status === 'not-invoiced' ? 'Needs Invoice' : 'Invoiced'}
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+
+                container.innerHTML = html;
+
+                // Store visits data for selection
+                this.visitsData = visits.reduce((acc, visit) => {
+                    acc[visit.id] = visit;
+                    return acc;
+                }, {});
+            }
+
+            getVisitTypeIcon(visitType) {
+                const icons = {
+                    'school-visit': '🏫',
+                    'workshop': '🔬',
+                    'special-lunch': '🍽️',
+                    'family-visit': '👨‍👩‍👧‍👦',
+                    'corporate-visit': '🏢',
+                    'individual-visit': '👤',
+                    'homeschool-visit': '🏠'
+                };
+                return icons[visitType] || '📋';
+            }
+
+            getVisitTypeLabel(visitType) {
+                const labels = {
+                    'school-visit': 'School Visit',
+                    'workshop': 'Workshop',
+                    'special-lunch': 'Special Lunch',
+                    'family-visit': 'Family Visit',
+                    'corporate-visit': 'Corporate Event',
+                    'individual-visit': 'Individual Visit',
+                    'homeschool-visit': 'Homeschool Visit'
+                };
+                return labels[visitType] || visitType;
+            }
+
+            selectVisit(visitId) {
+                // Remove previous selection
+                document.querySelectorAll('.visit-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+
+                // Add selection to clicked card
+                document.querySelector(`[data-visit-id="${visitId}"]`).classList.add('selected');
+
+                // Store selected visit
+                this.selectedVisit = this.visitsData[visitId];
+
+                // Generate invoice
+                this.generateInvoice();
+            }
+
+            generateInvoice() {
+                if (!this.selectedVisit) return;
+
+                const visit = this.selectedVisit;
+                const pricing = this.calculatePricing(visit);
+
+                const invoiceNumber = `INV-${visit.id.substring(0, 8).toUpperCase()}-${new Date().getFullYear()}`;
+                const invoiceDate = new Date().toLocaleDateString();
+
+                const html = `
+                    <div class="invoice-header">
+                        <h2>INVOICE</h2>
+                        <div class="invoice-number">Invoice #: ${invoiceNumber}</div>
+                        <div class="invoice-number">Date: ${invoiceDate}</div>
+                    </div>
+
+                    <div class="invoice-section">
+                        <h3>From:</h3>
+                        <strong>Alella Green Tech Foundation</strong><br>
+                        International Green Tech Foundation<br>
+                        Alella, Spain<br>
+                        Email: info@alellagreentech.org
+                    </div>
+
+                    <div class="invoice-section">
+                        <h3>To:</h3>
+                        <strong>${visit.school_name}</strong><br>
+                        Contact: ${visit.contact_name}<br>
+                        Email: ${visit.contact_email}<br>
+                        ${visit.contact_phone ? `Phone: ${visit.contact_phone}<br>` : ''}
+                    </div>
+
+                    <div class="invoice-section">
+                        <h3>Visit Details:</h3>
+                        <strong>${this.getVisitTypeIcon(visit.visit_type)} ${this.getVisitTypeLabel(visit.visit_type)}</strong><br>
+                        Date: ${new Date(visit.preferred_date).toLocaleDateString()}<br>
+                        Duration: ${visit.visit_duration}<br>
+                        Educational Focus: ${visit.educational_focus || 'General'}
+                    </div>
+
+                    <table class="pricing-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th class="amount">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${pricing.lineItems.map(item => `
+                                <tr>
+                                    <td>${item.description}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>€${item.unitPrice.toFixed(2)}</td>
+                                    <td class="amount">€${item.total.toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="total-section">
+                        <div class="total-row">
+                            <span>Subtotal:</span>
+                            <span>€${pricing.subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>VAT (${pricing.vatRate}%):</span>
+                            <span>€${pricing.vatAmount.toFixed(2)}</span>
+                        </div>
+                        <div class="total-row final">
+                            <span>Total:</span>
+                            <span>€${pricing.total.toFixed(2)}</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem; font-size: 0.9rem; color: #666;">
+                        <p><strong>Payment Terms:</strong> Net 30 days</p>
+                        <p><strong>Notes:</strong> ${visit.additional_requests || 'Thank you for visiting Alella Green Tech!'}</p>
+                    </div>
+                `;
+
+                document.getElementById('invoiceContent').innerHTML = html;
+                document.getElementById('invoiceActions').style.display = 'block';
+            }
+
+            calculatePricing(visit) {
+                const lineItems = [];
+                let subtotal = 0;
+
+                // Find applicable pricing tier
+                const tier = this.pricingData.tiers.find(t =>
+                    t.visit_type === visit.visit_type &&
+                    (t.visit_format === visit.visit_format || !t.visit_format)
+                );
+
+                // Check for school-specific pricing
+                const schoolPricing = this.pricingData.schools.find(s =>
+                    s.school_name === visit.school_name
+                );
+
+                // Determine pricing rates
+                const rates = schoolPricing || tier || this.pricingData.standard;
+
+                if (!rates) {
+                    console.error('No pricing rates found');
+                    return { lineItems: [], subtotal: 0, vatAmount: 0, total: 0, vatRate: 21 };
+                }
+
+                // Calculate visit fees
+                if (visit.student_count > 0) {
+                    const childPrice = rates.child_visit_price || rates.price_per_child || 15;
+                    const childTotal = visit.student_count * childPrice;
+                    lineItems.push({
+                        description: `Visit - Children (${visit.student_count} participants)`,
+                        quantity: visit.student_count,
+                        unitPrice: childPrice,
+                        total: childTotal
+                    });
+                    subtotal += childTotal;
+                }
+
+                if (visit.teacher_count > 0) {
+                    const adultPrice = rates.adult_visit_price || rates.price_per_adult || 25;
+                    const adultTotal = visit.teacher_count * adultPrice;
+                    lineItems.push({
+                        description: `Visit - Adults (${visit.teacher_count} participants)`,
+                        quantity: visit.teacher_count,
+                        unitPrice: adultPrice,
+                        total: adultTotal
+                    });
+                    subtotal += adultTotal;
+                }
+
+                // Calculate meal fees if applicable
+                if (visit.lunch_needs && visit.lunch_needs !== 'none' && visit.lunch_needs !== 'own_lunch') {
+                    const childMealPrice = rates.child_meal_price || rates.meal_price_child || 8;
+                    const adultMealPrice = rates.adult_meal_price || rates.meal_price_adult || 12;
+
+                    if (visit.student_count > 0) {
+                        const childMealTotal = visit.student_count * childMealPrice;
+                        lineItems.push({
+                            description: `Meals - Children (${visit.lunch_needs})`,
+                            quantity: visit.student_count,
+                            unitPrice: childMealPrice,
+                            total: childMealTotal
+                        });
+                        subtotal += childMealTotal;
+                    }
+
+                    if (visit.teacher_count > 0) {
+                        const adultMealTotal = visit.teacher_count * adultMealPrice;
+                        lineItems.push({
+                            description: `Meals - Adults (${visit.lunch_needs})`,
+                            quantity: visit.teacher_count,
+                            unitPrice: adultMealPrice,
+                            total: adultMealTotal
+                        });
+                        subtotal += adultMealTotal;
+                    }
+                }
+
+                // Calculate VAT
+                const vatRate = rates.vat_rate || this.pricingData.standard?.vat_rate || 21;
+                const vatAmount = subtotal * (vatRate / 100);
+                const total = subtotal + vatAmount;
+
+                return {
+                    lineItems,
+                    subtotal,
+                    vatAmount,
+                    total,
+                    vatRate
+                };
+            }
+
+            setupEventHandlers() {
+                document.getElementById('statusFilter').addEventListener('change', () => {
+                    this.loadVisits();
+                });
+
+                document.getElementById('typeFilter').addEventListener('change', () => {
+                    this.loadVisits();
+                });
+            }
+
+            async markAsInvoiced() {
+                if (!this.selectedVisit) return;
+
+                try {
+                    const { error } = await supabaseClient
+                        .from('visits')
+                        .update({
+                            invoice_status: 'invoiced',
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', this.selectedVisit.id);
+
+                    if (error) throw error;
+
+                    alert('✅ Visit marked as invoiced!');
+                    await this.loadVisits();
+
+                    // Clear selection
+                    this.selectedVisit = null;
+                    document.getElementById('invoiceContent').innerHTML =
+                        '<div style="text-align: center; padding: 3rem; color: #666;">Select a visit to generate invoice</div>';
+                    document.getElementById('invoiceActions').style.display = 'none';
+
+                } catch (error) {
+                    console.error('Error marking as invoiced:', error);
+                    alert('❌ Error updating invoice status');
+                }
+            }
+        }
+
+        // Global functions for onclick handlers
+        let invoiceGenerator;
+
+        function selectVisit(visitId) {
+            invoiceGenerator.selectVisit(visitId);
+        }
+
+        function printInvoice() {
+            window.print();
+        }
+
+        function markAsInvoiced() {
+            invoiceGenerator.markAsInvoiced();
+        }
+
+        function downloadPDF() {
+            // This would integrate with a PDF generation service
+            alert('PDF download functionality would be implemented here with a service like jsPDF or server-side PDF generation');
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof supabaseClient === 'undefined') {
+                console.error('❌ Supabase client not loaded');
+                return;
+            }
+
+            invoiceGenerator = new InvoiceGenerator();
+        });
+    </script>
+</body>
+</html>

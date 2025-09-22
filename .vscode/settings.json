@@ -1,20 +1,25 @@
 {
-    "liveServer.settings.port": 8001,
-    "liveServer.settings.CustomBrowser": "default",
-    "liveServer.settings.NoBrowser": false,
-    "liveServer.settings.ignoreFiles": [
-        ".vscode/**",
-        "**/*.scss",
-        "**/*.sass",
-        "**/*.ts"
+  "env": {
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": 64000
+  },
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "LS(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "MultiEdit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "Task(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "TodoWrite(*)",
+      "NotebookRead(*)",
+      "NotebookEdit(*)"
     ],
-    "liveServer.settings.donotVerifyTags": false,
-    "liveServer.settings.donotShowInfoMsg": false,
-    "liveServer.settings.host": "localhost",
-    "liveServer.settings.root": "./",
-    "liveServer.settings.mount": [
-        ["/", "./"]
-    ],
-    "liveServer.settings.file": "index.html",
-    "liveServer.settings.wait": 100
+    "deny": []
+  },
+  "model": "claude-opus-4-1-20250805"
 }

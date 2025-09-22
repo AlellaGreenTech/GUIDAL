@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Supabase Test</title>
+</head>
+<body>
+    <h1>Supabase Loading Test</h1>
+    <div id="result">Testing...</div>
+
+    <script>
+        console.log('🔍 Starting Supabase test...');
+
+        // Test 1: Try loading from primary CDN
+        const script1 = document.createElement('script');
+        script1.src = 'https://unpkg.com/@supabase/supabase-js@2';
+        script1.onload = function() {
+            console.log('✅ Supabase loaded from unpkg');
+            testSupabase();
+        };
+        script1.onerror = function() {
+            console.log('❌ Failed to load from unpkg, trying jsdelivr...');
+            loadFromJsdelivr();
+        };
+        document.head.appendChild(script1);
+
+        function loadFromJsdelivr() {
+            const script2 = document.createElement('script');
+            script2.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            script2.onload = function() {
+                console.log('✅ Supabase loaded from jsdelivr');
+                testSupabase();
+            };
+            script2.onerror = function() {
+                console.log('❌ Failed to load from both CDNs');
+                document.getElementById('result').innerHTML = '❌ Failed to load Supabase from any CDN';
+            };
+            document.head.appendChild(script2);
+        }
+
+        function testSupabase() {
+            if (window.supabase) {
+                console.log('✅ window.supabase available');
+
+                const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+
+                try {
+                    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('✅ Supabase client created');
+
+                    // Test connection
+                    client.from('user_profiles').select('count', { count: 'exact', head: true })
+                        .then(({ error, count }) => {
+                            if (error) {
+                                console.log('❌ Database test failed:', error.message);
+                                document.getElementById('result').innerHTML = `
+                                    ✅ Supabase loads successfully<br>
+                                    ❌ Database error: ${error.message}<br>
+                                    💡 This usually means tables don't exist yet
+                                `;
+                            } else {
+                                console.log('✅ Database connection works');
+                                document.getElementById('result').innerHTML = `
+                                    ✅ Supabase loads successfully<br>
+                                    ✅ Database connection works<br>
+                                    📊 Ready for admin access!
+                                `;
+                            }
+                        });
+                } catch (error) {
+                    console.log('❌ Client creation failed:', error);
+                    document.getElementById('result').innerHTML = `❌ Client creation failed: ${error.message}`;
+                }
+            } else {
+                console.log('❌ window.supabase not available');
+                document.getElementById('result').innerHTML = '❌ Supabase library loaded but window.supabase not available';
+            }
+        }
+    </script>
+</body>
+</html>
