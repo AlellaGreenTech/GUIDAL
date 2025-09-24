@@ -796,6 +796,31 @@ class VisitPlanningForm {
             }
         }
 
+        // Structure organizer contact data
+        data.organizerContact = {
+            name: data.organizerName || null,
+            email: data.organizerEmail || null,
+            phone: data.organizerPhone || null,
+            position: 'Trip Organizer',
+            type: 'organizer'
+        };
+
+        // Structure lead teacher contact data
+        data.leadTeacherContact = {
+            name: data.leadTeacherName || null,
+            email: data.leadTeacherEmail || null,
+            phone: data.leadTeacherPhone || null,
+            position: 'Lead Teacher',
+            type: 'lead_teacher'
+        };
+
+        // Structure school data
+        data.schoolData = {
+            name: data.schoolName || null,
+            city: data.city || null,
+            country: data.country || null
+        };
+
         // Handle language "other" option
         if (data.language === 'other' && data.languageOther) {
             data.preferredLanguage = data.languageOther;
@@ -820,6 +845,31 @@ class VisitPlanningForm {
         // Add selected workshops array
         data.selectedWorkshops = Array.from(this.selectedWorkshops);
 
+        // Handle overnight visit data
+        if (data.visitType === 'school_overnight') {
+            // Handle custom nights
+            if (data.numberOfNights === 'other' && data.customNights) {
+                data.numberOfNights = parseInt(data.customNights);
+            } else if (data.numberOfNights) {
+                data.numberOfNights = parseInt(data.numberOfNights);
+            }
+
+            // Format date-time fields for database
+            if (data.arrivalDateTime) {
+                data.arrivalDateTime = new Date(data.arrivalDateTime).toISOString();
+            }
+            if (data.departureDateTime) {
+                data.departureDateTime = new Date(data.departureDateTime).toISOString();
+            }
+        } else {
+            // Ensure overnight fields are null for non-overnight visits
+            data.numberOfNights = null;
+            data.arrivalDateTime = null;
+            data.departureDateTime = null;
+            data.accommodationNeeds = null;
+            data.accommodationSelection = null;
+        }
+
         // Add timestamp
         data.submittedAt = new Date().toISOString();
 
@@ -828,83 +878,275 @@ class VisitPlanningForm {
     }
 
     validateFormData(data) {
-        const requiredFields = [
-            'contactEmail',
-            'leadTeacher',
-            'schoolName',
-            'country',
-            'studentCount'
-        ];
+        const errors = [];
 
-        const missingFields = requiredFields.filter(field => !data[field] || String(data[field]).trim() === '');
+        // Core required fields validation
+        const coreFields = {
+            'leadTeacherContact.email': 'Lead teacher email',
+            'leadTeacherContact.name': 'Lead teacher name',
+            'schoolData.name': 'School/Organization name',
+            'schoolData.city': 'City',
+            'schoolData.country': 'Country',
+            'studentCount': 'Number of students',
+            'gradeLevel': 'Grade level',
+            'proposedVisitDate': 'Proposed visit date'
+        };
 
-        if (missingFields.length > 0) {
-            alert(`Please fill in the following required fields:\n- ${missingFields.join('\n- ')}`);
-            return false;
+        // Check core required fields
+        for (const [fieldPath, displayName] of Object.entries(coreFields)) {
+            const value = this.getNestedValue(data, fieldPath);
+            if (!value || String(value).trim() === '') {
+                errors.push(`${displayName} is required`);
+            }
         }
 
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(data.contactEmail)) {
-            alert('Please enter a valid email address.');
-            return false;
+        // Email validation
+        const leadTeacherEmail = data.leadTeacherContact?.email;
+        if (leadTeacherEmail) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(leadTeacherEmail)) {
+                errors.push('Please enter a valid lead teacher email address');
+            }
         }
 
-        // Validate student count
+        // Organizer email validation (if provided)
+        const organizerEmail = data.organizerContact?.email;
+        if (organizerEmail && organizerEmail.trim() !== '') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(organizerEmail)) {
+                errors.push('Please enter a valid organizer email address');
+            }
+            // If organizer email is provided, name should also be provided
+            if (!data.organizerContact?.name || data.organizerContact.name.trim() === '') {
+                errors.push('Organizer name is required when email is provided');
+            }
+        }
+
+        // Student count validation
         const studentCount = parseInt(data.studentCount);
-        if (studentCount < 1 || studentCount > 100) {
-            alert('Please enter a valid number of students (1-100).');
+        if (isNaN(studentCount) || studentCount < 1 || studentCount > 100) {
+            errors.push('Please enter a valid number of students (1-100)');
+        }
+
+        // Adult count validation (if provided)
+        const adultCount = data.adultCount;
+        if (adultCount && (parseInt(adultCount) < 0 || parseInt(adultCount) > 50)) {
+            errors.push('Number of adults must be between 0 and 50');
+        }
+
+        // Overnight visit specific validation
+        if (data.visitType === 'school_overnight') {
+            // Number of nights validation
+            if (!data.numberOfNights || data.numberOfNights === '') {
+                errors.push('Number of nights is required for overnight visits');
+            } else if (data.numberOfNights === 'other') {
+                const customNights = parseInt(data.customNights);
+                if (isNaN(customNights) || customNights < 1 || customNights > 30) {
+                    errors.push('Please enter a valid number of nights (1-30)');
+                }
+            }
+
+            // Date validation for overnight visits
+            if (data.arrivalDateTime && data.departureDateTime) {
+                const arrival = new Date(data.arrivalDateTime);
+                const departure = new Date(data.departureDateTime);
+                if (departure <= arrival) {
+                    errors.push('Departure date/time must be after arrival date/time');
+                }
+            }
+        }
+
+        // Visit format validation
+        if (data.visitFormat === 'other' && (!data.visitFormatOther || data.visitFormatOther.trim() === '')) {
+            errors.push('Please specify your preferred visit format when selecting "Other"');
+        }
+
+        // Educational focus validation
+        if (data.educationalFocus === 'other' && (!data.educationalFocusOther || data.educationalFocusOther.trim() === '')) {
+            errors.push('Please specify your educational focus when selecting "Other"');
+        }
+
+        // Language validation
+        if (data.language === 'other' && (!data.languageOther || data.languageOther.trim() === '')) {
+            errors.push('Please specify your preferred language when selecting "Other"');
+        }
+
+        // Display errors if any
+        if (errors.length > 0) {
+            const errorMessage = 'Please fix the following issues:\n\n• ' + errors.join('\n• ');
+            alert(errorMessage);
             return false;
         }
 
         return true;
     }
 
+    // Helper method to get nested object values
+    getNestedValue(obj, path) {
+        return path.split('.').reduce((current, key) => {
+            return current && current[key] !== undefined ? current[key] : null;
+        }, obj);
+    }
+
     async submitToDatabase(formData) {
         try {
-            // Create a visit request record in our database
-            const { data, error } = await supabaseClient
-                .from('visit_requests')
-                .insert([{
-                    contact_email: formData.contactEmail,
-                    lead_teacher_contact: formData.leadTeacher,
-                    school_name: formData.schoolName,
-                    country_of_origin: formData.country,
-                    potential_visit_dates: formData.visitDates || null,
-                    preferred_language: formData.preferredLanguage || null,
-                    number_of_students: parseInt(formData.studentCount),
-                    number_of_adults: parseInt(formData.adultCount) || null,
-                    visit_format: formData.visitFormat || null,
-                    visit_format_other: formData.visitFormatOther || null,
-                    educational_focus: formData.educationalFocus || null,
-                    educational_focus_other: formData.educationalFocusOther || null,
-                    selected_workshops: formData.selectedWorkshops || [],
-                    food_preferences: formData.food_preferences || [],
-                    additional_comments: formData.additionalComments || null,
-                    status: 'pending',
-                    submitted_at: formData.submittedAt
-                }])
-                .select();
+            console.log('🔄 Starting database submission with normalized schema...');
 
-            if (error) {
-                throw error;
+            // Step 1: Create or find school record
+            const { data: schoolData, error: schoolError } = await supabaseClient
+                .rpc('find_or_create_school', {
+                    school_name: formData.schoolData.name,
+                    school_city: formData.schoolData.city,
+                    school_country: formData.schoolData.country
+                });
+
+            if (schoolError) throw new Error(`School creation failed: ${schoolError.message}`);
+            const schoolId = schoolData;
+            console.log('✅ School ID:', schoolId);
+
+            // Step 2: Create organizer contact (if provided)
+            let organizerContactId = null;
+            if (formData.organizerContact.email) {
+                const { data: organizerData, error: organizerError } = await supabaseClient
+                    .rpc('find_or_create_contact', {
+                        contact_name: formData.organizerContact.name,
+                        contact_email: formData.organizerContact.email,
+                        contact_phone: formData.organizerContact.phone,
+                        contact_position: formData.organizerContact.position,
+                        contact_type: formData.organizerContact.type,
+                        contact_school_id: schoolId
+                    });
+
+                if (organizerError) throw new Error(`Organizer contact creation failed: ${organizerError.message}`);
+                organizerContactId = organizerData;
+                console.log('✅ Organizer Contact ID:', organizerContactId);
             }
 
-            console.log('✅ Visit request saved to database:', data);
+            // Step 3: Create lead teacher contact
+            const { data: teacherData, error: teacherError } = await supabaseClient
+                .rpc('find_or_create_contact', {
+                    contact_name: formData.leadTeacherContact.name,
+                    contact_email: formData.leadTeacherContact.email,
+                    contact_phone: formData.leadTeacherContact.phone,
+                    contact_position: formData.leadTeacherContact.position,
+                    contact_type: formData.leadTeacherContact.type,
+                    contact_school_id: schoolId
+                });
 
-            return { success: true, data: data[0] };
+            if (teacherError) throw new Error(`Lead teacher contact creation failed: ${teacherError.message}`);
+            const teacherContactId = teacherData;
+            console.log('✅ Lead Teacher Contact ID:', teacherContactId);
+
+            // Step 4: Process overnight data
+            let overnightData = {};
+            if (formData.visitType === 'school_overnight') {
+                // Handle custom nights
+                let nights = 0;
+                if (formData.numberOfNights === 'other' && formData.customNights) {
+                    nights = parseInt(formData.customNights);
+                } else if (formData.numberOfNights) {
+                    nights = parseInt(formData.numberOfNights);
+                }
+
+                overnightData = {
+                    number_of_nights: nights,
+                    arrival_date_time: formData.arrivalDateTime ? new Date(formData.arrivalDateTime).toISOString() : null,
+                    departure_date_time: formData.departureDateTime ? new Date(formData.departureDateTime).toISOString() : null,
+                    accommodation_selection: formData.accommodationSelection || null,
+                    accommodation_needs: formData.accommodationNeeds || null
+                };
+            }
+
+            // Step 5: Create visit record with actual database schema
+            const visitRecord = {
+                // Basic visit info - use actual column names from your DB
+                visit_type: formData.visitType || 'school_day_trip',
+
+                // Contact information (using your existing schema)
+                contact_name: formData.leadTeacherContact.name,
+                contact_email: formData.leadTeacherContact.email,
+                contact_phone: formData.leadTeacherContact.phone,
+                school_name: formData.schoolData.name,
+                country_of_origin: formData.schoolData.country,
+
+                // Add new fields we just added
+                city: formData.schoolData.city,
+                proposed_visit_date: formData.proposedVisitDate || null,
+                preferred_date: formData.proposedVisitDate || null, // Map proposed date to preferred_date
+                organizer_name: formData.organizerContact.name || null,
+                organizer_email: formData.organizerContact.email || null,
+                organizer_phone: formData.organizerContact.phone || null,
+                lead_teacher_phone: formData.leadTeacherContact.phone || null,
+
+                // Visit planning
+                potential_visit_dates: formData.visitDates || null,
+                preferred_language: formData.preferredLanguage || null,
+                student_count: parseInt(formData.studentCount),
+                teacher_count: parseInt(formData.adultCount) || null,
+                grade_level: formData.gradeLevel || 'Not specified',
+
+                // Overnight specific fields
+                ...overnightData,
+
+                // Visit format and educational focus
+                visit_format: formData.visitFormat || null,
+                visit_format_other: formData.visitFormatOther || null,
+                educational_focus: formData.educationalFocus || null,
+                educational_focus_other: formData.educationalFocusOther || null,
+
+                // Workshop and additional info
+                selected_workshops: formData.selectedWorkshops || [],
+                food_preferences: formData.food_preferences || [],
+
+                // Use the correct column name from your database
+                additional_comments: [
+                    formData.additionalComments,
+                    formData.accommodationNeeds
+                ].filter(Boolean).join('\n\nAccommodation needs: ') || null,
+
+                // Status and metadata
+                status: 'pending',
+                submitted_at: formData.submittedAt
+            };
+
+            const { data: visitData, error: visitError } = await supabaseClient
+                .from('visits')
+                .insert([visitRecord])
+                .select();
+
+            if (visitError) throw new Error(`Visit creation failed: ${visitError.message}`);
+
+            console.log('✅ Visit request saved with normalized schema:', visitData[0]);
+
+            return {
+                success: true,
+                data: visitData[0],
+                metadata: {
+                    schoolId,
+                    organizerContactId,
+                    teacherContactId,
+                    visitId: visitData[0].id
+                }
+            };
 
         } catch (error) {
             console.error('❌ Database submission error:', error);
 
             // Provide more helpful error messages
             let errorMessage = error.message;
-            if (error.message.includes('relation') && error.message.includes('does not exist')) {
-                errorMessage = 'Database table not found. Please contact the administrator to set up the visit_requests table.';
+            if (error.message.includes('find_or_create_school')) {
+                errorMessage = 'Unable to create school record. Please check school information.';
+            } else if (error.message.includes('find_or_create_contact')) {
+                errorMessage = 'Unable to create contact record. Please check contact information.';
+            } else if (error.message.includes('relation') && error.message.includes('does not exist')) {
+                errorMessage = 'Database schema error. Please run the schema fix script first.';
             } else if (error.message.includes('row-level security')) {
                 errorMessage = 'Database permission error. Please contact the administrator.';
             } else if (error.message.includes('duplicate key')) {
                 errorMessage = 'A request with this information already exists.';
+            } else if (error.message.includes('constraint')) {
+                console.error('Database constraint error details:', error);
+                errorMessage = `Database constraint error: ${error.message}`;
             }
 
             return { success: false, error: errorMessage };
