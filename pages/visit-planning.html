@@ -1103,8 +1103,8 @@
                     </div>
                 </div>
 
-                <!-- Visit Format Section -->
-                <div class="form-section">
+                <!-- Visit Format Section - Day Trips -->
+                <div class="form-section" id="dayTripFormatSection">
                     <h3>⏰ Visit Format</h3>
                     <p>Are you planning a full day or just a morning session with lunch?</p>
 
@@ -1140,6 +1140,15 @@
                             </div>
                         </label>
                         <input type="text" class="other-input" id="visitFormatOther" name="visitFormatOther" placeholder="Please specify your preferred format">
+                    </div>
+                </div>
+
+                <!-- Overnight Schedule Section -->
+                <div class="form-section" id="overnightScheduleSection" style="display: none;">
+                    <h3>⏰ Schedule Your Time</h3>
+                    <div class="form-group">
+                        <label for="schedulePreferences">Tell us about how you'd like to structure your time at our farm</label>
+                        <textarea id="schedulePreferences" name="schedulePreferences" rows="4" placeholder="Please describe your preferred schedule, activities, meal times, and any specific timing requirements for your overnight stay..."></textarea>
                     </div>
                 </div>
 
@@ -1345,13 +1354,16 @@
             const visitTypeOptions = document.querySelectorAll('input[name="visitType"]');
             const overnightFields = document.getElementById('overnightFields');
             const dayTripSchedule = document.getElementById('dayTripSchedule');
+            const dayTripFormatSection = document.getElementById('dayTripFormatSection');
+            const overnightScheduleSection = document.getElementById('overnightScheduleSection');
             const numberOfNightsSelect = document.getElementById('numberOfNights');
             const customNightsGroup = document.getElementById('customNightsGroup');
 
             console.log('Found visit type options:', visitTypeOptions.length);
             console.log('Found overnight fields element:', !!overnightFields);
             console.log('Found day trip schedule element:', !!dayTripSchedule);
-            console.log('Overnight fields element:', overnightFields);
+            console.log('Found day trip format section:', !!dayTripFormatSection);
+            console.log('Found overnight schedule section:', !!overnightScheduleSection);
 
             visitTypeOptions.forEach(option => {
                 option.addEventListener('change', function() {
@@ -1361,20 +1373,26 @@
                     });
                     this.closest('.visit-type-option').classList.add('active');
 
-                    // Show/hide overnight fields and day trip schedule
+                    // Show/hide appropriate sections based on visit type
                     console.log('Visit type changed to:', this.value);
                     if (this.value === 'school_overnight') {
-                        console.log('Showing overnight fields');
+                        console.log('Showing overnight fields and schedule section');
                         overnightFields.style.display = 'block';
                         dayTripSchedule.style.display = 'none';
+                        dayTripFormatSection.style.display = 'none';
+                        overnightScheduleSection.style.display = 'block';
                     } else if (this.value === 'school_day_trip') {
-                        console.log('Showing day trip schedule');
+                        console.log('Showing day trip schedule and format section');
                         overnightFields.style.display = 'none';
                         dayTripSchedule.style.display = 'block';
+                        dayTripFormatSection.style.display = 'block';
+                        overnightScheduleSection.style.display = 'none';
                     } else {
-                        console.log('Hiding overnight fields and day trip schedule');
+                        console.log('Hiding all conditional sections');
                         overnightFields.style.display = 'none';
                         dayTripSchedule.style.display = 'none';
+                        dayTripFormatSection.style.display = 'none';
+                        overnightScheduleSection.style.display = 'none';
                     }
                 });
             });

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Activity Record - GUIDAL</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .warning { background: #fff8e1; color: #f57f17; }
+        .error { background: #ffebee; color: #c62828; }
+        .info { background: #e3f2fd; color: #1976d2; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn.danger { background: #d32f2f; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .record-details { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; background: #fafafa; }
+    </style>
+</head>
+<body>
+    <h1>🗑️ Delete Activity Record</h1>
+    <p>This tool will safely delete the specified activity record after showing its details for confirmation.</p>
+
+    <div class="info status">
+        <strong>Target Record:</strong> UUID <code>6ce0c0e0-5038-44e7-bb86-18cc4161a4f5</code>
+    </div>
+
+    <div id="status"></div>
+
+    <button onclick="showRecordDetails()" class="btn">1️⃣ Show Record Details</button>
+    <button onclick="deleteRecord()" class="btn danger" disabled id="deleteBtn">2️⃣ DELETE Record</button>
+
+    <div id="results"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const TARGET_UUID = '6ce0c0e0-5038-44e7-bb86-18cc4161a4f5';
+
+        let recordData = null;
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function appendResults(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += content;
+        }
+
+        async function showRecordDetails() {
+            showStatus('🔍 Fetching record details...', 'info');
+            appendResults('<h3>📋 Record Details</h3>');
+
+            try {
+                // Get the specific record
+                const { data, error } = await supabase
+                    .from('activities')
+                    .select('*')
+                    .eq('id', TARGET_UUID)
+                    .single();
+
+                if (error) {
+                    if (error.code === 'PGRST116') {
+                        appendResults(`
+                            <div class="record-details success">
+                                <h4>✅ Record Not Found</h4>
+                                <p>The activity with UUID <code>${TARGET_UUID}</code> does not exist in the database.</p>
+                                <p><strong>Status:</strong> Already deleted or never existed</p>
+                            </div>
+                        `);
+                        showStatus('✅ Record not found - already deleted or never existed', 'success');
+                        return;
+                    } else {
+                        appendResults(`
+                            <div class="record-details error">
+                                <h4>❌ Error Fetching Record</h4>
+                                <p><strong>Error:</strong> ${error.message}</p>
+                            </div>
+                        `);
+                        showStatus('❌ Error fetching record', 'error');
+                        return;
+                    }
+                }
+
+                recordData = data;
+
+                appendResults(`
+                    <div class="record-details warning">
+                        <h4>⚠️ Record Found - Review Before Deletion</h4>
+                        <p><strong>UUID:</strong> ${data.id}</p>
+                        <p><strong>Title:</strong> ${data.title || 'No title'}</p>
+                        <p><strong>Description:</strong> ${data.description || 'No description'}</p>
+                        <p><strong>Status:</strong> ${data.status || 'No status'}</p>
+                        <p><strong>Date/Time:</strong> ${data.date_time || 'No date'}</p>
+                        <p><strong>Location:</strong> ${data.location || 'No location'}</p>
+                        <p><strong>Created:</strong> ${data.created_at || 'Unknown'}</p>
+                        <p><strong>Updated:</strong> ${data.updated_at || 'Unknown'}</p>
+
+                        <details>
+                            <summary>View Full Record Data</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+
+                        <div class="warning status">
+                            <strong>⚠️ Confirm this is the correct record to delete!</strong>
+                        </div>
+                    </div>
+                `);
+
+                // Check for dependencies
+                await checkDependencies();
+
+                document.getElementById('deleteBtn').disabled = false;
+                showStatus('📋 Record details loaded. Review carefully before proceeding.', 'warning');
+
+            } catch (error) {
+                appendResults(`
+                    <div class="record-details error">
+                        <h4>❌ Exception</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `);
+                showStatus('❌ Exception occurred', 'error');
+            }
+        }
+
+        async function checkDependencies() {
+            appendResults('<h4>🔗 Checking Dependencies</h4>');
+
+            const dependencyChecks = [
+                { table: 'activity_registrations', column: 'activity_id' },
+                { table: 'visits', column: 'selected_workshops', note: 'Array field - may contain this ID' }
+            ];
+
+            for (const check of dependencyChecks) {
+                try {
+                    let query;
+                    if (check.column === 'selected_workshops') {
+                        // Special case for array field
+                        query = supabase
+                            .from(check.table)
+                            .select('id, school_name')
+                            .contains('selected_workshops', [TARGET_UUID]);
+                    } else {
+                        query = supabase
+                            .from(check.table)
+                            .select('*', { count: 'exact', head: true })
+                            .eq(check.column, TARGET_UUID);
+                    }
+
+                    const { count, data, error } = await query;
+
+                    if (error) {
+                        appendResults(`<p>⚠️ Could not check ${check.table}: ${error.message}</p>`);
+                        continue;
+                    }
+
+                    if (count > 0 || (data && data.length > 0)) {
+                        appendResults(`<p class="warning">⚠️ Found ${count || data.length} references in ${check.table}</p>`);
+                    } else {
+                        appendResults(`<p>✅ No references found in ${check.table}</p>`);
+                    }
+
+                } catch (error) {
+                    appendResults(`<p>⚠️ Exception checking ${check.table}: ${error.message}</p>`);
+                }
+            }
+        }
+
+        async function deleteRecord() {
+            if (!recordData) {
+                showStatus('❌ No record data loaded', 'error');
+                return;
+            }
+
+            const confirmed = confirm(`⚠️ FINAL CONFIRMATION
+
+You are about to permanently DELETE this activity record:
+
+Title: ${recordData.title || 'No title'}
+UUID: ${recordData.id}
+Status: ${recordData.status || 'No status'}
+
+This action cannot be undone!
+
+Are you absolutely sure you want to proceed?`);
+
+            if (!confirmed) {
+                showStatus('❌ Deletion cancelled by user', 'warning');
+                return;
+            }
+
+            showStatus('🗑️ Deleting record...', 'warning');
+
+            try {
+                const { error } = await supabase
+                    .from('activities')
+                    .delete()
+                    .eq('id', TARGET_UUID);
+
+                if (error) {
+                    appendResults(`
+                        <div class="record-details error">
+                            <h4>❌ Deletion Failed</h4>
+                            <p><strong>Error:</strong> ${error.message}</p>
+                        </div>
+                    `);
+                    showStatus('❌ Deletion failed', 'error');
+                    return;
+                }
+
+                appendResults(`
+                    <div class="record-details success">
+                        <h4>✅ Record Deleted Successfully</h4>
+                        <p>The activity record with UUID <code>${TARGET_UUID}</code> has been permanently deleted.</p>
+                        <p><strong>Deleted Record:</strong> ${recordData.title || 'No title'}</p>
+                        <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+                    </div>
+                `);
+
+                showStatus('✅ Record deleted successfully', 'success');
+                document.getElementById('deleteBtn').disabled = true;
+
+            } catch (error) {
+                appendResults(`
+                    <div class="record-details error">
+                        <h4>❌ Exception During Deletion</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `);
+                showStatus('❌ Exception occurred during deletion', 'error');
+            }
+        }
+
+        // Auto-start by showing record details
+        window.addEventListener('load', () => {
+            setTimeout(showRecordDetails, 1000);
+        });
+    </script>
+</body>
+</html>

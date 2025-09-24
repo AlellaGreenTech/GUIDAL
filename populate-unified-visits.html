@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Populate Unified Visits - GUIDAL</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Populate Unified Visits Table</h1>
+        <p>Creating completed school visits in the unified visits table for invoice generation...</p>
+
+        <div id="results"></div>
+        <button onclick="populateVisits()" style="margin: 1rem 0; padding: 0.5rem 1rem; background: #4CAF50; color: white; border: none; border-radius: 4px;">Create Completed Visits</button>
+    </div>
+
+    <!-- Required Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+        async function populateVisits() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>🔄 Creating completed school visits...</p>';
+
+            try {
+                // Create completed school visits using the unified visits table schema
+                const completedVisits = [
+                    {
+                        contact_email: 'coordinator@benjaminfranklin.edu',
+                        lead_teacher_contact: 'Sarah Johnson - Science Teacher',
+                        school_name: 'Benjamin Franklin International School',
+                        country_of_origin: 'Spain',
+                        number_of_students: 75,
+                        number_of_adults: 8,
+                        visit_format: 'full_day_pizza_lunch',
+                        educational_focus: 'balanced_mix',
+                        status: 'completed',
+                        confirmed_date: '2025-09-16',
+                        confirmed_format: 'Full day visit with lunch',
+                        estimated_cost: 1702.50,
+                        internal_notes: 'access_code:BF2025SEPT, Invoice needed for September visit',
+                        additional_comments: 'Students focused on sustainability and green technology',
+                        food_preferences: ['vegetarian_options', 'no_nuts'],
+                        selected_workshops: [], // We'll populate this after checking activities
+                        potential_visit_dates: 'September 16, 2025',
+                        preferred_language: 'English'
+                    },
+                    {
+                        contact_email: 'teacher@pragueintl.edu',
+                        lead_teacher_contact: 'Pavel Novak - Environmental Science',
+                        school_name: 'International School of Prague',
+                        country_of_origin: 'Czech Republic',
+                        number_of_students: 45,
+                        number_of_adults: 5,
+                        visit_format: 'morning_no_lunch',
+                        educational_focus: 'seeing_real_world_science',
+                        status: 'completed',
+                        confirmed_date: '2025-09-20',
+                        confirmed_format: 'Half day morning visit',
+                        estimated_cost: 360.00,
+                        internal_notes: 'access_code:PRAGUE2025, Invoice required',
+                        additional_comments: 'Students studying renewable energy systems',
+                        food_preferences: [],
+                        selected_workshops: [],
+                        potential_visit_dates: 'September 20, 2025',
+                        preferred_language: 'English'
+                    },
+                    {
+                        contact_email: 'visits@stgeorge.edu',
+                        lead_teacher_contact: 'Maria Santos - Technology Teacher',
+                        school_name: 'St. George International School',
+                        country_of_origin: 'Spain',
+                        number_of_students: 30,
+                        number_of_adults: 4,
+                        visit_format: 'full_day_pizza_lunch',
+                        educational_focus: 'hands_on_permaculture',
+                        status: 'completed',
+                        confirmed_date: '2025-09-25',
+                        confirmed_format: 'Full day with practical activities',
+                        estimated_cost: 649.00,
+                        internal_notes: 'access_code:STGEORGE2025, Invoice pending',
+                        additional_comments: 'Focus on practical environmental solutions',
+                        food_preferences: ['gluten_free_options'],
+                        selected_workshops: [],
+                        potential_visit_dates: 'September 25, 2025',
+                        preferred_language: 'English'
+                    }
+                ];
+
+                let html = '<h3>📊 Creating Completed School Visits:</h3>';
+                let successCount = 0;
+
+                for (const visit of completedVisits) {
+                    try {
+                        console.log('Creating visit for:', visit.school_name);
+                        const created = await GuidalDB.addVisit(visit);
+                        console.log('Created visit:', created);
+
+                        html += `<p>✅ ${visit.school_name} - ${visit.confirmed_date} (${visit.number_of_students} students, €${visit.estimated_cost})</p>`;
+                        successCount++;
+
+                    } catch (error) {
+                        console.error(`Error creating visit for ${visit.school_name}:`, error);
+                        html += `<p>❌ ${visit.school_name} - Error: ${error.message}</p>`;
+                    }
+                }
+
+                html += `
+                    <div style="background: ${successCount > 0 ? '#e8f5e8' : '#ffebee'}; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>${successCount > 0 ? '✅' : '❌'} Summary</h4>
+                        <p><strong>Completed Visits Created:</strong> ${successCount} out of ${completedVisits.length}</p>
+                        <p><strong>Status:</strong> ${successCount > 0 ? '🟢 Ready for invoice generation!' : '🔴 No visits created'}</p>
+                        <p><strong>Architecture:</strong> ✅ Using unified visits table (no separate school_visits)</p>
+                    </div>
+                `;
+
+                if (successCount > 0) {
+                    html += `
+                        <div style="margin: 1rem 0;">
+                            <button onclick="verifyVisits()" style="background: #FF9800; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">Verify Created Visits</button>
+                            <button onclick="testInvoiceGeneration()" style="background: #2196F3; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">Test Invoice Generation</button>
+                        </div>
+                    `;
+                }
+
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('❌ Population failed:', error);
+                results.innerHTML = `
+                    <div style="background: #ffebee; padding: 1rem; border-radius: 8px;">
+                        <h3>❌ Population Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.8rem;">${error.stack || 'No stack trace available'}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function verifyVisits() {
+            try {
+                const visits = await GuidalDB.getVisits({ status: 'completed' });
+                const results = document.getElementById('results');
+
+                let html = results.innerHTML;
+                html += `
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>📋 Completed Visits in Database:</h4>
+                        <p><strong>Total Completed Visits:</strong> ${visits.length}</p>
+                `;
+
+                if (visits.length > 0) {
+                    html += '<div style="max-height: 300px; overflow-y: auto;">';
+                    visits.forEach((visit, index) => {
+                        const accessCode = visit.internal_notes ? visit.internal_notes.match(/access_code:([^,]+)/)?.[1] : 'N/A';
+                        html += `
+                            <div style="border-left: 3px solid #4CAF50; padding: 0.5rem; margin: 0.5rem 0; background: white;">
+                                <strong>${visit.school_name}</strong> - ${visit.confirmed_date}<br>
+                                ${visit.number_of_students} students + ${visit.number_of_adults} adults • €${visit.estimated_cost}<br>
+                                <small>Format: ${visit.visit_format} • Access: ${accessCode}</small>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<p>No completed visits found</p>';
+                }
+
+                html += '</div>';
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error verifying visits:', error);
+                const results = document.getElementById('results');
+                results.innerHTML += `<p style="color: red;">Error verifying visits: ${error.message}</p>`;
+            }
+        }
+
+        async function testInvoiceGeneration() {
+            alert('Opening invoice generator with unified visits data!');
+            window.open('admin/invoice-generator.html', '_blank');
+        }
+    </script>
+</body>
+</html>

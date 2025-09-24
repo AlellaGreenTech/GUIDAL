@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Table Check</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .btn:hover { background: #0d47a1; }
+        .table-info { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Database Table Analysis</h1>
+
+    <div class="warning">
+        <strong>⚠️ Important:</strong> This tool will check what tables exist in your database and help determine if cleanup is needed.
+    </div>
+
+    <button id="checkTablesBtn" class="btn">📊 Check All Tables</button>
+    <button id="checkVisitsBtn" class="btn">🏫 Check Visits Table</button>
+    <button id="checkVisitRequestsBtn" class="btn">📝 Check Visit Requests Table</button>
+
+    <div id="results"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase client
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            logElement.innerHTML += message + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function showResult(content, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const className = type === 'warning' ? 'warning' : type === 'success' ? 'success' : 'table-info';
+            resultsDiv.innerHTML += `<div class="${className}">${content}</div>`;
+        }
+
+        async function checkAllTables() {
+            log('🔍 Checking all tables in database...');
+
+            try {
+                // Check for visits table
+                const { data: visitsData, error: visitsError } = await supabase
+                    .from('visits')
+                    .select('id', { count: 'exact', head: true });
+
+                if (!visitsError) {
+                    log(`✅ VISITS table exists with ${visitsData || 0} records`);
+                    showResult(`✅ <strong>visits</strong> table: EXISTS (${visitsData || 0} records)`, 'success');
+                } else {
+                    log(`❌ VISITS table: ${visitsError.message}`);
+                    showResult(`❌ <strong>visits</strong> table: ${visitsError.message}`, 'warning');
+                }
+
+                // Check for visit_requests table
+                const { data: requestsData, error: requestsError } = await supabase
+                    .from('visit_requests')
+                    .select('id', { count: 'exact', head: true });
+
+                if (!requestsError) {
+                    log(`⚠️ VISIT_REQUESTS table exists with ${requestsData || 0} records`);
+                    showResult(`⚠️ <strong>visit_requests</strong> table: EXISTS (${requestsData || 0} records) - Should be cleaned up`, 'warning');
+                } else if (requestsError.message.includes('does not exist')) {
+                    log(`✅ VISIT_REQUESTS table: Does not exist (good!)`)
+                    showResult(`✅ <strong>visit_requests</strong> table: Does not exist (already cleaned up)`, 'success');
+                } else {
+                    log(`❌ VISIT_REQUESTS table error: ${requestsError.message}`);
+                    showResult(`❌ <strong>visit_requests</strong> table: ${requestsError.message}`, 'warning');
+                }
+
+                // Check for other related tables
+                const tablesToCheck = ['schools', 'activities', 'user_profiles', 'guest_book_entries'];
+
+                for (const tableName of tablesToCheck) {
+                    try {
+                        const { count, error } = await supabase
+                            .from(tableName)
+                            .select('*', { count: 'exact', head: true });
+
+                        if (!error) {
+                            log(`📊 ${tableName.toUpperCase()}: ${count || 0} records`);
+                        } else if (error.message.includes('does not exist')) {
+                            log(`📊 ${tableName.toUpperCase()}: Does not exist`);
+                        }
+                    } catch (e) {
+                        log(`📊 ${tableName.toUpperCase()}: ${e.message}`);
+                    }
+                }
+
+            } catch (error) {
+                log(`❌ Error checking tables: ${error.message}`);
+            }
+        }
+
+        async function checkVisitsTable() {
+            log('🏫 Analyzing visits table...');
+
+            try {
+                const { data, error, count } = await supabase
+                    .from('visits')
+                    .select('school_name, student_count, teacher_count, status, submitted_at', { count: 'exact' })
+                    .limit(5);
+
+                if (error) {
+                    log(`❌ Error: ${error.message}`);
+                    return;
+                }
+
+                log(`📊 Total visits: ${count}`);
+                log(`📋 Sample records:`);
+
+                data.forEach((visit, index) => {
+                    log(`${index + 1}. ${visit.school_name}: ${visit.student_count || 0} students, ${visit.teacher_count || 0} teachers, status: ${visit.status}`);
+                });
+
+                // Check column structure
+                if (data.length > 0) {
+                    const firstRecord = data[0];
+                    log(`\\n🔍 Column check:`);
+                    log(`- student_count: ${typeof firstRecord.student_count} (${firstRecord.student_count})`);
+                    log(`- teacher_count: ${typeof firstRecord.teacher_count} (${firstRecord.teacher_count})`);
+                    log(`- status: ${typeof firstRecord.status} (${firstRecord.status})`);
+                }
+
+                showResult(`
+                    <strong>visits</strong> table analysis:<br>
+                    • Total records: ${count}<br>
+                    • Has student_count field: ${data[0]?.hasOwnProperty('student_count') ? 'Yes' : 'No'}<br>
+                    • Has teacher_count field: ${data[0]?.hasOwnProperty('teacher_count') ? 'Yes' : 'No'}<br>
+                    • Sample student counts: ${data.map(v => v.student_count || 0).join(', ')}
+                `, 'success');
+
+            } catch (error) {
+                log(`❌ Error analyzing visits table: ${error.message}`);
+            }
+        }
+
+        async function checkVisitRequestsTable() {
+            log('📝 Checking visit_requests table...');
+
+            try {
+                const { data, error, count } = await supabase
+                    .from('visit_requests')
+                    .select('school_name, number_of_students, number_of_adults, status, submitted_at', { count: 'exact' })
+                    .limit(5);
+
+                if (error) {
+                    if (error.message.includes('does not exist')) {
+                        log(`✅ visit_requests table does not exist - already cleaned up!`);
+                        showResult(`✅ <strong>visit_requests</strong> table does not exist - no cleanup needed!`, 'success');
+                    } else {
+                        log(`❌ Error: ${error.message}`);
+                    }
+                    return;
+                }
+
+                log(`⚠️ visit_requests table still exists with ${count} records`);
+                log(`📋 Sample records:`);
+
+                data.forEach((visit, index) => {
+                    log(`${index + 1}. ${visit.school_name}: ${visit.number_of_students || 0} students, ${visit.number_of_adults || 0} adults, status: ${visit.status}`);
+                });
+
+                showResult(`
+                    <strong>⚠️ visit_requests</strong> table still exists:<br>
+                    • Total records: ${count}<br>
+                    • Should be removed to avoid confusion<br>
+                    • Data appears to use different field names (number_of_students vs student_count)
+                `, 'warning');
+
+            } catch (error) {
+                log(`❌ Error checking visit_requests table: ${error.message}`);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('checkTablesBtn').addEventListener('click', checkAllTables);
+        document.getElementById('checkVisitsBtn').addEventListener('click', checkVisitsTable);
+        document.getElementById('checkVisitRequestsBtn').addEventListener('click', checkVisitRequestsTable);
+
+        // Auto-check on load
+        checkAllTables();
+    </script>
+</body>
+</html>

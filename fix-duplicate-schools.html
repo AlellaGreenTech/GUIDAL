@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Duplicate Schools</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .danger-btn { background: #dc3545; }
+        .school-list { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; max-height: 300px; overflow-y: auto; }
+        .duplicate-group { background: #ffe6e6; padding: 10px; margin: 5px 0; border-left: 4px solid #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Fix Duplicate Schools in Database</h1>
+
+    <button id="analyzeBtn" class="btn">📊 Analyze Duplicates</button>
+    <button id="fixBtn" class="btn danger-btn" disabled>🔧 Fix Duplicates</button>
+
+    <div id="results"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let duplicateGroups = [];
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function showResults(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="school-list">${content}</div>`;
+        }
+
+        async function analyzeDuplicates() {
+            log('🔍 Analyzing duplicate schools in database...');
+
+            try {
+                // Get all visits with their details
+                const { data: allVisits, error } = await supabase
+                    .from('visits')
+                    .select('*')
+                    .order('school_name, submitted_at');
+
+                if (error) {
+                    log(`❌ Error: ${error.message}`);
+                    return;
+                }
+
+                log(`📊 Found ${allVisits.length} total visits`);
+
+                // Group by school name
+                const schoolGroups = {};
+                allVisits.forEach(visit => {
+                    const schoolName = visit.school_name;
+                    if (!schoolGroups[schoolName]) {
+                        schoolGroups[schoolName] = [];
+                    }
+                    schoolGroups[schoolName].push(visit);
+                });
+
+                // Find schools with multiple visits (potential duplicates)
+                duplicateGroups = [];
+                let duplicateHtml = '<h3>🔍 Schools with Multiple Visits</h3>';
+
+                Object.entries(schoolGroups).forEach(([schoolName, visits]) => {
+                    if (visits.length > 1) {
+                        duplicateGroups.push({
+                            schoolName,
+                            visits: visits.sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at))
+                        });
+
+                        duplicateHtml += `
+                            <div class="duplicate-group">
+                                <h4>"${schoolName}" - ${visits.length} visits</h4>
+                                <ul>
+                        `;
+
+                        visits.forEach((visit, index) => {
+                            const isOriginal = index === 0; // Keep the first (oldest) one
+                            duplicateHtml += `
+                                <li style="color: ${isOriginal ? 'green' : 'red'}">
+                                    ${isOriginal ? '✅ KEEP:' : '❌ DELETE:'}
+                                    ID: ${visit.id} |
+                                    ${visit.student_count || 0} students |
+                                    ${new Date(visit.submitted_at).toLocaleDateString()} |
+                                    Status: ${visit.status}
+                                    ${visit.internal_notes ? ` | Notes: ${visit.internal_notes.substring(0, 50)}...` : ''}
+                                </li>
+                            `;
+                        });
+
+                        duplicateHtml += `
+                                </ul>
+                            </div>
+                        `;
+                    }
+                });
+
+                if (duplicateGroups.length === 0) {
+                    duplicateHtml += '<p style="color: green;">✅ No duplicate schools found!</p>';
+                    log('✅ No duplicates found');
+                } else {
+                    log(`⚠️ Found ${duplicateGroups.length} schools with multiple visits`);
+                    document.getElementById('fixBtn').disabled = false;
+                }
+
+                showResults(duplicateHtml);
+
+                // Show summary
+                const uniqueSchools = Object.keys(schoolGroups).length;
+                const totalDuplicateVisits = duplicateGroups.reduce((sum, group) => sum + (group.visits.length - 1), 0);
+
+                showResults(`
+                    <h3>📊 Summary</h3>
+                    <p><strong>Total visits:</strong> ${allVisits.length}</p>
+                    <p><strong>Unique school names:</strong> ${uniqueSchools}</p>
+                    <p><strong>Schools with duplicates:</strong> ${duplicateGroups.length}</p>
+                    <p><strong>Duplicate visits to remove:</strong> ${totalDuplicateVisits}</p>
+                    <p><strong>Final unique schools after cleanup:</strong> ${uniqueSchools}</p>
+                `);
+
+            } catch (error) {
+                log(`❌ Error analyzing: ${error.message}`);
+            }
+        }
+
+        async function fixDuplicates() {
+            if (duplicateGroups.length === 0) {
+                log('❌ No duplicates to fix');
+                return;
+            }
+
+            log('🔧 Starting duplicate cleanup...');
+
+            try {
+                let deletedCount = 0;
+
+                for (const group of duplicateGroups) {
+                    log(`🔧 Processing "${group.schoolName}"...`);
+
+                    // Keep the first (oldest) visit, delete the rest
+                    const visitsToDelete = group.visits.slice(1);
+
+                    for (const visit of visitsToDelete) {
+                        const { error } = await supabase
+                            .from('visits')
+                            .delete()
+                            .eq('id', visit.id);
+
+                        if (error) {
+                            log(`❌ Error deleting visit ${visit.id}: ${error.message}`);
+                        } else {
+                            log(`✅ Deleted duplicate visit ${visit.id}`);
+                            deletedCount++;
+                        }
+                    }
+                }
+
+                log(`✅ Cleanup complete! Deleted ${deletedCount} duplicate visits`);
+
+                // Re-analyze to confirm
+                document.getElementById('results').innerHTML = '';
+                await analyzeDuplicates();
+
+            } catch (error) {
+                log(`❌ Error during cleanup: ${error.message}`);
+            }
+        }
+
+        document.getElementById('analyzeBtn').addEventListener('click', analyzeDuplicates);
+        document.getElementById('fixBtn').addEventListener('click', fixDuplicates);
+
+        // Auto-analyze on load
+        analyzeDuplicates();
+    </script>
+</body>
+</html>

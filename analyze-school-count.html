@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyze School Count</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .school-list { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Analyze School Count Issue</h1>
+
+    <button id="analyzeBtn" class="btn">📊 Analyze School Names</button>
+
+    <div id="results"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function showResults(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="school-list">${content}</div>`;
+        }
+
+        async function analyzeSchoolNames() {
+            log('🔍 Analyzing school names and counting logic...');
+
+            try {
+                // Get all visits with school names
+                const { data: allVisits, error } = await supabase
+                    .from('visits')
+                    .select('school_name, status, internal_notes')
+                    .order('school_name');
+
+                if (error) {
+                    log(`❌ Error: ${error.message}`);
+                    return;
+                }
+
+                log(`📊 Found ${allVisits.length} total visits`);
+
+                // Group by school name and analyze
+                const schoolGroups = {};
+                const allSchoolNames = allVisits.map(v => v.school_name);
+                const uniqueSchoolNames = [...new Set(allSchoolNames)];
+
+                log(`📊 Unique school names count: ${uniqueSchoolNames.length}`);
+
+                // Analyze each school name
+                uniqueSchoolNames.forEach(schoolName => {
+                    const visits = allVisits.filter(v => v.school_name === schoolName);
+                    schoolGroups[schoolName] = {
+                        count: visits.length,
+                        visits: visits
+                    };
+                });
+
+                // Sort by visit count (descending)
+                const sortedSchools = Object.entries(schoolGroups)
+                    .sort(([,a], [,b]) => b.count - a.count);
+
+                log('📋 School name analysis:');
+
+                let schoolListHtml = '<h3>📋 All School Names (sorted by visit count)</h3><ul>';
+
+                sortedSchools.forEach(([schoolName, data]) => {
+                    log(`   "${schoolName}" - ${data.count} visits`);
+
+                    // Check if this looks like a duplicate or variant
+                    const isLikelyDuplicate = sortedSchools.some(([otherName, otherData]) => {
+                        return otherName !== schoolName &&
+                               (otherName.toLowerCase().includes(schoolName.toLowerCase()) ||
+                                schoolName.toLowerCase().includes(otherName.toLowerCase()));
+                    });
+
+                    const statusInfo = data.visits.map(v => v.status).join(', ');
+
+                    schoolListHtml += `
+                        <li style="${isLikelyDuplicate ? 'background-color: #ffe6e6; padding: 5px; margin: 2px 0;' : 'padding: 2px 0;'}">
+                            <strong>"${schoolName}"</strong> - ${data.count} visits (${statusInfo})
+                            ${isLikelyDuplicate ? ' <span style="color: red;">⚠️ Possible duplicate</span>' : ''}
+                        </li>
+                    `;
+                });
+
+                schoolListHtml += '</ul>';
+
+                // Identify potential duplicates
+                log('🔍 Looking for potential duplicates...');
+                const potentialDuplicates = [];
+
+                sortedSchools.forEach(([schoolName, data]) => {
+                    const similar = sortedSchools.filter(([otherName, otherData]) => {
+                        if (otherName === schoolName) return false;
+
+                        const name1 = schoolName.toLowerCase().trim();
+                        const name2 = otherName.toLowerCase().trim();
+
+                        // Check for partial matches, common variations
+                        return name1.includes(name2) || name2.includes(name1) ||
+                               name1.replace(/[^a-z0-9]/g, '') === name2.replace(/[^a-z0-9]/g, '');
+                    });
+
+                    if (similar.length > 0) {
+                        potentialDuplicates.push({
+                            main: schoolName,
+                            similar: similar.map(([name]) => name)
+                        });
+                    }
+                });
+
+                if (potentialDuplicates.length > 0) {
+                    log(`⚠️ Found ${potentialDuplicates.length} potential duplicate groups:`);
+                    potentialDuplicates.forEach(group => {
+                        log(`   "${group.main}" might be same as: ${group.similar.join(', ')}`);
+                    });
+                }
+
+                // Check for migrated records specifically
+                const migratedVisits = allVisits.filter(v =>
+                    v.internal_notes && v.internal_notes.includes('Migrated from activities table')
+                );
+
+                log(`🔄 Migrated visits: ${migratedVisits.length}`);
+
+                const migratedSchools = [...new Set(migratedVisits.map(v => v.school_name))];
+                log(`🔄 Unique schools from migration: ${migratedSchools.length}`);
+
+                showResults(schoolListHtml);
+
+                // Show summary
+                showResults(`
+                    <h3>📊 Summary</h3>
+                    <p><strong>Total visits:</strong> ${allVisits.length}</p>
+                    <p><strong>Unique school names:</strong> ${uniqueSchoolNames.length}</p>
+                    <p><strong>Migrated visits:</strong> ${migratedVisits.length}</p>
+                    <p><strong>Migrated schools:</strong> ${migratedSchools.length}</p>
+                    <p><strong>Potential duplicates:</strong> ${potentialDuplicates.length} groups</p>
+                    <p><strong>Expected actual schools:</strong> ~${Math.round(uniqueSchoolNames.length / 2)} (if user says 28 is double)</p>
+                `);
+
+            } catch (error) {
+                log(`❌ Error analyzing: ${error.message}`);
+            }
+        }
+
+        document.getElementById('analyzeBtn').addEventListener('click', analyzeSchoolNames);
+
+        // Auto-analyze on load
+        analyzeSchoolNames();
+    </script>
+</body>
+</html>

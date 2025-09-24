@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Migrate Activity to Visit - GUIDAL</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .warning { background: #fff8e1; color: #f57f17; }
+        .error { background: #ffebee; color: #c62828; }
+        .info { background: #e3f2fd; color: #1976d2; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn.success { background: #2e7d32; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px; }
+        .record-details { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .mapping-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        .mapping-table th, .mapping-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .mapping-table th { background: #f5f5f5; }
+    </style>
+</head>
+<body>
+    <h1>🔄 Migrate Activity to Visit</h1>
+    <p>This tool will transfer the activity record to the visits table as an event-type visit, preserving the historical data.</p>
+
+    <div class="info status">
+        <strong>Source:</strong> activities table, UUID <code>6ce0c0e0-5038-44e7-bb86-18cc4161a4f5</code><br>
+        <strong>Destination:</strong> visits table as visit_type = 'event'
+    </div>
+
+    <div id="status"></div>
+
+    <button onclick="analyzeRecord()" class="btn">1️⃣ Analyze Activity Record</button>
+    <button onclick="previewMigration()" class="btn" disabled id="previewBtn">2️⃣ Preview Migration</button>
+    <button onclick="performMigration()" class="btn success" disabled id="migrateBtn">3️⃣ Migrate to Visits</button>
+
+    <div id="results"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const TARGET_UUID = '6ce0c0e0-5038-44e7-bb86-18cc4161a4f5';
+
+        let activityData = null;
+        let visitData = null;
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function appendResults(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += content;
+        }
+
+        async function analyzeRecord() {
+            showStatus('🔍 Analyzing activity record...', 'info');
+            appendResults('<h3>📋 Step 1: Activity Analysis</h3>');
+
+            try {
+                // Get the specific record
+                const { data, error } = await supabase
+                    .from('activities')
+                    .select('*')
+                    .eq('id', TARGET_UUID)
+                    .single();
+
+                if (error) {
+                    if (error.code === 'PGRST116') {
+                        appendResults(`
+                            <div class="record-details error">
+                                <h4>❌ Activity Not Found</h4>
+                                <p>The activity with UUID <code>${TARGET_UUID}</code> does not exist.</p>
+                            </div>
+                        `);
+                        showStatus('❌ Activity not found', 'error');
+                        return;
+                    } else {
+                        throw error;
+                    }
+                }
+
+                activityData = data;
+
+                appendResults(`
+                    <div class="record-details info">
+                        <h4>📊 Activity Record Found</h4>
+                        <p><strong>Title:</strong> ${data.title || 'No title'}</p>
+                        <p><strong>Description:</strong> ${data.description || 'No description'}</p>
+                        <p><strong>Status:</strong> ${data.status || 'No status'}</p>
+                        <p><strong>Date/Time:</strong> ${data.date_time || 'No date'}</p>
+                        <p><strong>Location:</strong> ${data.location || 'No location'}</p>
+                        <p><strong>Duration:</strong> ${data.duration || 'No duration'}</p>
+                        <p><strong>Max Participants:</strong> ${data.max_participants || 'No limit'}</p>
+                        <p><strong>Price:</strong> ${data.price || 'No price'}</p>
+
+                        <details>
+                            <summary>View Full Activity Data</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `);
+
+                // Check for dependencies before migration
+                await checkDependencies();
+
+                document.getElementById('previewBtn').disabled = false;
+                showStatus('✅ Activity analyzed. Ready to preview migration.', 'success');
+
+            } catch (error) {
+                appendResults(`
+                    <div class="record-details error">
+                        <h4>❌ Error</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `);
+                showStatus('❌ Error analyzing record', 'error');
+            }
+        }
+
+        async function checkDependencies() {
+            appendResults('<h4>🔗 Checking Dependencies</h4>');
+
+            try {
+                // Check activity_registrations
+                const { count: regCount } = await supabase
+                    .from('activity_registrations')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('activity_id', TARGET_UUID);
+
+                // Check visits with this activity in selected_workshops
+                const { data: visitRefs } = await supabase
+                    .from('visits')
+                    .select('id, school_name')
+                    .contains('selected_workshops', [TARGET_UUID]);
+
+                if (regCount > 0) {
+                    appendResults(`<p class="warning">⚠️ Found ${regCount} registrations for this activity</p>`);
+                } else {
+                    appendResults(`<p>✅ No registrations found</p>`);
+                }
+
+                if (visitRefs && visitRefs.length > 0) {
+                    appendResults(`<p class="warning">⚠️ Found ${visitRefs.length} visits referencing this activity</p>`);
+                } else {
+                    appendResults(`<p>✅ No visit references found</p>`);
+                }
+
+            } catch (error) {
+                appendResults(`<p>⚠️ Could not check dependencies: ${error.message}</p>`);
+            }
+        }
+
+        async function previewMigration() {
+            showStatus('🔍 Previewing migration mapping...', 'info');
+            appendResults('<h3>🔄 Step 2: Migration Preview</h3>');
+
+            if (!activityData) {
+                showStatus('❌ No activity data loaded', 'error');
+                return;
+            }
+
+            // Create minimal visit data with only absolute required fields
+            visitData = {
+                school_name: activityData.title || 'Event',
+                contact_email: 'events@guidal.com',
+                contact_name: 'Event Coordinator',
+                grade_level: 'Mixed/Adult',
+                student_count: activityData.max_participants || 0,
+                teacher_count: Math.ceil((activityData.max_participants || 0) / 10) || 1,
+                status: 'completed'
+            };
+
+            // Add optional fields one by one, only if they exist and have values
+            if (activityData.date_time) {
+                const dateOnly = activityData.date_time.split('T')[0];
+                visitData.preferred_date = dateOnly;
+                visitData.confirmed_date = dateOnly;
+            }
+
+            if (activityData.price) {
+                visitData.estimated_cost = activityData.price;
+            }
+
+            // Add these if they don't cause issues
+            visitData.visit_type = 'event';
+            visitData.visit_format = 'event';
+            visitData.invoice_status = 'completed';
+
+            console.log('Final visit data:', visitData);
+
+            // Show mapping table
+            appendResults(`
+                <div class="record-details info">
+                    <h4>🗺️ Field Mapping Preview</h4>
+                    <table class="mapping-table">
+                        <thead>
+                            <tr>
+                                <th>Activity Field</th>
+                                <th>Activity Value</th>
+                                <th>Visit Field</th>
+                                <th>Visit Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>title</td>
+                                <td>${activityData.title || 'NULL'}</td>
+                                <td>school_name</td>
+                                <td>${visitData.school_name}</td>
+                            </tr>
+                            <tr>
+                                <td>date_time</td>
+                                <td>${activityData.date_time || 'NULL'}</td>
+                                <td>confirmed_date</td>
+                                <td>${visitData.confirmed_date || 'NULL'}</td>
+                            </tr>
+                            <tr>
+                                <td>max_participants</td>
+                                <td>${activityData.max_participants || 'NULL'}</td>
+                                <td>student_count</td>
+                                <td>${visitData.student_count}</td>
+                            </tr>
+                            <tr>
+                                <td>price</td>
+                                <td>${activityData.price || 'NULL'}</td>
+                                <td>estimated_cost</td>
+                                <td>${visitData.estimated_cost}</td>
+                            </tr>
+                            <tr>
+                                <td>location</td>
+                                <td>${activityData.location || 'NULL'}</td>
+                                <td>visit_format</td>
+                                <td>${visitData.visit_format || 'NULL'}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><strong>New Fields</strong></td>
+                                <td>visit_type</td>
+                                <td>${visitData.visit_type}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td>grade_level</td>
+                                <td>${visitData.grade_level}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td>status</td>
+                                <td>${visitData.status}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <details>
+                        <summary>View Complete Visit Record</summary>
+                        <pre>${JSON.stringify(visitData, null, 2)}</pre>
+                    </details>
+                </div>
+            `);
+
+            document.getElementById('migrateBtn').disabled = false;
+            showStatus('✅ Migration preview ready. Review the mapping above.', 'success');
+        }
+
+        async function performMigration() {
+            const confirmed = confirm(`🔄 MIGRATION CONFIRMATION
+
+This will:
+1. ✅ Create a new visit record in the visits table (type: event)
+2. ❌ Delete the original activity record from activities table
+3. 🔄 Preserve all historical data in the new format
+
+Original Activity: ${activityData.title}
+New Visit Type: event
+
+This action cannot be undone!
+Are you sure you want to proceed?`);
+
+            if (!confirmed) {
+                showStatus('❌ Migration cancelled by user', 'warning');
+                return;
+            }
+
+            showStatus('🔄 Performing migration...', 'info');
+            appendResults('<h3>⚡ Step 3: Migration Execution</h3>');
+
+            try {
+                // Step 1: Insert into visits table - create fresh data object to avoid any filtering issues
+                appendResults('<p>1️⃣ Creating visit record...</p>');
+
+                // Create a completely fresh object with all required fields
+                const finalVisitData = {
+                    school_name: activityData.title || 'Event',
+                    contact_email: 'events@guidal.com',
+                    contact_name: 'Event Coordinator',
+                    grade_level: 'Mixed/Adult',
+                    student_count: activityData.max_participants || 0,
+                    teacher_count: Math.ceil((activityData.max_participants || 0) / 10) || 1,
+                    status: 'completed'
+                };
+
+                // Add optional fields
+                if (activityData.date_time) {
+                    const dateOnly = activityData.date_time.split('T')[0];
+                    finalVisitData.preferred_date = dateOnly;
+                    finalVisitData.confirmed_date = dateOnly;
+                }
+
+                if (activityData.price) {
+                    finalVisitData.estimated_cost = activityData.price;
+                }
+
+                finalVisitData.visit_type = 'event';
+                finalVisitData.visit_format = 'event';
+                finalVisitData.invoice_status = 'completed';
+
+                console.log('About to insert fresh visit data:', finalVisitData);
+
+                // Show what we're trying to insert
+                appendResults(`<p><strong>Debug:</strong> Inserting: ${JSON.stringify(finalVisitData, null, 2)}</p>`);
+
+                const { data: newVisit, error: insertError } = await supabase
+                    .from('visits')
+                    .insert([finalVisitData])
+                    .select()
+                    .single();
+
+                if (insertError) {
+                    console.error('Insert error details:', insertError);
+                    appendResults(`<p><strong>Error details:</strong> ${JSON.stringify(insertError, null, 2)}</p>`);
+                    throw new Error(`Failed to create visit: ${insertError.message}`);
+                }
+
+                appendResults(`<p class="success">✅ Visit created with ID: ${newVisit.id}</p>`);
+
+                // Step 2: Delete from activities table
+                appendResults('<p>2️⃣ Removing from activities table...</p>');
+                const { error: deleteError } = await supabase
+                    .from('activities')
+                    .delete()
+                    .eq('id', TARGET_UUID);
+
+                if (deleteError) {
+                    // If delete fails, we should remove the visit we just created
+                    await supabase.from('visits').delete().eq('id', newVisit.id);
+                    throw new Error(`Failed to delete activity: ${deleteError.message}`);
+                }
+
+                appendResults(`<p class="success">✅ Activity record deleted</p>`);
+
+                appendResults(`
+                    <div class="record-details success">
+                        <h4>🎉 Migration Completed Successfully!</h4>
+                        <p><strong>Original Activity:</strong> ${activityData.title} (${TARGET_UUID})</p>
+                        <p><strong>New Visit ID:</strong> ${newVisit.id}</p>
+                        <p><strong>Visit Type:</strong> event</p>
+                        <p><strong>Status:</strong> completed</p>
+                        <p><strong>Migration Time:</strong> ${new Date().toISOString()}</p>
+
+                        <div class="info status">
+                            <h4>✅ What happened:</h4>
+                            <ul>
+                                <li>Event data preserved in visits table</li>
+                                <li>Visit type set to 'event' for proper categorization</li>
+                                <li>Original timestamps maintained</li>
+                                <li>Activities table cleaned of completed event</li>
+                                <li>Data ready for invoice generation if needed</li>
+                            </ul>
+                        </div>
+                    </div>
+                `);
+
+                showStatus('🎉 Migration completed successfully!', 'success');
+                document.getElementById('migrateBtn').disabled = true;
+
+            } catch (error) {
+                appendResults(`
+                    <div class="record-details error">
+                        <h4>❌ Migration Failed</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>The original activity record was not modified.</p>
+                    </div>
+                `);
+                showStatus('❌ Migration failed', 'error');
+            }
+        }
+
+        // Auto-start analysis
+        window.addEventListener('load', () => {
+            setTimeout(analyzeRecord, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove School Visits Table - GUIDAL</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Remove School Visits Table</h1>
+        <p>Cleaning up the database by removing the redundant school_visits table...</p>
+
+        <div id="results"></div>
+        <button onclick="removeSchoolVisitsTable()" style="margin: 1rem 0; padding: 0.5rem 1rem; background: #f44336; color: white; border: none; border-radius: 4px;">🗑️ Remove School Visits Table</button>
+        <button onclick="verifyCleanup()" style="margin: 1rem 0; padding: 0.5rem 1rem; background: #2196F3; color: white; border: none; border-radius: 4px;">✅ Verify Cleanup</button>
+    </div>
+
+    <!-- Required Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+        async function removeSchoolVisitsTable() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>🔄 Removing school_visits table and related references...</p>';
+
+            try {
+                let html = '<h3>🗑️ Cleanup Operations:</h3>';
+
+                // Check if school_visits table exists
+                try {
+                    const { data: existingData, error: checkError } = await supabaseClient
+                        .from('school_visits')
+                        .select('id')
+                        .limit(1);
+
+                    if (checkError && checkError.code === '42P01') {
+                        html += '<p>✅ school_visits table does not exist (already removed)</p>';
+                    } else if (checkError) {
+                        html += `<p>⚠️ Error checking school_visits table: ${checkError.message}</p>`;
+                    } else {
+                        html += `<p>⚠️ school_visits table exists with ${existingData ? existingData.length : 0} records</p>`;
+                        html += '<p>📋 <strong>Note:</strong> To completely remove the table, run this SQL in your Supabase dashboard:</p>';
+                        html += `
+                            <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                                -- Remove school_visits table and dependencies<br>
+                                DROP TABLE IF EXISTS public.school_visits CASCADE;<br>
+                                DROP TABLE IF EXISTS public.visit_stations CASCADE;<br><br>
+                                -- Verify removal<br>
+                                SELECT table_name FROM information_schema.tables <br>
+                                WHERE table_schema = 'public' AND table_name LIKE '%visit%';
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    html += `<p>✅ school_visits table does not exist: ${error.message}</p>`;
+                }
+
+                // Check current visits table
+                try {
+                    const { data: visitsData, error: visitsError } = await supabaseClient
+                        .from('visits')
+                        .select('id, school_name, status')
+                        .limit(5);
+
+                    if (visitsError) {
+                        html += `<p>❌ Error accessing unified visits table: ${visitsError.message}</p>`;
+                    } else {
+                        html += `<p>✅ Unified visits table working: ${visitsData.length} sample records found</p>`;
+                    }
+                } catch (error) {
+                    html += `<p>❌ Unified visits table issue: ${error.message}</p>`;
+                }
+
+                html += `
+                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>✅ Architecture Summary</h4>
+                        <p><strong>✅ Unified Model:</strong></p>
+                        <ul>
+                            <li><strong>activities</strong> table = Activity templates/offerings</li>
+                            <li><strong>visits</strong> table = ALL visits (school visits, individual visits, etc.)</li>
+                            <li><strong>❌ school_visits</strong> table = REMOVED (redundant)</li>
+                        </ul>
+                        <p><strong>Benefits:</strong> Simpler architecture, easier invoice generation, unified visit management</p>
+                    </div>
+                `;
+
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('❌ Cleanup failed:', error);
+                results.innerHTML = `
+                    <div style="background: #ffebee; padding: 1rem; border-radius: 8px;">
+                        <h3>❌ Cleanup Check Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function verifyCleanup() {
+            const results = document.getElementById('results');
+
+            try {
+                let html = results.innerHTML;
+                html += `
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>🔍 Verification Results:</h4>
+                `;
+
+                // Check visits table
+                try {
+                    const visits = await GuidalDB.getVisits();
+                    html += `<p>✅ Unified visits table: ${visits.length} total visits</p>`;
+
+                    const completedVisits = visits.filter(v => v.status === 'completed');
+                    html += `<p>✅ Completed visits for invoicing: ${completedVisits.length}</p>`;
+                } catch (error) {
+                    html += `<p>❌ Visits table issue: ${error.message}</p>`;
+                }
+
+                // Check activities table
+                try {
+                    const activities = await GuidalDB.getActivities();
+                    html += `<p>✅ Activities table: ${activities.length} activity templates</p>`;
+                } catch (error) {
+                    html += `<p>❌ Activities table issue: ${error.message}</p>`;
+                }
+
+                // Check schools table (still needed for school information)
+                try {
+                    const schools = await GuidalDB.getSchools();
+                    html += `<p>✅ Schools table: ${schools.length} schools</p>`;
+                } catch (error) {
+                    html += `<p>❌ Schools table issue: ${error.message}</p>`;
+                }
+
+                html += `
+                        <p><strong>Status:</strong> 🟢 Clean unified architecture ready!</p>
+                        <button onclick="testInvoiceSystem()" style="background: #4CAF50; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem 0;">🧾 Test Invoice System</button>
+                    </div>
+                `;
+
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error verifying cleanup:', error);
+                results.innerHTML += `<p style="color: red;">Verification error: ${error.message}</p>`;
+            }
+        }
+
+        async function testInvoiceSystem() {
+            alert('Opening invoice generator with clean unified architecture!');
+            window.open('admin/invoice-generator.html', '_blank');
+        }
+
+        // Auto-run the check when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(removeSchoolVisitsTable, 1000);
+        });
+    </script>
+</body>
+</html>

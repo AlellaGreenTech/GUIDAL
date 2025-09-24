@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Valid Lunch Values</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Check Valid Lunch Values</h1>
+
+    <button id="checkLunchBtn" class="btn">🍕 Check Lunch Values</button>
+
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            logElement.innerHTML += message + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        async function checkLunchValues() {
+            log('🔍 Checking existing lunch_needs values...');
+
+            try {
+                const { data, error } = await supabase
+                    .from('visits')
+                    .select('lunch_needs')
+                    .not('lunch_needs', 'is', null);
+
+                if (error) {
+                    log(`❌ Error: ${error.message}`);
+                    return;
+                }
+
+                const uniqueValues = [...new Set(data.map(v => v.lunch_needs))];
+                log(`✅ Found ${uniqueValues.length} unique lunch_needs values:`);
+                uniqueValues.forEach(value => log(`   - "${value}"`));
+
+                // Test some common values to see what works
+                log('\\n🧪 Testing some values...');
+                const testValues = ['pizza', 'no-lunch', 'lunch-included', 'community-meal', 'special-meal', 'light-refreshments'];
+
+                for (const testValue of testValues) {
+                    try {
+                        const { error: testError } = await supabase
+                            .from('visits')
+                            .insert([{
+                                school_name: 'Test School',
+                                contact_email: 'test@test.com',
+                                contact_name: 'Test',
+                                lunch_needs: testValue
+                            }]);
+
+                        if (testError) {
+                            if (testError.message.includes('lunch_needs_check')) {
+                                log(`❌ "${testValue}" - INVALID`);
+                            } else {
+                                log(`⚠️ "${testValue}" - Other error: ${testError.message}`);
+                            }
+                        } else {
+                            log(`✅ "${testValue}" - VALID`);
+                            // Clean up the test record
+                            await supabase
+                                .from('visits')
+                                .delete()
+                                .eq('school_name', 'Test School')
+                                .eq('contact_email', 'test@test.com');
+                        }
+                    } catch (e) {
+                        log(`❌ "${testValue}" - Error: ${e.message}`);
+                    }
+                }
+
+            } catch (error) {
+                log(`❌ Error checking lunch values: ${error.message}`);
+            }
+        }
+
+        document.getElementById('checkLunchBtn').addEventListener('click', checkLunchValues);
+    </script>
+</body>
+</html>

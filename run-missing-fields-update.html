@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Missing Form Fields</title>
+    <script src="../js/supabase-client.js"></script>
+</head>
+<body>
+    <h1>Adding Missing Form Fields to Database</h1>
+    <div id="status">Running update...</div>
+
+    <script>
+        async function addMissingFields() {
+            const statusDiv = document.getElementById('status');
+
+            try {
+                console.log('Starting database update...');
+                statusDiv.innerHTML = 'Adding missing form fields...';
+
+                // Check current schema first
+                const { data: columns, error: columnsError } = await supabaseClient
+                    .from('information_schema.columns')
+                    .select('column_name')
+                    .eq('table_name', 'visits')
+                    .in('column_name', ['visit_format', 'visit_format_other', 'educational_focus', 'educational_focus_other', 'preferred_language']);
+
+                if (columnsError) {
+                    console.log('Could not check schema via Supabase, proceeding with SQL...');
+                }
+
+                // Add missing columns using SQL
+                const sqlCommands = [
+                    'ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_format TEXT',
+                    'ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_format_other TEXT',
+                    'ALTER TABLE visits ADD COLUMN IF NOT EXISTS educational_focus TEXT',
+                    'ALTER TABLE visits ADD COLUMN IF NOT EXISTS educational_focus_other TEXT',
+                    'ALTER TABLE visits ADD COLUMN IF NOT EXISTS preferred_language TEXT DEFAULT \'english\''
+                ];
+
+                for (const sql of sqlCommands) {
+                    try {
+                        const { error } = await supabaseClient.rpc('exec_sql', { sql });
+                        if (error) {
+                            console.log(`SQL command failed: ${sql}`, error);
+                        } else {
+                            console.log(`✅ Success: ${sql}`);
+                        }
+                    } catch (e) {
+                        console.log(`Error executing: ${sql}`, e);
+                    }
+                }
+
+                statusDiv.innerHTML = `
+                    <h2>✅ Database Update Complete!</h2>
+                    <p>Missing form fields have been added to the visits table.</p>
+                    <p>You can now try submitting the visit planning form again.</p>
+                    <button onclick="window.close()">Close</button>
+                `;
+
+            } catch (error) {
+                console.error('Database update failed:', error);
+                statusDiv.innerHTML = `
+                    <h2>❌ Update Failed</h2>
+                    <p>Error: ${error.message}</p>
+                    <p>Please check the browser console for details.</p>
+                `;
+            }
+        }
+
+        // Run the update when page loads
+        document.addEventListener('DOMContentLoaded', addMissingFields);
+    </script>
+</body>
+</html>

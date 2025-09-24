@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Invoice Generator - GUIDAL Admin</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .invoice-workspace {
+            display: grid;
+            grid-template-columns: 350px 1fr 300px;
+            gap: 1.5rem;
+            height: calc(100vh - 200px);
+        }
+
+        .visit-panel, .invoice-content, .actions-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        .invoice-content {
+            border: 1px solid #dee2e6;
+        }
+
+        /* Line Items Editing */
+        .line-items-container {
+            margin: 2rem 0;
+        }
+
+        .line-item {
+            display: grid;
+            grid-template-columns: 3fr 80px 100px 100px auto;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .line-item:hover {
+            background: #f8f9fa;
+        }
+
+        .line-item input {
+            padding: 0.4rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .line-item-total {
+            font-weight: 600;
+            color: #1565c0;
+        }
+
+        .add-item-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+
+        .add-item-btn:hover {
+            background: #218838;
+        }
+
+        .remove-item-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-item-btn:hover {
+            background: #c82333;
+        }
+
+        /* Email Panel */
+        .email-panel {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border: 2px dashed #dee2e6;
+        }
+
+        .email-panel.active {
+            border-color: #1565c0;
+            background: #e3f2fd;
+        }
+
+        .email-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .invoice-totals {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+        }
+
+        .total-line.final {
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-top: 2px solid #1565c0;
+            padding-top: 0.5rem;
+            color: #1565c0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary { background: #1565c0; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #000; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+
+        .btn-primary:hover { background: #0d47a1; }
+        .btn-success:hover { background: #218838; }
+        .btn-warning:hover { background: #e0a800; }
+        .btn-info:hover { background: #138496; }
+        .btn-danger:hover { background: #c82333; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-badge.sent { background: #d4edda; color: #155724; }
+        .status-badge.draft { background: #fff3cd; color: #856404; }
+        .status-badge.pending { background: #cce5ff; color: #004085; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .invoice-workspace {
+                grid-template-columns: 300px 1fr;
+                grid-template-rows: auto auto;
+            }
+
+            .actions-panel {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .invoice-workspace {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .line-item {
+                grid-template-columns: 1fr;
+                gap: 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="container">
+            <h1>📄 Enhanced Invoice Generator</h1>
+            <p>Create, edit, and send professional invoices</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="invoice-workspace">
+            <!-- Visit Selection Panel -->
+            <div class="visit-panel">
+                <h3>📋 Visit Details</h3>
+                <div id="visitInfo">
+                    <div style="text-align: center; color: #666; padding: 2rem;">
+                        <p>🔍 Loading visit information...</p>
+                    </div>
+                </div>
+
+                <div id="visitDetails" style="display: none;">
+                    <div class="visit-summary"></div>
+                </div>
+            </div>
+
+            <!-- Invoice Content Panel -->
+            <div class="invoice-content">
+                <div class="invoice-header" style="text-align: center; margin-bottom: 2rem;">
+                    <h2>🌱 GUIDAL</h2>
+                    <p style="color: #666;">Educational Visit Invoice</p>
+                </div>
+
+                <div id="invoiceDetails">
+                    <!-- Invoice details will be populated here -->
+                </div>
+
+                <!-- Editable Line Items -->
+                <div class="line-items-container">
+                    <h4>📝 Invoice Items <span style="font-size: 0.8rem; color: #666;">(Click to edit)</span></h4>
+
+                    <div class="line-item" style="font-weight: 600; background: #f8f9fa;">
+                        <span>Description</span>
+                        <span>Qty</span>
+                        <span>Price</span>
+                        <span>Total</span>
+                        <span></span>
+                    </div>
+
+                    <div id="lineItemsList">
+                        <!-- Line items will be populated here -->
+                    </div>
+
+                    <button class="add-item-btn" onclick="invoiceManager.addNewItem()">
+                        ➕ Add Custom Item
+                    </button>
+                </div>
+
+                <!-- Invoice Totals -->
+                <div class="invoice-totals">
+                    <div class="total-line">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">€0.00</span>
+                    </div>
+                    <div class="total-line">
+                        <span>Tax (21% VAT):</span>
+                        <span id="tax">€0.00</span>
+                    </div>
+                    <div class="total-line final">
+                        <span>Total:</span>
+                        <span id="total">€0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Panel -->
+            <div class="actions-panel">
+                <h3>⚡ Actions</h3>
+
+                <div class="btn-group">
+                    <button class="action-button btn-info" onclick="invoiceManager.previewInvoice()">
+                        👁️ Preview
+                    </button>
+                    <button class="action-button btn-warning" onclick="invoiceManager.printInvoice()">
+                        🖨️ Print
+                    </button>
+                </div>
+
+                <button class="action-button btn-primary" onclick="invoiceManager.downloadPDF()">
+                    📄 Download PDF
+                </button>
+
+                <button class="action-button btn-success" onclick="invoiceManager.saveInvoice()">
+                    💾 Save Invoice
+                </button>
+
+                <hr style="margin: 1.5rem 0;">
+
+                <!-- Email Section -->
+                <h4>📧 Send Invoice</h4>
+
+                <div class="email-panel" id="emailPanel">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                            📮 Send to:
+                        </label>
+                        <input type="email" id="recipientEmail" class="email-textarea" style="min-height: auto; height: 40px;"
+                               placeholder="teacher@school.edu">
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                            📝 Custom Message:
+                        </label>
+                        <textarea id="emailMessage" class="email-textarea"
+                                  placeholder="Dear [Teacher Name],&#10;&#10;Please find attached the invoice for your upcoming visit to GUIDAL.&#10;&#10;We look forward to welcoming your group!&#10;&#10;Best regards,&#10;GUIDAL Team"></textarea>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <button class="action-button btn-success" onclick="invoiceManager.sendInvoiceEmail()">
+                            📤 Send Invoice
+                        </button>
+                    </div>
+
+                    <div id="emailStatus" style="display: none;">
+                        <!-- Email status will appear here -->
+                    </div>
+                </div>
+
+                <hr style="margin: 1.5rem 0;">
+
+                <button class="action-button btn-primary" onclick="invoiceManager.markAsInvoiced()">
+                    ✅ Mark as Invoiced
+                </button>
+
+                <button class="action-button btn-danger" onclick="window.close()">
+                    🚪 Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load required scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        class EnhancedInvoiceManager {
+            constructor() {
+                this.visit = null;
+                this.lineItems = [];
+                this.pricing = {};
+                this.init();
+            }
+
+            async init() {
+                console.log('💰 Initializing Enhanced Invoice Manager...');
+
+                // Get visit ID from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const visitId = urlParams.get('visit');
+
+                if (visitId) {
+                    await this.loadVisit(visitId);
+                    await this.loadPricing();
+                    this.generateInitialItems();
+                    this.updateTotals();
+                } else {
+                    this.showError('No visit ID provided');
+                }
+            }
+
+            async loadVisit(visitId) {
+                try {
+                    console.log('📋 Loading visit:', visitId);
+
+                    const { data, error } = await supabaseClient
+                        .from('visits')
+                        .select('*')
+                        .eq('id', visitId)
+                        .single();
+
+                    if (error) throw error;
+
+                    this.visit = data;
+                    this.renderVisitInfo();
+                    this.populateEmailRecipient();
+
+                } catch (error) {
+                    console.error('Error loading visit:', error);
+                    this.showError('Failed to load visit information');
+                }
+            }
+
+            async loadPricing() {
+                // Load pricing data from your pricing system
+                this.pricing = {
+                    school_day_trip: {
+                        base_price: 25.00,
+                        max_students_included: 25,
+                        additional_student_price: 1.00
+                    },
+                    school_overnight: {
+                        base_price: 45.00,
+                        per_night: 15.00,
+                        max_students_included: 20,
+                        additional_student_price: 2.00
+                    },
+                    lunch: 8.50,
+                    transport: 50.00,
+                    materials: 5.00
+                };
+            }
+
+            renderVisitInfo() {
+                if (!this.visit) return;
+
+                const visitInfo = document.getElementById('visitInfo');
+                visitInfo.innerHTML = `
+                    <div class="visit-summary">
+                        <h4 style="color: #1565c0; margin-bottom: 1rem;">${this.visit.school_name}</h4>
+
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>📅 Date:</strong> ${this.formatDate(this.visit.preferred_date)}
+                        </div>
+
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>👥 Students:</strong> ${this.visit.student_count}
+                        </div>
+
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>🎯 Type:</strong> ${this.visit.visit_type?.replace('_', ' ') || 'Day Trip'}
+                        </div>
+
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>📧 Contact:</strong> ${this.visit.contact_email}
+                        </div>
+
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>📞 Phone:</strong> ${this.visit.contact_phone || 'Not provided'}
+                        </div>
+
+                        ${this.visit.visit_type === 'school_overnight' ? `
+                            <div style="margin-bottom: 0.5rem;">
+                                <strong>🌙 Nights:</strong> ${this.visit.number_of_nights || 1}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            generateInitialItems() {
+                this.lineItems = [];
+
+                if (this.visit.visit_type === 'school_overnight') {
+                    // Base overnight visit
+                    this.lineItems.push({
+                        id: Date.now() + Math.random(),
+                        description: 'Overnight Educational Visit',
+                        quantity: this.visit.student_count,
+                        price: this.pricing.school_overnight.base_price,
+                        total: this.visit.student_count * this.pricing.school_overnight.base_price
+                    });
+
+                    // Additional nights
+                    if (this.visit.number_of_nights > 1) {
+                        const extraNights = this.visit.number_of_nights - 1;
+                        this.lineItems.push({
+                            id: Date.now() + Math.random() + 1,
+                            description: `Additional Accommodation (${extraNights} nights)`,
+                            quantity: this.visit.student_count,
+                            price: this.pricing.school_overnight.per_night * extraNights,
+                            total: this.visit.student_count * this.pricing.school_overnight.per_night * extraNights
+                        });
+                    }
+                } else {
+                    // Day trip
+                    this.lineItems.push({
+                        id: Date.now() + Math.random(),
+                        description: 'Educational Day Visit',
+                        quantity: this.visit.student_count,
+                        price: this.pricing.school_day_trip.base_price,
+                        total: this.visit.student_count * this.pricing.school_day_trip.base_price
+                    });
+                }
+
+                this.renderLineItems();
+            }
+
+            renderLineItems() {
+                const container = document.getElementById('lineItemsList');
+                container.innerHTML = '';
+
+                this.lineItems.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'line-item';
+                    itemDiv.innerHTML = `
+                        <input type="text" value="${item.description}"
+                               onchange="invoiceManager.updateItem(${index}, 'description', this.value)">
+                        <input type="number" value="${item.quantity}" min="1"
+                               onchange="invoiceManager.updateItem(${index}, 'quantity', parseFloat(this.value))">
+                        <input type="number" value="${item.price}" step="0.01" min="0"
+                               onchange="invoiceManager.updateItem(${index}, 'price', parseFloat(this.value))">
+                        <span class="line-item-total">€${item.total.toFixed(2)}</span>
+                        <button class="remove-item-btn" onclick="invoiceManager.removeItem(${index})">✕</button>
+                    `;
+                    container.appendChild(itemDiv);
+                });
+            }
+
+            updateItem(index, field, value) {
+                if (index >= 0 && index < this.lineItems.length) {
+                    this.lineItems[index][field] = value;
+
+                    // Recalculate total for this item
+                    this.lineItems[index].total = this.lineItems[index].quantity * this.lineItems[index].price;
+
+                    this.renderLineItems();
+                    this.updateTotals();
+                }
+            }
+
+            addNewItem() {
+                const newItem = {
+                    id: Date.now() + Math.random(),
+                    description: 'Custom Item',
+                    quantity: 1,
+                    price: 0.00,
+                    total: 0.00
+                };
+
+                this.lineItems.push(newItem);
+                this.renderLineItems();
+                this.updateTotals();
+            }
+
+            removeItem(index) {
+                if (confirm('Remove this item from the invoice?')) {
+                    this.lineItems.splice(index, 1);
+                    this.renderLineItems();
+                    this.updateTotals();
+                }
+            }
+
+            updateTotals() {
+                const subtotal = this.lineItems.reduce((sum, item) => sum + item.total, 0);
+                const tax = subtotal * 0.21; // 21% VAT
+                const total = subtotal + tax;
+
+                document.getElementById('subtotal').textContent = `€${subtotal.toFixed(2)}`;
+                document.getElementById('tax').textContent = `€${tax.toFixed(2)}`;
+                document.getElementById('total').textContent = `€${total.toFixed(2)}`;
+            }
+
+            populateEmailRecipient() {
+                if (this.visit && this.visit.contact_email) {
+                    document.getElementById('recipientEmail').value = this.visit.contact_email;
+                }
+            }
+
+            async sendInvoiceEmail() {
+                const recipient = document.getElementById('recipientEmail').value;
+                const message = document.getElementById('emailMessage').value;
+
+                if (!recipient) {
+                    alert('Please enter a recipient email address');
+                    return;
+                }
+
+                if (!recipient.includes('@')) {
+                    alert('Please enter a valid email address');
+                    return;
+                }
+
+                try {
+                    // Show sending status
+                    const statusDiv = document.getElementById('emailStatus');
+                    statusDiv.style.display = 'block';
+                    statusDiv.innerHTML = `
+                        <div style="color: #007bff; padding: 1rem; background: #e3f2fd; border-radius: 4px;">
+                            📤 Sending invoice email to ${recipient}...<br>
+                            <small>Please wait, this may take a few seconds.</small>
+                        </div>
+                    `;
+
+                    // Prepare invoice data
+                    const invoiceData = {
+                        visit: this.visit,
+                        lineItems: this.lineItems,
+                        totals: this.calculateTotals()
+                    };
+
+                    console.log('📧 Sending email via Supabase Edge Function...');
+
+                    // Send email via Supabase Edge Function
+                    const { data, error } = await supabaseClient.functions.invoke('send-invoice', {
+                        body: {
+                            visitId: this.visit.id,
+                            recipient: recipient.trim(),
+                            message: message || 'Please find attached the invoice for your upcoming educational visit to GUIDAL.',
+                            invoiceData
+                        }
+                    });
+
+                    if (error) {
+                        throw new Error(error.message || 'Failed to send email');
+                    }
+
+                    if (data.success) {
+                        statusDiv.innerHTML = `
+                            <div style="color: #28a745; padding: 1rem; background: #d4edda; border-radius: 4px;">
+                                ✅ Invoice sent successfully!<br>
+                                <small>Email ID: ${data.email_id || 'N/A'}</small>
+                            </div>
+                        `;
+
+                        // Update local visit status
+                        this.visit.invoice_status = 'sent';
+                        this.visit.invoice_sent_at = new Date().toISOString();
+                        this.visit.invoice_sent_to = recipient;
+
+                        // Show success for 5 seconds, then hide
+                        setTimeout(() => {
+                            statusDiv.style.display = 'none';
+                        }, 5000);
+
+                    } else {
+                        throw new Error(data.error || 'Unknown error occurred');
+                    }
+
+                } catch (error) {
+                    console.error('❌ Error sending invoice email:', error);
+
+                    const statusDiv = document.getElementById('emailStatus');
+                    statusDiv.innerHTML = `
+                        <div style="color: #dc3545; padding: 1rem; background: #f8d7da; border-radius: 4px;">
+                            ❌ Failed to send invoice<br>
+                            <small>${error.message}</small><br>
+                            <button onclick="invoiceManager.sendInvoiceEmail()"
+                                    style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                🔄 Try Again
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+
+            calculateTotals() {
+                const subtotal = this.lineItems.reduce((sum, item) => sum + item.total, 0);
+                const tax = subtotal * 0.21;
+                const total = subtotal + tax;
+
+                return { subtotal, tax, total };
+            }
+
+            async generatePDFData() {
+                // This would generate PDF data - implement based on your PDF generation library
+                return {
+                    visit: this.visit,
+                    lineItems: this.lineItems,
+                    totals: this.calculateTotals()
+                };
+            }
+
+            async saveInvoice() {
+                try {
+                    const invoiceData = {
+                        visit_id: this.visit.id,
+                        line_items: this.lineItems,
+                        totals: this.calculateTotals(),
+                        created_at: new Date().toISOString(),
+                        status: 'draft'
+                    };
+
+                    // Save to your invoices table
+                    const { error } = await supabaseClient
+                        .from('invoices')
+                        .upsert(invoiceData);
+
+                    if (error) throw error;
+
+                    alert('Invoice saved successfully!');
+
+                } catch (error) {
+                    console.error('Error saving invoice:', error);
+                    alert('Failed to save invoice');
+                }
+            }
+
+            async markAsInvoiced() {
+                try {
+                    const { error } = await supabaseClient
+                        .from('visits')
+                        .update({
+                            invoice_status: 'invoiced',
+                            invoice_sent_at: new Date().toISOString()
+                        })
+                        .eq('id', this.visit.id);
+
+                    if (error) throw error;
+
+                    console.log('✅ Visit marked as invoiced');
+
+                } catch (error) {
+                    console.error('Error marking as invoiced:', error);
+                }
+            }
+
+            previewInvoice() {
+                // Open a new window with print-friendly invoice
+                const previewWindow = window.open('', '_blank');
+                const invoiceHTML = this.generateInvoiceHTML();
+                previewWindow.document.write(invoiceHTML);
+                previewWindow.document.close();
+            }
+
+            printInvoice() {
+                this.previewInvoice();
+                setTimeout(() => window.print(), 1000);
+            }
+
+            downloadPDF() {
+                // Implement PDF download - you might want to use jsPDF or similar
+                alert('PDF download functionality - implement based on your PDF library');
+            }
+
+            generateInvoiceHTML() {
+                const totals = this.calculateTotals();
+
+                return `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Invoice - ${this.visit.school_name}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 2rem; }
+                            .invoice-header { text-align: center; margin-bottom: 2rem; }
+                            .invoice-details { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+                            .line-items { margin: 2rem 0; }
+                            table { width: 100%; border-collapse: collapse; }
+                            th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #ddd; }
+                            .totals { margin-top: 1rem; text-align: right; }
+                            .total-final { font-size: 1.2rem; font-weight: bold; color: #1565c0; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="invoice-header">
+                            <h1>🌱 GUIDAL</h1>
+                            <p>Educational Visit Invoice</p>
+                        </div>
+
+                        <div class="invoice-details">
+                            <div>
+                                <h3>Bill To:</h3>
+                                <p><strong>${this.visit.school_name}</strong><br>
+                                ${this.visit.contact_name || ''}<br>
+                                ${this.visit.contact_email}<br>
+                                ${this.visit.city || ''}, ${this.visit.country_of_origin || ''}</p>
+                            </div>
+                            <div>
+                                <p><strong>Invoice Date:</strong> ${new Date().toLocaleDateString()}</p>
+                                <p><strong>Visit Date:</strong> ${this.formatDate(this.visit.preferred_date)}</p>
+                                <p><strong>Students:</strong> ${this.visit.student_count}</p>
+                            </div>
+                        </div>
+
+                        <div class="line-items">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${this.lineItems.map(item => `
+                                        <tr>
+                                            <td>${item.description}</td>
+                                            <td>${item.quantity}</td>
+                                            <td>€${item.price.toFixed(2)}</td>
+                                            <td>€${item.total.toFixed(2)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="totals">
+                            <p>Subtotal: €${totals.subtotal.toFixed(2)}</p>
+                            <p>Tax (21% VAT): €${totals.tax.toFixed(2)}</p>
+                            <p class="total-final">Total: €${totals.total.toFixed(2)}</p>
+                        </div>
+                    </body>
+                    </html>
+                `;
+            }
+
+            formatDate(dateString) {
+                if (!dateString) return 'Not specified';
+                return new Date(dateString).toLocaleDateString();
+            }
+
+            showError(message) {
+                document.getElementById('visitInfo').innerHTML = `
+                    <div style="text-align: center; color: #dc3545; padding: 2rem;">
+                        <p>❌ ${message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize the invoice manager when page loads
+        let invoiceManager;
+        document.addEventListener('DOMContentLoaded', () => {
+            invoiceManager = new EnhancedInvoiceManager();
+        });
+    </script>
+</body>
+</html>

@@ -1091,6 +1091,7 @@ class VisitPlanningForm {
                 // Visit format and educational focus
                 visit_format: formData.visitFormat || null,
                 visit_format_other: formData.visitFormatOther || null,
+                schedule_preferences: formData.schedulePreferences || null,
                 educational_focus: formData.educationalFocus || null,
                 educational_focus_other: formData.educationalFocusOther || null,
 

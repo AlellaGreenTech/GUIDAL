@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migrate Events to Visits Table</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .success-btn { background: #28a745; }
+        .warning-btn { background: #ffc107; color: #000; }
+        .results { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .event-preview { background: #e3f2fd; border-left: 4px solid #1565c0; padding: 10px; margin: 5px 0; font-size: 0.9rem; }
+        .mapping-info { background: #f3e5f5; border-left: 4px solid #7b1fa2; padding: 10px; margin: 5px 0; }
+        .summary { background: #e8f5e8; border-left: 4px solid #4caf50; padding: 15px; margin: 10px 0; }
+        .step { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>📅 Migrate Events to Visits Table</h1>
+    <p>This tool will analyze activities/events and migrate them to the visits table as visit_type = 'event'.</p>
+
+    <div class="step">
+        <h3>Step 1: Analyze Activities/Events</h3>
+        <button id="analyzeBtn" class="btn">📊 Analyze Activities Data</button>
+    </div>
+
+    <div class="step">
+        <h3>Step 2: Preview Migration Mapping</h3>
+        <button id="previewBtn" class="btn warning-btn" disabled>👁️ Preview Event Migration</button>
+    </div>
+
+    <div class="step">
+        <h3>Step 3: Execute Migration</h3>
+        <button id="migrateBtn" class="btn success-btn" disabled>🚀 Migrate Events to Visits</button>
+    </div>
+
+    <div id="results"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let activitiesData = [];
+        let eventsToMigrate = [];
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function showResults(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += content;
+        }
+
+        async function analyzeActivities() {
+            log('🔍 Analyzing activities table...');
+            document.getElementById('results').innerHTML = '';
+
+            try {
+                // Get all activities with their types
+                const { data: activities, error } = await supabase
+                    .from('activities')
+                    .select(`
+                        *,
+                        activity_type:activity_types(name)
+                    `)
+                    .order('date_time', { ascending: false });
+
+                if (error) {
+                    log(`❌ Error fetching activities: ${error.message}`);
+                    return;
+                }
+
+                activitiesData = activities || [];
+                log(`📊 Found ${activitiesData.length} total activities`);
+
+                // Analyze activity types
+                const typeGroups = {};
+                activitiesData.forEach(activity => {
+                    const typeName = activity.activity_type?.name || 'Unknown';
+                    if (!typeGroups[typeName]) typeGroups[typeName] = [];
+                    typeGroups[typeName].push(activity);
+                });
+
+                let typeAnalysis = '<h3>📊 Activities by Type</h3>';
+                Object.entries(typeGroups).forEach(([typeName, activities]) => {
+                    typeAnalysis += `
+                        <div class="event-preview">
+                            <strong>"${typeName}"</strong> - ${activities.length} activities
+                        </div>
+                    `;
+                });
+
+                showResults(typeAnalysis);
+
+                // Check for existing events in visits table
+                const { data: existingVisits, error: visitsError } = await supabase
+                    .from('visits')
+                    .select('school_name, internal_notes')
+                    .eq('visit_type', 'event');
+
+                if (visitsError) {
+                    log(`⚠️ Warning: Could not check existing visits: ${visitsError.message}`);
+                } else {
+                    log(`📋 Found ${existingVisits?.length || 0} existing events in visits table`);
+                }
+
+                // Show data structure
+                if (activitiesData.length > 0) {
+                    const sampleActivity = activitiesData[0];
+                    let structureInfo = '<h3>🏗️ Activities Table Structure</h3>';
+                    structureInfo += '<div class="mapping-info">';
+                    structureInfo += '<strong>Available fields:</strong><br>';
+                    Object.keys(sampleActivity).forEach(key => {
+                        structureInfo += `• ${key}: ${typeof sampleActivity[key]}<br>`;
+                    });
+                    structureInfo += '</div>';
+                    showResults(structureInfo);
+
+                    // Enable preview
+                    document.getElementById('previewBtn').disabled = false;
+                }
+
+            } catch (error) {
+                log(`❌ Error in analysis: ${error.message}`);
+            }
+        }
+
+        async function previewMigration() {
+            log('👁️ Generating migration preview...');
+
+            if (activitiesData.length === 0) {
+                log('❌ No activities data loaded');
+                return;
+            }
+
+            // Filter activities that could be events (not school visits)
+            eventsToMigrate = activitiesData.filter(activity => {
+                // Skip activities that look like school visits
+                const title = (activity.title || '').toLowerCase();
+                const description = (activity.description || '').toLowerCase();
+
+                // These look like school visits, not events
+                if (title.includes('school') || title.includes('visit') ||
+                    description.includes('student') || description.includes('class')) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            log(`🎯 Found ${eventsToMigrate.length} activities to migrate as events`);
+
+            let previewHtml = '<h3>👁️ Migration Preview</h3>';
+            previewHtml += '<div class="mapping-info">';
+            previewHtml += '<h4>Field Mapping: Activities → Visits</h4>';
+            previewHtml += '• title → school_name (event name)<br>';
+            previewHtml += '• description → learning_goals<br>';
+            previewHtml += '• date_time → preferred_date<br>';
+            previewHtml += '• max_participants → student_count<br>';
+            previewHtml += '• activity_type.name → additional_requests<br>';
+            previewHtml += '• "event" → visit_type<br>';
+            previewHtml += '• "Migrated from activities table" → internal_notes<br>';
+            previewHtml += '</div>';
+
+            if (eventsToMigrate.length === 0) {
+                previewHtml += '<div class="summary">✅ No new events to migrate - all activities appear to be school visits or already migrated.</div>';
+            } else {
+                previewHtml += '<h4>Events to Migrate:</h4>';
+                eventsToMigrate.slice(0, 10).forEach(activity => {
+                    const eventDate = activity.date_time ? new Date(activity.date_time).toLocaleDateString() : 'No date';
+                    previewHtml += `
+                        <div class="event-preview">
+                            <strong>Event:</strong> "${activity.title}"<br>
+                            <strong>Date:</strong> ${eventDate}<br>
+                            <strong>Participants:</strong> ${activity.max_participants || 'TBD'}<br>
+                            <strong>Type:</strong> ${activity.activity_type?.name || 'Unknown'}<br>
+                            ${activity.description ? `<strong>Description:</strong> ${activity.description.substring(0, 100)}...` : ''}
+                        </div>
+                    `;
+                });
+
+                if (eventsToMigrate.length > 10) {
+                    previewHtml += `<p><em>... and ${eventsToMigrate.length - 10} more events</em></p>`;
+                }
+
+                document.getElementById('migrateBtn').disabled = false;
+            }
+
+            showResults(previewHtml);
+        }
+
+        async function migrateEvents() {
+            if (eventsToMigrate.length === 0) {
+                log('❌ No events to migrate');
+                return;
+            }
+
+            if (!confirm(`Migrate ${eventsToMigrate.length} activities as events to the visits table?`)) {
+                log('🛑 Migration cancelled');
+                return;
+            }
+
+            log(`🚀 Starting migration of ${eventsToMigrate.length} events...`);
+
+            let migratedCount = 0;
+            let failedCount = 0;
+
+            for (const activity of eventsToMigrate) {
+                try {
+                    // Map activity fields to visits table format
+                    const visitRecord = {
+                        school_name: activity.title || 'Untitled Event',
+                        contact_email: 'event@guidal.com',
+                        contact_name: 'Event Migration',
+                        country_of_origin: 'Event Location',
+                        visit_type: 'event',
+                        visit_format: 'event',
+                        educational_focus: 'event-activity',
+                        student_count: activity.max_participants || 0,
+                        teacher_count: Math.ceil((activity.max_participants || 0) / 15) || 1,
+                        grade_level: 'Mixed',
+                        preferred_date: activity.date_time ? new Date(activity.date_time).toISOString().split('T')[0] : null,
+                        visit_duration: 'Event duration',
+                        lunch_needs: 'none',
+                        learning_goals: activity.description || 'Event activity',
+                        topics_of_interest: activity.activity_type?.name || 'General',
+                        additional_requests: `Original activity type: ${activity.activity_type?.name || 'Unknown'}`,
+                        status: 'completed', // Assume past events are completed
+                        submitted_at: activity.created_at || new Date().toISOString(),
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                        internal_notes: `Migrated from activities table. Original ID: ${activity.id}`,
+                        confirmed_date: activity.date_time ? new Date(activity.date_time).toISOString().split('T')[0] : null,
+                        estimated_cost: 0
+                    };
+
+                    const { error } = await supabase
+                        .from('visits')
+                        .insert([visitRecord]);
+
+                    if (error) {
+                        log(`❌ Failed to migrate "${activity.title}": ${error.message}`);
+                        failedCount++;
+                    } else {
+                        log(`✅ Migrated event: "${activity.title}"`);
+                        migratedCount++;
+                    }
+
+                } catch (error) {
+                    log(`❌ Error migrating "${activity.title}": ${error.message}`);
+                    failedCount++;
+                }
+            }
+
+            log(`✅ Migration complete! ${migratedCount} events migrated, ${failedCount} failed`);
+
+            showResults(`
+                <div class="summary">
+                    <h3>🎉 Migration Results</h3>
+                    <p><strong>Events successfully migrated:</strong> ${migratedCount}</p>
+                    <p><strong>Failed migrations:</strong> ${failedCount}</p>
+                    <p><strong>Total events now in visits table:</strong> ${migratedCount}</p>
+                    <p>✅ Your admin dashboard should now show events alongside school visits!</p>
+                </div>
+            `);
+        }
+
+        document.getElementById('analyzeBtn').addEventListener('click', analyzeActivities);
+        document.getElementById('previewBtn').addEventListener('click', previewMigration);
+        document.getElementById('migrateBtn').addEventListener('click', migrateEvents);
+
+        // Auto-start analysis
+        analyzeActivities();
+    </script>
+</body>
+</html>

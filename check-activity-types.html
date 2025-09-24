@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Activity Types</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .result { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #1565c0; }
+        .type-item { background: #e3f2fd; padding: 10px; margin: 5px 0; border-radius: 4px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Check Activity Types</h1>
+    <p>Let's find the correct activity_type_id values for the workshops.</p>
+
+    <button class="btn" onclick="checkActivityTypes()">📋 Check Activity Types</button>
+    <button class="btn" onclick="createWorkshopType()">➕ Create Workshop Type</button>
+
+    <div id="results"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function showResult(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="result">${content}</div>`;
+        }
+
+        async function checkActivityTypes() {
+            try {
+                const { data: types, error } = await supabase
+                    .from('activity_types')
+                    .select('*')
+                    .order('name');
+
+                if (error) {
+                    showResult(`❌ <strong>Error:</strong> ${error.message}`);
+                    return;
+                }
+
+                if (!types || types.length === 0) {
+                    showResult(`⚠️ <strong>No activity types found</strong> - You'll need to create them first.`);
+                    return;
+                }
+
+                let content = `<h3>📋 Found ${types.length} Activity Types</h3>`;
+                types.forEach(type => {
+                    content += `
+                        <div class="type-item">
+                            <strong>Name:</strong> ${type.name}<br>
+                            <strong>ID:</strong> ${type.id}<br>
+                            ${type.description ? `<strong>Description:</strong> ${type.description}<br>` : ''}
+                        </div>
+                    `;
+                });
+
+                content += `<h4>💡 Use these IDs in your CSV:</h4>`;
+                content += `<p>Replace <code>activity_type_id,1</code> with one of the IDs above (e.g., <code>activity_type_id,${types[0]?.id || 'UUID-HERE'}</code>)</p>`;
+
+                showResult(content);
+
+            } catch (error) {
+                showResult(`❌ <strong>Error:</strong> ${error.message}`);
+            }
+        }
+
+        async function createWorkshopType() {
+            try {
+                // Check if "workshop" type already exists
+                const { data: existing } = await supabase
+                    .from('activity_types')
+                    .select('*')
+                    .eq('name', 'workshop')
+                    .single();
+
+                if (existing) {
+                    showResult(`✅ <strong>Workshop type already exists!</strong><br>ID: ${existing.id}<br>Use this ID in your CSV.`);
+                    return;
+                }
+
+                // Try to create a workshop type
+                const { data: newType, error } = await supabase
+                    .from('activity_types')
+                    .insert([{
+                        name: 'workshop',
+                        description: 'Science-in-action workshop sessions'
+                    }])
+                    .select()
+                    .single();
+
+                if (error) {
+                    showResult(`❌ <strong>Cannot create activity type:</strong> ${error.message}<br><small>You may need to create this in the Supabase dashboard manually.</small>`);
+                } else {
+                    showResult(`✅ <strong>Created workshop type!</strong><br>ID: ${newType.id}<br>Use this ID in your CSV.`);
+                }
+
+            } catch (error) {
+                showResult(`❌ <strong>Error:</strong> ${error.message}`);
+            }
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            checkActivityTypes();
+        });
+    </script>
+</body>
+</html>

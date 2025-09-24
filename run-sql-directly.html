@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Run SQL Commands</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Add Missing Database Columns</h1>
+    <div id="status">Ready to execute SQL commands...</div>
+    <button onclick="runSQL()">Execute SQL Commands</button>
+    <div id="output"></div>
+
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://lmsuyhzcmgdpjynosxvp.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U'
+        );
+
+        async function runSQL() {
+            const statusDiv = document.getElementById('status');
+            const outputDiv = document.getElementById('output');
+
+            statusDiv.innerHTML = 'Executing SQL commands...';
+
+            // List of SQL ALTER TABLE commands
+            const sqlCommands = [
+                'ALTER TABLE visits ADD COLUMN IF NOT EXISTS potential_visit_dates TEXT',
+                'ALTER TABLE visits ADD COLUMN IF NOT EXISTS preferred_language TEXT DEFAULT \'english\'',
+                'ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_format TEXT',
+                'ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_format_other TEXT',
+                'ALTER TABLE visits ADD COLUMN IF NOT EXISTS educational_focus TEXT',
+                'ALTER TABLE visits ADD COLUMN IF NOT EXISTS educational_focus_other TEXT',
+                'ALTER TABLE visits ADD COLUMN IF NOT EXISTS selected_workshops TEXT[]',
+                'ALTER TABLE visits ADD COLUMN IF NOT EXISTS food_preferences TEXT[]'
+            ];
+
+            let results = [];
+
+            for (const sql of sqlCommands) {
+                try {
+                    // Try executing using Supabase's SQL function
+                    const { data, error } = await supabase.rpc('execute_sql', { query: sql });
+
+                    if (error) {
+                        results.push(`❌ ${sql}\n   Error: ${error.message}`);
+                    } else {
+                        results.push(`✅ ${sql}`);
+                    }
+                } catch (e) {
+                    results.push(`⚠️ ${sql}\n   Exception: ${e.message}`);
+                }
+            }
+
+            outputDiv.innerHTML = `<pre>${results.join('\n\n')}</pre>`;
+            statusDiv.innerHTML = 'SQL execution completed. Check results above.';
+
+            // Test the schema by querying the visits table structure
+            try {
+                const { data, error } = await supabase
+                    .from('visits')
+                    .select('*')
+                    .limit(0);
+
+                if (!error) {
+                    statusDiv.innerHTML += '<br>✅ Visits table accessible. Schema should be updated.';
+                } else {
+                    statusDiv.innerHTML += `<br>⚠️ Error testing visits table: ${error.message}`;
+                }
+            } catch (e) {
+                statusDiv.innerHTML += `<br>⚠️ Exception testing visits table: ${e.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

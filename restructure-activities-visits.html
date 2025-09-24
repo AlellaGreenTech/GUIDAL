@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restructure Activities & Visits</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .step { border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 8px; background: #f8f9fa; }
+        .step h3 { margin-top: 0; color: #1565c0; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #0d47a1; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .success-btn { background: #28a745; }
+        .warning-btn { background: #ffc107; color: #000; }
+        .danger-btn { background: #dc3545; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; margin: 10px 0; }
+        .science-card { background: #e3f2fd; border-left: 4px solid #1565c0; padding: 15px; margin: 10px 0; border-radius: 4px; }
+        .workshop-preview { background: #f3e5f5; border-left: 4px solid #7b1fa2; padding: 10px; margin: 5px 0; font-size: 0.9rem; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .status.success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .status.warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+        .status.error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>🔄 Restructure Activities & Visits</h1>
+    <p><strong>Goal:</strong> Activities table = Future offerings, Visits table = Past completed activities</p>
+
+    <div class="step">
+        <h3>Step 1: Analyze Current Data</h3>
+        <p>Check what's currently in activities and visits tables</p>
+        <button class="btn" onclick="analyzeCurrentData()">📊 Analyze Current State</button>
+        <div id="analysisResults"></div>
+    </div>
+
+    <div class="step">
+        <h3>Step 2: Create Science-in-Action Workshops</h3>
+        <p>Create workshop entries in activities table based on science-in-action cards</p>
+        <button class="btn" onclick="createScienceWorkshops()" disabled id="createWorkshopsBtn">🔬 Create Science Workshops</button>
+        <div id="workshopsResults"></div>
+    </div>
+
+    <div class="step">
+        <h3>Step 3: Clean Up Activities Table</h3>
+        <p>Remove past activities from activities table (they should be in visits table)</p>
+        <button class="btn warning-btn" onclick="cleanupActivities()" disabled id="cleanupBtn">🧹 Clean Past Activities</button>
+        <div id="cleanupResults"></div>
+    </div>
+
+    <div class="step">
+        <h3>Step 4: Verify Data Structure</h3>
+        <p>Confirm the new structure is working correctly</p>
+        <button class="btn success-btn" onclick="verifyStructure()" disabled id="verifyBtn">✅ Verify Structure</button>
+        <div id="verifyResults"></div>
+    </div>
+
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentData = {};
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function showStatus(elementId, content, type = 'success') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${content}</div>`;
+        }
+
+        // Science-in-Action workshop definitions based on your website
+        const scienceWorkshops = [
+            {
+                title: "Biodiversity & Ecosystems Workshop",
+                description: "Explore the rich biodiversity of Mediterranean ecosystems through hands-on field work and laboratory analysis.",
+                duration: "3 hours",
+                max_participants: 30,
+                age_range: "12-18 years",
+                focus_areas: ["biodiversity", "ecosystem analysis", "field research"],
+                activity_type: "science-workshop",
+                price_child: 25,
+                price_adult: 35
+            },
+            {
+                title: "Sustainable Agriculture & Permaculture",
+                description: "Learn sustainable farming techniques and permaculture principles through practical garden work.",
+                duration: "4 hours",
+                max_participants: 25,
+                age_range: "10-18 years",
+                focus_areas: ["permaculture", "sustainable agriculture", "soil science"],
+                activity_type: "hands-on-workshop",
+                price_child: 30,
+                price_adult: 40
+            },
+            {
+                title: "Water Cycle & Conservation",
+                description: "Investigate water systems, quality testing, and conservation methods in our aquatic lab.",
+                duration: "2.5 hours",
+                max_participants: 20,
+                age_range: "8-16 years",
+                focus_areas: ["water science", "conservation", "environmental testing"],
+                activity_type: "science-workshop",
+                price_child: 20,
+                price_adult: 30
+            },
+            {
+                title: "Renewable Energy Systems",
+                description: "Build and test solar panels, wind turbines, and explore clean energy solutions.",
+                duration: "3.5 hours",
+                max_participants: 15,
+                age_range: "12-18 years",
+                focus_areas: ["renewable energy", "engineering", "climate action"],
+                activity_type: "tech-workshop",
+                price_child: 35,
+                price_adult: 45
+            },
+            {
+                title: "Climate Science & Data Analysis",
+                description: "Collect climate data, analyze trends, and understand local environmental changes.",
+                duration: "3 hours",
+                max_participants: 20,
+                age_range: "14-18 years",
+                focus_areas: ["climate science", "data analysis", "environmental monitoring"],
+                activity_type: "research-workshop",
+                price_child: 28,
+                price_adult: 38
+            },
+            {
+                title: "Green Technology Innovation Lab",
+                description: "Design and prototype solutions to environmental challenges using maker tools.",
+                duration: "4 hours",
+                max_participants: 12,
+                age_range: "15-18 years",
+                focus_areas: ["innovation", "engineering", "problem solving"],
+                activity_type: "maker-workshop",
+                price_child: 40,
+                price_adult: 50
+            }
+        ];
+
+        async function analyzeCurrentData() {
+            log('📊 Analyzing current data structure...');
+
+            try {
+                // Get activities data
+                const { data: activities, error: activitiesError } = await supabase
+                    .from('activities')
+                    .select('*')
+                    .order('created_at');
+
+                if (activitiesError) throw activitiesError;
+
+                // Get visits data
+                const { data: visits, error: visitsError } = await supabase
+                    .from('visits')
+                    .select('*')
+                    .order('submitted_at');
+
+                if (visitsError) throw visitsError;
+
+                currentData = { activities, visits };
+
+                log(`✅ Found ${activities.length} activities and ${visits.length} visits`);
+
+                // Analyze activities
+                const pastActivities = activities.filter(a => a.date_time && new Date(a.date_time) < new Date());
+                const futureActivities = activities.filter(a => !a.date_time || new Date(a.date_time) >= new Date());
+
+                // Analyze by type
+                const activityTypes = {};
+                activities.forEach(a => {
+                    const type = a.activity_type || 'unknown';
+                    activityTypes[type] = (activityTypes[type] || 0) + 1;
+                });
+
+                let analysis = `
+                    <h4>📊 Current Data Analysis</h4>
+                    <p><strong>Activities Table:</strong> ${activities.length} total</p>
+                    <ul>
+                        <li>Past activities: ${pastActivities.length} (should move to visits)</li>
+                        <li>Future activities: ${futureActivities.length} (should stay)</li>
+                    </ul>
+
+                    <p><strong>Visits Table:</strong> ${visits.length} total</p>
+
+                    <p><strong>Activity Types in Activities Table:</strong></p>
+                    <ul>
+                        ${Object.entries(activityTypes).map(([type, count]) =>
+                            `<li>${type}: ${count}</li>`
+                        ).join('')}
+                    </ul>
+
+                    <h4>🎯 Recommended Actions:</h4>
+                    <ul>
+                        <li>Create ${scienceWorkshops.length} science workshop templates</li>
+                        <li>Move ${pastActivities.length} past activities to visits (if not already there)</li>
+                        <li>Keep ${futureActivities.length} future activities in activities table</li>
+                    </ul>
+                `;
+
+                showStatus('analysisResults', analysis, 'success');
+
+                // Enable next step
+                document.getElementById('createWorkshopsBtn').disabled = false;
+
+            } catch (error) {
+                log('❌ Error analyzing data: ' + error.message);
+                showStatus('analysisResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function createScienceWorkshops() {
+            log('🔬 Creating science workshop templates...');
+
+            try {
+                let created = 0;
+                let skipped = 0;
+
+                for (const workshop of scienceWorkshops) {
+                    // Check if workshop already exists
+                    const { data: existing } = await supabase
+                        .from('activities')
+                        .select('id')
+                        .eq('title', workshop.title)
+                        .single();
+
+                    if (existing) {
+                        log(`⏭️ Workshop "${workshop.title}" already exists, skipping`);
+                        skipped++;
+                        continue;
+                    }
+
+                    // Create new workshop activity
+                    const activityData = {
+                        title: workshop.title,
+                        description: workshop.description,
+                        activity_type: 'workshop',
+                        max_participants: workshop.max_participants,
+                        duration: workshop.duration,
+                        date_time: null, // No specific date - this is a template
+                        location: 'Alella Green Tech Foundation',
+                        price: workshop.price_child,
+                        status: 'available',
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                        // Custom fields for workshop details
+                        age_range: workshop.age_range,
+                        focus_areas: workshop.focus_areas,
+                        booking_notes: `This is a template workshop. Contact us to schedule.`
+                    };
+
+                    const { error } = await supabase
+                        .from('activities')
+                        .insert([activityData]);
+
+                    if (error) {
+                        log(`❌ Failed to create "${workshop.title}": ${error.message}`);
+                    } else {
+                        log(`✅ Created workshop: "${workshop.title}"`);
+                        created++;
+                    }
+                }
+
+                const summary = `
+                    <h4>🔬 Science Workshops Creation Complete</h4>
+                    <p>✅ <strong>Created:</strong> ${created} new workshops</p>
+                    <p>⏭️ <strong>Skipped:</strong> ${skipped} existing workshops</p>
+
+                    <h5>Created Workshop Templates:</h5>
+                    ${created > 0 ? scienceWorkshops.map(w =>
+                        `<div class="workshop-preview">
+                            <strong>${w.title}</strong><br>
+                            ${w.description.substring(0, 100)}...<br>
+                            <small>Duration: ${w.duration} | Max: ${w.max_participants} participants | Ages: ${w.age_range}</small>
+                        </div>`
+                    ).join('') : '<p>No new workshops created.</p>'}
+                `;
+
+                showStatus('workshopsResults', summary, 'success');
+
+                // Enable next step
+                document.getElementById('cleanupBtn').disabled = false;
+
+            } catch (error) {
+                log('❌ Error creating workshops: ' + error.message);
+                showStatus('workshopsResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function cleanupActivities() {
+            log('🧹 Cleaning up past activities from activities table...');
+
+            try {
+                // Find past activities that should be moved to visits
+                const { data: pastActivities } = await supabase
+                    .from('activities')
+                    .select('*')
+                    .not('date_time', 'is', null)
+                    .lt('date_time', new Date().toISOString());
+
+                if (!pastActivities || pastActivities.length === 0) {
+                    log('✅ No past activities to clean up');
+                    showStatus('cleanupResults', '✅ No past activities found to clean up', 'success');
+                    document.getElementById('verifyBtn').disabled = false;
+                    return;
+                }
+
+                log(`🔍 Found ${pastActivities.length} past activities to clean up`);
+
+                // For each past activity, check if it exists in visits table
+                let moved = 0;
+                let deleted = 0;
+
+                for (const activity of pastActivities) {
+                    // Check if similar visit exists
+                    const { data: existingVisit } = await supabase
+                        .from('visits')
+                        .select('id')
+                        .eq('school_name', activity.title)
+                        .eq('preferred_date', activity.date_time.split('T')[0])
+                        .single();
+
+                    if (existingVisit) {
+                        log(`✅ Activity "${activity.title}" already in visits, removing from activities`);
+
+                        // Delete from activities table
+                        const { error: deleteError } = await supabase
+                            .from('activities')
+                            .delete()
+                            .eq('id', activity.id);
+
+                        if (deleteError) {
+                            log(`❌ Failed to delete activity ${activity.id}: ${deleteError.message}`);
+                        } else {
+                            deleted++;
+                        }
+                    } else {
+                        log(`⚠️ Activity "${activity.title}" not in visits table, keeping in activities for now`);
+                    }
+                }
+
+                const summary = `
+                    <h4>🧹 Cleanup Complete</h4>
+                    <p>🗑️ <strong>Deleted from activities:</strong> ${deleted} past activities (already in visits)</p>
+                    <p>⚠️ <strong>Kept in activities:</strong> ${pastActivities.length - deleted} activities (not found in visits)</p>
+
+                    <div class="status warning">
+                        <strong>Note:</strong> Activities table should now only contain future workshop templates and upcoming events.
+                    </div>
+                `;
+
+                showStatus('cleanupResults', summary, 'success');
+
+                // Enable next step
+                document.getElementById('verifyBtn').disabled = false;
+
+            } catch (error) {
+                log('❌ Error during cleanup: ' + error.message);
+                showStatus('cleanupResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyStructure() {
+            log('✅ Verifying new data structure...');
+
+            try {
+                // Check final state
+                const { data: activities } = await supabase
+                    .from('activities')
+                    .select('*')
+                    .order('title');
+
+                const { data: visits } = await supabase
+                    .from('visits')
+                    .select('*')
+                    .order('submitted_at', { ascending: false })
+                    .limit(10);
+
+                // Categorize activities
+                const workshopTemplates = activities.filter(a =>
+                    !a.date_time && a.activity_type === 'workshop'
+                );
+
+                const upcomingEvents = activities.filter(a =>
+                    a.date_time && new Date(a.date_time) >= new Date()
+                );
+
+                const pastEvents = activities.filter(a =>
+                    a.date_time && new Date(a.date_time) < new Date()
+                );
+
+                const summary = `
+                    <h4>✅ Data Structure Verification</h4>
+
+                    <h5>📋 Activities Table (${activities.length} total):</h5>
+                    <ul>
+                        <li>🔬 Workshop templates: ${workshopTemplates.length}</li>
+                        <li>📅 Upcoming events: ${upcomingEvents.length}</li>
+                        <li>⚠️ Past events (should be 0): ${pastEvents.length}</li>
+                    </ul>
+
+                    <h5>📋 Visits Table:</h5>
+                    <ul>
+                        <li>📊 Total completed visits: ${visits.length}+</li>
+                        <li>📝 Recent visits: ${visits.slice(0, 5).map(v => v.school_name).join(', ')}</li>
+                    </ul>
+
+                    <h5>🎯 Workshop Templates Created:</h5>
+                    ${workshopTemplates.map(w =>
+                        `<div class="workshop-preview">
+                            <strong>${w.title}</strong><br>
+                            <small>Max participants: ${w.max_participants} | Duration: ${w.duration}</small>
+                        </div>`
+                    ).join('')}
+
+                    <div class="status ${pastEvents.length === 0 ? 'success' : 'warning'}">
+                        <strong>${pastEvents.length === 0 ? '✅ Structure is correct!' : '⚠️ Still has past events in activities table'}</strong><br>
+                        Activities table: Future offerings only<br>
+                        Visits table: Past completed activities
+                    </div>
+                `;
+
+                showStatus('verifyResults', summary, pastEvents.length === 0 ? 'success' : 'warning');
+
+            } catch (error) {
+                log('❌ Error verifying structure: ' + error.message);
+                showStatus('verifyResults', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-start analysis
+        window.addEventListener('load', () => {
+            log('🔄 Data restructuring tool loaded');
+            log('📋 Ready to restructure Activities (future) vs Visits (past)');
+        });
+    </script>
+</body>
+</html>

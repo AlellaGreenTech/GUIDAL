@@ -241,6 +241,169 @@
         .pricing-section {
             overflow: visible !important;
         }
+
+        .visit-type-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            position: relative;
+        }
+
+        .visit-type-card.editing {
+            border-color: #1565c0;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+        }
+
+        .visit-type-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .visit-type-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1565c0;
+        }
+
+        .visit-type-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .visit-type-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .free-adults-section {
+            grid-column: 1 / -1;
+            padding: 1rem;
+            background: #f0f8ff;
+            border-radius: 6px;
+            border-left: 4px solid #1565c0;
+        }
+
+        .workshop-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .workshop-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #1565c0;
+        }
+
+        .workshop-card.editing {
+            border-color: #1565c0;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+        }
+
+        .workshop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .workshop-info {
+            flex: 1;
+        }
+
+        .workshop-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1565c0;
+            margin-bottom: 0.25rem;
+        }
+
+        .workshop-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        .workshop-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .workshop-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .workshop-pricing-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .price-badge {
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+            border-left: 3px solid #1565c0;
+        }
+
+        .price-badge .label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .price-badge .value {
+            font-weight: 600;
+            color: #1565c0;
+            font-size: 1.1rem;
+        }
+
+        .workshop-form {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .workshop-form.editing {
+            display: grid;
+        }
+
+        .form-section {
+            grid-column: 1 / -1;
+            border-top: 1px solid #dee2e6;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-section:first-child {
+            border-top: none;
+            padding-top: 0;
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
@@ -266,10 +429,58 @@
     <main class="container">
         <div id="messages"></div>
 
+        <!-- Workshop/Activity Catalog -->
+        <div class="pricing-section">
+            <div class="section-header">
+                <h3>🎯 Workshop & Activity Catalog</h3>
+                <p style="margin: 0.5rem 0; color: #666; font-size: 0.9rem;">Configure individual pricing for each workshop and activity. Visits can include multiple workshops.</p>
+            </div>
+            <div class="section-content">
+                <div id="workshopCatalogContainer">
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        Loading workshop catalog...
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success" onclick="addNewWorkshop()" style="margin-top: 1rem;">➕ Add New Workshop/Activity</button>
+            </div>
+        </div>
+
+        <!-- Base Visit Pricing -->
+        <div class="pricing-section">
+            <div class="section-header">
+                <h3>🏫 Base Visit Pricing</h3>
+                <p style="margin: 0.5rem 0; color: #666; font-size: 0.9rem;">Base pricing for site access, tours, and facilities (before workshop add-ons)</p>
+            </div>
+            <div class="section-content">
+                <form id="baseVisitForm">
+                    <div class="pricing-grid">
+                        <div class="price-input">
+                            <label for="baseVisitChild">Base Visit - Child</label>
+                            <div class="euro-symbol">
+                                <input type="number" id="baseVisitChild" step="0.01" min="0" value="10" required>
+                            </div>
+                        </div>
+                        <div class="price-input">
+                            <label for="baseVisitAdult">Base Visit - Adult</label>
+                            <div class="euro-symbol">
+                                <input type="number" id="baseVisitAdult" step="0.01" min="0" value="15" required>
+                            </div>
+                        </div>
+                        <div class="price-input">
+                            <label for="freeAdultsBase">Free Adults (Base Visit)</label>
+                            <input type="number" id="freeAdultsBase" min="0" value="1" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Update Base Visit Pricing</button>
+                </form>
+            </div>
+        </div>
+
         <!-- Standard Pricing Configuration -->
         <div class="pricing-section">
             <div class="section-header">
-                <h3>📊 Standard Pricing Configuration</h3>
+                <h3>📊 Default Pricing Configuration</h3>
+                <p style="margin: 0.5rem 0; color: #666; font-size: 0.9rem;">Fallback pricing when no specific visit type pricing is configured</p>
             </div>
             <div class="section-content">
                 <form id="standardPricingForm">
@@ -408,6 +619,7 @@
             async init() {
                 try {
                     await this.loadCurrentPricing();
+                    await this.loadWorkshopCatalog();
                     await this.loadSchoolOverrides();
                     await this.loadSchoolNames();
                     this.setupEventListeners();
@@ -661,6 +873,216 @@
                 this.showMessage('School override deleted', 'success');
             }
 
+            async loadWorkshopCatalog() {
+                try {
+                    // Workshop/Activity pricing catalog (operational details managed elsewhere)
+                    const defaultWorkshops = [
+                        {
+                            id: 'compost-workshop',
+                            name: '🌱 Composting Workshop',
+                            description: 'Learn hands-on composting techniques and soil health',
+                            child_price: 8.50,
+                            adult_price: 12.00,
+                            category: 'Soil & Agriculture'
+                        },
+                        {
+                            id: 'hydro-workshop',
+                            name: '💧 Hydroponic Systems',
+                            description: 'Build and understand soilless growing systems',
+                            child_price: 15.00,
+                            adult_price: 22.00,
+                            category: 'Technology'
+                        },
+                        {
+                            id: 'solar-workshop',
+                            name: '☀️ Solar Energy Lab',
+                            description: 'Hands-on solar panel construction and testing',
+                            child_price: 18.00,
+                            adult_price: 25.00,
+                            category: 'Renewable Energy'
+                        },
+                        {
+                            id: 'permaculture-design',
+                            name: '🌿 Permaculture Design',
+                            description: 'Design sustainable food systems and landscapes',
+                            child_price: 22.00,
+                            adult_price: 32.00,
+                            category: 'Design & Planning'
+                        },
+                        {
+                            id: 'water-management',
+                            name: '🚰 Water Systems Workshop',
+                            description: 'Rainwater harvesting and greywater systems',
+                            child_price: 12.00,
+                            adult_price: 18.00,
+                            category: 'Water Management'
+                        },
+                        {
+                            id: 'bio-construction',
+                            name: '🏡 Bio-Construction Workshop',
+                            description: 'Natural building techniques with local materials',
+                            child_price: 25.00,
+                            adult_price: 35.00,
+                            category: 'Construction'
+                        },
+                        {
+                            id: 'farm-tour',
+                            name: '🚜 Guided Farm Tour',
+                            description: 'Educational walk through sustainable farming practices',
+                            child_price: 5.00,
+                            adult_price: 8.00,
+                            category: 'Tours'
+                        },
+                        {
+                            id: 'lunch-preparation',
+                            name: '🥗 Farm-to-Table Lunch',
+                            description: 'Fresh meal prepared with on-site ingredients',
+                            child_price: 8.00,
+                            adult_price: 12.00,
+                            category: 'Meals'
+                        }
+                    ];
+
+                    this.workshopCatalog = defaultWorkshops;
+                    this.renderWorkshopCatalog();
+                } catch (error) {
+                    console.error('Error loading workshop catalog:', error);
+                }
+            }
+
+            renderWorkshopCatalog() {
+                const container = document.getElementById('workshopCatalogContainer');
+
+                if (!this.workshopCatalog || this.workshopCatalog.length === 0) {
+                    container.innerHTML = '<p style="color: #666; font-style: italic;">No workshops configured.</p>';
+                    return;
+                }
+
+                const html = this.workshopCatalog.map(workshop => `
+                    <div class="workshop-card" data-workshop-id="${workshop.id}">
+                        <div class="workshop-header">
+                            <div class="workshop-info">
+                                <div class="workshop-title">${workshop.name}</div>
+                                <div class="workshop-description">${workshop.description}</div>
+                                <div class="workshop-meta">
+                                    <span>📂 ${workshop.category}</span>
+                                </div>
+                            </div>
+                            <div class="workshop-controls">
+                                <button class="btn btn-warning btn-sm" onclick="pricingManager.editWorkshop('${workshop.id}')">✏️ Edit</button>
+                                <button class="btn btn-danger btn-sm" onclick="pricingManager.deleteWorkshop('${workshop.id}')">🗑️ Delete</button>
+                            </div>
+                        </div>
+
+                        <div class="workshop-pricing-display" id="display-${workshop.id}">
+                            <div class="price-badge">
+                                <div class="label">Child Price</div>
+                                <div class="value">€${workshop.child_price.toFixed(2)}</div>
+                            </div>
+                            <div class="price-badge">
+                                <div class="label">Adult Price</div>
+                                <div class="value">€${workshop.adult_price.toFixed(2)}</div>
+                            </div>
+                        </div>
+
+                        <div class="workshop-form" id="form-${workshop.id}">
+                            <div class="price-input">
+                                <label>Workshop Name</label>
+                                <input type="text" id="name-${workshop.id}" value="${workshop.name}">
+                            </div>
+                            <div class="price-input">
+                                <label>Description</label>
+                                <textarea id="description-${workshop.id}" rows="2" style="resize: vertical; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 6px; width: 100%;">${workshop.description}</textarea>
+                            </div>
+                            <div class="price-input">
+                                <label>Category</label>
+                                <select id="category-${workshop.id}" style="padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 6px; width: 100%;">
+                                    <option value="Soil & Agriculture" ${workshop.category === 'Soil & Agriculture' ? 'selected' : ''}>Soil & Agriculture</option>
+                                    <option value="Technology" ${workshop.category === 'Technology' ? 'selected' : ''}>Technology</option>
+                                    <option value="Renewable Energy" ${workshop.category === 'Renewable Energy' ? 'selected' : ''}>Renewable Energy</option>
+                                    <option value="Design & Planning" ${workshop.category === 'Design & Planning' ? 'selected' : ''}>Design & Planning</option>
+                                    <option value="Water Management" ${workshop.category === 'Water Management' ? 'selected' : ''}>Water Management</option>
+                                    <option value="Construction" ${workshop.category === 'Construction' ? 'selected' : ''}>Construction</option>
+                                    <option value="Tours" ${workshop.category === 'Tours' ? 'selected' : ''}>Tours</option>
+                                    <option value="Meals" ${workshop.category === 'Meals' ? 'selected' : ''}>Meals</option>
+                                </select>
+                            </div>
+                            <div class="price-input">
+                                <label>Child Price</label>
+                                <div class="euro-symbol">
+                                    <input type="number" id="childPrice-${workshop.id}" step="0.01" min="0" value="${workshop.child_price}">
+                                </div>
+                            </div>
+                            <div class="price-input">
+                                <label>Adult Price</label>
+                                <div class="euro-symbol">
+                                    <input type="number" id="adultPrice-${workshop.id}" step="0.01" min="0" value="${workshop.adult_price}">
+                                </div>
+                            </div>
+
+                            <div style="grid-column: 1 / -1; margin-top: 1rem; display: flex; gap: 0.5rem;">
+                                <button class="btn btn-success" onclick="pricingManager.saveWorkshop('${workshop.id}')">💾 Save Changes</button>
+                                <button class="btn btn-warning" onclick="pricingManager.cancelEditWorkshop('${workshop.id}')">❌ Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                container.innerHTML = html;
+            }
+
+            editWorkshop(workshopId) {
+                document.getElementById(`form-${workshopId}`).classList.add('editing');
+                document.querySelector(`[data-workshop-id="${workshopId}"]`).classList.add('editing');
+            }
+
+            cancelEditWorkshop(workshopId) {
+                document.getElementById(`form-${workshopId}`).classList.remove('editing');
+                document.querySelector(`[data-workshop-id="${workshopId}"]`).classList.remove('editing');
+            }
+
+            saveWorkshop(workshopId) {
+                // Get form values (pricing-focused only)
+                const name = document.getElementById(`name-${workshopId}`).value;
+                const description = document.getElementById(`description-${workshopId}`).value;
+                const category = document.getElementById(`category-${workshopId}`).value;
+                const childPrice = parseFloat(document.getElementById(`childPrice-${workshopId}`).value);
+                const adultPrice = parseFloat(document.getElementById(`adultPrice-${workshopId}`).value);
+
+                // Basic validation
+                if (!name || childPrice < 0 || adultPrice < 0) {
+                    this.showMessage('Please enter valid name and prices', 'error');
+                    return;
+                }
+
+                // Update the workshop in memory
+                const index = this.workshopCatalog.findIndex(w => w.id === workshopId);
+                if (index !== -1) {
+                    this.workshopCatalog[index] = {
+                        ...this.workshopCatalog[index],
+                        name,
+                        description,
+                        category,
+                        child_price: childPrice,
+                        adult_price: adultPrice
+                    };
+                }
+
+                // Re-render the catalog
+                this.renderWorkshopCatalog();
+                this.showMessage(`Workshop "${name}" pricing updated successfully!`, 'success');
+            }
+
+            deleteWorkshop(workshopId) {
+                if (!confirm('Are you sure you want to delete this workshop?')) {
+                    return;
+                }
+
+                this.workshopCatalog = this.workshopCatalog.filter(w => w.id !== workshopId);
+                this.renderWorkshopCatalog();
+                this.showMessage('Workshop deleted', 'success');
+            }
+
             showMessage(message, type) {
                 const container = document.getElementById('messages');
                 const alertClass = type === 'error' ? 'alert-error' : 'alert-success';
@@ -671,6 +1093,33 @@
                 setTimeout(() => {
                     container.innerHTML = '';
                 }, 5000);
+            }
+        }
+
+        // Global functions for workshop management
+        function addNewWorkshop() {
+            const id = prompt('Enter workshop ID (e.g., "advanced-solar"):');
+            const name = prompt('Enter workshop name (e.g., "⚡ Advanced Solar Lab"):');
+
+            if (id && name) {
+                // Check if ID already exists
+                if (window.pricingManager.workshopCatalog.some(w => w.id === id)) {
+                    alert('Workshop ID already exists. Please choose a different ID.');
+                    return;
+                }
+
+                const newWorkshop = {
+                    id: id,
+                    name: name,
+                    description: 'Description pending...',
+                    child_price: 15.00,
+                    adult_price: 25.00,
+                    category: 'Technology'
+                };
+
+                window.pricingManager.workshopCatalog.push(newWorkshop);
+                window.pricingManager.renderWorkshopCatalog();
+                window.pricingManager.showMessage(`New workshop "${name}" added! Click Edit to configure details.`, 'success');
             }
         }
 

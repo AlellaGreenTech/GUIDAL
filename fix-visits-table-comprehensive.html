@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Visits Table - Comprehensive</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .danger-btn { background: #dc3545; }
+        .warning-btn { background: #ffc107; color: #000; }
+        .results { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .duplicate-group { background: #ffe6e6; border-left: 4px solid #dc3545; padding: 10px; margin: 5px 0; }
+        .keep-record { background: #d4edda; border-left: 4px solid #28a745; padding: 5px; margin: 2px 0; font-size: 0.9rem; }
+        .delete-record { background: #f8d7da; border-left: 4px solid #dc3545; padding: 5px; margin: 2px 0; font-size: 0.9rem; }
+        .summary { background: #e3f2fd; border-left: 4px solid #1565c0; padding: 15px; margin: 10px 0; }
+        .step { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Comprehensive Visits Table Fix</h1>
+    <p>This tool addresses both deletion failures and massive duplication in the visits table.</p>
+
+    <div class="step">
+        <h3>Step 1: Analyze Current State</h3>
+        <button id="analyzeBtn" class="btn">📊 Analyze All Issues</button>
+    </div>
+
+    <div class="step">
+        <h3>Step 2: Delete Non-School/Event Records</h3>
+        <button id="deleteNonSchoolBtn" class="btn warning-btn" disabled>🗑️ Delete homeschool-visit Records</button>
+    </div>
+
+    <div class="step">
+        <h3>Step 3: Fix Duplicates</h3>
+        <button id="fixDuplicatesBtn" class="btn danger-btn" disabled>🔧 Remove Duplicate Schools</button>
+    </div>
+
+    <div id="results"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let recordsToDelete = [];
+        let duplicateGroups = [];
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function showResults(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += content;
+        }
+
+        async function analyzeAllIssues() {
+            log('🔍 Starting comprehensive analysis...');
+            document.getElementById('results').innerHTML = '';
+
+            try {
+                // Get all visits
+                const { data: allVisits, error } = await supabase
+                    .from('visits')
+                    .select('*')
+                    .order('school_name, submitted_at');
+
+                if (error) {
+                    log(`❌ Error fetching data: ${error.message}`);
+                    return;
+                }
+
+                log(`📊 Found ${allVisits.length} total visits`);
+
+                // Analysis 1: Visit Type Issues
+                await analyzeVisitTypes(allVisits);
+
+                // Analysis 2: Duplicate Schools
+                await analyzeDuplicates(allVisits);
+
+                // Analysis 3: Database permissions test
+                await testDatabasePermissions();
+
+            } catch (error) {
+                log(`❌ Error in analysis: ${error.message}`);
+            }
+        }
+
+        async function analyzeVisitTypes(allVisits) {
+            log('📋 Analyzing visit types...');
+
+            const typeGroups = {};
+            recordsToDelete = [];
+
+            allVisits.forEach(visit => {
+                const type = visit.visit_type || 'null/undefined';
+                if (!typeGroups[type]) typeGroups[type] = [];
+                typeGroups[type].push(visit);
+
+                if (type !== 'event' && type !== 'school-visit') {
+                    recordsToDelete.push(visit);
+                }
+            });
+
+            let typeAnalysis = '<h3>📊 Visit Type Analysis</h3>';
+            Object.entries(typeGroups).forEach(([type, visits]) => {
+                const willKeep = type === 'event' || type === 'school-visit';
+                typeAnalysis += `
+                    <div class="${willKeep ? 'keep-record' : 'delete-record'}">
+                        <strong>${willKeep ? '✅ KEEP' : '❌ DELETE'}: "${type}"</strong> - ${visits.length} records
+                    </div>
+                `;
+            });
+
+            if (recordsToDelete.length > 0) {
+                typeAnalysis += `<p><strong>Records to delete:</strong> ${recordsToDelete.length}</p>`;
+                document.getElementById('deleteNonSchoolBtn').disabled = false;
+            } else {
+                typeAnalysis += '<p style="color: green;">✅ All records have correct visit types!</p>';
+            }
+
+            showResults(typeAnalysis);
+        }
+
+        async function analyzeDuplicates(allVisits) {
+            log('🔍 Analyzing duplicates...');
+
+            // Group by school name
+            const schoolGroups = {};
+            allVisits.forEach(visit => {
+                const schoolName = visit.school_name;
+                if (!schoolGroups[schoolName]) schoolGroups[schoolName] = [];
+                schoolGroups[schoolName].push(visit);
+            });
+
+            // Find schools with multiple visits
+            duplicateGroups = [];
+            Object.entries(schoolGroups).forEach(([schoolName, visits]) => {
+                if (visits.length > 1) {
+                    // Sort by submitted date (keep oldest)
+                    visits.sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at));
+                    duplicateGroups.push({
+                        schoolName,
+                        visits,
+                        toDelete: visits.slice(1) // Delete all but the first (oldest)
+                    });
+                }
+            });
+
+            let duplicateAnalysis = '<h3>🔍 Duplicate School Analysis</h3>';
+
+            if (duplicateGroups.length === 0) {
+                duplicateAnalysis += '<p style="color: green;">✅ No duplicate schools found!</p>';
+            } else {
+                duplicateAnalysis += `<p><strong>Schools with duplicates:</strong> ${duplicateGroups.length}</p>`;
+
+                let totalDuplicates = 0;
+                duplicateGroups.forEach(group => {
+                    totalDuplicates += group.toDelete.length;
+                    duplicateAnalysis += `
+                        <div class="duplicate-group">
+                            <h4>"${group.schoolName}" - ${group.visits.length} visits</h4>
+                    `;
+
+                    group.visits.forEach((visit, index) => {
+                        const isKeep = index === 0;
+                        duplicateAnalysis += `
+                            <div class="${isKeep ? 'keep-record' : 'delete-record'}">
+                                ${isKeep ? '✅ KEEP:' : '❌ DELETE:'}
+                                ID: ${visit.id} |
+                                ${visit.student_count || 0} students |
+                                ${new Date(visit.submitted_at).toLocaleDateString()} |
+                                Status: ${visit.status}
+                                ${visit.internal_notes ? ` | ${visit.internal_notes.substring(0, 40)}...` : ''}
+                            </div>
+                        `;
+                    });
+
+                    duplicateAnalysis += '</div>';
+                });
+
+                duplicateAnalysis += `<p><strong>Total duplicate visits to remove:</strong> ${totalDuplicates}</p>`;
+                document.getElementById('fixDuplicatesBtn').disabled = false;
+            }
+
+            showResults(duplicateAnalysis);
+
+            // Summary
+            const uniqueSchools = Object.keys(schoolGroups).length;
+            const totalAfterCleanup = allVisits.length - (recordsToDelete.length + duplicateGroups.reduce((sum, g) => sum + g.toDelete.length, 0));
+
+            showResults(`
+                <div class="summary">
+                    <h3>📋 Overall Summary</h3>
+                    <p><strong>Current total visits:</strong> ${allVisits.length}</p>
+                    <p><strong>Unique school names:</strong> ${uniqueSchools}</p>
+                    <p><strong>Non-school/event visits to delete:</strong> ${recordsToDelete.length}</p>
+                    <p><strong>Duplicate visits to delete:</strong> ${duplicateGroups.reduce((sum, g) => sum + g.toDelete.length, 0)}</p>
+                    <p><strong>Final count after full cleanup:</strong> ${totalAfterCleanup}</p>
+                    <p><strong>Expected unique schools after cleanup:</strong> ${uniqueSchools}</p>
+                </div>
+            `);
+        }
+
+        async function testDatabasePermissions() {
+            log('🔐 Testing database permissions...');
+
+            try {
+                // Test if we can perform operations
+                const { data, error } = await supabase
+                    .from('visits')
+                    .select('id')
+                    .limit(1);
+
+                if (error) {
+                    log(`❌ Read permission test failed: ${error.message}`);
+                    return;
+                }
+
+                log('✅ Read permissions working');
+
+                // Test delete permissions by attempting to delete a non-existent record
+                const { error: deleteError } = await supabase
+                    .from('visits')
+                    .delete()
+                    .eq('id', 'test-non-existent-id');
+
+                if (deleteError && deleteError.message.includes('permission')) {
+                    log(`❌ Delete permissions failed: ${deleteError.message}`);
+                    showResults(`
+                        <div class="summary" style="background: #f8d7da;">
+                            <h3>⚠️ Permission Issue Detected</h3>
+                            <p>The database delete operations are failing due to permissions.</p>
+                            <p>You may need to use a different client or run SQL commands directly.</p>
+                        </div>
+                    `);
+                } else {
+                    log('✅ Delete permissions appear to be working');
+                }
+
+            } catch (error) {
+                log(`❌ Permission test error: ${error.message}`);
+            }
+        }
+
+        async function deleteNonSchoolRecords() {
+            if (recordsToDelete.length === 0) {
+                log('❌ No non-school/event records to delete');
+                return;
+            }
+
+            if (!confirm(`Delete ${recordsToDelete.length} records that are not school-visit or event?`)) {
+                log('🛑 Deletion cancelled');
+                return;
+            }
+
+            log(`🗑️ Deleting ${recordsToDelete.length} non-school/event records...`);
+
+            let deletedCount = 0;
+            for (const record of recordsToDelete) {
+                try {
+                    const { error } = await supabase
+                        .from('visits')
+                        .delete()
+                        .eq('id', record.id);
+
+                    if (error) {
+                        log(`❌ Failed to delete ${record.id}: ${error.message}`);
+
+                        // Try alternative deletion method
+                        log(`🔄 Trying alternative deletion for ${record.id}...`);
+                        const { error: altError } = await supabase
+                            .rpc('delete_visit', { visit_id: record.id });
+
+                        if (altError) {
+                            log(`❌ Alternative deletion also failed: ${altError.message}`);
+                        } else {
+                            log(`✅ Alternative deletion succeeded for ${record.id}`);
+                            deletedCount++;
+                        }
+                    } else {
+                        log(`✅ Deleted ${record.id} (${record.school_name})`);
+                        deletedCount++;
+                    }
+                } catch (error) {
+                    log(`❌ Error deleting ${record.id}: ${error.message}`);
+                }
+            }
+
+            log(`✅ Deletion complete: ${deletedCount}/${recordsToDelete.length} records deleted`);
+
+            // Re-analyze
+            setTimeout(analyzeAllIssues, 1000);
+        }
+
+        async function fixDuplicates() {
+            if (duplicateGroups.length === 0) {
+                log('❌ No duplicates to fix');
+                return;
+            }
+
+            const totalToDelete = duplicateGroups.reduce((sum, g) => sum + g.toDelete.length, 0);
+
+            if (!confirm(`Remove ${totalToDelete} duplicate visits from ${duplicateGroups.length} schools?`)) {
+                log('🛑 Duplicate removal cancelled');
+                return;
+            }
+
+            log(`🔧 Removing ${totalToDelete} duplicate visits...`);
+
+            let deletedCount = 0;
+            for (const group of duplicateGroups) {
+                log(`🔧 Processing "${group.schoolName}"...`);
+
+                for (const visit of group.toDelete) {
+                    try {
+                        const { error } = await supabase
+                            .from('visits')
+                            .delete()
+                            .eq('id', visit.id);
+
+                        if (error) {
+                            log(`❌ Failed to delete duplicate ${visit.id}: ${error.message}`);
+                        } else {
+                            log(`✅ Deleted duplicate ${visit.id}`);
+                            deletedCount++;
+                        }
+                    } catch (error) {
+                        log(`❌ Error deleting duplicate ${visit.id}: ${error.message}`);
+                    }
+                }
+            }
+
+            log(`✅ Duplicate removal complete: ${deletedCount}/${totalToDelete} duplicates removed`);
+
+            // Re-analyze
+            setTimeout(analyzeAllIssues, 1000);
+        }
+
+        document.getElementById('analyzeBtn').addEventListener('click', analyzeAllIssues);
+        document.getElementById('deleteNonSchoolBtn').addEventListener('click', deleteNonSchoolRecords);
+        document.getElementById('fixDuplicatesBtn').addEventListener('click', fixDuplicates);
+
+        // Auto-start analysis
+        analyzeAllIssues();
+    </script>
+</body>
+</html>

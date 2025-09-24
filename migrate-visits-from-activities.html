@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migrate Visits from Activities Table</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .btn-danger { background: #dc3545; }
+        .btn:hover { opacity: 0.8; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .warning { background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .activity-preview { background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; margin: 5px 0; border-radius: 3px; font-size: 12px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 1.5em; font-weight: bold; color: #1565c0; }
+    </style>
+</head>
+<body>
+    <h1>🔄 Migrate School Visits from Activities to Visits Table</h1>
+
+    <div class="warning">
+        <strong>⚠️ Database Cleanup:</strong> This will move actual school visit records from the activities table to the visits table,
+        leaving only activity catalog items in the activities table.
+    </div>
+
+    <div class="stats" id="stats">
+        <div class="stat-card">
+            <div class="stat-number" id="activitiesCount">-</div>
+            <div>Total Activities</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="visitActivitiesCount">-</div>
+            <div>Visit Records Found</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="currentVisitsCount">-</div>
+            <div>Current Visits</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="migratedCount">-</div>
+            <div>Migrated</div>
+        </div>
+    </div>
+
+    <button id="analyzeBtn" class="btn">🔍 Analyze Current Data</button>
+    <button id="migrateBtn" class="btn btn-danger" disabled>🔄 Migrate Visit Records</button>
+
+    <div id="preview"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        let visitActivities = [];
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            logElement.innerHTML += message + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function showPreview(activities) {
+            const previewDiv = document.getElementById('preview');
+            previewDiv.innerHTML = '<h3>📋 Visit Records Found in Activities Table:</h3>';
+
+            activities.forEach(activity => {
+                const activityType = activity.activity_type?.name || 'N/A';
+                const isSchoolVisit = activityType === 'School Visits';
+                const isEvent = activityType === 'Annual Events';
+
+                let participantInfo = '';
+                if (isSchoolVisit) {
+                    participantInfo = `Students: ${activity.max_participants || 'N/A'}`;
+                } else if (isEvent) {
+                    const totalVisitors = activity.max_participants ? Math.round(activity.max_participants * 2.2) : 'N/A';
+                    participantInfo = `Adults: ${activity.max_participants || 'N/A'}, Total Visitors: ${totalVisitors}`;
+                } else {
+                    participantInfo = `Adults: ${activity.max_participants || 'N/A'}`;
+                }
+
+                previewDiv.innerHTML += `
+                    <div class="activity-preview">
+                        <strong>${activity.title}</strong> |
+                        ${participantInfo} |
+                        Date: ${activity.date_time || 'N/A'} |
+                        Status: ${activity.status} |
+                        Type: ${activityType}
+                    </div>
+                `;
+            });
+        }
+
+        function isVisitRecord(activity) {
+            const title = activity.title.toLowerCase();
+
+            // Check if it's a school visit (contains school names or visit-like patterns)
+            const schoolPatterns = [
+                'school', 'international', 'benjamin franklin', 'montessori',
+                'prague', 'zurich', 'cas trips', 'learnlife', 'homeschool',
+                'st george', 'st. patrick', 'bfi'
+            ];
+
+            // Check if it has student count (indicating it's an actual visit)
+            const hasStudentCount = activity.student_count && activity.student_count > 0;
+
+            // Check if it has a specific date (not just a generic offering)
+            const hasSpecificDate = activity.date_time && new Date(activity.date_time).getFullYear() >= 2024;
+
+            const isSchoolRelated = schoolPatterns.some(pattern => title.includes(pattern));
+
+            return isSchoolRelated || hasStudentCount || hasSpecificDate;
+        }
+
+        function convertToVisitRecord(activity) {
+            // Extract school name from title
+            let schoolName = activity.title;
+            if (schoolName.includes(' - ')) {
+                schoolName = schoolName.split(' - ')[0];
+            }
+
+            // Determine if this is a school visit, event, workshop, or lunch
+            const activityType = activity.activity_type?.name || '';
+            const isSchoolVisit = activityType === 'School Visits';
+            const isEvent = activityType === 'Annual Events';
+            const isWorkshop = activityType === 'Workshops';
+            const isLunch = activityType === 'Special Lunches';
+
+            // Map max_participants correctly based on activity type
+            let studentCount = null;
+            let teacherCount = 2; // Default
+
+            if (isSchoolVisit) {
+                // For school visits: max_participants = student count
+                studentCount = activity.max_participants || null;
+                teacherCount = studentCount ? Math.ceil(studentCount / 15) + 1 : 2; // Estimate teachers (1 per 15 students + 1)
+            } else if (isEvent) {
+                // For events: max_participants = adult count, children = 20% more
+                const adultCount = activity.max_participants || 0;
+                const childCount = Math.round(adultCount * 0.2); // 20% more children than adults
+                studentCount = childCount;
+                teacherCount = adultCount;
+
+                // Add note about visitor calculation for dashboard
+                activity._totalVisitors = Math.round((activity.max_participants || 0) * 2.2);
+            } else {
+                // For workshops/lunches: max_participants = adult count
+                studentCount = 0; // Workshops/lunches typically don't have students
+                teacherCount = activity.max_participants || null; // This is the adult count
+            }
+
+            // Determine status based on date
+            const activityDate = new Date(activity.date_time);
+            const today = new Date();
+            let status = 'pending';
+
+            if (activityDate < today) {
+                status = 'completed';
+            } else if (activityDate > today) {
+                status = 'scheduled';
+            }
+
+            return {
+                school_name: schoolName,
+                student_count: studentCount,
+                teacher_count: teacherCount,
+                contact_email: 'migrated@example.com', // Placeholder
+                lead_teacher_contact: 'Migrated from activities table',
+                country_of_origin: extractCountry(activity.title),
+                preferred_language: 'English',
+                visit_format: isSchoolVisit ? 'full_day_pizza_lunch' : 'other',
+                educational_focus: 'balanced_mix',
+                status: status,
+                confirmed_date: activity.date_time ? new Date(activity.date_time).toISOString().split('T')[0] : null,
+                submitted_at: activity.created_at || new Date().toISOString(),
+                additional_comments: activity.description || '',
+                internal_notes: `Migrated from activities table (${activityType}). Original ID: ${activity.id}. Original max_participants: ${activity.max_participants}${activity._totalVisitors ? `. Total visitors (2.2x): ${activity._totalVisitors}` : ''}`,
+                estimated_cost: activity.price || null
+            };
+        }
+
+        function extractCountry(title) {
+            const countryPatterns = {
+                'Spain': ['spain', 'barcelona', 'montessori'],
+                'USA': ['usa'],
+                'Italy': ['italy', 'h-farm'],
+                'Switzerland': ['switzerland', 'zurich'],
+                'Saudi Arabia': ['saudi'],
+                'Czechia': ['prague']
+            };
+
+            const lowerTitle = title.toLowerCase();
+            for (const [country, patterns] of Object.entries(countryPatterns)) {
+                if (patterns.some(pattern => lowerTitle.includes(pattern))) {
+                    return country;
+                }
+            }
+            return 'Unknown';
+        }
+
+        async function analyzeData() {
+            log('🔍 Analyzing current data...');
+
+            try {
+                // Get all activities
+                const { data: activities, error: activitiesError } = await supabaseClient
+                    .from('activities')
+                    .select(`
+                        *,
+                        activity_type:activity_types!activity_type_id(id, name, slug)
+                    `);
+
+                if (activitiesError) {
+                    log(`❌ Error fetching activities: ${activitiesError.message}`);
+                    return;
+                }
+
+                // Get current visits count
+                const { count: visitsCount } = await supabaseClient
+                    .from('visits')
+                    .select('*', { count: 'exact', head: true });
+
+                // Identify visit records
+                visitActivities = activities.filter(isVisitRecord);
+
+                // Update stats
+                document.getElementById('activitiesCount').textContent = activities.length;
+                document.getElementById('visitActivitiesCount').textContent = visitActivities.length;
+                document.getElementById('currentVisitsCount').textContent = visitsCount || 0;
+
+                log(`📊 Analysis complete:`);
+                log(`   Total activities: ${activities.length}`);
+                log(`   Visit records found: ${visitActivities.length}`);
+                log(`   Current visits table: ${visitsCount || 0} records`);
+
+                // Show preview
+                showPreview(visitActivities);
+
+                // Enable migration if we found visit records
+                if (visitActivities.length > 0) {
+                    document.getElementById('migrateBtn').disabled = false;
+                    log(`✅ Ready to migrate ${visitActivities.length} visit records`);
+                } else {
+                    log(`ℹ️ No visit records found to migrate`);
+                }
+
+            } catch (error) {
+                log(`❌ Error during analysis: ${error.message}`);
+            }
+        }
+
+        async function migrateData() {
+            if (visitActivities.length === 0) {
+                log('❌ No data to migrate');
+                return;
+            }
+
+            log(`🔄 Starting migration of ${visitActivities.length} visit records...`);
+
+            try {
+                let migrated = 0;
+
+                // Convert and insert visit records
+                for (const activity of visitActivities) {
+                    const visitRecord = convertToVisitRecord(activity);
+
+                    log(`📝 Migrating: ${activity.title}`);
+
+                    // Insert into visits table
+                    const { data, error: insertError } = await supabaseClient
+                        .from('visits')
+                        .insert([visitRecord])
+                        .select();
+
+                    if (insertError) {
+                        log(`❌ Error inserting ${activity.title}: ${insertError.message}`);
+                        continue;
+                    }
+
+                    // Remove from activities table
+                    const { error: deleteError } = await supabaseClient
+                        .from('activities')
+                        .delete()
+                        .eq('id', activity.id);
+
+                    if (deleteError) {
+                        log(`⚠️ Error removing from activities: ${deleteError.message}`);
+                    } else {
+                        migrated++;
+                        log(`✅ Migrated: ${activity.title}`);
+                        document.getElementById('migratedCount').textContent = migrated;
+                    }
+                }
+
+                log(`\\n🎉 Migration completed! ${migrated} records migrated`);
+
+                // Refresh analysis
+                await analyzeData();
+
+            } catch (error) {
+                log(`❌ Migration failed: ${error.message}`);
+            }
+        }
+
+        document.getElementById('analyzeBtn').addEventListener('click', analyzeData);
+        document.getElementById('migrateBtn').addEventListener('click', migrateData);
+
+        // Auto-analyze on load
+        analyzeData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Candidates Analyzer</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .upload-area {
+            border: 2px dashed #1565c0;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            background: #f8f9fa;
+        }
+        .upload-area.dragover {
+            background: #e3f2fd;
+            border-color: #0d47a1;
+        }
+        .btn {
+            background: #1565c0;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .btn:hover { background: #0d47a1; }
+        .success-btn { background: #28a745; }
+        .warning-btn { background: #ffc107; color: #000; }
+        .event-candidate {
+            background: #e3f2fd;
+            border-left: 4px solid #1565c0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .event-form {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #dee2e6;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .results {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .log {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .manual-entry {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .candidates-list {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>📅 Event Candidates Analyzer</h1>
+    <p>Upload files from Google Drive or manually enter event information to identify candidates for the events table.</p>
+
+    <!-- File Upload Section -->
+    <div class="upload-area" id="uploadArea">
+        <p>📁 Drop files here or click to select</p>
+        <input type="file" id="fileInput" multiple accept=".txt,.csv,.json,.pdf,.docx,.xlsx" style="display: none;">
+        <button class="btn" onclick="document.getElementById('fileInput').click()">📂 Select Files</button>
+    </div>
+
+    <!-- Manual Entry Section -->
+    <div class="manual-entry">
+        <h3>✏️ Manual Event Entry</h3>
+        <p>Can't upload files? Manually describe events from your Google Drive files:</p>
+        <div class="form-group">
+            <label for="manualInput">Event Information (one per line or paste list):</label>
+            <textarea id="manualInput" rows="6" placeholder="Example:
+Workshop at H-Farm - Digital Innovation - March 15, 2024 - 30 participants
+Barcelona Tech Event - Sustainability Focus - May 20, 2024 - 45 participants
+Zurich School Partnership Meeting - June 10, 2024 - 15 participants"></textarea>
+        </div>
+        <button class="btn" onclick="parseManualInput()">🔍 Analyze Manual Input</button>
+    </div>
+
+    <!-- Event Form Template -->
+    <div id="eventFormsContainer"></div>
+
+    <!-- Results Section -->
+    <div id="results"></div>
+
+    <!-- Action Buttons -->
+    <div style="text-align: center; margin: 2rem 0;">
+        <button id="exportBtn" class="btn success-btn" onclick="exportEventCandidates()" disabled>
+            📊 Export Event Candidates
+        </button>
+        <button id="addToDbBtn" class="btn warning-btn" onclick="addEventsToDatabase()" disabled>
+            💾 Add Events to Database
+        </button>
+    </div>
+
+    <!-- Log Section -->
+    <div class="log" id="log"></div>
+
+    <!-- Supabase for database operations -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let eventCandidates = [];
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function showResults(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = content;
+        }
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        async function handleFiles(files) {
+            log(`📁 Processing ${files.length} files...`);
+
+            for (let file of files) {
+                log(`📄 Reading file: ${file.name}`);
+
+                try {
+                    const text = await readFileAsText(file);
+                    await analyzeFileContent(file.name, text);
+                } catch (error) {
+                    log(`❌ Error reading ${file.name}: ${error.message}`);
+                }
+            }
+
+            updateResults();
+        }
+
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (e) => reject(new Error('Failed to read file'));
+                reader.readAsText(file);
+            });
+        }
+
+        async function analyzeFileContent(filename, content) {
+            log(`🔍 Analyzing content from ${filename}...`);
+
+            // Look for event-like patterns in the text
+            const eventPatterns = [
+                /workshop|event|conference|meeting|seminar|presentation/gi,
+                /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g, // dates
+                /\d+\s*participants?|\d+\s*people|\d+\s*attendees/gi,
+                /barcelona|madrid|zurich|milan|prague|h-farm/gi // locations
+            ];
+
+            const lines = content.split('\n').filter(line => line.trim().length > 10);
+
+            lines.forEach(line => {
+                let score = 0;
+                let matchedPatterns = [];
+
+                eventPatterns.forEach((pattern, index) => {
+                    const matches = line.match(pattern);
+                    if (matches) {
+                        score += matches.length;
+                        matchedPatterns.push(`Pattern ${index + 1}: ${matches.join(', ')}`);
+                    }
+                });
+
+                if (score >= 2) { // Threshold for event likelihood
+                    const candidate = parseEventFromLine(line, filename);
+                    if (candidate) {
+                        eventCandidates.push(candidate);
+                        log(`✅ Found event candidate: ${candidate.title}`);
+                    }
+                }
+            });
+        }
+
+        function parseEventFromLine(line, source) {
+            // Extract event information using patterns
+            const dateMatch = line.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/);
+            const participantMatch = line.match(/(\d+)\s*(?:participants?|people|attendees)/i);
+            const locationMatch = line.match(/(barcelona|madrid|zurich|milan|prague|h-farm)/gi);
+
+            // Extract potential title (first part of line, cleaned up)
+            let title = line.split(/[,\-\|]/).shift().trim();
+            title = title.substring(0, 100); // Limit length
+
+            return {
+                id: Date.now() + Math.random(),
+                title: title || 'Untitled Event',
+                date: dateMatch ? parseDate(dateMatch[0]) : '',
+                participants: participantMatch ? parseInt(participantMatch[1]) : 0,
+                location: locationMatch ? locationMatch[0] : '',
+                description: line.substring(0, 200),
+                source: source,
+                type: 'event'
+            };
+        }
+
+        function parseDate(dateStr) {
+            // Try to parse various date formats
+            const formats = [
+                /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/,
+                /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})/
+            ];
+
+            for (let format of formats) {
+                const match = dateStr.match(format);
+                if (match) {
+                    let [, day, month, year] = match;
+                    if (year.length === 2) year = '20' + year;
+                    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                }
+            }
+            return '';
+        }
+
+        function parseManualInput() {
+            const input = document.getElementById('manualInput').value;
+            if (!input.trim()) {
+                log('❌ No manual input provided');
+                return;
+            }
+
+            log('🔍 Parsing manual input...');
+            const lines = input.split('\n').filter(line => line.trim().length > 5);
+
+            lines.forEach(line => {
+                const candidate = parseEventFromLine(line, 'Manual Entry');
+                if (candidate) {
+                    eventCandidates.push(candidate);
+                    log(`✅ Added manual event: ${candidate.title}`);
+                }
+            });
+
+            updateResults();
+        }
+
+        function updateResults() {
+            if (eventCandidates.length === 0) {
+                showResults('<p>No event candidates found yet. Upload files or enter events manually.</p>');
+                return;
+            }
+
+            let html = `<h3>📅 Found ${eventCandidates.length} Event Candidates</h3>`;
+            html += '<div class="candidates-list">';
+
+            eventCandidates.forEach((candidate, index) => {
+                html += `
+                    <div class="event-form" id="event-${candidate.id}">
+                        <h4>Event #${index + 1} - ${candidate.title}</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Event Title:</label>
+                                <input type="text" id="title-${candidate.id}" value="${candidate.title}">
+                            </div>
+                            <div class="form-group">
+                                <label>Date (YYYY-MM-DD):</label>
+                                <input type="date" id="date-${candidate.id}" value="${candidate.date}">
+                            </div>
+                            <div class="form-group">
+                                <label>Participants:</label>
+                                <input type="number" id="participants-${candidate.id}" value="${candidate.participants}">
+                            </div>
+                            <div class="form-group">
+                                <label>Location/Country:</label>
+                                <input type="text" id="location-${candidate.id}" value="${candidate.location}">
+                            </div>
+                            <div class="form-group">
+                                <label>Event Type:</label>
+                                <select id="type-${candidate.id}">
+                                    <option value="workshop">Workshop</option>
+                                    <option value="conference">Conference</option>
+                                    <option value="meeting">Meeting</option>
+                                    <option value="presentation">Presentation</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Status:</label>
+                                <select id="status-${candidate.id}">
+                                    <option value="completed">Completed</option>
+                                    <option value="scheduled">Scheduled</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Description:</label>
+                            <textarea id="description-${candidate.id}" rows="3">${candidate.description}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Source:</label>
+                            <input type="text" id="source-${candidate.id}" value="${candidate.source}" readonly>
+                        </div>
+                        <button class="btn" onclick="removeCandidate('${candidate.id}')" style="background: #dc3545;">🗑️ Remove</button>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+
+            showResults(html);
+
+            // Enable action buttons
+            document.getElementById('exportBtn').disabled = false;
+            document.getElementById('addToDbBtn').disabled = false;
+
+            log(`📊 Generated forms for ${eventCandidates.length} event candidates`);
+        }
+
+        function removeCandidate(candidateId) {
+            eventCandidates = eventCandidates.filter(c => c.id.toString() !== candidateId);
+            updateResults();
+            log(`🗑️ Removed event candidate`);
+        }
+
+        function exportEventCandidates() {
+            if (eventCandidates.length === 0) {
+                log('❌ No events to export');
+                return;
+            }
+
+            // Collect updated data from forms
+            const updatedCandidates = eventCandidates.map(candidate => ({
+                title: document.getElementById(`title-${candidate.id}`).value,
+                date: document.getElementById(`date-${candidate.id}`).value,
+                participants: parseInt(document.getElementById(`participants-${candidate.id}`).value) || 0,
+                location: document.getElementById(`location-${candidate.id}`).value,
+                type: document.getElementById(`type-${candidate.id}`).value,
+                status: document.getElementById(`status-${candidate.id}`).value,
+                description: document.getElementById(`description-${candidate.id}`).value,
+                source: document.getElementById(`source-${candidate.id}`).value
+            }));
+
+            // Export as JSON
+            const jsonData = JSON.stringify(updatedCandidates, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `event-candidates-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+
+            URL.revokeObjectURL(url);
+            log(`📊 Exported ${updatedCandidates.length} event candidates to JSON`);
+        }
+
+        async function addEventsToDatabase() {
+            if (eventCandidates.length === 0) {
+                log('❌ No events to add to database');
+                return;
+            }
+
+            if (!confirm(`Add ${eventCandidates.length} events to the visits table?`)) {
+                log('🛑 Database insertion cancelled');
+                return;
+            }
+
+            log('💾 Adding events to database...');
+
+            let addedCount = 0;
+            let failedCount = 0;
+
+            for (const candidate of eventCandidates) {
+                try {
+                    // Get updated values from form
+                    const eventData = {
+                        school_name: document.getElementById(`title-${candidate.id}`).value,
+                        contact_email: 'events@guidal.com',
+                        contact_name: 'Event Coordinator',
+                        country_of_origin: document.getElementById(`location-${candidate.id}`).value || 'Unknown',
+                        visit_type: 'event',
+                        visit_format: 'event',
+                        educational_focus: document.getElementById(`type-${candidate.id}`).value,
+                        student_count: parseInt(document.getElementById(`participants-${candidate.id}`).value) || 0,
+                        teacher_count: Math.ceil((parseInt(document.getElementById(`participants-${candidate.id}`).value) || 0) / 15) || 1,
+                        grade_level: 'Mixed',
+                        preferred_date: document.getElementById(`date-${candidate.id}`).value || null,
+                        visit_duration: 'Event duration',
+                        lunch_needs: 'none',
+                        learning_goals: document.getElementById(`description-${candidate.id}`).value,
+                        topics_of_interest: document.getElementById(`type-${candidate.id}`).value,
+                        additional_requests: `Source: ${document.getElementById(`source-${candidate.id}`).value}`,
+                        status: document.getElementById(`status-${candidate.id}`).value,
+                        submitted_at: new Date().toISOString(),
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                        internal_notes: `Event candidate added from file analysis`,
+                        confirmed_date: document.getElementById(`date-${candidate.id}`).value || null,
+                        estimated_cost: 0
+                    };
+
+                    const { error } = await supabase
+                        .from('visits')
+                        .insert([eventData]);
+
+                    if (error) {
+                        log(`❌ Failed to add "${eventData.school_name}": ${error.message}`);
+                        failedCount++;
+                    } else {
+                        log(`✅ Added event: "${eventData.school_name}"`);
+                        addedCount++;
+                    }
+
+                } catch (error) {
+                    log(`❌ Error adding event: ${error.message}`);
+                    failedCount++;
+                }
+            }
+
+            log(`✅ Database insertion complete! ${addedCount} events added, ${failedCount} failed`);
+
+            if (addedCount > 0) {
+                showResults(`
+                    <div class="event-candidate" style="background: #d4edda; border-color: #28a745;">
+                        <h3>🎉 Events Added Successfully!</h3>
+                        <p><strong>Events added to database:</strong> ${addedCount}</p>
+                        <p><strong>Failed additions:</strong> ${failedCount}</p>
+                        <p>✅ Your admin dashboard will now show these events in the visits table!</p>
+                        <p>🔍 Use the visit type filter to view events separately from school visits.</p>
+                    </div>
+                `);
+            }
+        }
+
+        // Initialize
+        log('📅 Event Candidates Analyzer ready');
+        log('📁 Upload files from your Google Drive folder or enter events manually');
+    </script>
+</body>
+</html>

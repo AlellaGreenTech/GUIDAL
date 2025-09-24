@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Visits Table Schema</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .schema { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Check Visits Table Schema</h1>
+
+    <button id="checkSchemaBtn" class="btn">📋 Check Table Schema</button>
+    <button id="checkDataBtn" class="btn">📊 Check Sample Data</button>
+
+    <div id="schema-info" class="schema"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            logElement.innerHTML += message + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function showSchema(columns) {
+            const schemaDiv = document.getElementById('schema-info');
+            schemaDiv.innerHTML = `
+                <h3>📋 Visits Table Columns:</h3>
+                <ul>
+                    ${columns.map(col => `<li><strong>${col}</strong></li>`).join('')}
+                </ul>
+            `;
+        }
+
+        async function checkSchema() {
+            log('🔍 Checking visits table schema...');
+
+            try {
+                // Try to get one record to see what fields exist
+                const { data, error } = await supabase
+                    .from('visits')
+                    .select('*')
+                    .limit(1);
+
+                if (error) {
+                    log(`❌ Error: ${error.message}`);
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    const columns = Object.keys(data[0]);
+                    log(`✅ Found ${columns.length} columns in visits table:`);
+                    columns.forEach(col => log(`   - ${col}`));
+
+                    showSchema(columns);
+                } else {
+                    log('⚠️ No data in visits table, trying to insert a test record to see schema...');
+
+                    // Try inserting with different possible field names to see what works
+                    const testRecord = {
+                        school_name: 'Test School',
+                        contact_email: 'test@example.com'
+                    };
+
+                    const { error: insertError } = await supabase
+                        .from('visits')
+                        .insert([testRecord]);
+
+                    if (insertError) {
+                        log(`Schema hint from error: ${insertError.message}`);
+
+                        // Parse the error message to see what fields are required
+                        if (insertError.message.includes('null value in column')) {
+                            const match = insertError.message.match(/null value in column "(\w+)"/);
+                            if (match) {
+                                log(`Required field: ${match[1]}`);
+                            }
+                        }
+                    }
+                }
+
+            } catch (error) {
+                log(`❌ Error checking schema: ${error.message}`);
+            }
+        }
+
+        async function checkSampleData() {
+            log('📊 Checking existing data in visits table...');
+
+            try {
+                const { data, error, count } = await supabase
+                    .from('visits')
+                    .select('*', { count: 'exact' })
+                    .limit(3);
+
+                if (error) {
+                    log(`❌ Error: ${error.message}`);
+                    return;
+                }
+
+                log(`📈 Total records: ${count}`);
+
+                if (data && data.length > 0) {
+                    log('📋 Sample records:');
+                    data.forEach((record, index) => {
+                        log(`${index + 1}. ${JSON.stringify(record, null, 2)}`);
+                    });
+                } else {
+                    log('📭 No records found in visits table');
+                }
+
+            } catch (error) {
+                log(`❌ Error checking data: ${error.message}`);
+            }
+        }
+
+        document.getElementById('checkSchemaBtn').addEventListener('click', checkSchema);
+        document.getElementById('checkDataBtn').addEventListener('click', checkSampleData);
+
+        // Auto-check on load
+        checkSchema();
+    </script>
+</body>
+</html>

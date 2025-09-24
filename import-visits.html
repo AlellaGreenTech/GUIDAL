@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Visits Data</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .btn:hover { background: #0d47a1; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: bold; color: #1565c0; }
+    </style>
+</head>
+<body>
+    <h1>🔄 Import Visits Data from CSV</h1>
+
+    <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <p><strong>What this does:</strong></p>
+        <ul>
+            <li>Parses the CSV file with your 14+ school visit records</li>
+            <li>Maps the data to the correct database schema fields</li>
+            <li>Imports student counts, dates, and visit details</li>
+            <li>Sets appropriate status based on visit dates</li>
+        </ul>
+    </div>
+
+    <div class="stats" id="stats">
+        <div class="stat-card">
+            <div class="stat-number" id="currentCount">-</div>
+            <div>Current Visits</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="csvCount">-</div>
+            <div>CSV Records</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="importedCount">-</div>
+            <div>Imported</div>
+        </div>
+    </div>
+
+    <button id="loadCsvBtn" class="btn">📖 Load CSV Data</button>
+    <button id="importBtn" class="btn" disabled>📤 Import to Database</button>
+    <button id="checkBtn" class="btn">📊 Check Current Data</button>
+
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase client
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let csvData = [];
+        let parsedVisits = [];
+
+        // CSV data (from your file)
+        const csvContent = `Timestamp,Email address,What is the name of your School or Organization?,What Country will you visit us from?,What dates are you considering for your trip?,"What language would you like the visit to be conducted in?  We can handle visits in English (our main language), Spanish, French and Italian. ",How many students will be coming?,"How many adults will be accompanying the students? We welcome parents acting as chaperones, but we are especially happy when teachers from different departments come to provide their unique perspective.","What are the contact details for the lead teacher or trip planner?  We can polish the visit agenda with an in person meeting, a Whatsapp chat or a phone call.",Are you planning a full day or just a morning session with lunch? ,"What topics related to geology, sustainability,  farming, natural resources, robotics & technology etc have you been covering at school or most interest you? We strive to help you add some real world practical experience to classroom knowledge. "," Many schools ask for their students to see science in action etc (which implies an in depth tour of salient parts of our center)  whilst other ask for the focus to be entirely on hands on work such as permaculture gardening or water retention landscaping. If you leave it to us, we´ll have a healthy mixture of both. See and DO!","What interests your group most?
+Choose just what interests you most.  We´ll plan the day accordingly together.  ",Feel free to comment on the list above and make suggestions,"Food:   We have a great wood burning oven and an argentinian BBQ.   Most popular:  roll your own pizzas (small groups) and add your choice of toppings OR classic burgers and hotdogs (vegan options available).
+
+We have an optional CHURROS desert which is much loved.  We use as much produce from our own garden as the season allows. Often, a huge watermellon replaces the churros.",Is there anything we forgot or you´d like to request?,,,Invoice link,Invoice sent? ,Paid?
+21/01/2024 21:18:10,thomasw@bfischool.org,[Cas Trips to provide it],,January 2204,,,,Tom Wolverton,,We are finishing our 7th grade unit on Kitchen Chemistry (with Autonomy skills) and will be transitioning to our Ecology unit around the same time. After the ecology unit will be a shorter unit on Geology.,,"The water aspects: the ponds, future hydro electric plant, irrigation etc, Automation aspects - the robotic gardener, & robotic mower, The Water Table:  A visit to ancient and modern wells, Erosion:  preventing the loss of topsoil, landscaping for water retention, Smart Farming: Sensors, Micro Controllers, IOT and big data, Precision robotics and farming automation:  Visit to the Farm.Bot, Harvesting and building with clay - Wattle and Daub huts. 6,000 year old technology!, Moving water up high without the use of electricity!  Genius inventions of the past, The role of farm animals:  visit to the sheep and chickens, The vines and wine making - trimming the vines, caring for the soil and making the wine",,We´ll  ace the pizza making!,,,,,yes,
+12/02/2024 14:04:55,Kamila.R@castrips.org,[Cas Trips to provide it],Saudi Arabia,December 2024,,,,Kamila Repikova,,,,"The water aspects: the ponds, future hydro electric plant, irrigation etc, Learn about the Internet of Things (IOT) and smart sensors that collect data and do things, Automation aspects - the robotic gardener, & robotic mower, The Water Table:  A visit to ancient and modern wells, Precision robotics and farming automation:  Visit to the Farm.Bot, Harvesting and building with clay - Wattle and Daub huts. 6,000 year old technology!, Moving water up high without the use of electricity!  Genius inventions of the past, The role of farm animals:  visit to the sheep and chickens, Look For Treasure!  User our metal detector to find new items for our little artefacts museum, Let´s plant some veggies - we'll give you webcam access to watch them grow ( Always included as our afternoon session)",focus on hands on activities,We´ll  ace the pizza making!,hands on experience please,,,,yes,
+06/06/2024 13:31:58,Kamila.R@castrips.org,[Cas Trips to provide it],USA,3.8.2024,English,22 (16-17 years old),3,Kamila Repikova,Just the morning with lunch. We depart after lunch,,"We prefer a very hands on visit where kids work with plants, soil in a manual fashion which however follows permaculture principles we´ll explain","The water aspects: the ponds, future hydro electric plant, irrigation etc, The role of farm animals:  visit to the sheep and chickens, Look For Treasure!  User our metal detector to find new items for our little artefacts museum, Collect insect specimens:  we need to collect 5 unique types of insects - can you get it done?, A short hike to see the area from above! 25 mins there are back",,We´ll  ace the pizza making!,,,,,yes,
+26/09/2024 11:40:15,Kamila.R@castrips.org,CAS Trips - H-Farm International ,Italy,24.10.2024,English,25,3,Mara,Just the morning with lunch. We depart after lunch,"We have a diverse group with different subject choices (from computer science, to design, to chemistry or environmental systems) so it is a bit difficult to choose only one discipline, we would preferably address interdisciplinary approaches. Our DP students next year will in fact work on the IB collaborative science group project, maybe inspired from this trip as well.","We prefer a very hands on visit where kids work with plants, soil in a manual fashion which however follows permaculture principles we´ll explain","The Global Information System (GIS) - a way to catalogue and keep track of everything, Precision robotics and farming automation:  Visit the Farm.Bot automatic gardener, The vines and wine making -See the lates state of the vines and figure out what is happening, Let´s plant some veggies - we'll give you webcam access to watch them grow ( Usually included as our afternoon session)",,We´ll  ace the pizza making!,,,,,?,
+08/10/2024 15:04:22,missroisin@stpatricksinternationalschool.com,St. Patricks International School,Spain,"12th of November , 2024",English,27,3,Silvia Quílez,Full day and we bring our own lunch,"Ecosystems, habitats, food chains. Also very interested in all other aspects but Ecosystems is our topic this term.",We prefer a balanced mix of seeing things and doing things,"Water aspects: the ponds, future hydro electric plant, irrigation etc, Erosion:  preventing the loss of topsoil, landscaping for water retention. Can include hands on!, Learn about the Internet of Things (IOT) and smart sensors that collect data and do things, Automation aspects - the robotic gardener, & robotic mower, The Water Table:  A visit to ancient and modern wells, learn how they work!, Smart Farming: A visit to the smartest automatic irrigation plant in the Maresme, Harvesting and building with clay - Wattle and Daub huts. 6,000 year old technology!, Moving water up high without the use of electricity!  Genius inventions of the past, Drones & Agriculture.  Show and tell using AGT´s huge Agricultural drone and more!",n/a,We won´t eat today!,n/a,,,https://drive.google.com/drive/folders/1HdaEpeVU2Fy4judIkwHY1jWQjHOogpUT?usp=drive_link,yes,
+14/10/2024 09:17:52,dominic@barcelonamontessorischool.com,Barcelona Montessori School,Barcelona,"7th of November, 20204",English,32-38,4,Dominic,Full day with lunch included,We want to do as much hands on work as possible and get to know the farm. ,"We prefer a very hands on visit where kids work with plants, soil in a manual fashion which however follows permaculture principles we´ll explain","Water aspects: the ponds, future hydro electric plant, irrigation etc, Harvesting and building with clay - Wattle and Daub huts. 6,000 year old technology!, Moving water up high without the use of electricity!  Genius inventions of the past, The vines and wine making -See the lates state of the vines and figure out what is happening, A short hike to see the area from above! 40 mins there and back (not usually included), Let´s plant some veggies - we'll give you webcam access to watch them grow ( Usually included as our afternoon session)",,We´ll  ace the pizza making!,,,,https://drive.google.com/drive/folders/1HdaEpeVU2Fy4judIkwHY1jWQjHOogpUT?usp=drive_link,yes,
+26/10/2024 14:06:54,delsolarie@gmail.com,Homeschool Maresme ,Spain,tbd,A mix of English and Spanish. Is this doable? ,20,15,REBECCA,Start with lunch at 12 and end around 16-17hr?,,We prefer a balanced mix of seeing things and doing things,"Water aspects: the ponds, future hydro electric plant, irrigation etc, The Water Table:  A visit to ancient and modern wells, learn how they work!, Let´s plant some veggies - we'll give you webcam access to watch them grow ( Usually included as our afternoon session)",Focus on sustainability and conservation ,We´ll  ace the pizza making!,,,,,,
+19/11/2024 19:28:30,nicole@learnlife.com,Learnlife,Spain,"4th December, 2024",English,14,2,Nicole 675714634,Just the morning with no lunch (ends 1300 or 1330),This AP Environmental Science. Our focus this week is land and water use.,"We prefer seeing real world examples that relate to things learnt about at school/homeschooling such as erosion, water table, evaporation, etc","Water aspects: the ponds, future hydro electric plant, irrigation etc, Erosion:  preventing the loss of topsoil, landscaping for water retention. Can include hands on!, The Water Table:  A visit to ancient and modern wells, learn how they work!, Moving water up high without the use of electricity!  Genius inventions of the past",We can focus on irrigation methods - anything hands on within that field would be welcome.,We won´t eat today!,Sounds great!,,,,,
+25/03/2025 13:47:00,gemsicle@gmail.com,St George,Spain,"29th April, 20205",English (all students have some level of Spanish but most not fluent),17,2,Gemma Garmeson 671749745,"Full day with ""roll your own pizza""  lunch included.","This is the year 10 computer science GCSE class. They have been learning about automated systems, robotics and AI (expert systems, machine learning). They also do a lot of programming using Python so would be interested to see code as well as the actual kit they have only seen pictures of / talked about. One of the areas they need to understand use of automated systems is agriculture. A lot of these kids are in the ""eco committee"" so also have an interest in sustainability. ",We prefer a balanced mix of seeing things and doing things,"Learn about the Internet of Things (IOT) and smart sensors that collect data and do things, Automation aspects - the robotic gardener, & robotic mower, Smart Farming: A visit to the smartest automatic irrigation plant in the Maresme, Drones & Agriculture.  Show and tell using AGT´s huge Agricultural drone and more!",,We´ll  ace the pizza making!,,,,,,
+03/06/2025 15:49:11,kamila.r@castrips.org,CAS Trips - Zurich International School,Switzerland,26th and 27th of August 2025,English,26 + 23,4 + 4,kamila.r@castrips.org,Just the morning with lunch. We depart right after lunch (1400 or 1430),"ZIS values sustainability in a variety of forms - the school uses solar power, recycles papers/cardboards, and no longer sells PET on campus, though we still maintain recycling bins for plastics brought from outside of school. The faculty hosts clothing swaps and the students do donation drives for clothing to prevent excess from going to waste.",We prefer a balanced mix of seeing things and doing things,"Let´s plant some veggies - we'll give you webcam access to watch them grow ( Usually included as our afternoon session), Drones & Agriculture.  Show and tell using AGT´s huge Agricultural drone and more!",also interested in the role of farm animals: visit to the sheep and chicken,We´ll  go for the woodfire pizza!,,,,,,
+14/08/2025 16:08:34,kamila.r@castrips.org,Zurich International School,Switzerland,"August 26 and 27, 2025",English,27+24,4+4,Kamila,Just the morning with lunch. We depart right after lunch (1400 or 1430),,"We prefer a very hands on visit where kids work with the land, water, plants, & soil following permaculture principles",Drones & Agriculture.  Show and tell using AGT´s huge Agricultural drone and more!,"ZIS values sustainability in a variety of forms - the school uses solar power, recycles papers/cardboards, and no longer sells PET on campus, though we still maintain recycling bins for plastics brought from outside of school. The faculty hosts clothing swaps and the students do donation drives for clothing to prevent excess from going to waste.",We´ll  go for the woodfire pizza!,,,,,,
+01/09/2025 10:53:19,Kamila.R@castrips.org,International School of Prague,Czechia,booked for 17.9.2025,English,38 (14-17 years old),7,Kamila.R@castrips.org,Just the morning with lunch. We depart right after lunch (1400 or 1430),"Students discuss sustainability in various classes at ISP. Given that we will have a range of students - grades 9-12 - their level of exposure to these topics will vary. Sustainability is an essential component of students' Individuals and Societies coursework which they study in grades 9-10. Also students are required to log Creativity, Action, Service hours where some pursue projects or activities related to natural resources and sustainability. Some students choose to take an electives course in Robotics in Grades 9 and 10, also students may be involved with the robotics after-school program. The grade 9 and 10 science program also includes elements of water quality and sustainability. ",We prefer a balanced mix of seeing things and doing things,"Learn about the Internet of Things (IOT) and smart sensors that collect data and do things, Automation aspects - the robotic gardener, & robotic mower, Smart Farming: A visit to the smartest automatic irrigation plant in the Maresme, Harvesting and building with clay - Wattle and Daub huts. 6,000 year old technology!, The vines and wine making -See the lates state of the vines and figure out what is happening, Drones & Agriculture.  Show and tell using AGT´s huge Agricultural drone and more!",,We´ll  go for the woodfire pizza!,,,,,,
+02/09/2025 09:38:28,roses@bfischool.org,Benjamin Franklin International School,Spain,"Tuesday September 16th, 2025",English,Approximately 70 students,7 teachers,661418131,Full day with packed lunches (no pizza lunch due to logistics),"This is for the IBDP program's Collaborative Sciences Project (CSP), so needs to be aligned with each of the 6 courses offered at our school (biology, chemistry, ESS, physics, computer science, and design technology). ","We prefer a very hands on visit where kids work with the land, water, plants, & soil following permaculture principles","Water aspects: the ponds, future hydro electric plant, irrigation etc, Learn about the Internet of Things (IOT) and smart sensors that collect data and do things, Automation aspects - the robotic gardener, & robotic mower, Smart Farming: A visit to the smartest automatic irrigation plant in the Maresme, Harvesting and building with clay - Wattle and Daub huts. 6,000 year old technology!, Moving water up high without the use of electricity!  Genius inventions of the past, STOP EROSION CHALLENGE:  Build swales, zuni bowls, terraces and create sustainable orchard, Let´s plant some veggies - we'll give you webcam access to watch them grow ( Usually included as our afternoon session)",,We´d like to bring our own picnic. (In this case a´ la carte BBQ and pizza will be available),We are hoping that we can have 6 different activities - 1 for each course. I will be in touch via email with more ideas. Looking forward to it!,,,,,
+,Kamila.R@castrips.org,[Cas Trips to provide it],,May 14th 2025,English,34,4,Mara (+34 693 05 77 41) and Oskar (+34 634 31 95 13),Pizza menu. Attention: Nut allergy. ,"Smart Farming: Sensors, Micro Controllers, IOT and big data.    Look For Treasure! User our metal detector to find new items for our little artefacts museum n. A short hike to see the area from above! 25 mins there are back",pizza menu,,,,,,,,,`;
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            logElement.innerHTML += message + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim());
+            return values;
+        }
+
+        function extractStudentCount(studentsText) {
+            if (!studentsText) return null;
+
+            // Extract number from strings like "22 (16-17 years old)", "32-38", "27+24", "Approximately 70 students"
+            const match = studentsText.match(/(\\d+)(?:\\s*[\\-\\+]\\s*(\\d+))?/);
+            if (match) {
+                const firstNumber = parseInt(match[1]);
+                const secondNumber = match[2] ? parseInt(match[2]) : 0;
+                return firstNumber + secondNumber;
+            }
+            return null;
+        }
+
+        function extractAdultCount(adultsText) {
+            if (!adultsText) return 2; // Default to 2 adults
+
+            // Extract number from strings like "3", "4 + 4", "7 teachers"
+            const match = adultsText.match(/(\\d+)(?:\\s*[\\+]\\s*(\\d+))?/);
+            if (match) {
+                const firstNumber = parseInt(match[1]);
+                const secondNumber = match[2] ? parseInt(match[2]) : 0;
+                return firstNumber + secondNumber;
+            }
+            return 2;
+        }
+
+        function parseVisitDate(dateText) {
+            if (!dateText || dateText === 'tbd') return null;
+
+            try {
+                // Handle various date formats from CSV
+                const cleanDate = dateText.replace(/th|st|nd|rd/g, '').trim();
+
+                // Try MM.DD.YYYY format
+                let match = cleanDate.match(/^(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})$/);
+                if (match) {
+                    return `${match[3]}-${match[2].padStart(2, '0')}-${match[1].padStart(2, '0')}`;
+                }
+
+                // Try "day of month, year" format
+                const monthNames = {
+                    'january': '01', 'february': '02', 'march': '03', 'april': '04',
+                    'may': '05', 'june': '06', 'july': '07', 'august': '08',
+                    'september': '09', 'october': '10', 'november': '11', 'december': '12'
+                };
+
+                match = cleanDate.match(/(\\d{1,2})\\s*(?:of\\s*)?(\\w+)\\s*,?\\s*(\\d{4})/i);
+                if (match) {
+                    const day = match[1].padStart(2, '0');
+                    const monthName = match[2].toLowerCase();
+                    const year = match[3];
+                    const month = monthNames[monthName];
+
+                    if (month) {
+                        return `${year}-${month}-${day}`;
+                    }
+                }
+
+                return null;
+            } catch (error) {
+                log(`Could not parse date: "${dateText}"`);
+                return null;
+            }
+        }
+
+        function determineVisitFormat(formatText) {
+            if (!formatText) return 'other';
+
+            const text = formatText.toLowerCase();
+            if (text.includes('full day') && text.includes('lunch')) {
+                return 'full_day_pizza_lunch';
+            } else if (text.includes('morning') && text.includes('lunch')) {
+                return 'morning_with_lunch';
+            } else if (text.includes('morning') && (text.includes('no lunch') || text.includes('ends 13'))) {
+                return 'morning_no_lunch';
+            }
+            return 'other';
+        }
+
+        function determineStatus(dateText, timestamp) {
+            const visitDate = parseVisitDate(dateText);
+            const today = new Date();
+
+            if (visitDate) {
+                const vDate = new Date(visitDate);
+                if (vDate < today) {
+                    return 'completed';
+                } else if (vDate > today) {
+                    return 'scheduled';
+                }
+            }
+
+            // If no visit date or other cases, check if it's an old submission
+            const submittedDate = new Date(timestamp);
+            const daysSinceSubmission = (today - submittedDate) / (1000 * 60 * 60 * 24);
+
+            if (daysSinceSubmission > 30) {
+                return 'completed'; // Old submissions are likely completed
+            }
+
+            return 'approved';
+        }
+
+        async function loadCSVData() {
+            log('📖 Loading CSV data...');
+
+            const lines = csvContent.split('\\n');
+            const headers = parseCSVLine(lines[0]);
+
+            parsedVisits = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                const values = parseCSVLine(line);
+                if (values.length < 5) continue; // Skip incomplete rows
+
+                const timestamp = values[0];
+                const email = values[1];
+                const schoolName = values[2];
+                const country = values[3];
+                const visitDates = values[4];
+                const language = values[5];
+                const studentCountText = values[6];
+                const adultCountText = values[7];
+                const contactDetails = values[8];
+                const visitFormat = values[9];
+                const topics = values[10];
+                const approach = values[11];
+                const interests = values[12];
+                const comments = values[13];
+                const food = values[14];
+                const requests = values[15];
+
+                if (!email || !schoolName) continue; // Skip rows without essential data
+
+                const visit = {
+                    contact_email: email,
+                    lead_teacher_contact: contactDetails || email,
+                    school_name: schoolName,
+                    country_of_origin: country || 'Unknown',
+                    potential_visit_dates: visitDates,
+                    preferred_language: language || 'English',
+                    number_of_students: extractStudentCount(studentCountText),
+                    number_of_adults: extractAdultCount(adultCountText),
+                    visit_format: determineVisitFormat(visitFormat),
+                    visit_format_other: visitFormat && !['full_day_pizza_lunch', 'morning_with_lunch', 'morning_no_lunch'].includes(determineVisitFormat(visitFormat)) ? visitFormat : null,
+                    educational_focus: approach === 'We prefer seeing real world examples that relate to things learnt about at school/homeschooling such as erosion, water table, evaporation, etc' ? 'seeing_real_world_science' :
+                                     approach === 'We prefer a very hands on visit where kids work with the land, water, plants, & soil following permaculture principles' ? 'hands_on_permaculture' :
+                                     approach === 'We prefer a balanced mix of seeing things and doing things' ? 'balanced_mix' : 'other',
+                    educational_focus_other: approach && !['seeing_real_world_science', 'hands_on_permaculture', 'balanced_mix'].includes(approach) ? approach : null,
+                    additional_comments: [topics, comments, requests].filter(Boolean).join('\\n\\n'),
+                    status: determineStatus(visitDates, timestamp),
+                    submitted_at: new Date(timestamp).toISOString(),
+                    confirmed_date: parseVisitDate(visitDates),
+                    internal_notes: `Imported from CSV. Food preferences: ${food || 'Not specified'}`
+                };
+
+                // Clean up any undefined values
+                Object.keys(visit).forEach(key => {
+                    if (visit[key] === undefined) {
+                        visit[key] = null;
+                    }
+                });
+
+                parsedVisits.push(visit);
+                log(`✅ Processed: ${schoolName} (${visit.number_of_students} students, ${visit.number_of_adults} adults, status: ${visit.status})`);
+            }
+
+            document.getElementById('csvCount').textContent = parsedVisits.length;
+            document.getElementById('importBtn').disabled = false;
+            log(`\\n📊 Parsed ${parsedVisits.length} visit records ready for import.`);
+        }
+
+        async function checkCurrentData() {
+            log('📊 Checking current database...');
+
+            try {
+                const { count } = await supabase
+                    .from('visits')
+                    .select('*', { count: 'exact', head: true });
+
+                document.getElementById('currentCount').textContent = count || 0;
+                log(`Current visits in database: ${count || 0}`);
+            } catch (error) {
+                log(`❌ Error checking database: ${error.message}`);
+            }
+        }
+
+        async function importData() {
+            if (parsedVisits.length === 0) {
+                log('❌ No data to import. Load CSV first.');
+                return;
+            }
+
+            log(`\\n📤 Importing ${parsedVisits.length} visits to database...`);
+
+            try {
+                // Clear existing data
+                log('🧹 Clearing existing visits...');
+                await supabase.from('visits').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+                // Insert new data in batches
+                const batchSize = 10;
+                let imported = 0;
+
+                for (let i = 0; i < parsedVisits.length; i += batchSize) {
+                    const batch = parsedVisits.slice(i, i + batchSize);
+
+                    const { data, error } = await supabase
+                        .from('visits')
+                        .insert(batch)
+                        .select();
+
+                    if (error) {
+                        log(`❌ Error inserting batch: ${error.message}`);
+                        console.error('Problematic records:', batch);
+                    } else {
+                        imported += data.length;
+                        log(`✅ Inserted batch ${Math.floor(i/batchSize) + 1}: ${data.length} records`);
+                        document.getElementById('importedCount').textContent = imported;
+                    }
+                }
+
+                log('\\n🎉 Import completed successfully!');
+                await checkCurrentData();
+
+            } catch (error) {
+                log(`❌ Import failed: ${error.message}`);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('loadCsvBtn').addEventListener('click', loadCSVData);
+        document.getElementById('importBtn').addEventListener('click', importData);
+        document.getElementById('checkBtn').addEventListener('click', checkCurrentData);
+
+        // Check current data on load
+        checkCurrentData();
+    </script>
+</body>
+</html>

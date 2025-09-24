@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple DB Check</title>
+</head>
+<body>
+    <h1>Database Check</h1>
+    <div id="results"></div>
+    <button onclick="checkDB()">Check Database</button>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+        async function checkDB() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>🔄 Checking database connection...</p>';
+
+            try {
+                let html = '<h3>Database Check Results:</h3>';
+
+                // Try multiple ways to get the client
+                let client = null;
+
+                // Method 1: Check if GuidalDB is available
+                if (window.GuidalDB) {
+                    html += '<p>✅ GuidalDB found</p>';
+                    try {
+                        const visits = await window.GuidalDB.getVisits();
+                        html += `<p>✅ GuidalDB.getVisits() works - Found ${visits.length} visits:</p>`;
+                        visits.forEach(visit => {
+                            html += `<p>• ${visit.school_name || 'No name'} - Status: ${visit.status || 'No status'} - Invoice: ${visit.invoice_status || 'No invoice status'}</p>`;
+                        });
+                        results.innerHTML = html;
+                        return;
+                    } catch (error) {
+                        html += `<p>❌ GuidalDB.getVisits() error: ${error.message}</p>`;
+                    }
+                }
+
+                // Method 2: Check window.supabaseClient
+                if (window.supabaseClient) {
+                    html += '<p>✅ window.supabaseClient found</p>';
+                    client = window.supabaseClient;
+                }
+
+                // Method 3: Create client directly
+                if (!client && window.supabase) {
+                    html += '<p>🔧 Creating Supabase client directly</p>';
+                    const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+                    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+                    client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                }
+
+                if (client) {
+                    html += '<p>🔗 Testing database connection...</p>';
+                    const { data, error } = await client.from('visits').select('*');
+
+                    if (error) {
+                        html += `<p>❌ Database error: ${error.message}</p>`;
+                    } else {
+                        html += `<p>✅ Success! Found ${data.length} visits:</p>`;
+                        data.forEach(visit => {
+                            html += `<p>• ${visit.school_name || 'No name'} - Status: ${visit.status || 'No status'} - Invoice: ${visit.invoice_status || 'No invoice status'}</p>`;
+                        });
+                    }
+                } else {
+                    html += '<p>❌ Could not create Supabase client</p>';
+                    html += `<p>Available globals: ${Object.keys(window).filter(k => k.toLowerCase().includes('supabase')).join(', ')}</p>`;
+                }
+
+                results.innerHTML = html;
+            } catch (error) {
+                results.innerHTML = `<p>❌ Exception: ${error.message}</p>`;
+            }
+        }
+    </script>
+    </script>
+</body>
+</html>

@@ -149,13 +149,15 @@
             width: 100%;
             border-collapse: collapse;
             margin: 1rem 0;
+            table-layout: fixed;
         }
 
         .pricing-table th,
         .pricing-table td {
-            padding: 0.5rem;
+            padding: 0.75rem 0.5rem;
             text-align: left;
             border-bottom: 1px solid #dee2e6;
+            word-wrap: break-word;
         }
 
         .pricing-table th {
@@ -163,7 +165,26 @@
             font-weight: 600;
         }
 
-        .pricing-table .amount {
+        .pricing-table th:nth-child(1),
+        .pricing-table td:nth-child(1) {
+            width: 45%;
+        }
+
+        .pricing-table th:nth-child(2),
+        .pricing-table td:nth-child(2) {
+            width: 15%;
+            text-align: center;
+        }
+
+        .pricing-table th:nth-child(3),
+        .pricing-table td:nth-child(3) {
+            width: 20%;
+            text-align: right;
+        }
+
+        .pricing-table th:nth-child(4),
+        .pricing-table td:nth-child(4) {
+            width: 20%;
             text-align: right;
             font-weight: 600;
         }
@@ -273,6 +294,35 @@
                 flex-direction: column;
                 gap: 0.5rem;
             }
+
+            .pricing-table {
+                font-size: 0.85rem;
+            }
+
+            .pricing-table th,
+            .pricing-table td {
+                padding: 0.5rem 0.25rem;
+            }
+
+            .pricing-table th:nth-child(1),
+            .pricing-table td:nth-child(1) {
+                width: 40%;
+            }
+
+            .pricing-table th:nth-child(2),
+            .pricing-table td:nth-child(2) {
+                width: 12%;
+            }
+
+            .pricing-table th:nth-child(3),
+            .pricing-table td:nth-child(3) {
+                width: 24%;
+            }
+
+            .pricing-table th:nth-child(4),
+            .pricing-table td:nth-child(4) {
+                width: 24%;
+            }
         }
 
         @media print {
@@ -380,6 +430,7 @@
 
                 <div id="invoiceActions" style="display: none;">
                     <button class="btn btn-primary btn-block" onclick="toggleCustomItems()" id="customItemsBtn">➕ Add Custom Items</button>
+                    <button class="btn btn-warning btn-block" onclick="openFullPageInvoice()">🔍 Full Page View</button>
                     <button class="btn btn-primary btn-block" onclick="printInvoice()">🖨️ Print Invoice</button>
                     <button class="btn btn-success btn-block" onclick="markAsInvoiced()">✅ Mark as Invoiced</button>
                     <button class="btn btn-primary btn-block" onclick="downloadPDF()">📄 Download PDF</button>
@@ -407,22 +458,164 @@
                 // Check for pre-selected visit from URL parameter
                 const urlParams = new URLSearchParams(window.location.search);
                 const visitId = urlParams.get('visit');
+                this.preSelectedVisitId = visitId;
 
                 if (visitId) {
                     console.log('🔍 URL visitId found:', visitId);
                     // Set filter to "all" to ensure we can find any visit
                     document.getElementById('statusFilter').value = 'all';
+                    document.getElementById('typeFilter').value = 'all';
                 }
 
                 await this.loadVisits();
                 this.setupEventHandlers();
 
-                if (visitId && this.visitsData && this.visitsData[visitId]) {
+                // Auto-select visit after loading is complete
+                if (this.preSelectedVisitId) {
+                    await this.autoSelectVisit(this.preSelectedVisitId);
+                }
+            }
+
+            async autoSelectVisit(visitId) {
+                console.log('🎯 Attempting to auto-select visit:', visitId);
+
+                if (this.visitsData && this.visitsData[visitId]) {
                     console.log('✅ Auto-selecting visit:', visitId);
                     this.selectVisit(visitId);
-                } else if (visitId) {
+
+                    // Scroll to the selected visit card
+                    setTimeout(() => {
+                        const selectedCard = document.querySelector(`[data-visit-id="${visitId}"]`);
+                        if (selectedCard) {
+                            selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 100);
+                } else {
                     console.log('❌ Visit not found with ID:', visitId);
-                    alert(`Visit with ID ${visitId} not found. Please select a visit manually.`);
+                    console.log('Available visits:', Object.keys(this.visitsData || {}));
+
+                    // Try to fetch the specific visit if not in filtered results
+                    await this.fetchSpecificVisit(visitId);
+                }
+            }
+
+            async fetchSpecificVisit(visitId) {
+                try {
+                    console.log('🔍 Fetching specific visit:', visitId);
+
+                    // Show loading message
+                    const loadingMessage = document.createElement('div');
+                    loadingMessage.id = 'loading-specific-visit';
+                    loadingMessage.innerHTML = `
+                        <div style="background: #e3f2fd; color: #1565c0; padding: 1rem; border-radius: 4px; margin: 1rem 0; border-left: 4px solid #1565c0;">
+                            🔍 <strong>Loading invoice for visit:</strong> ${visitId.substring(0, 8)}...
+                        </div>
+                    `;
+                    document.querySelector('.visit-selector').insertBefore(loadingMessage, document.getElementById('visitsList'));
+
+                    const { data: visit, error } = await supabaseClient
+                        .from('visits')
+                        .select('*')
+                        .eq('id', visitId)
+                        .single();
+
+                    // Remove loading message
+                    const loadingEl = document.getElementById('loading-specific-visit');
+                    if (loadingEl) loadingEl.remove();
+
+                    if (error) {
+                        console.error('❌ Database error:', error);
+                        throw error;
+                    }
+
+                    if (visit) {
+                        console.log('✅ Found specific visit:', visit.school_name);
+                        console.log('📄 Visit details:', {
+                            id: visit.id,
+                            school: visit.school_name,
+                            status: visit.status,
+                            invoice_status: visit.invoice_status
+                        });
+
+                        // Add to visits data
+                        this.visitsData = this.visitsData || {};
+                        this.visitsData[visitId] = visit;
+
+                        // Add to the display list
+                        this.addVisitToDisplay(visit);
+
+                        // Select it
+                        this.selectVisit(visitId);
+
+                        // Show success message
+                        const statusMessage = document.createElement('div');
+                        statusMessage.innerHTML = `
+                            <div style="background: #d4edda; color: #155724; padding: 1rem; border-radius: 4px; margin: 1rem 0; border-left: 4px solid #28a745;">
+                                ✅ <strong>Invoice loaded for:</strong> ${visit.school_name}
+                            </div>
+                        `;
+                        document.querySelector('.visit-selector').insertBefore(statusMessage, document.getElementById('visitsList'));
+
+                        // Remove message after 5 seconds
+                        setTimeout(() => statusMessage.remove(), 5000);
+                    } else {
+                        throw new Error('Visit data is null');
+                    }
+                } catch (error) {
+                    console.error('❌ Error fetching specific visit:', error);
+
+                    // Remove loading message if still there
+                    const loadingEl = document.getElementById('loading-specific-visit');
+                    if (loadingEl) loadingEl.remove();
+
+                    // Show detailed error message
+                    const errorMessage = document.createElement('div');
+                    errorMessage.innerHTML = `
+                        <div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 4px; margin: 1rem 0; border-left: 4px solid #dc3545;">
+                            ❌ <strong>Could not load visit:</strong> ${visitId.substring(0, 8)}...<br>
+                            <small><strong>Error:</strong> ${error.message}</small><br>
+                            <small><strong>Debug info:</strong> Check browser console for details</small><br>
+                            <button onclick="location.reload()" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #721c24; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                🔄 Retry Page
+                            </button>
+                        </div>
+                    `;
+                    document.querySelector('.visit-selector').insertBefore(errorMessage, document.getElementById('visitsList'));
+
+                    // Also try to load all visits to show something useful
+                    console.log('🔄 Attempting to load all visits as fallback...');
+                    document.getElementById('statusFilter').value = 'all';
+                    await this.loadVisits();
+                }
+            }
+
+            addVisitToDisplay(visit) {
+                const container = document.getElementById('visitsList');
+                const visitCard = document.createElement('div');
+                visitCard.innerHTML = `
+                    <div class="visit-card" onclick="selectVisit('${visit.id}')" data-visit-id="${visit.id}">
+                        <h4>${this.getVisitTypeIcon(visit.visit_type)} ${visit.school_name}</h4>
+                        <div class="visit-details">
+                            <div><strong>Contact:</strong> ${visit.contact_name}</div>
+                            <div><strong>Date:</strong> ${new Date(visit.preferred_date).toLocaleDateString()}</div>
+                            <div><strong>Participants:</strong> ${visit.student_count + (visit.teacher_count || 0)}</div>
+                            <div><strong>Type:</strong> ${this.getVisitTypeLabel(visit.visit_type)}</div>
+                        </div>
+                        <div style="margin-top: 0.5rem;">
+                            <span class="status-badge ${visit.invoice_status === 'not-invoiced' ? 'status-needs-invoice' : 'status-completed'}">
+                                ${visit.invoice_status === 'not-invoiced' ? 'Needs Invoice' : 'Invoiced'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                // Add to top of list
+                const firstCard = container.querySelector('.visit-card');
+                if (firstCard) {
+                    container.insertBefore(visitCard.firstElementChild, firstCard);
+                } else {
+                    container.innerHTML = '';
+                    container.appendChild(visitCard.firstElementChild);
                 }
             }
 
@@ -454,8 +647,11 @@
 
             async loadVisits() {
                 try {
+                    console.log('📋 Loading visits...');
                     const statusFilter = document.getElementById('statusFilter').value;
                     const typeFilter = document.getElementById('typeFilter').value;
+
+                    console.log('🔍 Filters:', { statusFilter, typeFilter, preSelectedVisitId: this.preSelectedVisitId });
 
                     let query = supabaseClient
                         .from('visits')
@@ -476,7 +672,12 @@
 
                     const { data: visits, error } = await query;
 
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ Database error:', error);
+                        throw error;
+                    }
+
+                    console.log(`✅ Loaded ${visits?.length || 0} visits from database`);
 
                     // Store visits data for later use
                     this.visitsData = visits.reduce((acc, visit) => {
@@ -484,12 +685,26 @@
                         return acc;
                     }, {});
 
+                    console.log('📊 Available visit IDs:', Object.keys(this.visitsData));
+
+                    // If we have a pre-selected visit ID, check if it's in the results
+                    if (this.preSelectedVisitId && !this.visitsData[this.preSelectedVisitId]) {
+                        console.log('⚠️ Pre-selected visit not in filtered results, will fetch separately');
+                    }
+
                     this.renderVisitsList(visits);
 
                 } catch (error) {
-                    console.error('Error loading visits:', error);
-                    document.getElementById('visitsList').innerHTML =
-                        '<div style="text-align: center; color: #721c24; background: #f8d7da; padding: 1rem; border-radius: 4px;">Error loading visits</div>';
+                    console.error('❌ Error loading visits:', error);
+                    document.getElementById('visitsList').innerHTML = `
+                        <div style="text-align: center; color: #721c24; background: #f8d7da; padding: 1rem; border-radius: 4px;">
+                            <strong>Error loading visits:</strong><br>
+                            ${error.message}<br>
+                            <button onclick="location.reload()" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #721c24; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                🔄 Retry
+                            </button>
+                        </div>
+                    `;
                 }
             }
 
@@ -656,17 +871,35 @@
                 this.originalPricing = pricing;
             }
 
+            getVisitTypePricing(visitType) {
+                // Default visit type pricing configuration (same as pricing management)
+                const visitTypePricing = [
+                    { visit_type: 'school-visit', display_name: '🏫 School Visit', child_price: 15, adult_price: 25, free_adults: 0, meal_child: 8, meal_adult: 12 },
+                    { visit_type: 'workshop-class-a', display_name: '🔬 Workshop Class A', child_price: 20, adult_price: 30, free_adults: 2, meal_child: 8, meal_adult: 12 },
+                    { visit_type: 'workshop-class-b', display_name: '🧪 Workshop Class B', child_price: 25, adult_price: 35, free_adults: 1, meal_child: 10, meal_adult: 15 },
+                    { visit_type: 'workshop-class-c', display_name: '⚗️ Workshop Class C', child_price: 35, adult_price: 45, free_adults: 0, meal_child: 12, meal_adult: 18 },
+                    { visit_type: 'special-lunch', display_name: '🍽️ Special Lunch', child_price: 15, adult_price: 20, free_adults: 1, meal_child: 0, meal_adult: 0 },
+                    { visit_type: 'family-visit', display_name: '👨‍👩‍👧‍👦 Family Visit', child_price: 12, adult_price: 18, free_adults: 0, meal_child: 8, meal_adult: 12 },
+                    { visit_type: 'corporate-visit', display_name: '🏢 Corporate Event', child_price: 40, adult_price: 40, free_adults: 0, meal_child: 20, meal_adult: 20 }
+                ];
+
+                return visitTypePricing.find(vt => vt.visit_type === visitType);
+            }
+
             calculatePricing(visit) {
                 const lineItems = [];
                 let subtotal = 0;
+
+                // Check for visit-type-specific pricing first
+                const visitTypePricing = this.getVisitTypePricing(visit.visit_type);
 
                 // Check for school-specific pricing
                 const schoolPricing = this.pricingData.schools.find(s =>
                     s.school_name === visit.school_name
                 );
 
-                // Determine pricing rates (use school override or standard pricing)
-                const rates = schoolPricing || this.pricingData.standard;
+                // Determine pricing rates priority: school override > visit type > standard pricing
+                const rates = schoolPricing || visitTypePricing || this.pricingData.standard;
 
                 if (!rates) {
                     console.error('No pricing rates found');
@@ -675,7 +908,7 @@
 
                 // Calculate visit fees
                 if (visit.student_count > 0) {
-                    const childPrice = rates.visit_price_child || 15;
+                    const childPrice = rates.child_price || rates.visit_price_child || 15;
                     const childTotal = visit.student_count * childPrice;
                     lineItems.push({
                         description: `Visit - Children (${visit.student_count} participants)`,
@@ -687,21 +920,33 @@
                 }
 
                 if (visit.teacher_count > 0) {
-                    const adultPrice = rates.visit_price_adult || 25;
-                    const adultTotal = visit.teacher_count * adultPrice;
-                    lineItems.push({
-                        description: `Visit - Adults (${visit.teacher_count} participants)`,
-                        quantity: visit.teacher_count,
-                        unitPrice: adultPrice,
-                        total: adultTotal
-                    });
-                    subtotal += adultTotal;
+                    const adultPrice = rates.adult_price || rates.visit_price_adult || 25;
+                    const freeAdults = rates.free_adults || 0;
+                    const chargeableAdults = Math.max(0, visit.teacher_count - freeAdults);
+
+                    if (chargeableAdults > 0) {
+                        const adultTotal = chargeableAdults * adultPrice;
+                        lineItems.push({
+                            description: `Visit - Adults (${chargeableAdults} chargeable${freeAdults > 0 ? `, ${freeAdults} free` : ''})`,
+                            quantity: chargeableAdults,
+                            unitPrice: adultPrice,
+                            total: adultTotal
+                        });
+                        subtotal += adultTotal;
+                    } else if (freeAdults > 0) {
+                        lineItems.push({
+                            description: `Visit - Adults (${visit.teacher_count} free)`,
+                            quantity: visit.teacher_count,
+                            unitPrice: 0,
+                            total: 0
+                        });
+                    }
                 }
 
                 // Calculate meal fees if applicable
                 if (visit.lunch_needs && visit.lunch_needs !== 'none' && visit.lunch_needs !== 'own_lunch') {
-                    const childMealPrice = rates.meal_price_child || 8;
-                    const adultMealPrice = rates.meal_price_adult || 12;
+                    const childMealPrice = rates.meal_child || rates.meal_price_child || 8;
+                    const adultMealPrice = rates.meal_adult || rates.meal_price_adult || 12;
 
                     if (visit.student_count > 0) {
                         const childMealTotal = visit.student_count * childMealPrice;
@@ -800,6 +1045,186 @@
             alert('PDF download functionality would be implemented here with a service like jsPDF or server-side PDF generation');
         }
 
+        function openFullPageInvoice() {
+            if (!invoiceGenerator.selectedVisit) {
+                alert('No visit selected for invoice generation');
+                return;
+            }
+
+            // Get the current invoice content
+            const invoiceContent = document.getElementById('invoiceContent').innerHTML;
+
+            // Create a new window for the full-page invoice
+            const fullPageWindow = window.open('', '_blank', 'width=1000,height=800,scrollbars=yes,resizable=yes');
+
+            // Write the full-page HTML
+            fullPageWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Invoice - ${invoiceGenerator.selectedVisit.school_name}</title>
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            max-width: 800px;
+                            margin: 0 auto;
+                            padding: 2rem;
+                            background: white;
+                        }
+
+                        .invoice-header {
+                            text-align: center;
+                            margin-bottom: 2rem;
+                            border-bottom: 3px solid #1565c0;
+                            padding-bottom: 1rem;
+                        }
+
+                        .invoice-header h2 {
+                            margin: 0;
+                            font-size: 2.5rem;
+                            color: #1565c0;
+                        }
+
+                        .invoice-number {
+                            font-size: 1.1rem;
+                            color: #666;
+                            margin: 0.5rem 0;
+                        }
+
+                        .invoice-section {
+                            margin: 1.5rem 0;
+                            padding: 1rem;
+                            background: #f8f9fa;
+                            border-left: 4px solid #1565c0;
+                            border-radius: 4px;
+                        }
+
+                        .invoice-section h3 {
+                            margin: 0 0 0.5rem 0;
+                            color: #1565c0;
+                            font-size: 1.2rem;
+                        }
+
+                        .pricing-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 2rem 0;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        }
+
+                        .pricing-table th,
+                        .pricing-table td {
+                            padding: 1rem;
+                            text-align: left;
+                            border-bottom: 1px solid #dee2e6;
+                        }
+
+                        .pricing-table th {
+                            background: #1565c0;
+                            color: white;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            font-size: 0.9rem;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .pricing-table tbody tr:nth-child(even) {
+                            background: #f8f9fa;
+                        }
+
+                        .pricing-table tbody tr:hover {
+                            background: #e3f2fd;
+                        }
+
+                        .pricing-table th:nth-child(1),
+                        .pricing-table td:nth-child(1) { width: 45%; }
+                        .pricing-table th:nth-child(2),
+                        .pricing-table td:nth-child(2) { width: 15%; text-align: center; }
+                        .pricing-table th:nth-child(3),
+                        .pricing-table td:nth-child(3) { width: 20%; text-align: right; }
+                        .pricing-table th:nth-child(4),
+                        .pricing-table td:nth-child(4) { width: 20%; text-align: right; font-weight: 600; }
+
+                        .total-section {
+                            border-top: 3px solid #1565c0;
+                            padding-top: 1rem;
+                            margin-top: 2rem;
+                            text-align: right;
+                        }
+
+                        .total-row {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 0.5rem 0;
+                            font-size: 1.1rem;
+                        }
+
+                        .total-row.final {
+                            border-top: 2px solid #1565c0;
+                            margin-top: 1rem;
+                            padding-top: 1rem;
+                            font-size: 1.3rem;
+                            font-weight: bold;
+                            color: #1565c0;
+                        }
+
+                        .actions-bar {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            display: flex;
+                            gap: 10px;
+                            z-index: 1000;
+                        }
+
+                        .btn {
+                            padding: 0.5rem 1rem;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            text-decoration: none;
+                            display: inline-block;
+                            transition: all 0.3s ease;
+                        }
+
+                        .btn-primary { background: #1565c0; color: white; }
+                        .btn-primary:hover { background: #0d47a1; }
+                        .btn-success { background: #28a745; color: white; }
+                        .btn-success:hover { background: #218838; }
+
+                        @media print {
+                            .actions-bar { display: none; }
+                            body { padding: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="actions-bar">
+                        <button class="btn btn-primary" onclick="window.print()">🖨️ Print</button>
+                        <button class="btn btn-success" onclick="window.close()">✅ Close</button>
+                    </div>
+
+                    ${invoiceContent}
+
+                    <script>
+                        // Focus the window
+                        window.focus();
+
+                        // Optional: Auto-print dialog
+                        // window.print();
+                    </script>
+                </body>
+                </html>
+            `);
+
+            fullPageWindow.document.close();
+        }
+
         // Custom items functionality
         let customItems = [];
 
@@ -864,7 +1289,7 @@
                     <div>${item.quantity}</div>
                     <div>€${item.unitPrice.toFixed(2)}</div>
                     <div>€${item.total.toFixed(2)}</div>
-                    <button class="btn btn-danger btn-sm" onclick="removeCustomItem(${item.id})" style="background: #dc3545; color: white; padding: 0.25rem 0.5rem;">✕</button>
+                    <button class="btn btn-danger btn-sm" onclick="removeCustomItem(${item.id})" style="background: #dc3545; color: white; padding: 0.4rem 0.6rem; border-radius: 4px; border: none; cursor: pointer; font-weight: bold;">🗑️</button>
                 </div>
             `).join('');
 

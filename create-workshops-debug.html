@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Workshop Creation</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; margin: 10px 0; }
+        .workshop { background: #e3f2fd; border-left: 4px solid #1565c0; padding: 15px; margin: 10px 0; border-radius: 4px; }
+        .error { background: #f8d7da; color: #721c24; }
+        .success { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug Workshop Creation</h1>
+
+    <button class="btn" onclick="checkActivitiesSchema()">1️⃣ Check Activities Table Schema</button>
+    <button class="btn" onclick="testSimpleInsert()">2️⃣ Test Simple Insert</button>
+    <button class="btn" onclick="createWorkshopsFixed()">3️⃣ Create Workshops (Fixed)</button>
+    <button class="btn" onclick="viewCurrentActivities()">4️⃣ View Current Activities</button>
+
+    <div id="results"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function showResult(content, className = '') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="workshop ${className}">${content}</div>`;
+        }
+
+        async function checkActivitiesSchema() {
+            log('🔍 Checking activities table schema...');
+
+            try {
+                // Try to get one record to see the schema
+                const { data, error } = await supabase
+                    .from('activities')
+                    .select('*')
+                    .limit(1);
+
+                if (error) {
+                    log('❌ Schema check error: ' + error.message);
+                    showResult(`❌ <strong>Schema Error:</strong> ${error.message}`, 'error');
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    log('✅ Activities table accessible');
+                    const columns = Object.keys(data[0]);
+                    log('📋 Available columns: ' + columns.join(', '));
+
+                    showResult(`
+                        ✅ <strong>Activities table is accessible</strong><br>
+                        <strong>Available columns:</strong><br>
+                        ${columns.map(col => `• ${col}`).join('<br>')}
+                    `, 'success');
+                } else {
+                    log('⚠️ Activities table is empty');
+                    showResult('⚠️ <strong>Activities table is empty</strong>', '');
+                }
+
+            } catch (error) {
+                log('❌ Error: ' + error.message);
+                showResult(`❌ <strong>Error:</strong> ${error.message}`, 'error');
+            }
+        }
+
+        async function testSimpleInsert() {
+            log('🧪 Testing simple insert...');
+
+            const testActivity = {
+                title: 'Test Workshop',
+                description: 'This is a test workshop',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            try {
+                const { data, error } = await supabase
+                    .from('activities')
+                    .insert([testActivity])
+                    .select();
+
+                if (error) {
+                    log('❌ Insert failed: ' + error.message);
+                    showResult(`❌ <strong>Insert Failed:</strong> ${error.message}<br><small>This tells us what fields are required or missing</small>`, 'error');
+                } else {
+                    log('✅ Insert successful');
+                    showResult('✅ <strong>Insert Successful!</strong> Basic insert works fine.', 'success');
+
+                    // Clean up test record
+                    await supabase.from('activities').delete().eq('title', 'Test Workshop');
+                    log('🧹 Cleaned up test record');
+                }
+
+            } catch (error) {
+                log('❌ Insert error: ' + error.message);
+                showResult(`❌ <strong>Insert Error:</strong> ${error.message}`, 'error');
+            }
+        }
+
+        async function createWorkshopsFixed() {
+            log('🔬 Creating workshops with minimal required fields...');
+
+            const workshops = [
+                {
+                    title: "Biodiversity & Ecosystems Workshop",
+                    description: "Explore the rich biodiversity of Mediterranean ecosystems through hands-on field work and laboratory analysis."
+                },
+                {
+                    title: "Sustainable Agriculture & Permaculture",
+                    description: "Learn sustainable farming techniques and permaculture principles through practical garden work."
+                },
+                {
+                    title: "Water Cycle & Conservation",
+                    description: "Investigate water systems, quality testing, and conservation methods in our aquatic lab."
+                },
+                {
+                    title: "Renewable Energy Systems",
+                    description: "Build and test solar panels, wind turbines, and explore clean energy solutions."
+                },
+                {
+                    title: "Climate Science & Data Analysis",
+                    description: "Collect climate data, analyze trends, and understand local environmental changes."
+                },
+                {
+                    title: "Green Technology Innovation Lab",
+                    description: "Design and prototype solutions to environmental challenges using maker tools."
+                }
+            ];
+
+            let created = 0;
+            let errors = [];
+
+            for (const workshop of workshops) {
+                try {
+                    // Check if already exists
+                    const { data: existing } = await supabase
+                        .from('activities')
+                        .select('id')
+                        .eq('title', workshop.title)
+                        .single();
+
+                    if (existing) {
+                        log(`⏭️ Workshop "${workshop.title}" already exists`);
+                        continue;
+                    }
+
+                    // Create minimal activity record
+                    const activityData = {
+                        title: workshop.title,
+                        description: workshop.description,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+
+                    const { error } = await supabase
+                        .from('activities')
+                        .insert([activityData]);
+
+                    if (error) {
+                        log(`❌ Failed to create "${workshop.title}": ${error.message}`);
+                        errors.push(`${workshop.title}: ${error.message}`);
+                    } else {
+                        log(`✅ Created: "${workshop.title}"`);
+                        created++;
+                    }
+
+                } catch (error) {
+                    log(`❌ Error with "${workshop.title}": ${error.message}`);
+                    errors.push(`${workshop.title}: ${error.message}`);
+                }
+            }
+
+            showResult(`
+                <h4>🔬 Workshop Creation Results</h4>
+                <p>✅ <strong>Created:</strong> ${created} workshops</p>
+                ${errors.length > 0 ? `
+                    <p>❌ <strong>Errors:</strong></p>
+                    <ul>${errors.map(err => `<li>${err}</li>`).join('')}</ul>
+                ` : ''}
+            `, created > 0 ? 'success' : 'error');
+        }
+
+        async function viewCurrentActivities() {
+            log('📋 Viewing current activities...');
+
+            try {
+                const { data: activities, error } = await supabase
+                    .from('activities')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    log('❌ Error loading activities: ' + error.message);
+                    showResult(`❌ <strong>Error:</strong> ${error.message}`, 'error');
+                    return;
+                }
+
+                log(`✅ Found ${activities.length} activities`);
+
+                let content = `<h4>📋 Current Activities (${activities.length} total)</h4>`;
+
+                if (activities.length === 0) {
+                    content += '<p>No activities found in the table.</p>';
+                } else {
+                    activities.forEach(activity => {
+                        content += `
+                            <div style="border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 4px;">
+                                <strong>${activity.title}</strong><br>
+                                <small>ID: ${activity.id}</small><br>
+                                <small>Created: ${new Date(activity.created_at).toLocaleDateString()}</small><br>
+                                ${activity.description ? `<em>${activity.description.substring(0, 100)}...</em>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+
+                showResult(content, 'success');
+
+            } catch (error) {
+                log('❌ Error: ' + error.message);
+                showResult(`❌ <strong>Error:</strong> ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run schema check
+        window.addEventListener('load', () => {
+            log('🔧 Workshop creation debug tool loaded');
+            checkActivitiesSchema();
+        });
+    </script>
+</body>
+</html>

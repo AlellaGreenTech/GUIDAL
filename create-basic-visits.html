@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Basic Visits - GUIDAL</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Create Basic Visits</h1>
+        <p>Creating minimal visit records to test the unified visits table...</p>
+
+        <div id="results"></div>
+        <button onclick="createBasicVisits()" style="margin: 1rem 0; padding: 0.5rem 1rem; background: #4CAF50; color: white; border: none; border-radius: 4px;">Create Basic Visits</button>
+    </div>
+
+    <!-- Required Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+        async function createBasicVisits() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>🔄 Creating basic visits...</p>';
+
+            try {
+                // Using fields required by invoice generator
+                const minimalVisits = [
+                    {
+                        school_name: 'Benjamin Franklin International School',
+                        student_count: 75,
+                        teacher_count: 8,
+                        status: 'completed',
+                        invoice_status: 'not-invoiced',
+                        preferred_date: '2025-09-16',
+                        visit_type: 'school'
+                    },
+                    {
+                        school_name: 'International School of Prague',
+                        student_count: 45,
+                        teacher_count: 5,
+                        status: 'completed',
+                        invoice_status: 'not-invoiced',
+                        preferred_date: '2025-09-20',
+                        visit_type: 'school'
+                    },
+                    {
+                        school_name: 'St. George International School',
+                        student_count: 30,
+                        teacher_count: 4,
+                        status: 'completed',
+                        invoice_status: 'not-invoiced',
+                        preferred_date: '2025-09-25',
+                        visit_type: 'school'
+                    }
+                ];
+
+                let html = '<h3>📊 Creating Minimal Visit Records:</h3>';
+                let successCount = 0;
+
+                for (const visit of minimalVisits) {
+                    try {
+                        console.log('Creating visit for:', visit.school_name);
+                        const created = await GuidalDB.addVisit(visit);
+                        console.log('Created visit:', created);
+
+                        html += `<p>✅ ${visit.school_name} - ${visit.student_count} students (ID: ${created.id})</p>`;
+                        successCount++;
+
+                    } catch (error) {
+                        console.error(`Error creating visit for ${visit.school_name}:`, error);
+
+                        // Try ultra minimal - just required fields
+                        try {
+                            const ultraMinimal = {
+                                school_name: visit.school_name,
+                                student_count: visit.student_count
+                            };
+
+                            console.log('Trying ultra minimal:', ultraMinimal);
+                            const created = await GuidalDB.addVisit(ultraMinimal);
+                            html += `<p>✅ ${visit.school_name} - ${visit.student_count} students (ultra minimal, ID: ${created.id})</p>`;
+                            successCount++;
+                        } catch (error2) {
+                            html += `<p>❌ ${visit.school_name} - Error: ${error.message}</p>`;
+                        }
+                    }
+                }
+
+                html += `
+                    <div style="background: ${successCount > 0 ? '#e8f5e8' : '#ffebee'}; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>${successCount > 0 ? '✅' : '❌'} Summary</h4>
+                        <p><strong>Visits Created:</strong> ${successCount} out of ${minimalVisits.length}</p>
+                        <p><strong>Status:</strong> ${successCount > 0 ? '🟢 Basic visits created!' : '🔴 No visits created'}</p>
+                        <p><strong>Architecture:</strong> ✅ Using unified visits table</p>
+                    </div>
+                `;
+
+                if (successCount > 0) {
+                    html += `
+                        <div style="margin: 1rem 0;">
+                            <button onclick="verifyVisits()" style="background: #FF9800; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">Verify Created Visits</button>
+                            <button onclick="addMoreDetails()" style="background: #9C27B0; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">Add More Details</button>
+                            <button onclick="testInvoiceGeneration()" style="background: #2196F3; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">Test Invoice Generation</button>
+                        </div>
+                    `;
+                }
+
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('❌ Creation failed:', error);
+                results.innerHTML = `
+                    <div style="background: #ffebee; padding: 1rem; border-radius: 8px;">
+                        <h3>❌ Creation Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function addMoreDetails() {
+            const results = document.getElementById('results');
+
+            try {
+                // Get existing visits and try to add more details
+                const visits = await GuidalDB.getVisits();
+
+                let html = results.innerHTML + '<h3>🔧 Adding More Details:</h3>';
+
+                // Try to update visits with additional fields that might work
+                for (const visit of visits) {
+                    try {
+                        const updateData = {
+                            status: 'completed',
+                            number_of_adults: visit.school_name.includes('Benjamin') ? 8 :
+                                           visit.school_name.includes('Prague') ? 5 : 4
+                        };
+
+                        // We can't update directly, but we can show what we'd add
+                        html += `<p>💡 ${visit.school_name} - Would add: status=completed, adults=${updateData.number_of_adults}</p>`;
+
+                    } catch (error) {
+                        html += `<p>⚠️ ${visit.school_name} - Could not update: ${error.message}</p>`;
+                    }
+                }
+
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error adding details:', error);
+            }
+        }
+
+        async function verifyVisits() {
+            try {
+                const visits = await GuidalDB.getVisits();
+                const results = document.getElementById('results');
+
+                let html = results.innerHTML;
+                html += `
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>📋 Current Visits in Database:</h4>
+                        <p><strong>Total Visits:</strong> ${visits.length}</p>
+                `;
+
+                if (visits.length > 0) {
+                    html += '<div style="max-height: 300px; overflow-y: auto;">';
+                    visits.forEach((visit, index) => {
+                        html += `
+                            <div style="border-left: 3px solid #4CAF50; padding: 0.5rem; margin: 0.5rem 0; background: white;">
+                                <strong>${visit.school_name}</strong><br>
+                                ${visit.student_count} students • ${visit.teacher_count || 0} teachers<br>
+                                <small>ID: ${visit.id} • Status: ${visit.status || 'pending'}</small>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<p>No visits found</p>';
+                }
+
+                html += '</div>';
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error verifying visits:', error);
+                const results = document.getElementById('results');
+                results.innerHTML += `<p style="color: red;">Error verifying visits: ${error.message}</p>`;
+            }
+        }
+
+        async function testInvoiceGeneration() {
+            alert('Opening invoice generator with unified visits data! Even basic visit records should allow testing the invoice system.');
+            window.open('admin/invoice-generator.html', '_blank');
+        }
+    </script>
+</body>
+</html>

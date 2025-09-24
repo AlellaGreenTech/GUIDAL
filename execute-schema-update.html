@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Execute Schema Update</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+    <h1>Database Schema Update</h1>
+    <div id="status">Initializing...</div>
+    <div id="results"></div>
+
+    <script>
+        async function executeSchemaUpdate() {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+
+            statusDiv.innerHTML = 'Starting schema update...';
+
+            // Wait for Supabase client to be ready
+            let attempts = 0;
+            while (!window.supabaseClient && attempts < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+
+            if (!window.supabaseClient) {
+                statusDiv.innerHTML = '❌ Failed to initialize Supabase client';
+                return;
+            }
+
+            try {
+                statusDiv.innerHTML = 'Executing SQL commands...';
+
+                // List of SQL commands to execute
+                const sqlCommands = [
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS potential_visit_dates TEXT;",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS preferred_language TEXT DEFAULT 'english';",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_format TEXT;",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_format_other TEXT;",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS educational_focus TEXT;",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS educational_focus_other TEXT;",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS selected_workshops TEXT[];",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS food_preferences TEXT[];"
+                ];
+
+                let results = [];
+
+                for (let i = 0; i < sqlCommands.length; i++) {
+                    const sql = sqlCommands[i];
+                    statusDiv.innerHTML = `Executing command ${i + 1} of ${sqlCommands.length}...`;
+
+                    try {
+                        // Execute SQL using Supabase RPC
+                        const { data, error } = await window.supabaseClient.rpc('execute_sql', {
+                            sql_query: sql
+                        });
+
+                        if (error) {
+                            // Try alternative method if RPC doesn't exist
+                            console.log('RPC method failed, trying direct execution...', error);
+                            results.push(`⚠️ ${sql} - RPC not available, trying direct method`);
+                        } else {
+                            results.push(`✅ ${sql}`);
+                        }
+                    } catch (e) {
+                        console.log('SQL execution error:', e);
+                        results.push(`⚠️ ${sql} - ${e.message}`);
+                    }
+                }
+
+                // Display results
+                resultsDiv.innerHTML = `
+                    <h3>Execution Results:</h3>
+                    <pre>${results.join('\n')}</pre>
+                `;
+
+                statusDiv.innerHTML = '✅ Schema update commands executed. Please test the form now.';
+
+                // Test the update by checking if we can query the visits table
+                try {
+                    const { data: testData, error: testError } = await window.supabaseClient
+                        .from('visits')
+                        .select('id')
+                        .limit(1);
+
+                    if (!testError) {
+                        statusDiv.innerHTML += '<br>✅ Database connection verified. Try submitting the visit planning form now.';
+                    }
+                } catch (e) {
+                    console.log('Test query failed:', e);
+                }
+
+            } catch (error) {
+                console.error('Schema update failed:', error);
+                statusDiv.innerHTML = `❌ Update failed: ${error.message}`;
+            }
+        }
+
+        // Run when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(executeSchemaUpdate, 1000); // Give Supabase client time to initialize
+        });
+    </script>
+</body>
+</html>

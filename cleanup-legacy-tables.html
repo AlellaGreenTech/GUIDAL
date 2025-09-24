@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cleanup Legacy Tables - GUIDAL</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .warning { background: #fff8e1; color: #f57f17; }
+        .error { background: #ffebee; color: #c62828; }
+        .info { background: #e3f2fd; color: #1976d2; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn.danger { background: #d32f2f; }
+        .btn.warning { background: #f57f17; }
+        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .table-info { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧹 Cleanup Legacy Tables</h1>
+    <p>This tool will safely remove the legacy <code>trip_requests</code> and <code>visit_requests</code> tables after checking their contents.</p>
+
+    <div id="status"></div>
+
+    <button onclick="analyzeTablesStep1()" class="btn">1️⃣ Analyze Legacy Tables</button>
+    <button onclick="backupDataStep2()" class="btn warning" disabled id="backupBtn">2️⃣ Backup Data (if needed)</button>
+    <button onclick="dropTablesStep3()" class="btn danger" disabled id="dropBtn">3️⃣ DROP Legacy Tables</button>
+
+    <div id="results"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let analysisData = {};
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function appendResults(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += content;
+        }
+
+        async function analyzeTablesStep1() {
+            showStatus('🔍 Analyzing legacy tables...', 'info');
+            appendResults('<h3>📊 Step 1: Table Analysis</h3>');
+
+            const tablesToCheck = ['trip_requests', 'visit_requests'];
+            let allEmpty = true;
+
+            for (const tableName of tablesToCheck) {
+                try {
+                    // Check if table exists and get count
+                    const { count, error } = await supabase
+                        .from(tableName)
+                        .select('*', { count: 'exact', head: true });
+
+                    if (error) {
+                        if (error.message.includes('does not exist')) {
+                            appendResults(`
+                                <div class="table-info success">
+                                    <h4>✅ ${tableName}</h4>
+                                    <p><strong>Status:</strong> Table does not exist (already cleaned up)</p>
+                                </div>
+                            `);
+                        } else {
+                            appendResults(`
+                                <div class="table-info error">
+                                    <h4>❌ ${tableName}</h4>
+                                    <p><strong>Error:</strong> ${error.message}</p>
+                                </div>
+                            `);
+                        }
+                        continue;
+                    }
+
+                    analysisData[tableName] = { count, exists: true };
+
+                    if (count > 0) {
+                        allEmpty = false;
+                        // Get sample data
+                        const { data: sample } = await supabase
+                            .from(tableName)
+                            .select('*')
+                            .limit(3);
+
+                        appendResults(`
+                            <div class="table-info warning">
+                                <h4>⚠️ ${tableName}</h4>
+                                <p><strong>Record Count:</strong> ${count} records found</p>
+                                <p><strong>Status:</strong> Contains data - needs backup before dropping</p>
+                                <details>
+                                    <summary>Sample data (first 3 records)</summary>
+                                    <pre>${JSON.stringify(sample, null, 2)}</pre>
+                                </details>
+                            </div>
+                        `);
+                    } else {
+                        appendResults(`
+                            <div class="table-info success">
+                                <h4>✅ ${tableName}</h4>
+                                <p><strong>Record Count:</strong> ${count} records (empty)</p>
+                                <p><strong>Status:</strong> Safe to drop</p>
+                            </div>
+                        `);
+                    }
+
+                } catch (error) {
+                    appendResults(`
+                        <div class="table-info error">
+                            <h4>❌ ${tableName}</h4>
+                            <p><strong>Exception:</strong> ${error.message}</p>
+                        </div>
+                    `);
+                }
+            }
+
+            // Enable next step buttons
+            if (allEmpty) {
+                showStatus('✅ All tables are empty or don\'t exist. Safe to proceed directly to DROP step.', 'success');
+                document.getElementById('dropBtn').disabled = false;
+            } else {
+                showStatus('⚠️ Some tables contain data. Backup recommended before dropping.', 'warning');
+                document.getElementById('backupBtn').disabled = false;
+                document.getElementById('dropBtn').disabled = false;
+            }
+
+            appendResults(`
+                <div class="info status">
+                    <h4>🎯 Next Steps:</h4>
+                    <p>• If tables contain important data → Use step 2 to backup first</p>
+                    <p>• If tables are empty or contain only test data → Skip to step 3</p>
+                    <p>• <strong>Unified 'visits' table should contain all current visit data</strong></p>
+                </div>
+            `);
+        }
+
+        async function backupDataStep2() {
+            showStatus('💾 Creating backup of table data...', 'info');
+            appendResults('<h3>💾 Step 2: Data Backup</h3>');
+
+            const timestamp = new Date().toISOString().split('T')[0];
+            let backupSql = `-- Legacy Tables Backup - ${timestamp}\n-- Run this SQL to restore data if needed\n\n`;
+
+            for (const tableName of ['trip_requests', 'visit_requests']) {
+                if (!analysisData[tableName]?.exists || analysisData[tableName]?.count === 0) {
+                    continue;
+                }
+
+                try {
+                    const { data, error } = await supabase.from(tableName).select('*');
+
+                    if (error) {
+                        appendResults(`<p class="error">❌ Error backing up ${tableName}: ${error.message}</p>`);
+                        continue;
+                    }
+
+                    // Generate INSERT statements
+                    if (data && data.length > 0) {
+                        const columns = Object.keys(data[0]);
+                        backupSql += `-- Backup for ${tableName} (${data.length} records)\n`;
+                        backupSql += `CREATE TABLE IF NOT EXISTS ${tableName}_backup AS SELECT * FROM ${tableName} WHERE 1=0;\n`;
+
+                        for (const record of data) {
+                            const values = columns.map(col => {
+                                const val = record[col];
+                                if (val === null) return 'NULL';
+                                if (typeof val === 'string') return `'${val.replace(/'/g, "''")}'`;
+                                return val;
+                            }).join(', ');
+
+                            backupSql += `INSERT INTO ${tableName}_backup (${columns.join(', ')}) VALUES (${values});\n`;
+                        }
+                        backupSql += '\n';
+
+                        appendResults(`<p class="success">✅ Backup created for ${tableName} (${data.length} records)</p>`);
+                    }
+                } catch (error) {
+                    appendResults(`<p class="error">❌ Exception backing up ${tableName}: ${error.message}</p>`);
+                }
+            }
+
+            // Show the backup SQL
+            appendResults(`
+                <div class="info status">
+                    <h4>📋 Backup SQL Generated</h4>
+                    <p>Copy this SQL and save it before proceeding with the DROP operation:</p>
+                    <button onclick="copyToClipboard(\`${backupSql.replace(/`/g, '\\`')}\`)" class="btn">📋 Copy Backup SQL</button>
+                    <details>
+                        <summary>View Backup SQL</summary>
+                        <pre>${backupSql}</pre>
+                    </details>
+                </div>
+            `);
+
+            showStatus('💾 Backup complete! Save the SQL before proceeding.', 'success');
+        }
+
+        async function dropTablesStep3() {
+            const confirmed = confirm(`⚠️ FINAL CONFIRMATION
+
+This will permanently DROP the following tables:
+• trip_requests
+• visit_requests
+
+This action cannot be undone!
+
+Make sure you have:
+✅ Verified the unified 'visits' table contains all current data
+✅ Created backups if needed
+✅ Updated all application code to use 'visits' table
+
+Are you absolutely sure you want to proceed?`);
+
+            if (!confirmed) {
+                showStatus('❌ Operation cancelled by user', 'warning');
+                return;
+            }
+
+            showStatus('🗑️ Dropping legacy tables...', 'warning');
+            appendResults('<h3>🗑️ Step 3: DROP Tables</h3>');
+
+            const dropSql = `-- Drop legacy tables
+DROP TABLE IF EXISTS trip_requests CASCADE;
+DROP TABLE IF EXISTS visit_requests CASCADE;
+
+-- Verify cleanup
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+AND table_name IN ('trip_requests', 'visit_requests');`;
+
+            appendResults(`
+                <div class="warning status">
+                    <h4>🔧 Manual Step Required</h4>
+                    <p>Due to security restrictions, you need to run this SQL manually in your Supabase SQL Editor:</p>
+                    <button onclick="copyToClipboard(\`${dropSql.replace(/`/g, '\\`')}\`)" class="btn">📋 Copy DROP SQL</button>
+                    <pre>${dropSql}</pre>
+                </div>
+            `);
+
+            appendResults(`
+                <div class="info status">
+                    <h4>📋 After running the SQL:</h4>
+                    <ol>
+                        <li>The query should return no rows (confirming tables are dropped)</li>
+                        <li>Test your application to ensure it works with the unified 'visits' table</li>
+                        <li>Check the invoice generator functionality</li>
+                        <li>Remove any remaining code references to the old table names</li>
+                    </ol>
+                </div>
+            `);
+
+            showStatus('📋 DROP SQL generated. Run it manually in Supabase SQL Editor.', 'warning');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('📋 SQL copied to clipboard!');
+            }, () => {
+                alert('❌ Failed to copy. Please select and copy manually.');
+            });
+        }
+
+        // Auto-start analysis
+        window.addEventListener('load', () => {
+            setTimeout(analyzeTablesStep1, 1000);
+        });
+    </script>
+</body>
+</html>

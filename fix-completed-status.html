@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Completed Visit Status</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .btn.danger { background: #d32f2f; }
+        .section { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Fix Completed Visit Status</h1>
+
+    <button id="analyzeBtn" class="btn">📊 Analyze Status Issues</button>
+    <button id="fixBtn" class="btn danger">🔧 Fix Past Date Statuses</button>
+
+    <div id="results"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function showResults(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="section">${content}</div>`;
+        }
+
+        async function analyzeStatusIssues() {
+            log('🔍 Analyzing visit status issues...');
+
+            try {
+                // Get all visits with status and dates
+                const { data: allVisits, error } = await supabase
+                    .from('visits')
+                    .select('id, school_name, status, confirmed_date, submitted_at, preferred_date')
+                    .order('confirmed_date', { ascending: false });
+
+                if (error) {
+                    log(`❌ Error: ${error.message}`);
+                    return;
+                }
+
+                log(`📊 Found ${allVisits.length} total visits`);
+
+                // Analyze status distribution
+                const statusCounts = {};
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Start of today
+
+                let shouldBeCompleted = [];
+                let alreadyCompleted = 0;
+
+                allVisits.forEach(visit => {
+                    const status = visit.status || 'unknown';
+                    statusCounts[status] = (statusCounts[status] || 0) + 1;
+
+                    // Check if visit should be completed
+                    const confirmedDate = visit.confirmed_date ? new Date(visit.confirmed_date) : null;
+                    const preferredDate = visit.preferred_date ? new Date(visit.preferred_date) : null;
+                    const submittedDate = visit.submitted_at ? new Date(visit.submitted_at) : null;
+
+                    // Use confirmed_date first, then preferred_date, then submitted_at
+                    const visitDate = confirmedDate || preferredDate || submittedDate;
+
+                    if (visitDate && visitDate < today) {
+                        if (status === 'completed') {
+                            alreadyCompleted++;
+                        } else {
+                            shouldBeCompleted.push({
+                                id: visit.id,
+                                school_name: visit.school_name,
+                                status: status,
+                                visit_date: visitDate.toISOString().split('T')[0],
+                                date_source: confirmedDate ? 'confirmed_date' : (preferredDate ? 'preferred_date' : 'submitted_at')
+                            });
+                        }
+                    }
+                });
+
+                log(`📈 Status distribution:`);
+                Object.entries(statusCounts).forEach(([status, count]) => {
+                    log(`   ${status}: ${count}`);
+                });
+
+                log(`\n🎯 Should be completed analysis:`);
+                log(`   Already completed: ${alreadyCompleted}`);
+                log(`   Need to be marked completed: ${shouldBeCompleted.length}`);
+
+                if (shouldBeCompleted.length > 0) {
+                    log(`\n📋 Visits that need status update:`);
+                    shouldBeCompleted.forEach((visit, index) => {
+                        log(`   ${index + 1}. ${visit.school_name} - ${visit.status} - ${visit.visit_date} (${visit.date_source})`);
+                    });
+                }
+
+                showResults(`
+                    <h3>📊 Status Analysis Results</h3>
+                    <p><strong>Total visits:</strong> ${allVisits.length}</p>
+                    <p><strong>Already completed:</strong> ${alreadyCompleted}</p>
+                    <p><strong>Need to mark completed:</strong> ${shouldBeCompleted.length}</p>
+                    <p><strong>Status distribution:</strong> ${Object.entries(statusCounts).map(([k,v]) => `${k}: ${v}`).join(', ')}</p>
+                `);
+
+                // Store for fixing
+                window.visitsToFix = shouldBeCompleted;
+
+            } catch (error) {
+                log(`❌ Error analyzing: ${error.message}`);
+            }
+        }
+
+        async function fixPastDateStatuses() {
+            if (!window.visitsToFix || window.visitsToFix.length === 0) {
+                log('⚠️ No visits to fix. Run analysis first.');
+                return;
+            }
+
+            log(`🔧 Fixing ${window.visitsToFix.length} visits with past dates...`);
+
+            try {
+                // Update all visits with past dates to 'completed'
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const { data, error } = await supabase
+                    .from('visits')
+                    .update({ status: 'completed' })
+                    .or(`confirmed_date.lt.${today.toISOString()},and(confirmed_date.is.null,preferred_date.lt.${today.toISOString()}),and(confirmed_date.is.null,preferred_date.is.null,submitted_at.lt.${today.toISOString()})`);
+
+                if (error) {
+                    log(`❌ Error updating: ${error.message}`);
+
+                    // Try individual updates as fallback
+                    log('🔄 Trying individual updates...');
+                    let updated = 0;
+                    for (const visit of window.visitsToFix) {
+                        try {
+                            const { error: updateError } = await supabase
+                                .from('visits')
+                                .update({ status: 'completed' })
+                                .eq('id', visit.id);
+
+                            if (updateError) {
+                                log(`❌ Failed to update ${visit.school_name}: ${updateError.message}`);
+                            } else {
+                                updated++;
+                                log(`✅ Updated ${visit.school_name}`);
+                            }
+                        } catch (e) {
+                            log(`❌ Error updating ${visit.school_name}: ${e.message}`);
+                        }
+                    }
+                    log(`✅ Updated ${updated} visits individually`);
+                } else {
+                    log(`✅ Bulk update successful`);
+                }
+
+                // Verify the fix
+                const { count: newCompletedCount } = await supabase
+                    .from('visits')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'completed');
+
+                log(`🎉 New completed count: ${newCompletedCount}`);
+
+                showResults(`
+                    <h3>🔧 Fix Results</h3>
+                    <p><strong>Visits updated:</strong> ${window.visitsToFix.length}</p>
+                    <p><strong>New completed count:</strong> ${newCompletedCount}</p>
+                    <p>Dashboard should now show accurate completed visit numbers!</p>
+                `);
+
+            } catch (error) {
+                log(`❌ Error fixing statuses: ${error.message}`);
+            }
+        }
+
+        document.getElementById('analyzeBtn').addEventListener('click', analyzeStatusIssues);
+        document.getElementById('fixBtn').addEventListener('click', fixPastDateStatuses);
+
+        // Auto-analyze on load
+        analyzeStatusIssues();
+    </script>
+</body>
+</html>

@@ -78,15 +78,16 @@ class GuidalDB {
   // Visits Management
   static async getVisits(filters = {}) {
     let query = supabase
-      .from('school_visits')
-      .select(`
-        *,
-        school:schools(name, address)
-      `)
-      .order('visit_date', { ascending: true })
+      .from('visits')
+      .select('*')
+      .order('confirmed_date', { ascending: true })
 
     if (filters.upcoming) {
-      query = query.gte('visit_date', new Date().toISOString().split('T')[0])
+      query = query.gte('confirmed_date', new Date().toISOString().split('T')[0])
+    }
+
+    if (filters.status) {
+      query = query.eq('status', filters.status)
     }
 
     const { data, error } = await query
@@ -100,9 +101,9 @@ class GuidalDB {
 
   static async getVisitByAccessCode(accessCode) {
     const { data, error } = await supabase
-      .from('school_visits')
+      .from('visits')
       .select('*')
-      .eq('access_code', accessCode)
+      .eq('internal_notes', `access_code:${accessCode}`)
       .single()
 
     if (error) {
@@ -114,7 +115,7 @@ class GuidalDB {
 
   static async addVisit(visitData) {
     const { data, error } = await supabase
-      .from('school_visits')
+      .from('visits')
       .insert([visitData])
       .select()
 
@@ -178,7 +179,13 @@ class GuidalDB {
         *,
         activity_type:activity_types!activity_type_id(id, name, slug, color, icon)
       `)
-      .in('status', ['published', 'active', 'upcoming'])
+
+    // Handle status filter - if not specified, show published activities
+    if (filters.status) {
+      query = query.eq('status', filters.status)
+    } else {
+      query = query.in('status', ['published', 'active', 'upcoming'])
+    }
 
     // First get activity type ID if filtering by type
     if (filters.type) {
@@ -209,9 +216,24 @@ class GuidalDB {
       return []
     }
 
-    // Custom sorting: upcoming activities first, then past activities
+    // Apply time-based filtering after database query
     const currentDate = new Date();
-    const sortedData = (data || []).sort((a, b) => {
+    let filteredData = data || [];
+
+    if (filters.time_filter === 'upcoming') {
+      filteredData = filteredData.filter(activity => {
+        const activityDate = activity.date_time ? new Date(activity.date_time) : null;
+        return !activityDate || activityDate >= currentDate;
+      });
+    } else if (filters.time_filter === 'past') {
+      filteredData = filteredData.filter(activity => {
+        const activityDate = activity.date_time ? new Date(activity.date_time) : null;
+        return activityDate && activityDate < currentDate;
+      });
+    }
+
+    // Custom sorting: upcoming activities first, then past activities
+    const sortedData = filteredData.sort((a, b) => {
       const dateA = a.date_time ? new Date(a.date_time) : null;
       const dateB = b.date_time ? new Date(b.date_time) : null;
 
@@ -418,13 +440,19 @@ class GuidalDB {
       const { data: { user }, error } = await supabase.auth.getUser()
       if (error) throw error
 
-      if (user) {
+      if (user && user.id) {
         // Get full profile data
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single()
+
+        if (profileError) {
+          console.warn('Profile fetch error:', profileError)
+          // Return user without profile if profile fetch fails
+          return { ...user, profile: null }
+        }
 
         return { ...user, profile }
       }

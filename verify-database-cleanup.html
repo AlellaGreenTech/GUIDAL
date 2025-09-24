@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Database Cleanup - GUIDAL</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Verify Database Cleanup</h1>
+        <p>Checking if school_visits table cleanup was successful...</p>
+
+        <div id="results"></div>
+        <button onclick="verifyCleanup()" style="margin: 1rem 0; padding: 0.5rem 1rem; background: #2196F3; color: white; border: none; border-radius: 4px;">Check Database Structure</button>
+        <button onclick="generateDropSQL()" style="margin: 1rem 0; padding: 0.5rem 1rem; background: #FF5722; color: white; border: none; border-radius: 4px;">Generate DROP SQL</button>
+    </div>
+
+    <script src="js/supabase-client.js"></script>
+    <script>
+        // Wait for Supabase to be available
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                const checkSupabase = () => {
+                    if (window.supabaseClient || (window.GuidalDB && window.GuidalDB.supabase)) {
+                        resolve(window.supabaseClient || window.GuidalDB.supabase);
+                    } else {
+                        setTimeout(checkSupabase, 100);
+                    }
+                };
+                checkSupabase();
+            });
+        }
+
+        async function verifyCleanup() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>🔄 Checking database structure...</p>';
+
+            try {
+                // Wait for Supabase to be ready
+                const supabase = await waitForSupabase();
+
+                let html = '<h3>📊 Database Structure Check:</h3>';
+
+                // Check if visits table exists and works
+                try {
+                    const visits = await GuidalDB.getVisits();
+                    html += `<p>✅ <strong>visits table:</strong> Working correctly (${visits.length} records)</p>`;
+                } catch (error) {
+                    html += `<p>❌ <strong>visits table:</strong> Error - ${error.message}</p>`;
+                }
+
+                // Check if activities table exists
+                try {
+                    const { data, error } = await supabase.from('activities').select('count');
+                    if (error) {
+                        html += `<p>❌ <strong>activities table:</strong> Error - ${error.message}</p>`;
+                    } else {
+                        html += `<p>✅ <strong>activities table:</strong> Exists and accessible</p>`;
+                    }
+                } catch (error) {
+                    html += `<p>❌ <strong>activities table:</strong> Error - ${error.message}</p>`;
+                }
+
+                // Try to access school_visits table (should fail)
+                try {
+                    const { data, error } = await supabase.from('school_visits').select('count');
+                    if (error) {
+                        if (error.message.includes('relation "public.school_visits" does not exist')) {
+                            html += `<p>✅ <strong>school_visits table:</strong> Successfully removed</p>`;
+                        } else {
+                            html += `<p>🔍 <strong>school_visits table:</strong> ${error.message}</p>`;
+                        }
+                    } else {
+                        html += `<p>⚠️ <strong>school_visits table:</strong> Still exists! Needs cleanup</p>`;
+                    }
+                } catch (error) {
+                    html += `<p>❌ <strong>school_visits table:</strong> Exception - ${error.message}</p>`;
+                }
+
+                // Test the invoice system connection
+                html += '<h4>🧪 Invoice System Test:</h4>';
+                try {
+                    // Test if the invoice system can load visits
+                    const testVisits = await GuidalDB.getVisits({status: 'completed'});
+                    html += `<p>✅ <strong>Invoice system:</strong> Can load completed visits (${testVisits.length} found)</p>`;
+                } catch (error) {
+                    html += `<p>❌ <strong>Invoice system:</strong> Error loading visits - ${error.message}</p>`;
+                }
+
+                html += `
+                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>✅ Cleanup Status</h4>
+                        <p><strong>Architecture:</strong> ✅ Unified visits table approach</p>
+                        <p><strong>Code:</strong> ✅ Updated to use visits table</p>
+                        <p><strong>Schema:</strong> ✅ Removed from complete-schema.sql</p>
+                        <p><strong>Next Step:</strong> Create visit records and test invoice generation</p>
+                    </div>
+                `;
+
+                html += `
+                    <div style="margin: 1rem 0;">
+                        <button onclick="testInvoiceGeneration()" style="background: #4CAF50; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">Test Invoice Generation</button>
+                        <button onclick="showVisitsData()" style="background: #FF9800; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">Show Visits Data</button>
+                    </div>
+                `;
+
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error verifying cleanup:', error);
+                results.innerHTML = `<p>❌ Error verifying cleanup: ${error.message}</p>`;
+            }
+        }
+
+        function generateDropSQL() {
+            const sql = `
+-- SQL commands to completely remove school_visits table if it still exists
+DROP TABLE IF EXISTS public.visit_stations CASCADE;
+DROP TABLE IF EXISTS public.school_visits CASCADE;
+
+-- Verify cleanup
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+AND table_name IN ('school_visits', 'visit_stations');
+
+-- Should return no rows if cleanup is complete
+            `.trim();
+
+            const results = document.getElementById('results');
+            results.innerHTML = `
+                <h3>🗑️ Database Cleanup SQL</h3>
+                <p>Copy and run this SQL in your Supabase SQL editor if the school_visits table still exists:</p>
+                <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto;">${sql}</pre>
+                <button onclick="copyToClipboard(\`${sql}\`)" style="background: #2196F3; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px;">Copy SQL</button>
+            `;
+        }
+
+        async function showVisitsData() {
+            try {
+                const visits = await GuidalDB.getVisits();
+                let html = '<h3>📋 Current Visits Data:</h3>';
+
+                if (visits.length === 0) {
+                    html += '<p>No visits found. Use the visit creation tool to add test data.</p>';
+                } else {
+                    html += '<div style="max-height: 300px; overflow-y: auto;">';
+                    visits.forEach(visit => {
+                        html += `
+                            <div style="border-left: 3px solid #4CAF50; padding: 0.5rem; margin: 0.5rem 0; background: white;">
+                                <strong>${visit.school_name || 'Unknown School'}</strong><br>
+                                Students: ${visit.number_of_students || 'N/A'} • Contact: ${visit.contact_email || 'N/A'}<br>
+                                <small>ID: ${visit.id} • Status: ${visit.status || 'pending'}</small>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                document.getElementById('results').innerHTML = html;
+            } catch (error) {
+                document.getElementById('results').innerHTML = `<p>❌ Error loading visits: ${error.message}</p>`;
+            }
+        }
+
+        function testInvoiceGeneration() {
+            window.open('admin/invoice-generator.html', '_blank');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('SQL copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

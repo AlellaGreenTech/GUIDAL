@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Status Constraint</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .result { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #1565c0; }
+        .status-item { background: #e3f2fd; padding: 8px; margin: 3px 0; border-radius: 4px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Check Status Constraint</h1>
+    <p>Let's find out what status values are allowed in the activities table.</p>
+
+    <button class="btn" onclick="checkExistingStatuses()">📋 Check Existing Status Values</button>
+    <button class="btn" onclick="testStatusValues()">🧪 Test Common Status Values</button>
+
+    <div id="results"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function showResult(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="result">${content}</div>`;
+        }
+
+        async function checkExistingStatuses() {
+            try {
+                const { data: activities, error } = await supabase
+                    .from('activities')
+                    .select('status')
+                    .not('status', 'is', null);
+
+                if (error) {
+                    showResult(`❌ <strong>Error:</strong> ${error.message}`);
+                    return;
+                }
+
+                if (!activities || activities.length === 0) {
+                    showResult(`⚠️ <strong>No activities found</strong> - Table might be empty.`);
+                    return;
+                }
+
+                // Get unique status values
+                const uniqueStatuses = [...new Set(activities.map(a => a.status))];
+
+                let content = `<h3>📋 Existing Status Values (${uniqueStatuses.length} unique)</h3>`;
+                uniqueStatuses.forEach(status => {
+                    const count = activities.filter(a => a.status === status).length;
+                    content += `<div class="status-item">"${status}" - used ${count} times</div>`;
+                });
+
+                content += `<h4>💡 Use one of these values in your CSV</h4>`;
+                content += `<p>Replace <code>status,"available"</code> with one of the values above (likely <code>status,"${uniqueStatuses[0] || 'active'}"</code>)</p>`;
+
+                showResult(content);
+
+            } catch (error) {
+                showResult(`❌ <strong>Error:</strong> ${error.message}`);
+            }
+        }
+
+        async function testStatusValues() {
+            const commonStatuses = ['active', 'inactive', 'published', 'draft', 'open', 'closed', 'enabled', 'disabled'];
+
+            let content = `<h3>🧪 Testing Common Status Values</h3>`;
+            content += `<p>Trying to insert test records with different status values to find which ones are allowed...</p>`;
+
+            for (const status of commonStatuses) {
+                try {
+                    // Try inserting a minimal test record
+                    const { error } = await supabase
+                        .from('activities')
+                        .insert([{
+                            title: `Test Status ${status}`,
+                            description: 'Test record',
+                            status: status,
+                            activity_type_id: 'c7c46bda-1cb0-4a8d-8cb5-7833e730112e' // Workshops UUID
+                        }]);
+
+                    if (error) {
+                        if (error.message.includes('activities_status_check')) {
+                            content += `<div class="status-item">❌ "${status}" - NOT allowed</div>`;
+                        } else {
+                            content += `<div class="status-item">⚠️ "${status}" - Other error: ${error.message}</div>`;
+                        }
+                    } else {
+                        content += `<div class="status-item">✅ "${status}" - ALLOWED</div>`;
+
+                        // Clean up test record
+                        await supabase
+                            .from('activities')
+                            .delete()
+                            .eq('title', `Test Status ${status}`);
+                    }
+                } catch (error) {
+                    content += `<div class="status-item">❌ "${status}" - Error: ${error.message}</div>`;
+                }
+            }
+
+            showResult(content);
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            checkExistingStatuses();
+        });
+    </script>
+</body>
+</html>

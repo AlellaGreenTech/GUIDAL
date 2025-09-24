@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Invoice Issue</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; margin: 10px 0; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .result { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #1565c0; }
+        .error { background: #f8d7da; color: #721c24; border-left-color: #dc3545; }
+        .success { background: #d4edda; color: #155724; border-left-color: #28a745; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug Invoice Generation Issue</h1>
+    <p>This tool will help diagnose why the BFIS invoice isn't loading.</p>
+
+    <div>
+        <button class="btn" onclick="testConnection()">1️⃣ Test Database Connection</button>
+        <button class="btn" onclick="testSpecificVisit()">2️⃣ Test BFIS Visit Lookup</button>
+        <button class="btn" onclick="testAllVisits()">3️⃣ List All Visits</button>
+        <button class="btn" onclick="testURL()">4️⃣ Test URL Parameters</button>
+    </div>
+
+    <div id="results"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+
+        let supabase;
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function showResult(content, type = 'result') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="result ${type}">${content}</div>`;
+        }
+
+        // Initialize Supabase
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            log('✅ Supabase client initialized');
+        } catch (error) {
+            log('❌ Failed to initialize Supabase: ' + error.message);
+        }
+
+        async function testConnection() {
+            log('🔌 Testing database connection...');
+            showResult('<h3>🔌 Database Connection Test</h3>');
+
+            try {
+                const { data, error } = await supabase
+                    .from('visits')
+                    .select('count(*)')
+                    .limit(1);
+
+                if (error) {
+                    log('❌ Connection failed: ' + error.message);
+                    showResult(`❌ <strong>Connection Failed:</strong> ${error.message}`, 'error');
+                } else {
+                    log('✅ Connection successful');
+                    showResult('✅ <strong>Connection Successful!</strong> Database is reachable', 'success');
+                }
+            } catch (error) {
+                log('❌ Connection error: ' + error.message);
+                showResult(`❌ <strong>Connection Error:</strong> ${error.message}`, 'error');
+            }
+        }
+
+        async function testSpecificVisit() {
+            const visitId = '7f7441a7-f1cd-464c-b983-bd571842b0b5'; // BFIS visit ID
+            log(`🔍 Testing specific visit lookup: ${visitId}`);
+            showResult('<h3>🔍 BFIS Visit Lookup Test</h3>');
+
+            try {
+                // Try to find the exact visit
+                const { data: visit, error } = await supabase
+                    .from('visits')
+                    .select('*')
+                    .eq('id', visitId)
+                    .single();
+
+                if (error) {
+                    log('❌ Visit lookup failed: ' + error.message);
+                    showResult(`❌ <strong>Visit Lookup Failed:</strong> ${error.message}`, 'error');
+
+                    // Try to find visits with similar ID
+                    log('🔍 Searching for similar visit IDs...');
+                    const { data: allVisits } = await supabase
+                        .from('visits')
+                        .select('id, school_name')
+                        .ilike('id', `${visitId.substring(0, 8)}%`);
+
+                    if (allVisits && allVisits.length > 0) {
+                        showResult(`🔍 <strong>Found visits with similar IDs:</strong><br>${allVisits.map(v => `• ${v.id} - ${v.school_name}`).join('<br>')}`);
+                    }
+                } else if (visit) {
+                    log('✅ Visit found: ' + visit.school_name);
+                    showResult(`
+                        ✅ <strong>Visit Found!</strong><br>
+                        <strong>School:</strong> ${visit.school_name}<br>
+                        <strong>ID:</strong> ${visit.id}<br>
+                        <strong>Status:</strong> ${visit.status}<br>
+                        <strong>Invoice Status:</strong> ${visit.invoice_status || 'not set'}<br>
+                        <strong>Visit Type:</strong> ${visit.visit_type || 'not set'}<br>
+                        <strong>Date:</strong> ${visit.preferred_date || 'not set'}
+                    `, 'success');
+                } else {
+                    log('❌ Visit not found (data is null)');
+                    showResult('❌ <strong>Visit not found</strong> - The visit may have been deleted', 'error');
+                }
+            } catch (error) {
+                log('❌ Error during visit lookup: ' + error.message);
+                showResult(`❌ <strong>Lookup Error:</strong> ${error.message}`, 'error');
+            }
+        }
+
+        async function testAllVisits() {
+            log('📋 Loading all visits to check database content...');
+            showResult('<h3>📋 All Visits Test</h3>');
+
+            try {
+                const { data: visits, error } = await supabase
+                    .from('visits')
+                    .select('id, school_name, status, invoice_status, visit_type')
+                    .order('school_name');
+
+                if (error) {
+                    log('❌ Failed to load visits: ' + error.message);
+                    showResult(`❌ <strong>Failed to load visits:</strong> ${error.message}`, 'error');
+                } else {
+                    log(`✅ Loaded ${visits.length} visits`);
+
+                    // Look for BFIS specifically
+                    const bfisVisits = visits.filter(v =>
+                        v.school_name.toLowerCase().includes('bfis') ||
+                        v.school_name.toLowerCase().includes('barcelona') ||
+                        v.school_name.toLowerCase().includes('international')
+                    );
+
+                    let content = `✅ <strong>Found ${visits.length} total visits</strong><br><br>`;
+
+                    if (bfisVisits.length > 0) {
+                        content += `🎯 <strong>BFIS-related visits:</strong><br>`;
+                        bfisVisits.forEach(visit => {
+                            content += `• <strong>${visit.school_name}</strong> (ID: ${visit.id.substring(0, 8)}..., Status: ${visit.status}, Invoice: ${visit.invoice_status || 'not set'})<br>`;
+                        });
+                    } else {
+                        content += `❌ <strong>No BFIS visits found</strong> - Looking for school names containing "bfis", "barcelona", or "international"<br>`;
+                    }
+
+                    content += `<br><strong>All schools:</strong><br>`;
+                    visits.slice(0, 10).forEach(visit => {
+                        content += `• ${visit.school_name} (${visit.id.substring(0, 8)}...)<br>`;
+                    });
+
+                    if (visits.length > 10) {
+                        content += `<em>... and ${visits.length - 10} more</em>`;
+                    }
+
+                    showResult(content, bfisVisits.length > 0 ? 'success' : 'error');
+                }
+            } catch (error) {
+                log('❌ Error loading visits: ' + error.message);
+                showResult(`❌ <strong>Error loading visits:</strong> ${error.message}`, 'error');
+            }
+        }
+
+        async function testURL() {
+            log('🔗 Testing URL parameter detection...');
+            showResult('<h3>🔗 URL Parameters Test</h3>');
+
+            // Test current URL
+            const currentUrl = window.location.href;
+            const urlParams = new URLSearchParams(window.location.search);
+            const visitId = urlParams.get('visit');
+
+            let content = `<strong>Current URL:</strong> ${currentUrl}<br>`;
+            content += `<strong>Visit parameter:</strong> ${visitId || 'Not found'}<br><br>`;
+
+            // Test the expected URL
+            const expectedUrl = 'http://localhost:8080/admin/invoice-generator.html?visit=7f7441a7-f1cd-464c-b983-bd571842b0b5';
+            content += `<strong>Expected URL format:</strong><br>${expectedUrl}<br><br>`;
+
+            if (visitId) {
+                content += `✅ <strong>URL parameter detected correctly!</strong><br>`;
+                content += `Visit ID: ${visitId}`;
+                showResult(content, 'success');
+            } else {
+                content += `❌ <strong>No visit parameter found</strong><br>`;
+                content += `Try navigating to: <a href="${expectedUrl}" target="_blank">Test URL</a>`;
+                showResult(content, 'error');
+            }
+
+            log(`URL test complete. Visit ID: ${visitId || 'none'}`);
+        }
+
+        // Auto-run basic tests
+        window.addEventListener('load', () => {
+            log('🚀 Debug tool loaded. Click buttons to run tests.');
+
+            // If there's a visit parameter, auto-run the specific visit test
+            const urlParams = new URLSearchParams(window.location.search);
+            const visitId = urlParams.get('visit');
+
+            if (visitId) {
+                log('🎯 Visit ID detected in URL, auto-running tests...');
+                setTimeout(() => {
+                    testConnection();
+                    setTimeout(() => testSpecificVisit(), 1000);
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

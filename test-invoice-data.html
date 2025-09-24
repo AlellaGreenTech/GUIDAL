@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Invoice Data - GUIDAL</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Invoice Data Test</h1>
+        <p>Testing if we have the proper visit data for invoice generation...</p>
+
+        <div id="results"></div>
+
+        <button onclick="runTest()" style="margin: 1rem 0; padding: 0.5rem 1rem; background: #4CAF50; color: white; border: none; border-radius: 4px;">Run Test</button>
+    </div>
+
+    <!-- Required Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+        async function runTest() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>🔍 Testing database connections and data...</p>';
+
+            try {
+                console.log('🚀 Starting invoice data test...');
+
+                // Test 1: Database connection
+                const connected = await GuidalDB.testConnection();
+                console.log('Database connection:', connected);
+
+                // Test 2: Get visits
+                const visits = await GuidalDB.getVisits();
+                console.log('Visits found:', visits.length);
+                console.log('Visits data:', visits);
+
+                // Test 3: Get schools
+                const schools = await GuidalDB.getSchools();
+                console.log('Schools found:', schools.length);
+                console.log('Schools data:', schools);
+
+                // Test 4: Try to get a specific visit (Benjamin Franklin)
+                let bfVisit = null;
+                if (visits.length > 0) {
+                    bfVisit = visits.find(v => v.school_name && v.school_name.includes('Benjamin Franklin'));
+                    if (!bfVisit) {
+                        bfVisit = visits.find(v => v.notes && v.notes.includes('Benjamin Franklin'));
+                    }
+                }
+
+                // Display results
+                let html = `
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h3>📊 Test Results</h3>
+                        <p><strong>Database Connection:</strong> ${connected ? '✅ Connected' : '❌ Failed'}</p>
+                        <p><strong>Visits in Database:</strong> ${visits.length}</p>
+                        <p><strong>Schools in Database:</strong> ${schools.length}</p>
+                        <p><strong>Benjamin Franklin Visit Found:</strong> ${bfVisit ? '✅ Yes' : '❌ No'}</p>
+                    </div>
+                `;
+
+                if (visits.length > 0) {
+                    html += `
+                        <div style="margin: 1rem 0;">
+                            <h4>📋 Sample Visit Data:</h4>
+                            <pre style="background: #f8f9fa; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.9rem;">${JSON.stringify(visits[0], null, 2)}</pre>
+                        </div>
+                    `;
+                }
+
+                if (schools.length > 0) {
+                    html += `
+                        <div style="margin: 1rem 0;">
+                            <h4>🏫 Sample School Data:</h4>
+                            <pre style="background: #f8f9fa; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.9rem;">${JSON.stringify(schools[0], null, 2)}</pre>
+                        </div>
+                    `;
+                }
+
+                if (bfVisit) {
+                    html += `
+                        <div style="margin: 1rem 0;">
+                            <h4>🎯 Benjamin Franklin Visit Data:</h4>
+                            <pre style="background: #e8f5e8; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.9rem;">${JSON.stringify(bfVisit, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+
+                // Test 5: Check if we can generate basic invoice data
+                if (visits.length > 0 && schools.length > 0) {
+                    html += `
+                        <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                            <h4>✅ Invoice Generation Readiness</h4>
+                            <p>✅ Visits data available</p>
+                            <p>✅ Schools data available</p>
+                            <p>✅ Database connectivity working</p>
+                            <p><strong>Status:</strong> 🟢 Ready for invoice generation!</p>
+                        </div>
+                        <button onclick="testInvoiceGeneration()" style="background: #2196F3; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem 0;">Test Invoice Generation</button>
+                    `;
+                } else {
+                    html += `
+                        <div style="background: #ffebee; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                            <h4>⚠️ Invoice Generation Issues</h4>
+                            <p>${visits.length === 0 ? '❌ No visits data found' : '✅ Visits data available'}</p>
+                            <p>${schools.length === 0 ? '❌ No schools data found' : '✅ Schools data available'}</p>
+                            <p><strong>Status:</strong> 🟡 Needs data setup before invoice generation</p>
+                        </div>
+                    `;
+                }
+
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('❌ Test failed:', error);
+                results.innerHTML = `
+                    <div style="background: #ffebee; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h3>❌ Test Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.8rem;">${error.stack || 'No stack trace available'}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function testInvoiceGeneration() {
+            // This would test the actual invoice generation functionality
+            alert('Opening invoice generator for testing...');
+            window.open('admin/invoice-generator.html', '_blank');
+        }
+
+        // Auto-run test when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(runTest, 1000);
+        });
+    </script>
+</body>
+</html>

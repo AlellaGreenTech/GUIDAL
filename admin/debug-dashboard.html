@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .dashboard-card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; }
+        .dashboard-stat { font-size: 2rem; font-weight: bold; color: #1565c0; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug Dashboard - Simplified</h1>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h3>📋 Pending Visits</h3>
+            <div class="dashboard-stat" id="pendingCount">Loading...</div>
+        </div>
+        <div class="dashboard-card">
+            <h3>📅 This Month</h3>
+            <div class="dashboard-stat" id="monthlyCount">Loading...</div>
+        </div>
+        <div class="dashboard-card">
+            <h3>🏫 Total Schools</h3>
+            <div class="dashboard-stat" id="schoolCount">Loading...</div>
+        </div>
+        <div class="dashboard-card">
+            <h3>👥 Total Visitors</h3>
+            <div class="dashboard-stat" id="visitorCount">Loading...</div>
+        </div>
+        <div class="dashboard-card">
+            <h3>✅ Completed Visits</h3>
+            <div class="dashboard-stat" id="completedCount">Loading...</div>
+        </div>
+    </div>
+
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        class DebugDashboard {
+            constructor() {
+                this.init();
+            }
+
+            async init() {
+                try {
+                    log('🛡️ Initializing Debug Dashboard...');
+
+                    // Wait for supabaseClient
+                    await this.waitForSupabaseClient();
+
+                    await this.loadDashboardStats();
+
+                    log('✅ Debug Dashboard initialized successfully');
+                } catch (error) {
+                    log(`❌ Error initializing dashboard: ${error.message}`);
+                    this.showError('Failed to load dashboard data');
+                }
+            }
+
+            async waitForSupabaseClient() {
+                let attempts = 0;
+                const maxAttempts = 20;
+
+                return new Promise((resolve, reject) => {
+                    function checkClient() {
+                        attempts++;
+                        log(`🔄 Attempt ${attempts}: Checking for supabaseClient...`);
+
+                        if (typeof supabaseClient !== 'undefined') {
+                            log('✅ supabaseClient found!');
+                            resolve();
+                        } else if (attempts < maxAttempts) {
+                            setTimeout(checkClient, 250);
+                        } else {
+                            reject(new Error('supabaseClient not available after 20 attempts'));
+                        }
+                    }
+                    checkClient();
+                });
+            }
+
+            async loadDashboardStats() {
+                try {
+                    log('📊 Loading dashboard statistics...');
+
+                    // Get pending requests count
+                    log('🔍 Querying pending visits...');
+                    const { count: pendingCount } = await supabaseClient
+                        .from('visits')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('status', 'pending');
+                    log(`✅ Pending: ${pendingCount}`);
+
+                    // Get this month's requests
+                    log('🔍 Querying monthly visits...');
+                    const startOfMonth = new Date();
+                    startOfMonth.setDate(1);
+                    startOfMonth.setHours(0, 0, 0, 0);
+
+                    const { count: monthlyCount } = await supabaseClient
+                        .from('visits')
+                        .select('*', { count: 'exact', head: true })
+                        .gte('submitted_at', startOfMonth.toISOString());
+                    log(`✅ Monthly: ${monthlyCount}`);
+
+                    // Get ALL visits
+                    log('🔍 Querying all visits...');
+                    const { data: allVisits } = await supabaseClient
+                        .from('visits')
+                        .select('*');
+                    log(`✅ All visits: ${allVisits ? allVisits.length : 'null'}`);
+
+                    if (!allVisits) {
+                        throw new Error('No visits data returned');
+                    }
+
+                    // Calculate unique schools
+                    const uniqueSchools = [...new Set(allVisits.map(r => r.school_name))].length;
+                    log(`✅ Unique schools: ${uniqueSchools}`);
+
+                    // Calculate total visitors
+                    log('🔍 Calculating total visitors...');
+                    const totalVisitors = allVisits.reduce((sum, r) => {
+                        const students = parseInt(r.student_count) || 0;
+                        const adults = parseInt(r.teacher_count) || parseInt(r.accompanying_adults) || 2;
+                        return sum + students + adults;
+                    }, 0);
+                    log(`✅ Total visitors: ${totalVisitors}`);
+
+                    // Count completed visits
+                    log('🔍 Counting completed visits...');
+                    const completedVisits = allVisits.filter(visit => visit.status === 'completed').length;
+                    log(`✅ Completed visits: ${completedVisits}`);
+
+                    // Update display
+                    log('🎨 Updating display elements...');
+                    document.getElementById('pendingCount').textContent = pendingCount || 0;
+                    document.getElementById('monthlyCount').textContent = monthlyCount || 0;
+                    document.getElementById('schoolCount').textContent = uniqueSchools;
+                    document.getElementById('visitorCount').textContent = totalVisitors;
+                    document.getElementById('completedCount').textContent = completedVisits;
+
+                    log('✅ All statistics updated successfully!');
+
+                } catch (error) {
+                    log(`❌ Error loading dashboard stats: ${error.message}`);
+                    throw error;
+                }
+            }
+
+            showError(message) {
+                log(`🚨 Showing error: ${message}`);
+                // Update all stats to show error
+                ['pendingCount', 'monthlyCount', 'schoolCount', 'visitorCount', 'completedCount'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = 'Error';
+                        element.style.color = 'red';
+                    }
+                });
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 DOM loaded, starting debug dashboard...');
+            new DebugDashboard();
+        });
+    </script>
+</body>
+</html>

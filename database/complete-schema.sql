@@ -99,40 +99,8 @@ create table if not exists public.activity_registrations (
   unique(activity_id, user_id)
 );
 
--- School visits (extends activities with school-specific data)
-create table if not exists public.school_visits (
-  id uuid default uuid_generate_v4() primary key,
-  activity_id uuid references public.activities(id) on delete cascade not null,
-  school_id uuid references public.schools(id) not null,
-  teacher_name text,
-  teacher_email text,
-  teacher_phone text,
-  student_count integer not null,
-  grade_level text,
-  access_code text unique,
-  special_instructions text,
-  lunch_required boolean default false,
-  transport_details text,
-  emergency_contact text,
-  visit_coordinator uuid references public.profiles(id),
-  confirmation_sent boolean default false,
-  created_at timestamp with time zone default now(),
-  updated_at timestamp with time zone default now()
-);
-
--- Station assignments for school visits
-create table if not exists public.visit_stations (
-  id uuid default uuid_generate_v4() primary key,
-  school_visit_id uuid references public.school_visits(id) on delete cascade not null,
-  station_name text not null,
-  start_time time,
-  end_time time,
-  instructor text,
-  max_students integer,
-  learning_objectives text[],
-  materials_needed text[],
-  created_at timestamp with time zone default now()
-);
+-- Note: School visits are handled in the unified 'visits' table
+-- No separate school_visits table needed - school visits are just a visit_format type
 
 -- Credit transactions
 create table if not exists public.credit_transactions (
@@ -282,7 +250,7 @@ alter table public.profiles enable row level security;
 alter table public.schools enable row level security;
 alter table public.activities enable row level security;
 alter table public.activity_registrations enable row level security;
-alter table public.school_visits enable row level security;
+-- school_visits table removed - using unified visits table instead
 alter table public.credit_transactions enable row level security;
 alter table public.blog_posts enable row level security;
 alter table public.products enable row level security;
@@ -372,8 +340,7 @@ create trigger handle_updated_at before update on public.activities for each row
 drop trigger if exists handle_updated_at on public.activity_registrations;
 create trigger handle_updated_at before update on public.activity_registrations for each row execute procedure public.handle_updated_at();
 
-drop trigger if exists handle_updated_at on public.school_visits;
-create trigger handle_updated_at before update on public.school_visits for each row execute procedure public.handle_updated_at();
+-- school_visits trigger removed - using unified visits table instead
 
 drop trigger if exists handle_updated_at on public.blog_posts;
 create trigger handle_updated_at before update on public.blog_posts for each row execute procedure public.handle_updated_at();

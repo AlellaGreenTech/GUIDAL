@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleanup visit_requests Table</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .btn-danger { background: #dc3545; }
+        .btn:hover { opacity: 0.8; }
+        .warning { background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧹 Cleanup visit_requests Table</h1>
+
+    <div class="warning">
+        <strong>⚠️ Safe Cleanup:</strong> Since both <code>visits</code> and <code>visit_requests</code> tables are empty (0 records each),
+        we can safely remove the redundant <code>visit_requests</code> table to avoid confusion.
+    </div>
+
+    <button id="verifyBtn" class="btn">🔍 Verify Tables Are Empty</button>
+    <button id="cleanupBtn" class="btn btn-danger" disabled>🗑️ Remove visit_requests Table</button>
+
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase client
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            logElement.innerHTML += message + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        async function verifyTables() {
+            log('🔍 Verifying table states before cleanup...');
+
+            try {
+                // Check visits table
+                const { count: visitsCount, error: visitsError } = await supabase
+                    .from('visits')
+                    .select('*', { count: 'exact', head: true });
+
+                if (visitsError) {
+                    log(`❌ Error checking visits table: ${visitsError.message}`);
+                    return false;
+                }
+
+                // Check visit_requests table
+                const { count: requestsCount, error: requestsError } = await supabase
+                    .from('visit_requests')
+                    .select('*', { count: 'exact', head: true });
+
+                if (requestsError) {
+                    log(`❌ Error checking visit_requests table: ${requestsError.message}`);
+                    return false;
+                }
+
+                log(`📊 visits table: ${visitsCount || 0} records`);
+                log(`📊 visit_requests table: ${requestsCount || 0} records`);
+
+                if ((visitsCount || 0) === 0 && (requestsCount || 0) === 0) {
+                    log(`✅ Both tables are empty - safe to remove visit_requests`);
+                    document.getElementById('cleanupBtn').disabled = false;
+                    return true;
+                } else {
+                    log(`⚠️ Tables are not empty - cleanup not recommended`);
+                    if (visitsCount > 0) log(`  - visits has ${visitsCount} records`);
+                    if (requestsCount > 0) log(`  - visit_requests has ${requestsCount} records`);
+                    return false;
+                }
+
+            } catch (error) {
+                log(`❌ Error during verification: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function cleanupTable() {
+            log('🧹 Starting cleanup of visit_requests table...');
+
+            try {
+                // Execute SQL to drop the table and related objects
+                const cleanupCommands = [
+                    'DROP VIEW IF EXISTS pending_visit_requests CASCADE;',
+                    'DROP VIEW IF EXISTS visit_requests_with_workshops CASCADE;',
+                    'DROP TABLE IF EXISTS visit_requests CASCADE;',
+                    'DROP FUNCTION IF EXISTS update_visit_requests_updated_at() CASCADE;'
+                ];
+
+                for (const command of cleanupCommands) {
+                    log(`🔄 Executing: ${command}`);
+
+                    const { error } = await supabase.rpc('exec_sql', { sql: command });
+
+                    if (error) {
+                        // Try alternative approach - most users can't execute raw SQL
+                        log(`⚠️ Cannot execute SQL directly: ${error.message}`);
+                        log(`📝 You'll need to run this manually in Supabase SQL editor:`);
+                        cleanupCommands.forEach(cmd => log(`   ${cmd}`));
+                        break;
+                    } else {
+                        log(`✅ Success: ${command}`);
+                    }
+                }
+
+                // Verify cleanup
+                log('\\n🔍 Verifying cleanup...');
+                const { error: checkError } = await supabase
+                    .from('visit_requests')
+                    .select('*', { head: true });
+
+                if (checkError && checkError.message.includes('does not exist')) {
+                    log('✅ visit_requests table successfully removed!');
+                    log('🎉 Cleanup completed successfully!');
+                } else {
+                    log('⚠️ Table may still exist - manual cleanup may be needed');
+                }
+
+            } catch (error) {
+                log(`❌ Cleanup failed: ${error.message}`);
+                log('\\n📝 Manual cleanup required. Run these commands in Supabase SQL editor:');
+                log('DROP VIEW IF EXISTS pending_visit_requests CASCADE;');
+                log('DROP VIEW IF EXISTS visit_requests_with_workshops CASCADE;');
+                log('DROP TABLE IF EXISTS visit_requests CASCADE;');
+                log('DROP FUNCTION IF EXISTS update_visit_requests_updated_at() CASCADE;');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('verifyBtn').addEventListener('click', verifyTables);
+        document.getElementById('cleanupBtn').addEventListener('click', cleanupTable);
+
+        // Auto-verify on load
+        verifyTables();
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Activities Table</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .activity-card { background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Check Activities Data Source</h1>
+
+    <button id="checkActivitiesBtn" class="btn">📊 Check Activities Table</button>
+    <button id="checkSchoolVisitsBtn" class="btn">🏫 Check School Visits</button>
+
+    <div id="results"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            logElement.innerHTML += message + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function showActivity(activity) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `
+                <div class="activity-card">
+                    <h3>${activity.title}</h3>
+                    <p><strong>Type:</strong> ${activity.activity_type?.name || 'Unknown'}</p>
+                    <p><strong>Date:</strong> ${activity.date_time || 'No date'}</p>
+                    <p><strong>Description:</strong> ${activity.description || 'No description'}</p>
+                    <p><strong>Students:</strong> ${activity.student_count || 'Not specified'}</p>
+                    <p><strong>Duration:</strong> ${activity.duration_minutes || 'Not specified'} minutes</p>
+                    <p><strong>Status:</strong> ${activity.status}</p>
+                </div>
+            `;
+        }
+
+        async function checkActivities() {
+            log('🔍 Checking activities table...');
+            document.getElementById('results').innerHTML = '';
+
+            try {
+                if (typeof GuidalDB === 'undefined') {
+                    log('❌ GuidalDB not loaded');
+                    return;
+                }
+
+                const activities = await GuidalDB.getActivities();
+                log(`📊 Found ${activities.length} activities`);
+
+                activities.forEach((activity, index) => {
+                    log(`${index + 1}. ${activity.title} (${activity.activity_type?.name || 'No type'})`);
+                    if (activity.title.includes('International School') || activity.title.includes('Benjamin Franklin')) {
+                        showActivity(activity);
+                    }
+                });
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`);
+            }
+        }
+
+        async function checkSchoolVisits() {
+            log('🏫 Looking specifically for school visits...');
+
+            try {
+                // Check activities with school visit type
+                const { data: schoolVisits, error } = await supabaseClient
+                    .from('activities')
+                    .select(`
+                        *,
+                        activity_type:activity_types!activity_type_id(id, name, slug, color, icon)
+                    `)
+                    .or('title.ilike.%school%,title.ilike.%international%,title.ilike.%benjamin%');
+
+                if (error) {
+                    log(`❌ Error: ${error.message}`);
+                    return;
+                }
+
+                log(`🏫 Found ${schoolVisits.length} school-related activities`);
+
+                schoolVisits.forEach(visit => {
+                    log(`📝 ${visit.title}: ${visit.student_count || 0} students, status: ${visit.status}`);
+                    showActivity(visit);
+                });
+
+            } catch (error) {
+                log(`❌ Error checking school visits: ${error.message}`);
+            }
+        }
+
+        document.getElementById('checkActivitiesBtn').addEventListener('click', checkActivities);
+        document.getElementById('checkSchoolVisitsBtn').addEventListener('click', checkSchoolVisits);
+    </script>
+</body>
+</html>

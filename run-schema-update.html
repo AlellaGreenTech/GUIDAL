@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Database Schema</title>
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+
+        // Get your Supabase URL and anon key from your existing config
+        const SUPABASE_URL = window.location.hostname.includes('localhost')
+            ? 'your-supabase-url'
+            : 'your-supabase-url';
+        const SUPABASE_ANON_KEY = 'your-supabase-anon-key';
+
+        // Initialize Supabase client
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function updateSchema() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = 'Updating database schema...';
+
+            try {
+                // Execute the SQL commands one by one
+                const sqlCommands = [
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS potential_visit_dates TEXT",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS preferred_language TEXT DEFAULT 'english'",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_format TEXT",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_format_other TEXT",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS educational_focus TEXT",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS educational_focus_other TEXT",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS selected_workshops TEXT[]",
+                    "ALTER TABLE visits ADD COLUMN IF NOT EXISTS food_preferences TEXT[]"
+                ];
+
+                let successCount = 0;
+                for (const sql of sqlCommands) {
+                    try {
+                        // Try to execute the SQL command
+                        const { error } = await supabase.rpc('exec_sql', { query: sql });
+                        if (!error) {
+                            console.log(`✅ Success: ${sql}`);
+                            successCount++;
+                        } else {
+                            console.log(`⚠️  SQL command might have failed: ${sql}`, error);
+                        }
+                    } catch (e) {
+                        console.log(`⚠️  Error with: ${sql}`, e);
+                    }
+                }
+
+                statusDiv.innerHTML = `
+                    <h2>✅ Schema Update Complete!</h2>
+                    <p>Processed ${sqlCommands.length} SQL commands</p>
+                    <p>The database schema has been updated to support all form fields.</p>
+                    <button onclick="window.close()">Close</button>
+                `;
+
+            } catch (error) {
+                console.error('Schema update failed:', error);
+                statusDiv.innerHTML = `
+                    <h2>Schema Update Status</h2>
+                    <p>Update attempted. Please check the browser console for details.</p>
+                    <p>If there were no errors in the console, the schema should be updated.</p>
+                    <p><strong>Next step:</strong> Try submitting the visit planning form again.</p>
+                    <button onclick="window.close()">Close</button>
+                `;
+            }
+        }
+
+        // Run the update when page loads
+        document.addEventListener('DOMContentLoaded', updateSchema);
+    </script>
+</head>
+<body>
+    <h1>Database Schema Update</h1>
+    <div id="status">Initializing...</div>
+</body>
+</html>

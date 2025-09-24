@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Relative Path</title>
+</head>
+<body>
+    <h1>Test Relative Path Loading</h1>
+    <div id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        function log(message) {
+            document.getElementById('log').innerHTML += message + '<br>';
+            console.log(message);
+        }
+
+        log('🔧 Testing relative path loading from admin directory...');
+
+        setTimeout(() => {
+            if (typeof supabaseClient !== 'undefined') {
+                log('✅ supabaseClient loaded successfully via relative path!');
+
+                // Test a simple query
+                supabaseClient
+                    .from('visits')
+                    .select('*', { count: 'exact', head: true })
+                    .then(({ count }) => {
+                        log(`📊 Query successful: ${count} visits found`);
+                    })
+                    .catch(error => {
+                        log(`❌ Query failed: ${error.message}`);
+                    });
+            } else {
+                log('❌ supabaseClient NOT found - relative path issue!');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

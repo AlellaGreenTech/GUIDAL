@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Populate Visits Data - GUIDAL</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Populate Visits Data</h1>
+        <p>Adding the missing visit records to enable invoice generation...</p>
+
+        <div id="results"></div>
+
+        <button onclick="populateVisits()" style="margin: 1rem 0; padding: 0.5rem 1rem; background: #4CAF50; color: white; border: none; border-radius: 4px;">Populate Visits Data</button>
+    </div>
+
+    <!-- Required Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+        async function populateVisits() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>🔄 Populating visits data...</p>';
+
+            try {
+                // First, get the schools data to match school names with IDs
+                const schools = await GuidalDB.getSchools();
+                console.log('Available schools:', schools);
+
+                // Find specific schools
+                const benjaminFranklin = schools.find(s => s.name.includes('Benjamin Franklin'));
+                const prague = schools.find(s => s.name.includes('Prague') || s.name.includes('International School of Prague'));
+
+                console.log('Benjamin Franklin school:', benjaminFranklin);
+                console.log('Prague school:', prague);
+
+                // Sample visit data based on the visit pages we have
+                const visitsToCreate = [
+                    {
+                        school_id: benjaminFranklin?.id || null,
+                        school_name: 'Benjamin Franklin International School',
+                        visit_date: '2025-09-16',
+                        students_count: 75,
+                        teachers_count: 8,
+                        total_attendees: 83,
+                        visit_type: 'full_day',
+                        status: 'completed',
+                        lunch_included: true,
+                        lunch_count: 83,
+                        base_price: 12.00,
+                        lunch_price: 8.50,
+                        total_amount: 1702.50, // (75 * 12) + (83 * 8.50)
+                        access_code: 'BF2025SEPT',
+                        notes: 'Full day visit with sustainability focus',
+                        invoice_generated: false,
+                        activities_completed: ['Robotic Gardening', 'Erosion Challenge', 'Smart Irrigation', 'Composting'],
+                        created_at: new Date().toISOString()
+                    },
+                    {
+                        school_id: prague?.id || null,
+                        school_name: 'International School of Prague',
+                        visit_date: '2025-09-20',
+                        students_count: 45,
+                        teachers_count: 5,
+                        total_attendees: 50,
+                        visit_type: 'half_day',
+                        status: 'completed',
+                        lunch_included: false,
+                        lunch_count: 0,
+                        base_price: 8.00,
+                        lunch_price: 0,
+                        total_amount: 360.00, // 45 * 8
+                        access_code: 'PRAGUE2025',
+                        notes: 'Half day environmental science focus',
+                        invoice_generated: false,
+                        activities_completed: ['Agricultural Drones', 'Ram Pumps', 'Wattle & Daub'],
+                        created_at: new Date().toISOString()
+                    },
+                    {
+                        school_id: null, // This will need to be matched or created
+                        school_name: 'St. George International School',
+                        visit_date: '2025-09-25',
+                        students_count: 30,
+                        teachers_count: 4,
+                        total_attendees: 34,
+                        visit_type: 'full_day',
+                        status: 'completed',
+                        lunch_included: true,
+                        lunch_count: 34,
+                        base_price: 12.00,
+                        lunch_price: 8.50,
+                        total_amount: 649.00, // (30 * 12) + (34 * 8.50)
+                        access_code: 'STGEORGE2025',
+                        notes: 'Science and technology focus',
+                        invoice_generated: false,
+                        activities_completed: ['SchoolAIR IoT', 'Planting & Growing', 'Composting'],
+                        created_at: new Date().toISOString()
+                    }
+                ];
+
+                let html = '<h3>📊 Creating Visit Records:</h3>';
+                let successCount = 0;
+
+                for (let i = 0; i < visitsToCreate.length; i++) {
+                    const visit = visitsToCreate[i];
+                    try {
+                        console.log(`Creating visit for ${visit.school_name}...`);
+
+                        // Try to add the visit
+                        const createdVisit = await GuidalDB.addVisit(visit);
+                        console.log('Created visit:', createdVisit);
+
+                        html += `<p>✅ ${visit.school_name} - ${visit.visit_date} (${visit.total_attendees} attendees, €${visit.total_amount})</p>`;
+                        successCount++;
+
+                    } catch (error) {
+                        console.error(`Error creating visit for ${visit.school_name}:`, error);
+                        html += `<p>❌ ${visit.school_name} - Error: ${error.message}</p>`;
+                    }
+                }
+
+                html += `
+                    <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>✅ Summary</h4>
+                        <p><strong>Visits Created:</strong> ${successCount} out of ${visitsToCreate.length}</p>
+                        <p><strong>Status:</strong> ${successCount > 0 ? '🟢 Ready for invoice generation!' : '🔴 No visits created'}</p>
+                    </div>
+                `;
+
+                if (successCount > 0) {
+                    html += `
+                        <button onclick="testInvoiceGeneration()" style="background: #2196F3; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem 0;">Test Invoice Generation</button>
+                        <button onclick="verifyVisits()" style="background: #FF9800; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem 0;">Verify Created Visits</button>
+                    `;
+                }
+
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('❌ Population failed:', error);
+                results.innerHTML = `
+                    <div style="background: #ffebee; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h3>❌ Population Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.8rem;">${error.stack || 'No stack trace available'}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function verifyVisits() {
+            try {
+                const visits = await GuidalDB.getVisits();
+                const results = document.getElementById('results');
+
+                let html = results.innerHTML;
+                html += `
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>📋 Current Visits in Database:</h4>
+                        <p><strong>Total Visits:</strong> ${visits.length}</p>
+                `;
+
+                visits.forEach((visit, index) => {
+                    html += `
+                        <div style="border-left: 3px solid #4CAF50; padding: 0.5rem; margin: 0.5rem 0; background: white;">
+                            <strong>${visit.school_name}</strong> - ${visit.visit_date}<br>
+                            ${visit.total_attendees} attendees • €${visit.total_amount}
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error verifying visits:', error);
+            }
+        }
+
+        async function testInvoiceGeneration() {
+            window.open('admin/invoice-generator.html', '_blank');
+        }
+    </script>
+</body>
+</html>

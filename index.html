@@ -56,7 +56,7 @@
                     <div class="welcome-content">
                         <div class="welcome-text" style="padding-top: 0.5rem;">
                             <p style="margin-top: 0;">Use this web app to get access to sustainable technology demonstrations, hands-on learning experiences, and green innovation projects.</p>
-                            <p><a href="pages/auth/login.html" class="register-link">Register to get started!</a></p>
+                            <p><a href="pages/auth/login.html" class="register-link" id="auth-link">Register to get started!</a></p>
                             <div class="support-links">
                                 <a href="https://alellagreentech.com/donate/" target="_blank" class="support-link">
                                     💝📱 Support/Follow Our Foundation
@@ -89,6 +89,8 @@
                     <input type="text" id="activity-search" placeholder="Search activities..." class="search-input">
                     <select id="activity-filter" class="filter-select">
                         <option value="all">All Activities</option>
+                        <option value="coming">Coming Activities</option>
+                        <option value="past">Past Activities</option>
                         <option value="school-visits">School Visits</option>
                         <option value="workshops">Workshops</option>
                         <option value="lunches">Special Lunches</option>
@@ -301,6 +303,18 @@
             setTimeout(() => {
                 console.log('🎯 Auto-expanding activities card');
                 toggleCard('activities');
+
+                // Check for pending activity filter from science-in-action page
+                const pendingFilter = sessionStorage.getItem('pendingActivityFilter');
+                if (pendingFilter) {
+                    // Clear the stored filter
+                    sessionStorage.removeItem('pendingActivityFilter');
+
+                    // Apply the filter after a short delay to ensure the page is ready
+                    setTimeout(() => {
+                        filterActivitiesByType(pendingFilter);
+                    }, 1000);
+                }
 
                 // Debug: check if activities are rendered and re-expand if needed
                 setTimeout(() => {

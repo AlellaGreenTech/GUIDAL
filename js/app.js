@@ -77,7 +77,7 @@ class GuidalApp {
 
         // Load initial data
         await this.loadActivityTypes();
-        await this.loadActivities();
+        await this.loadActivities({ time_filter: 'upcoming' });
 
         // Set up event listeners
         this.setupEventListeners();
@@ -304,7 +304,7 @@ class GuidalApp {
             : 'Date: TBD';
 
         const participantInfo = activity.max_participants
-            ? `${activity.max_participants} ${activityTypeSlug === 'school-visits' ? 'students' : 'participants'}`
+            ? `Max ${activity.max_participants} ${activityTypeSlug === 'school-visits' ? 'students' : 'participants'}`
             : 'Open to all';
 
         // Get GREENs info for activity
@@ -408,12 +408,16 @@ class GuidalApp {
     }
 
     getGREENsInfo(activity) {
-        // Use database values for credits
-        const greensReward = activity.credits_earned || 0;
-        const greensCost = activity.credits_required || 0;
+        // Calculate GREENs based on duration: 1 GREEN per 30 minutes (no fractions)
+        const durationMinutes = activity.duration_minutes || 0;
+        const calculatedCost = durationMinutes > 0 ? Math.ceil(durationMinutes / 30) : 0;
 
-        const rewardText = greensReward > 1 ? `+${greensReward} Green$` : greensReward === 1 ? '+1 Green$' : '';
-        const costText = greensCost > 0 ? `${greensCost} Green$` : '';
+        // Use calculated cost or database values
+        const greensReward = activity.credits_earned || 0;
+        const greensCost = calculatedCost || activity.credits_required || 0;
+
+        const rewardText = greensReward > 1 ? `+${greensReward} GREEN$` : greensReward === 1 ? '+1 GREEN$' : '';
+        const costText = greensCost > 1 ? `${greensCost} GREEN$` : greensCost === 1 ? '1 GREEN$' : '';
         const costClass = greensCost > 0 ? 'greens-cost has-cost' : 'greens-cost';
 
         if (greensReward > 0 && greensCost > 0) {
@@ -587,7 +591,7 @@ class GuidalApp {
 
         // Regular activities with registration
         if (isRegistered) {
-            return `<button class="btn btn-success" disabled>✓ Registered</button>`;
+            return `<button class="btn btn-success" disabled>✓ Booked</button>`;
         }
 
         if (isCompleted) {
@@ -599,12 +603,12 @@ class GuidalApp {
         }
 
         if (activity.requires_login && !this.currentUser) {
-            return `<button class="btn" onclick="app.showAuthModal('${activity.id}', '${activity.title}')">Login to Register</button>`;
+            return `<button class="btn" onclick="app.showAuthModal('${activity.id}', '${activity.title}')">Login to Book</button>`;
         }
 
         if (isUpcoming) {
             return `<button class="btn btn-primary" onclick="app.handleActivityRegistration('${activity.id}', '${activity.title}')">
-                        ${activity.credits_required > 0 ? `Register (${activity.credits_required} Green$)` : 'Register'}
+                        ${activity.credits_required > 0 ? `Book (${activity.credits_required} Green$)` : 'Book'}
                     </button>`;
         }
 
@@ -686,10 +690,20 @@ class GuidalApp {
     }
 
     async handleFilter(filterType) {
-        const filters = filterType !== 'all' ? { type: filterType } : {};
+        const filters = {};
         const searchInput = document.getElementById('activity-search');
         if (searchInput && searchInput.value) {
             filters.search = searchInput.value;
+        }
+
+        // Handle coming/past filters
+        if (filterType === 'coming') {
+            filters.status = 'published';
+            filters.time_filter = 'upcoming';
+        } else if (filterType === 'past') {
+            filters.time_filter = 'past';
+        } else if (filterType !== 'all') {
+            filters.type = filterType;
         }
 
         // Special handling for school visits to show counts
@@ -796,6 +810,13 @@ class GuidalApp {
             loginBtn.href = 'pages/profile.html';
         }
 
+        // Update auth link in About section
+        const authLink = document.getElementById('auth-link');
+        if (authLink) {
+            authLink.textContent = 'VIEW ACTIVITIES';
+            authLink.href = '#activities';
+        }
+
         // Update activity buttons
         this.renderActivities();
     }
@@ -807,6 +828,13 @@ class GuidalApp {
             loginBtn.classList.remove('user-menu');
             loginBtn.innerHTML = 'Login/Register';
             loginBtn.href = 'pages/auth/login.html';
+        }
+
+        // Update auth link in About section
+        const authLink = document.getElementById('auth-link');
+        if (authLink) {
+            authLink.textContent = 'Register to get started!';
+            authLink.href = 'pages/auth/login.html';
         }
 
         // Update activity buttons

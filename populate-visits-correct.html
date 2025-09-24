@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Populate Visits (Correct Schema) - GUIDAL</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Populate School Visits</h1>
+        <p>Creating visit records with the correct schema (school_visits table)...</p>
+
+        <div id="results"></div>
+        <button onclick="populateVisits()" style="margin: 1rem 0; padding: 0.5rem 1rem; background: #4CAF50; color: white; border: none; border-radius: 4px;">Create School Visits</button>
+    </div>
+
+    <!-- Required Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script>
+        async function populateVisits() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>🔄 Creating school visits...</p>';
+
+            try {
+                // First, get the schools to find their IDs
+                const schools = await GuidalDB.getSchools();
+                console.log('Available schools:', schools);
+
+                // Find specific schools by name
+                const benjaminFranklin = schools.find(s =>
+                    s.name.toLowerCase().includes('benjamin franklin') ||
+                    s.name.toLowerCase().includes('benjamin')
+                );
+
+                const prague = schools.find(s =>
+                    s.name.toLowerCase().includes('prague') ||
+                    s.name.toLowerCase().includes('international school of prague')
+                );
+
+                const stGeorge = schools.find(s =>
+                    s.name.toLowerCase().includes('george') ||
+                    s.name.toLowerCase().includes('st. george')
+                );
+
+                console.log('Found schools:', { benjaminFranklin, prague, stGeorge });
+
+                // Create visit records with proper schema
+                const visitsToCreate = [
+                    {
+                        school_id: benjaminFranklin?.id || null,
+                        visit_date: '2025-09-16',
+                        students_count: 75,
+                        teachers_count: 8,
+                        total_attendees: 83,
+                        lunch_included: true,
+                        lunch_count: 83,
+                        base_price: 12.00,
+                        lunch_price: 8.50,
+                        total_amount: 1702.50,
+                        access_code: 'BF2025SEPT',
+                        notes: 'Full day sustainability visit',
+                        status: 'completed'
+                    },
+                    {
+                        school_id: prague?.id || null,
+                        visit_date: '2025-09-20',
+                        students_count: 45,
+                        teachers_count: 5,
+                        total_attendees: 50,
+                        lunch_included: false,
+                        lunch_count: 0,
+                        base_price: 8.00,
+                        lunch_price: 0,
+                        total_amount: 360.00,
+                        access_code: 'PRAGUE2025',
+                        notes: 'Half day environmental science',
+                        status: 'completed'
+                    },
+                    {
+                        school_id: stGeorge?.id || null,
+                        visit_date: '2025-09-25',
+                        students_count: 30,
+                        teachers_count: 4,
+                        total_attendees: 34,
+                        lunch_included: true,
+                        lunch_count: 34,
+                        base_price: 12.00,
+                        lunch_price: 8.50,
+                        total_amount: 649.00,
+                        access_code: 'STGEORGE2025',
+                        notes: 'Science and technology focus',
+                        status: 'completed'
+                    }
+                ];
+
+                let html = '<h3>📊 Creating School Visit Records:</h3>';
+                let successCount = 0;
+                let schoolsFound = 0;
+
+                // Check how many schools we found
+                if (benjaminFranklin) schoolsFound++;
+                if (prague) schoolsFound++;
+                if (stGeorge) schoolsFound++;
+
+                html += `<p><strong>Schools matched:</strong> ${schoolsFound} out of 3</p>`;
+
+                for (let i = 0; i < visitsToCreate.length; i++) {
+                    const visit = visitsToCreate[i];
+                    const schoolNames = ['Benjamin Franklin International School', 'International School of Prague', 'St. George International School'];
+                    const schoolName = schoolNames[i];
+
+                    try {
+                        if (visit.school_id) {
+                            const created = await GuidalDB.addVisit(visit);
+                            console.log('Created visit:', created);
+                            html += `<p>✅ ${schoolName} - ${visit.visit_date} (${visit.total_attendees} attendees, €${visit.total_amount})</p>`;
+                            successCount++;
+                        } else {
+                            html += `<p>⚠️ ${schoolName} - School not found in database, skipping</p>`;
+                        }
+                    } catch (error) {
+                        console.error(`Error creating visit for ${schoolName}:`, error);
+                        html += `<p>❌ ${schoolName} - Error: ${error.message}</p>`;
+                    }
+                }
+
+                html += `
+                    <div style="background: ${successCount > 0 ? '#e8f5e8' : '#ffebee'}; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>${successCount > 0 ? '✅' : '❌'} Summary</h4>
+                        <p><strong>Visits Created:</strong> ${successCount} out of ${visitsToCreate.length}</p>
+                        <p><strong>Status:</strong> ${successCount > 0 ? '🟢 Ready for invoice generation!' : '🔴 No visits created'}</p>
+                        ${schoolsFound < 3 ? `<p><strong>Note:</strong> Some schools not found. You may need to add them to the schools table first.</p>` : ''}
+                    </div>
+                `;
+
+                if (successCount > 0) {
+                    html += `
+                        <div style="margin: 1rem 0;">
+                            <button onclick="verifyVisits()" style="background: #FF9800; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">Verify Created Visits</button>
+                            <button onclick="testInvoiceGeneration()" style="background: #2196F3; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin: 0.5rem;">Test Invoice Generation</button>
+                        </div>
+                    `;
+                }
+
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('❌ Population failed:', error);
+                results.innerHTML = `
+                    <div style="background: #ffebee; padding: 1rem; border-radius: 8px;">
+                        <h3>❌ Population Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.8rem;">${error.stack || 'No stack trace available'}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function verifyVisits() {
+            try {
+                const visits = await GuidalDB.getVisits();
+                const results = document.getElementById('results');
+
+                let html = results.innerHTML;
+                html += `
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                        <h4>📋 Current Visits in Database:</h4>
+                        <p><strong>Total Visits:</strong> ${visits.length}</p>
+                `;
+
+                visits.forEach((visit, index) => {
+                    const schoolName = visit.school?.name || 'Unknown School';
+                    html += `
+                        <div style="border-left: 3px solid #4CAF50; padding: 0.5rem; margin: 0.5rem 0; background: white;">
+                            <strong>${schoolName}</strong> - ${visit.visit_date}<br>
+                            ${visit.total_attendees || 0} attendees • €${visit.total_amount || 0} • Code: ${visit.access_code || 'N/A'}
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                results.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error verifying visits:', error);
+                const results = document.getElementById('results');
+                results.innerHTML += `<p style="color: red;">Error verifying visits: ${error.message}</p>`;
+            }
+        }
+
+        async function testInvoiceGeneration() {
+            window.open('admin/invoice-generator.html', '_blank');
+        }
+    </script>
+</body>
+</html>

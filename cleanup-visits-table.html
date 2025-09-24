@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleanup Visits Table</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .log { background: #f5f5f5; padding: 15px; border-radius: 5px; height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .btn { background: #1565c0; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        .danger-btn { background: #dc3545; }
+        .warning-btn { background: #ffc107; color: #000; }
+        .results { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .keep-record { background: #d4edda; border-left: 4px solid #28a745; padding: 10px; margin: 5px 0; }
+        .delete-record { background: #f8d7da; border-left: 4px solid #dc3545; padding: 10px; margin: 5px 0; }
+        .summary { background: #e3f2fd; border-left: 4px solid #1565c0; padding: 15px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧹 Cleanup Visits Table</h1>
+    <p>This tool will delete all visits that are NOT of type 'event' or 'school-visit'.</p>
+
+    <button id="analyzeBtn" class="btn">📊 Analyze Data</button>
+    <button id="deleteBtn" class="btn danger-btn" disabled>🗑️ Delete Non-School/Event Visits</button>
+
+    <div id="results"></div>
+    <div class="log" id="log"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let recordsToDelete = [];
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function showResults(content) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += content;
+        }
+
+        async function analyzeData() {
+            log('🔍 Analyzing visits table data...');
+            document.getElementById('results').innerHTML = '';
+
+            try {
+                // Get all visits with their visit_type
+                const { data: allVisits, error } = await supabase
+                    .from('visits')
+                    .select('*')
+                    .order('submitted_at', { ascending: false });
+
+                if (error) {
+                    log(`❌ Error: ${error.message}`);
+                    return;
+                }
+
+                log(`📊 Found ${allVisits.length} total visits`);
+
+                // Separate records to keep vs delete
+                const recordsToKeep = [];
+                recordsToDelete = [];
+
+                allVisits.forEach(visit => {
+                    const visitType = visit.visit_type;
+
+                    if (visitType === 'event' || visitType === 'school-visit') {
+                        recordsToKeep.push(visit);
+                    } else {
+                        recordsToDelete.push(visit);
+                    }
+                });
+
+                log(`✅ Records to keep: ${recordsToKeep.length}`);
+                log(`❌ Records to delete: ${recordsToDelete.length}`);
+
+                // Group by visit type for analysis
+                const visitTypeGroups = {};
+                allVisits.forEach(visit => {
+                    const type = visit.visit_type || 'null/undefined';
+                    if (!visitTypeGroups[type]) {
+                        visitTypeGroups[type] = [];
+                    }
+                    visitTypeGroups[type].push(visit);
+                });
+
+                // Show breakdown by visit type
+                let typeBreakdown = '<h3>📊 Breakdown by Visit Type</h3>';
+                Object.entries(visitTypeGroups).forEach(([type, visits]) => {
+                    const willKeep = type === 'event' || type === 'school-visit';
+                    typeBreakdown += `
+                        <div class="${willKeep ? 'keep-record' : 'delete-record'}">
+                            <strong>${willKeep ? '✅ KEEP' : '❌ DELETE'}: "${type}"</strong> - ${visits.length} records
+                        </div>
+                    `;
+                });
+
+                showResults(typeBreakdown);
+
+                // Show records that will be deleted
+                if (recordsToDelete.length > 0) {
+                    let deletePreview = '<h3>🗑️ Records That Will Be Deleted</h3>';
+                    recordsToDelete.forEach(visit => {
+                        deletePreview += `
+                            <div class="delete-record">
+                                <strong>ID:</strong> ${visit.id} |
+                                <strong>School:</strong> ${visit.school_name} |
+                                <strong>Type:</strong> "${visit.visit_type || 'null'}" |
+                                <strong>Status:</strong> ${visit.status} |
+                                <strong>Students:</strong> ${visit.student_count || 0} |
+                                <strong>Date:</strong> ${visit.preferred_date ? new Date(visit.preferred_date).toLocaleDateString() : 'No date'}
+                            </div>
+                        `;
+                    });
+
+                    showResults(deletePreview);
+
+                    // Enable delete button
+                    document.getElementById('deleteBtn').disabled = false;
+                } else {
+                    showResults('<div class="summary">✅ No records need to be deleted! All visits are already of type "event" or "school-visit".</div>');
+                }
+
+                // Show summary
+                showResults(`
+                    <div class="summary">
+                        <h3>📋 Summary</h3>
+                        <p><strong>Total visits:</strong> ${allVisits.length}</p>
+                        <p><strong>Records to keep (event/school-visit):</strong> ${recordsToKeep.length}</p>
+                        <p><strong>Records to delete (other types):</strong> ${recordsToDelete.length}</p>
+                        <p><strong>Final count after cleanup:</strong> ${recordsToKeep.length}</p>
+                    </div>
+                `);
+
+            } catch (error) {
+                log(`❌ Error analyzing data: ${error.message}`);
+            }
+        }
+
+        async function deleteRecords() {
+            if (recordsToDelete.length === 0) {
+                log('❌ No records to delete');
+                return;
+            }
+
+            const confirmMessage = `⚠️ Are you sure you want to delete ${recordsToDelete.length} visits that are NOT of type 'event' or 'school-visit'?\n\nThis action cannot be undone!`;
+
+            if (!confirm(confirmMessage)) {
+                log('🛑 Deletion cancelled by user');
+                return;
+            }
+
+            log(`🗑️ Starting deletion of ${recordsToDelete.length} records...`);
+
+            try {
+                let deletedCount = 0;
+                let failedCount = 0;
+
+                for (const visit of recordsToDelete) {
+                    try {
+                        const { error } = await supabase
+                            .from('visits')
+                            .delete()
+                            .eq('id', visit.id);
+
+                        if (error) {
+                            log(`❌ Failed to delete visit ${visit.id}: ${error.message}`);
+                            failedCount++;
+                        } else {
+                            log(`✅ Deleted visit ${visit.id} (${visit.school_name}, type: "${visit.visit_type || 'null'}")`);
+                            deletedCount++;
+                        }
+                    } catch (error) {
+                        log(`❌ Error deleting visit ${visit.id}: ${error.message}`);
+                        failedCount++;
+                    }
+                }
+
+                log(`✅ Cleanup complete! Deleted ${deletedCount} records, ${failedCount} failed`);
+
+                // Re-analyze to show updated state
+                setTimeout(() => {
+                    log('🔄 Re-analyzing data to confirm cleanup...');
+                    analyzeData();
+                }, 1000);
+
+            } catch (error) {
+                log(`❌ Error during deletion: ${error.message}`);
+            }
+        }
+
+        document.getElementById('analyzeBtn').addEventListener('click', analyzeData);
+        document.getElementById('deleteBtn').addEventListener('click', deleteRecords);
+
+        // Auto-analyze on load
+        analyzeData();
+    </script>
+</body>
+</html>

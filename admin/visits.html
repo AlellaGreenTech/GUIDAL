@@ -127,7 +127,7 @@
 
         .table-headers {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 120px;
+            grid-template-columns: 2fr 0.8fr 1fr 1fr 120px;
             gap: 1rem;
             align-items: center;
             padding: 0.75rem 0;
@@ -140,7 +140,7 @@
 
         .request-header {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 120px;
+            grid-template-columns: 2fr 0.8fr 1fr 1fr 120px;
             gap: 1rem;
             align-items: center;
             margin-bottom: 1rem;
@@ -325,6 +325,11 @@
                 gap: 0.5rem;
             }
 
+            .visit-type-column {
+                order: -1;
+                margin-bottom: 0.5rem;
+            }
+
             .admin-nav ul {
                 flex-direction: column;
                 gap: 0.5rem;
@@ -385,6 +390,17 @@
             </div>
 
             <div class="filter-group">
+                <label for="visitTypeFilter">Visit Type</label>
+                <select id="visitTypeFilter">
+                    <option value="">All Types</option>
+                    <option value="school-visit">School Visits</option>
+                    <option value="workshop">Workshops</option>
+                    <option value="event">Events</option>
+                    <option value="individual">Individual</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
                 <label for="formatFilter">Visit Format</label>
                 <select id="formatFilter">
                     <option value="">All Formats</option>
@@ -434,7 +450,8 @@
 
             <!-- Table Headers -->
             <div class="table-headers">
-                <div class="header-school">School & Contact</div>
+                <div class="header-school">Entity & Contact</div>
+                <div class="header-type">Type</div>
                 <div class="header-date">Visit Date</div>
                 <div class="header-details">Participants & Format</div>
                 <div class="header-status">Status & Actions</div>
@@ -612,6 +629,16 @@
                     return request.status;
                 }
 
+                // Format visit type display
+                const visitTypeDisplayMap = {
+                    'school-visit': '🏫 School Visit',
+                    'workshop': '🔬 Workshop',
+                    'event': '🎉 Event',
+                    'individual': '👤 Individual'
+                };
+
+                const visitTypeDisplay = visitTypeDisplayMap[request.visit_type] || request.visit_type || '❓ Unknown';
+
                 return `
                     <div class="request-card">
                         <div class="request-header">
@@ -620,6 +647,11 @@
                                 <div class="school-details">
                                     ${request.contact_name || 'Contact TBD'}<br>
                                     ${request.contact_email}
+                                </div>
+                            </div>
+                            <div class="visit-type-column">
+                                <div class="visit-type-badge" style="background: #e3f2fd; color: #1565c0; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600; text-align: center;">
+                                    ${visitTypeDisplay}
                                 </div>
                             </div>
                             <div class="visit-info">
@@ -759,7 +791,7 @@
             }
 
             setupFilters() {
-                const filters = ['statusFilter', 'schoolFilter', 'countryFilter', 'formatFilter'];
+                const filters = ['statusFilter', 'schoolFilter', 'countryFilter', 'formatFilter', 'visitTypeFilter'];
                 filters.forEach(filterId => {
                     document.getElementById(filterId).addEventListener('change', () => {
                         this.applyFilters();
@@ -772,6 +804,7 @@
                 const school = document.getElementById('schoolFilter').value;
                 const country = document.getElementById('countryFilter').value;
                 const format = document.getElementById('formatFilter').value;
+                const visitType = document.getElementById('visitTypeFilter').value;
 
                 let filtered = this.allRequests;
 
@@ -791,7 +824,12 @@
                     filtered = filtered.filter(r => r.visit_format === format);
                 }
 
+                if (visitType) {
+                    filtered = filtered.filter(r => r.visit_type === visitType);
+                }
+
                 this.renderRequests(filtered);
+                this.updateSummaryStats(filtered);
             }
 
             showError(message) {
@@ -824,8 +862,8 @@
         }
 
         function generateInvoice(requestId) {
-            // Redirect to invoice generator with pre-selected visit
-            window.open(`invoice-generator.html?visit=${requestId}`, '_blank');
+            // Open enhanced invoice generator in new tab with pre-selected visit
+            window.open(`enhanced-invoice.html?visit=${requestId}`, '_blank');
         }
 
         async function addInternalNote(requestId) {
