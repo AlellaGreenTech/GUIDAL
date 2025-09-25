@@ -254,12 +254,18 @@ class GuidalDB {
     }
 
     console.log('🔍 Executing queries with filters:', filters);
+    console.log('📊 Activities query enabled:', !!activitiesQuery);
+    console.log('📊 Visits query enabled:', !!visitsQuery);
 
     // Execute both queries
-    const [activitiesResult, visitsResult] = await Promise.all([
-      activitiesQuery,
-      visitsQuery || Promise.resolve({ data: [], error: null })
-    ]);
+    const promises = [activitiesQuery];
+    if (visitsQuery) {
+      promises.push(visitsQuery);
+    } else {
+      promises.push(Promise.resolve({ data: [], error: null }));
+    }
+
+    const [activitiesResult, visitsResult] = await Promise.all(promises);
 
     if (activitiesResult.error) {
       console.error('❌ Error fetching activities:', activitiesResult.error)
@@ -273,6 +279,8 @@ class GuidalDB {
     const activities = activitiesResult.data || [];
     const visits = visitsResult.data || [];
 
+    console.log(`📈 Raw results - Activities: ${activities.length}, Visits: ${visits.length}`);
+
     // Transform visits to look like activities and add activity_type
     const transformedVisits = visits.map(visit => ({
       ...visit,
@@ -285,24 +293,35 @@ class GuidalDB {
       }
     }));
 
+    console.log(`🔄 Transformed visits: ${transformedVisits.length}`);
+
     // Combine all data
     let allData = [...activities, ...transformedVisits];
+    console.log(`📋 Combined data before filtering: ${allData.length}`);
 
     // Apply time-based filtering after database query
     const currentDate = new Date();
     let filteredData = allData;
 
     if (filters.time_filter === 'upcoming') {
+      console.log('🔮 Applying upcoming filter, current date:', currentDate);
       filteredData = filteredData.filter(activity => {
         const activityDate = activity.date_time ? new Date(activity.date_time) : null;
-        return !activityDate || activityDate >= currentDate;
+        const isUpcoming = !activityDate || activityDate >= currentDate;
+        if (activityDate) console.log(`📅 Activity ${activity.title}: ${activityDate} >= ${currentDate} = ${isUpcoming}`);
+        return isUpcoming;
       });
     } else if (filters.time_filter === 'past') {
+      console.log('📚 Applying past filter, current date:', currentDate);
       filteredData = filteredData.filter(activity => {
         const activityDate = activity.date_time ? new Date(activity.date_time) : null;
-        return activityDate && activityDate < currentDate;
+        const isPast = activityDate && activityDate < currentDate;
+        if (activityDate) console.log(`📅 Activity ${activity.title}: ${activityDate} < ${currentDate} = ${isPast}`);
+        return isPast;
       });
     }
+
+    console.log(`⏰ After time filtering (${filters.time_filter}): ${filteredData.length}`);
 
     // Custom sorting: upcoming activities first, then past activities
     const sortedData = filteredData.sort((a, b) => {
