@@ -350,7 +350,7 @@ class GuidalDB {
     });
 
     console.log('✅ Raw database response:', sortedData.length, 'activities (sorted by upcoming/past)');
-    return sortedData
+    return sortedData;
   }
 
   static async addActivity(activityData) {
