@@ -198,7 +198,7 @@ class GuidalDB {
         id,
         school_name as title,
         additional_comments as description,
-        preferred_date as date_time,
+        COALESCE(confirmed_date, preferred_date) as date_time,
         status,
         contact_email,
         student_count,
@@ -282,16 +282,19 @@ class GuidalDB {
     console.log(`📈 Raw results - Activities: ${activities.length}, Visits: ${visits.length}`);
 
     // Transform visits to look like activities and add activity_type
-    const transformedVisits = visits.map(visit => ({
-      ...visit,
-      activity_type: {
-        id: 'school-visit',
-        name: 'School Visit',
-        slug: 'school-visits',
-        color: '#28a745',
-        icon: '🏫'
-      }
-    }));
+    const transformedVisits = visits.map(visit => {
+      console.log(`🔄 Transforming visit: ${visit.title} - Raw date_time: ${visit.date_time}`);
+      return {
+        ...visit,
+        activity_type: {
+          id: 'school-visit',
+          name: 'School Visit',
+          slug: 'school-visits',
+          color: '#28a745',
+          icon: '🏫'
+        }
+      };
+    });
 
     console.log(`🔄 Transformed visits: ${transformedVisits.length}`);
 
@@ -316,8 +319,16 @@ class GuidalDB {
       filteredData = filteredData.filter(activity => {
         const activityDate = activity.date_time ? new Date(activity.date_time) : null;
         const isPast = activityDate && activityDate < currentDate;
-        if (activityDate) console.log(`📅 Activity ${activity.title}: ${activityDate} < ${currentDate} = ${isPast}`);
-        return isPast;
+
+        // Special case for school visits with 'completed' status but no date
+        const isCompletedVisit = activity.activity_type?.slug === 'school-visits' &&
+                                activity.status === 'completed' &&
+                                !activityDate;
+
+        const shouldInclude = isPast || isCompletedVisit;
+
+        console.log(`📅 Activity ${activity.title}: date=${activityDate}, status=${activity.status}, type=${activity.activity_type?.slug}, shouldInclude=${shouldInclude}`);
+        return shouldInclude;
       });
     }
 
