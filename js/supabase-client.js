@@ -191,22 +191,10 @@ class GuidalDB {
       activitiesQuery = activitiesQuery.in('status', ['published', 'active', 'upcoming'])
     }
 
-    // Also query visits table for school visits
+    // Also query visits table for school visits - simplified query to avoid RLS issues
     let visitsQuery = supabase
       .from('visits')
-      .select(`
-        id,
-        school_name as title,
-        additional_comments as description,
-        COALESCE(confirmed_date, preferred_date) as date_time,
-        status,
-        contact_email,
-        student_count,
-        visit_type,
-        invoice_status,
-        created_at,
-        updated_at
-      `)
+      .select('*')
 
     // Handle status filter for visits
     if (filters.status) {
@@ -273,6 +261,7 @@ class GuidalDB {
 
     if (visitsResult.error) {
       console.error('❌ Error fetching visits:', visitsResult.error)
+      console.warn('⚠️ Continuing without visits data due to permissions/RLS error')
     }
 
     // Combine results
@@ -283,9 +272,15 @@ class GuidalDB {
 
     // Transform visits to look like activities and add activity_type
     const transformedVisits = visits.map(visit => {
-      console.log(`🔄 Transforming visit: ${visit.title} - Raw date_time: ${visit.date_time}`);
+      // Handle date_time field - prefer confirmed_date, fall back to preferred_date
+      const date_time = visit.confirmed_date || visit.preferred_date;
+      console.log(`🔄 Transforming visit: ${visit.school_name} - confirmed_date: ${visit.confirmed_date}, preferred_date: ${visit.preferred_date}, final date_time: ${date_time}`);
+
       return {
         ...visit,
+        title: visit.school_name,
+        description: visit.additional_comments,
+        date_time: date_time,
         activity_type: {
           id: 'school-visit',
           name: 'School Visit',
