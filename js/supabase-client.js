@@ -316,9 +316,26 @@ class GuidalDB {
       });
     } else if (filters.time_filter === 'past') {
       console.log('📚 Applying past filter, current date:', currentDate);
+      const currentDateString = currentDate.toISOString().split('T')[0]; // Get YYYY-MM-DD format
+      console.log('📅 Current date string for comparison:', currentDateString);
+
       filteredData = filteredData.filter(activity => {
-        const activityDate = activity.date_time ? new Date(activity.date_time) : null;
-        const isPast = activityDate && activityDate < currentDate;
+        let activityDate = null;
+        let activityDateString = null;
+
+        if (activity.date_time) {
+          // Handle both full datetime and date-only strings
+          if (activity.date_time.includes('T')) {
+            activityDate = new Date(activity.date_time);
+            activityDateString = activity.date_time.split('T')[0];
+          } else {
+            // Just a date string like "2024-10-15"
+            activityDateString = activity.date_time;
+            activityDate = new Date(activity.date_time + 'T12:00:00'); // Add noon to avoid timezone issues
+          }
+        }
+
+        const isPast = activityDateString && activityDateString < currentDateString;
 
         // Special case for school visits with 'completed' status but no date
         const isCompletedVisit = activity.activity_type?.slug === 'school-visits' &&
@@ -327,7 +344,7 @@ class GuidalDB {
 
         const shouldInclude = isPast || isCompletedVisit;
 
-        console.log(`📅 Activity ${activity.title}: date=${activityDate}, status=${activity.status}, type=${activity.activity_type?.slug}, shouldInclude=${shouldInclude}`);
+        console.log(`📅 Activity ${activity.title}: dateStr=${activityDateString}, currentStr=${currentDateString}, isPast=${isPast}, isCompletedVisit=${isCompletedVisit}, shouldInclude=${shouldInclude}`);
         return shouldInclude;
       });
     }
