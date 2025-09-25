@@ -78,19 +78,27 @@
                 <div class="card-header" onclick="toggleCard('activities')">
                     <div class="card-icon">📅</div>
                     <div class="card-title">
-                        <h3>Upcoming Activities</h3>
+                        <h3>Activities</h3>
                         <span class="card-subtitle">School visits, workshops & events</span>
                     </div>
                     <div class="card-chevron">›</div>
                 </div>
 
-                <!-- Search moved up to reduce white space -->
+                <!-- Time Toggle and Search -->
                 <div class="search-container" style="padding: 1rem; border-bottom: 1px solid #eee;">
-                    <input type="text" id="activity-search" placeholder="Search activities..." class="search-input">
-                    <select id="activity-filter" class="filter-select">
-                        <option value="all">All Activities</option>
-                        <option value="coming">Coming Activities</option>
-                        <option value="past">Past Activities</option>
+                    <div class="time-toggle-container" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; justify-content: center;">
+                        <button id="future-toggle" class="time-toggle-btn active" onclick="toggleTimeFilter('future')" style="flex: 1; padding: 0.5rem 1rem; border: 2px solid #28a745; background: #28a745; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                            📅 Future Activities
+                        </button>
+                        <button id="past-toggle" class="time-toggle-btn" onclick="toggleTimeFilter('past')" style="flex: 1; padding: 0.5rem 1rem; border: 2px solid #28a745; background: transparent; color: #28a745; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                            📚 Past Visits
+                        </button>
+                    </div>
+
+                    <input type="text" id="activity-search" placeholder="Search activities..." class="search-input" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 0.5rem;">
+
+                    <select id="activity-filter" class="filter-select" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
+                        <option value="all">All Types</option>
                         <option value="school-visits">School Visits</option>
                         <option value="workshops">Workshops</option>
                         <option value="lunches">Special Lunches</option>
@@ -294,6 +302,45 @@
                 passwordInput.type = 'password';
                 toggleButton.textContent = '👁️';
                 toggleButton.setAttribute('aria-label', 'Show password');
+            }
+        }
+
+        // Time filter toggle function for activities
+        function toggleTimeFilter(timeType) {
+            console.log('🕒 Toggling time filter to:', timeType);
+
+            // Update button states
+            const futureBtn = document.getElementById('future-toggle');
+            const pastBtn = document.getElementById('past-toggle');
+
+            if (timeType === 'future') {
+                futureBtn.classList.add('active');
+                pastBtn.classList.remove('active');
+
+                // Update button styles
+                futureBtn.style.background = '#28a745';
+                futureBtn.style.color = 'white';
+                pastBtn.style.background = 'transparent';
+                pastBtn.style.color = '#28a745';
+
+                // Filter to show future activities
+                if (window.filterActivitiesByTime) {
+                    window.filterActivitiesByTime('future');
+                }
+            } else {
+                pastBtn.classList.add('active');
+                futureBtn.classList.remove('active');
+
+                // Update button styles
+                pastBtn.style.background = '#28a745';
+                pastBtn.style.color = 'white';
+                futureBtn.style.background = 'transparent';
+                futureBtn.style.color = '#28a745';
+
+                // Filter to show past activities
+                if (window.filterActivitiesByTime) {
+                    window.filterActivitiesByTime('past');
+                }
             }
         }
 

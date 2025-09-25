@@ -717,6 +717,34 @@ class GuidalApp {
         await this.loadActivities(filters);
     }
 
+    // Time-based filter function for the toggle buttons
+    async filterActivitiesByTime(timeType) {
+        console.log('🕒 Filtering activities by time:', timeType);
+
+        const filters = {};
+
+        if (timeType === 'future') {
+            filters.time_filter = 'upcoming';
+            filters.status = 'published';
+        } else if (timeType === 'past') {
+            filters.time_filter = 'past';
+        }
+
+        // Keep current type filter if set
+        const filterSelect = document.getElementById('activity-filter');
+        if (filterSelect && filterSelect.value !== 'all') {
+            filters.type = filterSelect.value;
+        }
+
+        // Keep current search term if set
+        const searchInput = document.getElementById('activity-search');
+        if (searchInput && searchInput.value.trim()) {
+            filters.search = searchInput.value.trim();
+        }
+
+        await this.loadActivities(filters);
+    }
+
     showSchoolVisitCounts() {
         // Count school visits from database data
         const schoolVisits = this.activities.filter(activity =>
@@ -1074,6 +1102,19 @@ function openLoginModal(schoolName, redirectUrl) {
         setTimeout(() => openLoginModal(schoolName, redirectUrl), 100);
     }
 }
+
+// Global time filter function for the activities toggle
+function filterActivitiesByTime(timeType) {
+    if (window.app && window.app.filterActivitiesByTime) {
+        window.app.filterActivitiesByTime(timeType);
+    } else {
+        console.error('App not ready yet, trying again...');
+        setTimeout(() => filterActivitiesByTime(timeType), 100);
+    }
+}
+
+// Make it available on window for the HTML onclick handlers
+window.filterActivitiesByTime = filterActivitiesByTime;
 
 // Legacy functions for backward compatibility
 function initializeEventSystem() {
