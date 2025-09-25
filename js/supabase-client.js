@@ -173,21 +173,53 @@ class GuidalDB {
 
   // Activities (for dynamic content)
   static async getActivities(filters = {}) {
-    let query = supabase
+    // Query activities table
+    let activitiesQuery = supabase
       .from('activities')
       .select(`
         *,
         activity_type:activity_types!activity_type_id(id, name, slug, color, icon)
       `)
 
-    // Handle status filter - if not specified, show published activities
+    // Handle status filter for activities - if not specified, show published activities
     if (filters.status) {
-      query = query.eq('status', filters.status)
+      activitiesQuery = activitiesQuery.eq('status', filters.status)
+    } else if (filters.include_completed) {
+      // For past activities, include completed status to show finished school visits
+      activitiesQuery = activitiesQuery.in('status', ['published', 'active', 'upcoming', 'completed'])
     } else {
-      query = query.in('status', ['published', 'active', 'upcoming'])
+      activitiesQuery = activitiesQuery.in('status', ['published', 'active', 'upcoming'])
     }
 
-    // First get activity type ID if filtering by type
+    // Also query visits table for school visits
+    let visitsQuery = supabase
+      .from('visits')
+      .select(`
+        id,
+        school_name as title,
+        additional_comments as description,
+        preferred_date as date_time,
+        status,
+        contact_email,
+        student_count,
+        visit_type,
+        invoice_status,
+        created_at,
+        updated_at
+      `)
+
+    // Handle status filter for visits
+    if (filters.status) {
+      visitsQuery = visitsQuery.eq('status', filters.status)
+    } else if (filters.include_completed) {
+      // Include various statuses for visits, especially 'completed'
+      visitsQuery = visitsQuery.in('status', ['confirmed', 'completed', 'pending', 'published'])
+    } else {
+      // For upcoming, show confirmed and pending visits
+      visitsQuery = visitsQuery.in('status', ['confirmed', 'pending', 'published'])
+    }
+
+    // Apply activity type filter to activities query only
     if (filters.type) {
       const { data: activityType } = await supabase
         .from('activity_types')
@@ -196,29 +228,69 @@ class GuidalDB {
         .single()
 
       if (activityType) {
-        query = query.eq('activity_type_id', activityType.id)
+        activitiesQuery = activitiesQuery.eq('activity_type_id', activityType.id)
+
+        // If filtering by type, don't include visits (they don't have activity_type)
+        if (filters.type !== 'school-visits') {
+          // Only query activities, skip visits
+          visitsQuery = null;
+        }
       }
     }
 
+    // Apply search filters
     if (filters.search) {
-      query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
+      activitiesQuery = activitiesQuery.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
+      if (visitsQuery) {
+        visitsQuery = visitsQuery.or(`school_name.ilike.%${filters.search}%,additional_comments.ilike.%${filters.search}%`)
+      }
     }
 
     if (filters.limit) {
-      query = query.limit(filters.limit)
+      activitiesQuery = activitiesQuery.limit(Math.floor(filters.limit / 2)) // Split limit between tables
+      if (visitsQuery) {
+        visitsQuery = visitsQuery.limit(Math.floor(filters.limit / 2))
+      }
     }
 
-    console.log('🔍 Executing query with filters:', filters);
-    const { data, error } = await query
+    console.log('🔍 Executing queries with filters:', filters);
 
-    if (error) {
-      console.error('❌ Error fetching activities:', error)
-      return []
+    // Execute both queries
+    const [activitiesResult, visitsResult] = await Promise.all([
+      activitiesQuery,
+      visitsQuery || Promise.resolve({ data: [], error: null })
+    ]);
+
+    if (activitiesResult.error) {
+      console.error('❌ Error fetching activities:', activitiesResult.error)
     }
+
+    if (visitsResult.error) {
+      console.error('❌ Error fetching visits:', visitsResult.error)
+    }
+
+    // Combine results
+    const activities = activitiesResult.data || [];
+    const visits = visitsResult.data || [];
+
+    // Transform visits to look like activities and add activity_type
+    const transformedVisits = visits.map(visit => ({
+      ...visit,
+      activity_type: {
+        id: 'school-visit',
+        name: 'School Visit',
+        slug: 'school-visits',
+        color: '#28a745',
+        icon: '🏫'
+      }
+    }));
+
+    // Combine all data
+    let allData = [...activities, ...transformedVisits];
 
     // Apply time-based filtering after database query
     const currentDate = new Date();
-    let filteredData = data || [];
+    let filteredData = allData;
 
     if (filters.time_filter === 'upcoming') {
       filteredData = filteredData.filter(activity => {

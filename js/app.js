@@ -726,14 +726,26 @@ class GuidalApp {
         if (timeType === 'future') {
             filters.time_filter = 'upcoming';
             filters.status = 'published';
+
+            // Keep current type filter for future activities
+            const filterSelect = document.getElementById('activity-filter');
+            if (filterSelect && filterSelect.value !== 'all') {
+                filters.type = filterSelect.value;
+            }
         } else if (timeType === 'past') {
             filters.time_filter = 'past';
-        }
 
-        // Keep current type filter if set
-        const filterSelect = document.getElementById('activity-filter');
-        if (filterSelect && filterSelect.value !== 'all') {
-            filters.type = filterSelect.value;
+            // For past activities, include completed status to show finished school visits
+            filters.include_completed = true;
+
+            // For past visits, reset type filter to show ALL past events
+            const filterSelect = document.getElementById('activity-filter');
+            if (filterSelect) {
+                filterSelect.value = 'all';
+            }
+
+            // Don't apply type filter for past - show all past events (school visits, workshops, etc.)
+            // This ensures school visits, workshops, and special lunches all appear in past visits
         }
 
         // Keep current search term if set
