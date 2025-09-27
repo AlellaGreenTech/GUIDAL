@@ -304,7 +304,6 @@ class GuidalDB {
 
     // Transform scheduled visits to look like activities for backward compatibility
     const transformedVisits = scheduledVisits.map(visit => {
-      const primaryActivity = visit.visit_activities?.[0]?.activities
       return {
         ...visit,
         title: visit.title,
@@ -313,7 +312,7 @@ class GuidalDB {
         duration_minutes: visit.duration_minutes,
         max_participants: visit.max_participants,
         current_participants: visit.current_participants,
-        activity_type: primaryActivity?.activity_type || {
+        activity_type: {
           id: 'scheduled-visit',
           name: visit.visit_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
           slug: visit.visit_type,
@@ -358,16 +357,15 @@ class GuidalDB {
 
     // Transform visits to look like activities
     const transformedVisits = visits.map(visit => {
-      const primaryActivity = visit.visit_activities?.[0]?.activities
       return {
         ...visit,
         title: visit.title,
         description: visit.description,
         date_time: visit.scheduled_date,
-        activity_type: primaryActivity?.activity_type || {
+        activity_type: {
           id: 'scheduled-visit',
           name: 'Scheduled Visit',
-          slug: visit.visit_type,
+          slug: visit.visit_type || 'workshops',
           color: '#2196f3',
           icon: '📅'
         }
