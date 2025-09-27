@@ -293,12 +293,50 @@ class GuidalDB {
     console.log('🔍 Getting activities with filters:', filters)
 
     // If requesting science-in-action activities, get templates
-    if (filters.type === 'science-stations' || filters.type === 'workshops') {
+    if (filters.type === 'science-stations') {
       console.log('📋 Fetching activity templates for science-in-action')
       return await this.getActivityTemplates(filters)
     }
 
-    // For scheduled activities, get scheduled visits
+    // For school visits, get past visits if looking at past, scheduled visits if looking at future
+    if (filters.type === 'school-visits') {
+      if (filters.time_filter === 'past') {
+        console.log('📚 Fetching past school visits')
+        const pastVisits = await this.getPastVisits({ visit_type: 'school-visit', ...filters })
+        return pastVisits.map(visit => ({
+          ...visit,
+          title: visit.school_name || visit.title,
+          date_time: visit.confirmed_date || visit.created_at,
+          activity_type: {
+            id: 'past-visit',
+            name: 'Past School Visit',
+            slug: 'school-visits',
+            color: '#757575',
+            icon: '🏫'
+          },
+          status: 'completed'
+        }))
+      } else {
+        console.log('📅 Fetching scheduled school visits')
+        const scheduledVisits = await this.getScheduledVisits({ visit_type: 'school_group', ...filters })
+        return scheduledVisits.map(visit => ({
+          ...visit,
+          title: visit.title,
+          description: visit.description,
+          date_time: visit.scheduled_date,
+          activity_type: {
+            id: 'scheduled-visit',
+            name: 'School Visit',
+            slug: 'school-visits',
+            color: '#28a745',
+            icon: '🏫'
+          }
+        }))
+      }
+    }
+
+    // For all other activities, get scheduled visits (workshops, events)
+    console.log('📅 Fetching scheduled activities')
     const scheduledVisits = await this.getScheduledVisits(filters)
     console.log('📅 Scheduled visits:', scheduledVisits.length)
 
