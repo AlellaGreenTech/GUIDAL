@@ -78,7 +78,7 @@ class GuidalDB {
   // Visits Management
   static async getVisits(filters = {}) {
     let query = supabase
-      .from('visits')
+      .from('past_visits')
       .select('*')
       .order('confirmed_date', { ascending: true })
 
@@ -101,7 +101,7 @@ class GuidalDB {
 
   static async getVisitByAccessCode(accessCode) {
     const { data, error } = await supabase
-      .from('visits')
+      .from('past_visits')
       .select('*')
       .eq('internal_notes', `access_code:${accessCode}`)
       .single()
@@ -115,7 +115,7 @@ class GuidalDB {
 
   static async addVisit(visitData) {
     const { data, error } = await supabase
-      .from('visits')
+      .from('past_visits')
       .insert([visitData])
       .select()
 
