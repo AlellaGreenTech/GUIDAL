@@ -217,19 +217,7 @@ class GuidalDB {
   static async getScheduledVisits(filters = {}) {
     let query = supabase
       .from('scheduled_visits')
-      .select(`
-        *,
-        visit_activities(
-          activity_id,
-          duration_minutes,
-          activities(
-            id,
-            title,
-            description,
-            activity_type:activity_types(name, slug, icon, color)
-          )
-        )
-      `)
+      .select('*')
 
     // Apply visit type filter
     if (filters.visit_type) {
@@ -260,7 +248,7 @@ class GuidalDB {
       query = query.limit(filters.limit)
     }
 
-    const { data, error } = await query.order('scheduled_date')
+    const { data, error } = await query.order('scheduled_date', { ascending: true, nullsFirst: false })
 
     if (error) {
       console.error('❌ Error fetching scheduled visits:', error)
@@ -274,20 +262,7 @@ class GuidalDB {
   static async getPastVisits(filters = {}) {
     let query = supabase
       .from('past_visits')
-      .select(`
-        *,
-        visit_activities(
-          activity_id,
-          completed,
-          satisfaction_rating,
-          activities(
-            id,
-            title,
-            description,
-            activity_type:activity_types(name, slug, icon, color)
-          )
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
 
     // Apply filters
