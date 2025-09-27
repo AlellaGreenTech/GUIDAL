@@ -288,61 +288,45 @@ class GuidalDB {
     return data || []
   }
 
-  // Combined method for backward compatibility
+  // Simplified method for testing - just query scheduled_visits directly
   static async getActivities(filters = {}) {
     console.log('🔍 Getting activities with filters:', filters)
 
-    // If requesting science-in-action activities, get templates
+    // For science-in-action, get activity templates
     if (filters.type === 'science-stations') {
       console.log('📋 Fetching activity templates for science-in-action')
-      return await this.getActivityTemplates(filters)
-    }
+      try {
+        const { data, error } = await supabase
+          .from('activities')
+          .select(`
+            *,
+            activity_type:activity_types!activity_type_id(id, name, slug, color, icon)
+          `)
+          .eq('status', 'published')
+          .eq('activity_type_id', (await supabase.from('activity_types').select('id').eq('slug', 'science-stations').single()).data?.id)
 
-    // For school visits, get past visits if looking at past, scheduled visits if looking at future
-    if (filters.type === 'school-visits') {
-      if (filters.time_filter === 'past') {
-        console.log('📚 Fetching past school visits')
-        const pastVisits = await this.getPastVisits({ visit_type: 'school-visit', ...filters })
-        return pastVisits.map(visit => ({
-          ...visit,
-          title: visit.school_name || visit.title,
-          date_time: visit.confirmed_date || visit.created_at,
-          activity_type: {
-            id: 'past-visit',
-            name: 'Past School Visit',
-            slug: 'school-visits',
-            color: '#757575',
-            icon: '🏫'
-          },
-          status: 'completed'
-        }))
-      } else {
-        console.log('📅 Fetching scheduled school visits')
-        const scheduledVisits = await this.getScheduledVisits({ visit_type: 'school_group', ...filters })
-        return scheduledVisits.map(visit => ({
-          ...visit,
-          title: visit.title,
-          description: visit.description,
-          date_time: visit.scheduled_date,
-          activity_type: {
-            id: 'scheduled-visit',
-            name: 'School Visit',
-            slug: 'school-visits',
-            color: '#28a745',
-            icon: '🏫'
-          }
-        }))
+        if (error) throw error
+        return data || []
+      } catch (error) {
+        console.error('❌ Error fetching science stations:', error)
+        return []
       }
     }
 
-    // For all other activities, get scheduled visits (workshops, events)
-    console.log('📅 Fetching scheduled activities')
-    const scheduledVisits = await this.getScheduledVisits(filters)
-    console.log('📅 Scheduled visits:', scheduledVisits.length)
+    // For everything else, just query scheduled_visits directly
+    console.log('📅 Fetching scheduled visits directly')
+    try {
+      const { data, error } = await supabase
+        .from('scheduled_visits')
+        .select('*')
+        .order('scheduled_date', { ascending: true, nullsFirst: false })
 
-    // Transform scheduled visits to look like activities for backward compatibility
-    const transformedVisits = scheduledVisits.map(visit => {
-      return {
+      if (error) throw error
+
+      console.log('✅ Raw scheduled visits:', data?.length || 0)
+
+      // Transform to look like activities
+      const transformedVisits = (data || []).map(visit => ({
         ...visit,
         title: visit.title,
         description: visit.description,
@@ -352,17 +336,20 @@ class GuidalDB {
         current_participants: visit.current_participants,
         activity_type: {
           id: 'scheduled-visit',
-          name: visit.visit_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-          slug: visit.visit_type,
+          name: visit.visit_type?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Workshop',
+          slug: visit.visit_type || 'workshops',
           color: '#2196f3',
           icon: visit.visit_type === 'school_group' ? '🏫' : '📅'
         },
-        status: visit.status
-      }
-    })
+        status: visit.status || 'confirmed'
+      }))
 
-    console.log('🔄 Transformed visits:', transformedVisits.length)
-    return transformedVisits
+      console.log('🔄 Transformed visits:', transformedVisits.length)
+      return transformedVisits
+    } catch (error) {
+      console.error('❌ Error fetching scheduled visits:', error)
+      return []
+    }
   }
 
   // Legacy method support - can be removed later
