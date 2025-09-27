@@ -132,65 +132,12 @@ class GuidalApp {
                 setTimeout(() => reject(new Error('Database timeout')), 3000)
             );
 
-            // Use new schema methods based on filter type
-            let activities = []
+            // Use original getActivities method for now (backward compatible)
+            this.activities = await Promise.race([
+                GuidalDB.getActivities(filters),
+                timeoutPromise
+            ]);
 
-            if (filters.type === 'science-stations' || filters.show_templates) {
-                // Get science-in-action activity templates
-                activities = await Promise.race([
-                    GuidalDB.getActivityTemplates(filters),
-                    timeoutPromise
-                ])
-            } else if (filters.time_filter === 'past') {
-                // Get past visits
-                activities = await Promise.race([
-                    GuidalDB.getPastVisits(filters),
-                    timeoutPromise
-                ])
-                // Transform past visits to look like activities
-                activities = activities.map(visit => ({
-                    ...visit,
-                    title: visit.school_name || visit.title,
-                    date_time: visit.confirmed_date || visit.created_at,
-                    activity_type: {
-                        id: 'past-visit',
-                        name: 'Past Visit',
-                        slug: visit.visit_type || 'school-visits',
-                        color: '#757575',
-                        icon: '🏫'
-                    },
-                    status: 'completed'
-                }))
-            } else {
-                // Get scheduled visits (upcoming activities)
-                activities = await Promise.race([
-                    GuidalDB.getScheduledVisits(filters),
-                    timeoutPromise
-                ])
-                // Transform scheduled visits to look like activities
-                activities = activities.map(visit => {
-                    const primaryActivity = visit.visit_activities?.[0]?.activities
-                    return {
-                        ...visit,
-                        title: visit.title,
-                        description: visit.description,
-                        date_time: visit.scheduled_date,
-                        duration_minutes: visit.duration_minutes,
-                        max_participants: visit.max_participants,
-                        current_participants: visit.current_participants,
-                        activity_type: primaryActivity?.activity_type || {
-                            id: 'scheduled-visit',
-                            name: visit.visit_type?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Scheduled Visit',
-                            slug: visit.visit_type || 'workshops',
-                            color: '#2196f3',
-                            icon: visit.visit_type === 'school_group' ? '🏫' : '📅'
-                        },
-                        status: visit.status
-                    }
-                })
-            }
-
-            this.activities = activities
             console.log('✅ Activities loaded:', this.activities.length, 'activities');
             console.log('📊 First activity sample:', this.activities[0]);
             this.renderActivities();
