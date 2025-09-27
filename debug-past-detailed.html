@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detailed Past Activities Debug</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; line-height: 1.6; }
+        .result { padding: 1rem; margin: 1rem 0; border-radius: 8px; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        pre { background: #f8f9fa; padding: 1rem; border-radius: 4px; overflow: auto; white-space: pre-wrap; font-size: 12px; }
+        button { padding: 0.5rem 1rem; margin: 0.5rem; border: none; border-radius: 4px; cursor: pointer; background: #007bff; color: white; }
+        .console-output { background: #000; color: #0f0; padding: 1rem; border-radius: 4px; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Detailed Past Activities Debug</h1>
+
+    <button onclick="runFullDebug()">🚀 Run Complete Debug</button>
+    <button onclick="clearResults()">🗑️ Clear Results</button>
+
+    <div id="results"></div>
+
+    <script>
+        let supabaseClient = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Wait for supabase to be initialized
+            await new Promise(resolve => {
+                const checkSupabase = () => {
+                    if (window.supabaseClient) {
+                        supabaseClient = window.supabaseClient;
+                        resolve();
+                    } else {
+                        setTimeout(checkSupabase, 100);
+                    }
+                };
+                checkSupabase();
+            });
+
+            showResult('info', 'Ready to debug - Console will be monitored');
+
+            // Override console.log to capture output
+            const originalLog = console.log;
+            window.capturedLogs = [];
+            console.log = function(...args) {
+                window.capturedLogs.push(args.join(' '));
+                originalLog.apply(console, arguments);
+            };
+        });
+
+        function showResult(type, title, content = '') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `
+                <div class="result ${type}">
+                    <h3>${title}</h3>
+                    ${content ? `<pre>${content}</pre>` : ''}
+                </div>
+            `;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            if (window.capturedLogs) window.capturedLogs = [];
+        }
+
+        async function runFullDebug() {
+            showResult('info', 'Starting Full Debug Sequence...');
+            window.capturedLogs = [];
+
+            try {
+                // Step 1: Test raw visits query
+                showResult('info', 'Step 1: Testing raw visits query');
+                const { data: rawVisits, error: visitsError } = await supabaseClient
+                    .from('visits')
+                    .select('*');
+
+                if (visitsError) {
+                    showResult('error', 'Visits Query Error', visitsError.message);
+                    return;
+                }
+
+                showResult('success', `Raw visits found: ${rawVisits.length}`,
+                    rawVisits.map(v => `ID: ${v.id}, School: ${v.school_name}, Status: ${v.status}, Pref: ${v.preferred_date}, Conf: ${v.confirmed_date}`).join('\\n')
+                );
+
+                // Step 2: Test getActivities with past filter
+                showResult('info', 'Step 2: Testing getActivities with past filter');
+
+                const pastActivities = await GuidalDB.getActivities({
+                    time_filter: 'past',
+                    include_completed: true
+                });
+
+                showResult('success', `Past activities result: ${pastActivities.length}`,
+                    pastActivities.map(a => `${a.title} - Date: ${a.date_time} - Type: ${a.activity_type?.name} - Status: ${a.status}`).join('\\n')
+                );
+
+                // Step 3: Show captured console logs
+                showResult('info', 'Step 3: Console Output During Query',
+                    `<div class="console-output">${window.capturedLogs.join('\\n')}</div>`
+                );
+
+                // Step 4: Test visits query with status filter
+                showResult('info', 'Step 4: Testing visits query with include_completed status filter');
+                const { data: filteredVisits, error: filteredError } = await supabaseClient
+                    .from('visits')
+                    .select(`
+                        id,
+                        school_name as title,
+                        additional_comments as description,
+                        COALESCE(confirmed_date, preferred_date) as date_time,
+                        status,
+                        contact_email,
+                        student_count,
+                        visit_type,
+                        invoice_status,
+                        created_at,
+                        updated_at
+                    `)
+                    .in('status', ['confirmed', 'completed', 'pending', 'published']);
+
+                if (filteredError) {
+                    showResult('error', 'Filtered Visits Error', filteredError.message);
+                } else {
+                    showResult('success', `Filtered visits: ${filteredVisits.length}`,
+                        filteredVisits.map(v => `${v.title} - Date: ${v.date_time} - Status: ${v.status}`).join('\\n')
+                    );
+                }
+
+                // Step 5: Time zone and date debugging
+                showResult('info', 'Step 5: Time zone and date debugging');
+                const currentDate = new Date();
+                showResult('info', 'Current Date/Time Details',
+                    `Current Date: ${currentDate.toISOString()}\\n` +
+                    `Local String: ${currentDate.toString()}\\n` +
+                    `UTC String: ${currentDate.toUTCString()}\\n` +
+                    `Timezone Offset: ${currentDate.getTimezoneOffset()} minutes\\n` +
+                    `Date only: ${currentDate.toISOString().split('T')[0]}`
+                );
+
+                // Step 6: Manual time filtering test
+                if (filteredVisits && filteredVisits.length > 0) {
+                    showResult('info', 'Step 6: Manual time filtering test with detailed logging');
+
+                    const manualFiltered = filteredVisits.filter(visit => {
+                        const activityDate = visit.date_time ? new Date(visit.date_time) : null;
+                        const isPast = activityDate && activityDate < currentDate;
+                        const isCompletedVisit = visit.status === 'completed' && !activityDate;
+                        const shouldInclude = isPast || isCompletedVisit;
+
+                        showResult('info', `Filtering ${visit.title}`,
+                            `Date_time: ${visit.date_time}\\n` +
+                            `Parsed date: ${activityDate}\\n` +
+                            `Current date: ${currentDate}\\n` +
+                            `Is past: ${isPast}\\n` +
+                            `Is completed visit: ${isCompletedVisit}\\n` +
+                            `Should include: ${shouldInclude}`
+                        );
+
+                        return shouldInclude;
+                    });
+
+                    showResult(manualFiltered.length > 0 ? 'success' : 'warning',
+                        `Manual filtering result: ${manualFiltered.length}`,
+                        manualFiltered.map(v => `${v.title} - Date: ${v.date_time} - Status: ${v.status}`).join('\\n')
+                    );
+                }
+
+            } catch (error) {
+                showResult('error', 'Debug Exception', error.message + '\\n' + error.stack);
+            }
+        }
+    </script>
+</body>
+</html>

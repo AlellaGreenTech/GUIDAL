@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Schema Migration - GUIDAL</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; overflow-x: auto; }
+        button { margin: 5px; padding: 8px 15px; }
+    </style>
+</head>
+<body>
+    <h1>Schema Migration Test</h1>
+
+    <div class="test-section info">
+        <h3>Testing Plan</h3>
+        <ol>
+            <li>Check current database structure</li>
+            <li>Test new schema methods</li>
+            <li>Verify science-in-action activities</li>
+            <li>Test activity filtering</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h3>1. Current Database Structure</h3>
+        <button onclick="checkCurrentStructure()">Check Current Tables</button>
+        <div id="structure-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test Activity Templates (Science-in-Action)</h3>
+        <button onclick="testActivityTemplates()">Get Activity Templates</button>
+        <div id="templates-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Test Scheduled Visits</h3>
+        <button onclick="testScheduledVisits()">Get Scheduled Visits</button>
+        <div id="scheduled-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Test Legacy Method</h3>
+        <button onclick="testLegacyMethod()">Test getActivities() Backward Compatibility</button>
+        <div id="legacy-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Test Science Station Filter</h3>
+        <button onclick="testScienceStationFilter()">Filter Science Stations</button>
+        <div id="filter-results"></div>
+    </div>
+
+    <!-- Include Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+
+    <script>
+        async function checkCurrentStructure() {
+            const resultsDiv = document.getElementById('structure-results');
+            resultsDiv.innerHTML = '<p>Checking database structure...</p>';
+
+            try {
+                // Check if our tables exist
+                const tables = ['activities', 'activity_types', 'visits', 'scheduled_visits'];
+                const results = {};
+
+                for (const table of tables) {
+                    try {
+                        const { data, error } = await window.supabaseClient
+                            .from(table)
+                            .select('*')
+                            .limit(1);
+
+                        results[table] = error ? `❌ ${error.message}` : `✅ Exists (${data?.length || 0} rows)`;
+                    } catch (e) {
+                        results[table] = `❌ Error: ${e.message}`;
+                    }
+                }
+
+                resultsDiv.innerHTML = `
+                    <pre>${JSON.stringify(results, null, 2)}</pre>
+                `;
+                resultsDiv.className = 'test-section success';
+            } catch (error) {
+                resultsDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                resultsDiv.className = 'test-section error';
+            }
+        }
+
+        async function testActivityTemplates() {
+            const resultsDiv = document.getElementById('templates-results');
+            resultsDiv.innerHTML = '<p>Testing activity templates...</p>';
+
+            try {
+                // Test the new method if it exists
+                if (GuidalDB.getActivityTemplates) {
+                    const templates = await GuidalDB.getActivityTemplates({ type: 'science-stations' });
+                    resultsDiv.innerHTML = `
+                        <h4>✅ Activity Templates (${templates.length} found)</h4>
+                        <pre>${JSON.stringify(templates.slice(0, 2), null, 2)}</pre>
+                    `;
+                    resultsDiv.className = 'test-section success';
+                } else {
+                    // Fallback to direct query
+                    const { data, error } = await window.supabaseClient
+                        .from('activities')
+                        .select(`
+                            *,
+                            activity_type:activity_types!activity_type_id(id, name, slug, color, icon)
+                        `)
+                        .eq('status', 'published')
+                        .is('date_time', null);
+
+                    if (error) throw error;
+
+                    resultsDiv.innerHTML = `
+                        <h4>✅ Direct Query - Activity Templates (${data.length} found)</h4>
+                        <pre>${JSON.stringify(data.slice(0, 2), null, 2)}</pre>
+                    `;
+                    resultsDiv.className = 'test-section success';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                resultsDiv.className = 'test-section error';
+            }
+        }
+
+        async function testScheduledVisits() {
+            const resultsDiv = document.getElementById('scheduled-results');
+            resultsDiv.innerHTML = '<p>Testing scheduled visits...</p>';
+
+            try {
+                // Test if scheduled_visits table exists
+                const { data, error } = await window.supabaseClient
+                    .from('scheduled_visits')
+                    .select('*')
+                    .limit(5);
+
+                if (error) {
+                    // Table doesn't exist yet, that's expected
+                    resultsDiv.innerHTML = `
+                        <h4>ℹ️ Scheduled Visits Table Not Yet Created</h4>
+                        <p>This is expected - run the migration script first.</p>
+                        <p>Error: ${error.message}</p>
+                    `;
+                    resultsDiv.className = 'test-section info';
+                } else {
+                    resultsDiv.innerHTML = `
+                        <h4>✅ Scheduled Visits (${data.length} found)</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    resultsDiv.className = 'test-section success';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                resultsDiv.className = 'test-section error';
+            }
+        }
+
+        async function testLegacyMethod() {
+            const resultsDiv = document.getElementById('legacy-results');
+            resultsDiv.innerHTML = '<p>Testing legacy method...</p>';
+
+            try {
+                const activities = await GuidalDB.getActivities({ type: 'science-stations' });
+                resultsDiv.innerHTML = `
+                    <h4>✅ Legacy getActivities() (${activities.length} found)</h4>
+                    <pre>${JSON.stringify(activities.slice(0, 2), null, 2)}</pre>
+                `;
+                resultsDiv.className = 'test-section success';
+            } catch (error) {
+                resultsDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                resultsDiv.className = 'test-section error';
+            }
+        }
+
+        async function testScienceStationFilter() {
+            const resultsDiv = document.getElementById('filter-results');
+            resultsDiv.innerHTML = '<p>Testing science station filter...</p>';
+
+            try {
+                // Check for science-stations activity type
+                const { data: activityTypes, error: typeError } = await window.supabaseClient
+                    .from('activity_types')
+                    .select('*')
+                    .eq('slug', 'science-stations');
+
+                if (typeError) throw typeError;
+
+                let scienceStations = [];
+                if (activityTypes.length > 0) {
+                    const { data, error } = await window.supabaseClient
+                        .from('activities')
+                        .select(`
+                            *,
+                            activity_type:activity_types!activity_type_id(id, name, slug, color, icon)
+                        `)
+                        .eq('activity_type_id', activityTypes[0].id)
+                        .eq('status', 'published');
+
+                    if (error) throw error;
+                    scienceStations = data;
+                }
+
+                resultsDiv.innerHTML = `
+                    <h4>Science-Stations Activity Type: ${activityTypes.length ? '✅ Found' : '❌ Not Found'}</h4>
+                    <h4>Science Station Activities: ${scienceStations.length} found</h4>
+                    <pre>${JSON.stringify(scienceStations.slice(0, 2), null, 2)}</pre>
+                `;
+                resultsDiv.className = activityTypes.length > 0 ? 'test-section success' : 'test-section info';
+            } catch (error) {
+                resultsDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                resultsDiv.className = 'test-section error';
+            }
+        }
+
+        // Auto-run initial check
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(checkCurrentStructure, 1000);
+        });
+    </script>
+</body>
+</html>

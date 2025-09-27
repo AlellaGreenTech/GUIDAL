@@ -171,43 +171,17 @@ class GuidalDB {
   }
 
 
-  // Activities (for dynamic content)
-  static async getActivities(filters = {}) {
-    // Query activities table
-    let activitiesQuery = supabase
+  // Get activity templates (science-in-action stations, workshop templates, etc.)
+  static async getActivityTemplates(filters = {}) {
+    let query = supabase
       .from('activities')
       .select(`
         *,
         activity_type:activity_types!activity_type_id(id, name, slug, color, icon)
       `)
+      .eq('status', 'published')
 
-    // Handle status filter for activities - if not specified, show published activities
-    if (filters.status) {
-      activitiesQuery = activitiesQuery.eq('status', filters.status)
-    } else if (filters.include_completed) {
-      // For past activities, include completed status to show finished school visits
-      activitiesQuery = activitiesQuery.in('status', ['published', 'active', 'upcoming', 'completed'])
-    } else {
-      activitiesQuery = activitiesQuery.in('status', ['published', 'active', 'upcoming'])
-    }
-
-    // Also query visits table for school visits - simplified query to avoid RLS issues
-    let visitsQuery = supabase
-      .from('visits')
-      .select('*')
-
-    // Handle status filter for visits
-    if (filters.status) {
-      visitsQuery = visitsQuery.eq('status', filters.status)
-    } else if (filters.include_completed) {
-      // Include various statuses for visits, especially 'completed'
-      visitsQuery = visitsQuery.in('status', ['confirmed', 'completed', 'pending', 'published'])
-    } else {
-      // For upcoming, show confirmed and pending visits
-      visitsQuery = visitsQuery.in('status', ['confirmed', 'pending', 'published'])
-    }
-
-    // Apply activity type filter to activities query only
+    // Apply activity type filter
     if (filters.type) {
       const { data: activityType } = await supabase
         .from('activity_types')
@@ -216,86 +190,218 @@ class GuidalDB {
         .single()
 
       if (activityType) {
-        activitiesQuery = activitiesQuery.eq('activity_type_id', activityType.id)
-
-        // If filtering by type, don't include visits (they don't have activity_type)
-        if (filters.type !== 'school-visits') {
-          // Only query activities, skip visits
-          visitsQuery = null;
-        }
+        query = query.eq('activity_type_id', activityType.id)
       }
     }
 
     // Apply search filters
     if (filters.search) {
-      activitiesQuery = activitiesQuery.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
-      if (visitsQuery) {
-        visitsQuery = visitsQuery.or(`school_name.ilike.%${filters.search}%,additional_comments.ilike.%${filters.search}%`)
-      }
+      query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
     }
 
     if (filters.limit) {
-      activitiesQuery = activitiesQuery.limit(Math.floor(filters.limit / 2)) // Split limit between tables
-      if (visitsQuery) {
-        visitsQuery = visitsQuery.limit(Math.floor(filters.limit / 2))
-      }
+      query = query.limit(filters.limit)
     }
 
-    console.log('🔍 Executing queries with filters:', filters);
-    console.log('📊 Activities query enabled:', !!activitiesQuery);
-    console.log('📊 Visits query enabled:', !!visitsQuery);
+    const { data, error } = await query
 
-    // Execute both queries
-    const promises = [activitiesQuery];
-    if (visitsQuery) {
-      promises.push(visitsQuery);
+    if (error) {
+      console.error('❌ Error fetching activity templates:', error)
+      return []
+    }
+
+    return data || []
+  }
+
+  // Get scheduled visits (upcoming events, workshops, school visits)
+  static async getScheduledVisits(filters = {}) {
+    let query = supabase
+      .from('scheduled_visits')
+      .select(`
+        *,
+        visit_activities(
+          activity_id,
+          duration_minutes,
+          activities(
+            id,
+            title,
+            description,
+            activity_type:activity_types(name, slug, icon, color)
+          )
+        )
+      `)
+
+    // Apply visit type filter
+    if (filters.visit_type) {
+      query = query.eq('visit_type', filters.visit_type)
+    }
+
+    // Apply status filter
+    if (filters.status) {
+      query = query.eq('status', filters.status)
     } else {
-      promises.push(Promise.resolve({ data: [], error: null }));
+      query = query.in('status', ['pending', 'confirmed'])
     }
 
-    const [activitiesResult, visitsResult] = await Promise.all(promises);
-
-    if (activitiesResult.error) {
-      console.error('❌ Error fetching activities:', activitiesResult.error)
+    // Apply time-based filtering
+    const currentDate = new Date().toISOString()
+    if (filters.time_filter === 'upcoming') {
+      query = query.gte('scheduled_date', currentDate)
+    } else if (filters.time_filter === 'past') {
+      query = query.lt('scheduled_date', currentDate)
     }
 
-    if (visitsResult.error) {
-      console.error('❌ Error fetching visits:', visitsResult.error)
-      console.warn('⚠️ Continuing without visits data due to permissions/RLS error')
+    // Apply search filters
+    if (filters.search) {
+      query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,school_name.ilike.%${filters.search}%`)
     }
 
-    // Combine results
-    const activities = activitiesResult.data || [];
-    const visits = visitsResult.data || [];
+    if (filters.limit) {
+      query = query.limit(filters.limit)
+    }
 
-    console.log(`📈 Raw results - Activities: ${activities.length}, Visits: ${visits.length}`);
+    const { data, error } = await query.order('scheduled_date')
 
-    // Transform visits to look like activities and add activity_type
-    const transformedVisits = visits.map(visit => {
-      // Handle date_time field - prefer confirmed_date, fall back to preferred_date
-      const date_time = visit.confirmed_date || visit.preferred_date;
-      console.log(`🔄 Transforming visit: ${visit.school_name} - confirmed_date: ${visit.confirmed_date}, preferred_date: ${visit.preferred_date}, final date_time: ${date_time}`);
+    if (error) {
+      console.error('❌ Error fetching scheduled visits:', error)
+      return []
+    }
 
+    return data || []
+  }
+
+  // Get past visits
+  static async getPastVisits(filters = {}) {
+    let query = supabase
+      .from('past_visits')
+      .select(`
+        *,
+        visit_activities(
+          activity_id,
+          completed,
+          satisfaction_rating,
+          activities(
+            id,
+            title,
+            description,
+            activity_type:activity_types(name, slug, icon, color)
+          )
+        )
+      `)
+      .order('created_at', { ascending: false })
+
+    // Apply filters
+    if (filters.visit_type) {
+      query = query.eq('visit_type', filters.visit_type)
+    }
+
+    if (filters.search) {
+      query = query.or(`school_name.ilike.%${filters.search}%,additional_comments.ilike.%${filters.search}%`)
+    }
+
+    if (filters.limit) {
+      query = query.limit(filters.limit)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('❌ Error fetching past visits:', error)
+      return []
+    }
+
+    return data || []
+  }
+
+  // Combined method for backward compatibility
+  static async getActivities(filters = {}) {
+    console.log('🔍 Getting activities with filters:', filters)
+
+    // If requesting science-in-action activities, get templates
+    if (filters.type === 'science-stations' || filters.type === 'workshops') {
+      console.log('📋 Fetching activity templates for science-in-action')
+      return await this.getActivityTemplates(filters)
+    }
+
+    // For scheduled activities, get scheduled visits
+    const scheduledVisits = await this.getScheduledVisits(filters)
+    console.log('📅 Scheduled visits:', scheduledVisits.length)
+
+    // Transform scheduled visits to look like activities for backward compatibility
+    const transformedVisits = scheduledVisits.map(visit => {
+      const primaryActivity = visit.visit_activities?.[0]?.activities
       return {
         ...visit,
-        title: visit.school_name,
-        description: visit.additional_comments,
-        date_time: date_time,
-        activity_type: {
-          id: 'school-visit',
-          name: 'School Visit',
-          slug: 'school-visits',
-          color: '#28a745',
-          icon: '🏫'
-        }
-      };
-    });
+        title: visit.title,
+        description: visit.description,
+        date_time: visit.scheduled_date,
+        duration_minutes: visit.duration_minutes,
+        max_participants: visit.max_participants,
+        current_participants: visit.current_participants,
+        activity_type: primaryActivity?.activity_type || {
+          id: 'scheduled-visit',
+          name: visit.visit_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          slug: visit.visit_type,
+          color: '#2196f3',
+          icon: visit.visit_type === 'school_group' ? '🏫' : '📅'
+        },
+        status: visit.status
+      }
+    })
 
-    console.log(`🔄 Transformed visits: ${transformedVisits.length}`);
+    console.log('🔄 Transformed visits:', transformedVisits.length)
+    return transformedVisits
+  }
+
+  // Legacy method support - can be removed later
+  static async getActivitiesOld(filters = {}) {
+    console.log('⚠️ Using legacy getActivities method - consider updating to new schema methods')
+
+    const promises = []
+
+    // Get templates if needed
+    if (!filters.time_filter || filters.type === 'science-stations') {
+      promises.push(this.getActivityTemplates(filters))
+    } else {
+      promises.push(Promise.resolve([]))
+    }
+
+    // Get scheduled visits if needed
+    if (!filters.type || filters.type === 'school-visits' || filters.type === 'workshops') {
+      promises.push(this.getScheduledVisits(filters))
+    } else {
+      promises.push(Promise.resolve([]))
+    }
+
+    const [templatesResult, visitsResult] = await Promise.all(promises)
+
+    // Combine results
+    const templates = templatesResult || []
+    const visits = visitsResult || []
+
+    console.log(`📈 Raw results - Templates: ${templates.length}, Visits: ${visits.length}`)
+
+    // Transform visits to look like activities
+    const transformedVisits = visits.map(visit => {
+      const primaryActivity = visit.visit_activities?.[0]?.activities
+      return {
+        ...visit,
+        title: visit.title,
+        description: visit.description,
+        date_time: visit.scheduled_date,
+        activity_type: primaryActivity?.activity_type || {
+          id: 'scheduled-visit',
+          name: 'Scheduled Visit',
+          slug: visit.visit_type,
+          color: '#2196f3',
+          icon: '📅'
+        }
+      }
+    })
 
     // Combine all data
-    let allData = [...activities, ...transformedVisits];
-    console.log(`📋 Combined data before filtering: ${allData.length}`);
+    let allData = [...templates, ...transformedVisits]
+    console.log(`📋 Combined data: ${allData.length}`)
 
     // Apply time-based filtering after database query
     const currentDate = new Date();
@@ -318,7 +424,7 @@ class GuidalDB {
         let activityDate = null;
         let activityDateString = null;
 
-        if (activity.date_time) {
+        if (activity.date_time && activity.date_time !== 'TBD') {
           // Handle both full datetime and date-only strings
           if (activity.date_time.includes('T')) {
             activityDate = new Date(activity.date_time);
@@ -330,6 +436,7 @@ class GuidalDB {
           }
         }
 
+        // Only include activities that have actual past dates or are completed school visits
         const isPast = activityDateString && activityDateString < currentDateString;
 
         // Special case for school visits with 'completed' status but no date
@@ -337,9 +444,17 @@ class GuidalDB {
                                 activity.status === 'completed' &&
                                 !activityDate;
 
-        const shouldInclude = isPast || isCompletedVisit;
+        // EXPLICITLY exclude activities without valid dates (null, undefined, empty, "TBD")
+        const hasValidDate = activity.date_time &&
+                            activity.date_time !== null &&
+                            activity.date_time !== 'TBD' &&
+                            activity.date_time !== '' &&
+                            activity.date_time !== 'null';
 
-        console.log(`📅 Activity ${activity.title}: dateStr=${activityDateString}, currentStr=${currentDateString}, isPast=${isPast}, isCompletedVisit=${isCompletedVisit}, shouldInclude=${shouldInclude}`);
+        // For past filter: ONLY include if it has a valid past date OR is a completed visit
+        const shouldInclude = (hasValidDate && isPast) || isCompletedVisit;
+
+        console.log(`📅 Activity ${activity.title}: date_time="${activity.date_time}", hasValidDate=${hasValidDate}, dateStr=${activityDateString}, isPast=${isPast}, isCompletedVisit=${isCompletedVisit}, shouldInclude=${shouldInclude}`);
         return shouldInclude;
       });
     }
@@ -372,8 +487,8 @@ class GuidalDB {
       return dateB - dateA;
     });
 
-    console.log('✅ Raw database response:', sortedData.length, 'activities (sorted by upcoming/past)');
-    return sortedData;
+    console.log('✅ Legacy method result:', sortedData.length, 'items')
+    return sortedData
   }
 
   static async addActivity(activityData) {

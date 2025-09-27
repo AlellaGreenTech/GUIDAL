@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Past Activities</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        .result { padding: 1rem; margin: 1rem 0; border-radius: 8px; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        pre { background: #f8f9fa; padding: 1rem; border-radius: 4px; overflow: auto; white-space: pre-wrap; }
+        button { padding: 0.5rem 1rem; margin: 0.5rem; border: none; border-radius: 4px; cursor: pointer; background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Past Activities Issue</h1>
+
+    <button onclick="testCurrentTime()">Check Current Time</button>
+    <button onclick="testAllActivities()">Get All Activities</button>
+    <button onclick="testPastActivities()">Get Past Activities</button>
+    <button onclick="testVisitsData()">Check Visits Data</button>
+
+    <div id="results"></div>
+
+    <script>
+        let supabaseClient = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Wait for supabase to be initialized
+            await new Promise(resolve => {
+                const checkSupabase = () => {
+                    if (window.supabaseClient) {
+                        supabaseClient = window.supabaseClient;
+                        resolve();
+                    } else {
+                        setTimeout(checkSupabase, 100);
+                    }
+                };
+                checkSupabase();
+            });
+
+            showResult('info', 'Ready to debug past activities');
+        });
+
+        function showResult(type, title, content = '') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `
+                <div class="result ${type}">
+                    <h3>${title}</h3>
+                    ${content ? `<pre>${content}</pre>` : ''}
+                </div>
+            `;
+        }
+
+        async function testCurrentTime() {
+            const now = new Date();
+            showResult('info', 'Current Date/Time', now.toISOString());
+        }
+
+        async function testAllActivities() {
+            showResult('info', 'Testing All Activities...', 'Getting activities without time filter...');
+
+            try {
+                const activities = await GuidalDB.getActivities({ include_completed: true });
+                showResult('success', `All Activities Results (${activities.length} records)`,
+                    activities.map(a => `${a.title} - ${a.date_time} - Type: ${a.activity_type?.name || 'Unknown'}`).join('\n')
+                );
+            } catch (error) {
+                showResult('error', 'All Activities Exception', error.message);
+            }
+        }
+
+        async function testPastActivities() {
+            showResult('info', 'Testing Past Activities...', 'Using time_filter: past with include_completed...');
+
+            try {
+                const activities = await GuidalDB.getActivities({
+                    time_filter: 'past',
+                    include_completed: true
+                });
+                showResult('success', `Past Activities Results (${activities.length} records)`,
+                    activities.map(a => `${a.title} - ${a.date_time} - Type: ${a.activity_type?.name || 'Unknown'}`).join('\n')
+                );
+            } catch (error) {
+                showResult('error', 'Past Activities Exception', error.message);
+            }
+        }
+
+        async function testVisitsData() {
+            showResult('info', 'Testing Visits Data...', 'Querying visits table directly...');
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('visits')
+                    .select('*')
+                    .limit(10);
+
+                if (error) {
+                    showResult('error', 'Visits Table Error', error.message);
+                } else {
+                    showResult('success', `Visits Table Results (${data.length} records)`,
+                        data.map(v => `${v.school_name} - preferred_date: ${v.preferred_date} - confirmed_date: ${v.confirmed_date} - Status: ${v.status}`).join('\n')
+                    );
+                }
+            } catch (error) {
+                showResult('error', 'Visits Table Exception', error.message);
+            }
+        }
+    </script>
+</body>
+</html>

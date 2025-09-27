@@ -132,11 +132,65 @@ class GuidalApp {
                 setTimeout(() => reject(new Error('Database timeout')), 3000)
             );
 
-            this.activities = await Promise.race([
-                GuidalDB.getActivities(filters),
-                timeoutPromise
-            ]);
+            // Use new schema methods based on filter type
+            let activities = []
 
+            if (filters.type === 'science-stations' || filters.show_templates) {
+                // Get science-in-action activity templates
+                activities = await Promise.race([
+                    GuidalDB.getActivityTemplates(filters),
+                    timeoutPromise
+                ])
+            } else if (filters.time_filter === 'past') {
+                // Get past visits
+                activities = await Promise.race([
+                    GuidalDB.getPastVisits(filters),
+                    timeoutPromise
+                ])
+                // Transform past visits to look like activities
+                activities = activities.map(visit => ({
+                    ...visit,
+                    title: visit.school_name || visit.title,
+                    date_time: visit.confirmed_date || visit.created_at,
+                    activity_type: {
+                        id: 'past-visit',
+                        name: 'Past Visit',
+                        slug: visit.visit_type || 'school-visits',
+                        color: '#757575',
+                        icon: '🏫'
+                    },
+                    status: 'completed'
+                }))
+            } else {
+                // Get scheduled visits (upcoming activities)
+                activities = await Promise.race([
+                    GuidalDB.getScheduledVisits(filters),
+                    timeoutPromise
+                ])
+                // Transform scheduled visits to look like activities
+                activities = activities.map(visit => {
+                    const primaryActivity = visit.visit_activities?.[0]?.activities
+                    return {
+                        ...visit,
+                        title: visit.title,
+                        description: visit.description,
+                        date_time: visit.scheduled_date,
+                        duration_minutes: visit.duration_minutes,
+                        max_participants: visit.max_participants,
+                        current_participants: visit.current_participants,
+                        activity_type: primaryActivity?.activity_type || {
+                            id: 'scheduled-visit',
+                            name: visit.visit_type?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Scheduled Visit',
+                            slug: visit.visit_type || 'workshops',
+                            color: '#2196f3',
+                            icon: visit.visit_type === 'school_group' ? '🏫' : '📅'
+                        },
+                        status: visit.status
+                    }
+                })
+            }
+
+            this.activities = activities
             console.log('✅ Activities loaded:', this.activities.length, 'activities');
             console.log('📊 First activity sample:', this.activities[0]);
             this.renderActivities();
@@ -149,6 +203,61 @@ class GuidalApp {
     }
 
     getFallbackActivities(filters = {}) {
+        // Include science-in-action templates as fallback
+        const scienceInActionTemplates = [
+            {
+                id: 'science-1',
+                title: 'Robotic Gardening',
+                description: 'Tend your garden from 1,000km away - or let the bot do it! Explore automated agriculture and precision farming with real robotic systems.',
+                activity_type: {
+                    id: 'science-stations',
+                    name: 'Science Stations',
+                    slug: 'science-stations',
+                    color: '#e91e63',
+                    icon: '🔬'
+                },
+                date_time: null, // Templates have no scheduled date
+                suggested_duration_minutes: 60,
+                recommended_group_size: '8-12 students',
+                status: 'published',
+                featured_image: 'images/robotic-gardening-system.png'
+            },
+            {
+                id: 'science-2',
+                title: 'Erosion Challenge',
+                description: 'Stop erosion, retain water and create a fertile hillside through natural engineering solutions and permaculture techniques.',
+                activity_type: {
+                    id: 'science-stations',
+                    name: 'Science Stations',
+                    slug: 'science-stations',
+                    color: '#e91e63',
+                    icon: '🔬'
+                },
+                date_time: null,
+                suggested_duration_minutes: 90,
+                recommended_group_size: '10-15 students',
+                status: 'published',
+                featured_image: 'images/swales.jpg'
+            },
+            {
+                id: 'science-3',
+                title: 'Hydraulic Ram Pumps',
+                description: 'Moving water up high without electricity! Discover genius inventions of the past that use water pressure to pump water uphill.',
+                activity_type: {
+                    id: 'science-stations',
+                    name: 'Science Stations',
+                    slug: 'science-stations',
+                    color: '#e91e63',
+                    icon: '🔬'
+                },
+                date_time: null,
+                suggested_duration_minutes: 75,
+                recommended_group_size: '6-10 students',
+                status: 'published',
+                featured_image: 'images/hydraulic-ram-pump-system.png'
+            }
+        ]
+
         const staticActivities = [
             {
                 id: 'demo-1',
@@ -215,13 +324,23 @@ class GuidalApp {
             }
         ];
 
+        // Combine templates and scheduled activities
+        let allActivities = [...scienceInActionTemplates, ...staticActivities]
+
         // Apply filters if any
-        let filteredActivities = staticActivities;
+        let filteredActivities = allActivities
 
         if (filters.type && filters.type !== 'all') {
             filteredActivities = filteredActivities.filter(activity =>
                 activity.activity_type.slug === filters.type
-            );
+            )
+        }
+
+        // Filter based on show_templates flag
+        if (filters.show_templates) {
+            filteredActivities = filteredActivities.filter(activity => !activity.date_time)
+        } else if (filters.time_filter === 'upcoming') {
+            filteredActivities = filteredActivities.filter(activity => activity.date_time)
         }
 
         if (filters.search) {
@@ -236,18 +355,27 @@ class GuidalApp {
     }
 
     populateActivityTypeFilter() {
-        const filterSelect = document.getElementById('activity-filter');
-        if (!filterSelect || !this.activityTypes) return;
+        const filterSelect = document.getElementById('activity-filter')
+        if (!filterSelect || !this.activityTypes) return
 
         // Clear existing options except "All Activities"
-        filterSelect.innerHTML = '<option value="all">All Activities</option>';
-        
+        filterSelect.innerHTML = '<option value="all">All Activities</option>'
+
+        // Add science-stations as a special option
+        const scienceOption = document.createElement('option')
+        scienceOption.value = 'science-stations'
+        scienceOption.textContent = 'Science-in-Action'
+        filterSelect.appendChild(scienceOption)
+
         this.activityTypes.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type.slug;
-            option.textContent = type.name;
-            filterSelect.appendChild(option);
-        });
+            // Skip science-stations since we added it manually above
+            if (type.slug === 'science-stations') return
+
+            const option = document.createElement('option')
+            option.value = type.slug
+            option.textContent = type.name
+            filterSelect.appendChild(option)
+        })
     }
 
     renderActivities() {
@@ -343,8 +471,10 @@ class GuidalApp {
 
     getActivityImage(activity) {
         // Use featured_image from database if available
+        console.log(`🖼️ Activity "${activity.title}" - featured_image: ${JSON.stringify(activity.featured_image)}`);
         const imageSrc = activity.featured_image || this.getDefaultImageForActivity(activity);
-        
+        console.log(`🖼️ Using image: ${imageSrc}`);
+
         if (imageSrc) {
             return `<img src="${imageSrc}" alt="${activity.title}" class="activity-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="image-placeholder" style="display:none;">
@@ -549,35 +679,38 @@ class GuidalApp {
     }
 
     getActivityButton(activity) {
-        const currentDate = new Date();
-        const activityDate = activity.date_time ? new Date(activity.date_time) : null;
-        const isUpcoming = activity.status === 'published' && (!activityDate || activityDate > currentDate);
-        // Set activity completion cutoff to next day at midnight
-        const nextDay = activityDate ? new Date(activityDate.getTime() + 24 * 60 * 60 * 1000) : null;
-        const isCompleted = activity.status === 'completed' || (nextDay && currentDate >= nextDay);
-        const isFullyBooked = activity.max_participants && activity.current_participants >= activity.max_participants;
+        const currentDate = new Date()
+        const activityDate = activity.date_time ? new Date(activity.date_time) : null
+        const isUpcoming = activity.status === 'confirmed' && (!activityDate || activityDate > currentDate)
+        const isCompleted = activity.status === 'completed' || (activityDate && currentDate >= activityDate)
+        const isFullyBooked = activity.max_participants && activity.current_participants >= activity.max_participants
 
         // Check if user is already registered
         const isRegistered = this.currentUser && this.currentUser.registrations &&
-                             this.currentUser.registrations.some(reg => reg.activity_id === activity.id);
+                             this.currentUser.registrations.some(reg => reg.activity_id === activity.id)
 
-        // Get activity type for special handling (now from joined data)
-        const activityType = activity.activity_type;
-        const activityTypeSlug = activityType?.slug || 'other';
+        // Get activity type for special handling
+        const activityType = activity.activity_type
+        const activityTypeSlug = activityType?.slug || 'other'
 
-        if (activityTypeSlug === 'school-visits') {
-            console.log('🔍 School visit detected:', activity.title, 'Type:', activityTypeSlug, 'Completed:', isCompleted);
+        // Handle science-in-action templates (no dates)
+        if (activityTypeSlug === 'science-stations' && !activity.date_time) {
+            return `<button class="btn btn-primary" onclick="app.handleScienceStationBooking('${activity.id}', '${activity.title}')">Book Station</button>`
+        }
+
+        if (activityTypeSlug === 'school-visits' || activityTypeSlug === 'school_group') {
+            console.log('🔍 School visit detected:', activity.title, 'Type:', activityTypeSlug, 'Completed:', isCompleted)
 
             // Handle completed visits based on security/privacy mode
             if (isCompleted) {
-                return this.getCompletedVisitButton(activity);
+                return this.getCompletedVisitButton(activity)
             } else if (activity.title.includes('Benjamin Franklin')) {
-                console.log('✅ Benjamin Franklin visit detected - generating Visit Details button');
-                return `<button class="btn" onclick="openLoginModal('${activity.title}', 'visits/benjamin-franklin-sept-2025.html')">Visit Details</button>`;
+                console.log('✅ Benjamin Franklin visit detected - generating Visit Details button')
+                return `<button class="btn" onclick="openLoginModal('${activity.title}', 'visits/benjamin-franklin-sept-2025.html')">Visit Details</button>`
             } else if (activity.title.includes('International School of Prague')) {
-                return `<a href="visits/international-school-prague-sept-2025.html" class="btn">Visit Details</a>`;
+                return `<a href="visits/international-school-prague-sept-2025.html" class="btn">Visit Details</a>`
             } else {
-                return `<button class="btn" onclick="openLoginModal('${activity.title}', '#')">Visit Details</button>`;
+                return `<button class="btn" onclick="openLoginModal('${activity.title}', '#')">Visit Details</button>`
             }
         }
 
@@ -612,7 +745,21 @@ class GuidalApp {
                     </button>`;
         }
 
-        return `<a href="#" class="btn">More Info</a>`;
+        return `<a href="#" class="btn">More Info</a>`
+    }
+
+    async handleScienceStationBooking(activityId, activityTitle) {
+        // Handle booking a science-in-action station
+        // This would typically open a form to schedule the station as part of a visit
+        console.log('Booking science station:', activityTitle)
+
+        if (!this.currentUser) {
+            this.showAuthModal(activityId, activityTitle)
+            return
+        }
+
+        // For now, show a message - this could open a scheduling modal
+        this.showNotification(`${activityTitle} can be included in school visits. Contact us to schedule!`, 'info')
     }
 
     async handleActivityRegistration(activityId, activityTitle) {
@@ -690,31 +837,33 @@ class GuidalApp {
     }
 
     async handleFilter(filterType) {
-        const filters = {};
-        const searchInput = document.getElementById('activity-search');
+        const filters = {}
+        const searchInput = document.getElementById('activity-search')
         if (searchInput && searchInput.value) {
-            filters.search = searchInput.value;
+            filters.search = searchInput.value
         }
 
-        // Handle coming/past filters
+        // Handle different filter types
         if (filterType === 'coming') {
-            filters.status = 'published';
-            filters.time_filter = 'upcoming';
+            filters.time_filter = 'upcoming'
         } else if (filterType === 'past') {
-            filters.time_filter = 'past';
+            filters.time_filter = 'past'
+        } else if (filterType === 'science-stations') {
+            filters.type = 'science-stations'
+            filters.show_templates = true // Show activity templates
         } else if (filterType !== 'all') {
-            filters.type = filterType;
+            filters.type = filterType
         }
 
         // Special handling for school visits to show counts
         if (filterType === 'school-visits') {
-            this.showSchoolVisitCounts();
+            this.showSchoolVisitCounts()
         } else {
-            this.hideSchoolVisitCounts();
+            this.hideSchoolVisitCounts()
         }
 
-        // Always use database filter
-        await this.loadActivities(filters);
+        // Load activities with new filters
+        await this.loadActivities(filters)
     }
 
     // Time-based filter function for the toggle buttons
@@ -738,14 +887,16 @@ class GuidalApp {
             // For past activities, include completed status to show finished school visits
             filters.include_completed = true;
 
-            // For past visits, reset type filter to show ALL past events
+            // Keep current type filter for past activities too
             const filterSelect = document.getElementById('activity-filter');
-            if (filterSelect) {
-                filterSelect.value = 'all';
+            if (filterSelect && filterSelect.value !== 'all') {
+                filters.type = filterSelect.value;
+                console.log('🎯 Past activities with type filter:', filters.type);
+            } else {
+                console.log('🎯 Past activities showing all types');
             }
 
-            // Don't apply type filter for past - show all past events (school visits, workshops, etc.)
-            // This ensures school visits, workshops, and special lunches all appear in past visits
+            // Allow type filtering for past activities to work properly
         }
 
         // Keep current search term if set
