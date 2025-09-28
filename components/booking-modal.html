@@ -74,6 +74,9 @@
                     <button id="create-booking-btn" class="btn btn-primary" onclick="createNewBooking()">
                         Request This Date
                     </button>
+                    <button id="payment-btn" class="btn btn-success" onclick="proceedToPayment()" style="display: none;">
+                        💳 Proceed to Payment
+                    </button>
                     <button class="btn btn-secondary" onclick="closeBookingModal()">
                         Cancel
                     </button>
@@ -90,13 +93,19 @@
 
                 <div class="booking-status-panel">
                     <div class="status-item">
-                        <strong>Status:</strong> <span class="status-badge status-pending">Waiting for more participants</span>
+                        <strong>Status:</strong> <span id="booking-status-badge" class="status-badge status-pending">Waiting for more participants</span>
                     </div>
                     <div class="status-item">
                         <strong>Participants so far:</strong> <span id="current-count">1</span> / <span id="required-count">5</span>
                     </div>
                     <div class="status-item">
                         <strong>Booking ID:</strong> <span id="booking-reference"></span>
+                    </div>
+                    <div id="payment-status-item" class="status-item" style="display: none;">
+                        <strong>Payment:</strong> <span id="payment-status">Pending</span>
+                    </div>
+                    <div id="payment-deadline-item" class="status-item" style="display: none;">
+                        <strong>Payment deadline:</strong> <span id="payment-deadline"></span>
                     </div>
                 </div>
 
@@ -129,6 +138,9 @@
                 </div>
 
                 <div class="booking-actions">
+                    <button id="payment-action-btn" class="btn btn-success" onclick="proceedToPayment()" style="display: none;">
+                        💳 Complete Payment
+                    </button>
                     <button class="btn btn-primary" onclick="closeBookingModal()">
                         Got it!
                     </button>
@@ -378,6 +390,35 @@
 .status-pending {
     background: #fff3cd;
     color: #856404;
+}
+
+.status-confirmed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-payment-required {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+.payment-deadline-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #856404;
+    margin-top: 4px;
 }
 
 .share-section {

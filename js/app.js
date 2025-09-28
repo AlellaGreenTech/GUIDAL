@@ -832,18 +832,45 @@ class GuidalApp {
         if (targetStep) targetStep.style.display = 'block'
     }
 
-    async sendBookingConfirmationEmail(booking, activity) {
+    async setPaymentDeadlineAndNotify(booking, activity) {
+        try {
+            // Update booking status and set payment deadline
+            const { error: updateError } = await window.supabaseClient
+                .from('booking_requests')
+                .update({
+                    status: 'minimum_reached',
+                    payment_deadline: new Date(Date.now() + 48*60*60*1000).toISOString()
+                })
+                .eq('id', booking.id);
+
+            if (updateError) throw updateError;
+
+            // Send payment required email immediately
+            await this.sendPaymentRequiredEmail(booking, activity);
+
+            // Log email
+            await this.logEmail(booking.id, null, 'payment_required', this.currentUser.email);
+
+        } catch (error) {
+            console.error('❌ Failed to set payment deadline:', error);
+        }
+    }
+
+    async sendRecruitmentEmail(booking, activity) {
         try {
             if (!this.currentUser || !this.currentUser.email) {
-                console.log('No user email available for booking confirmation');
+                console.log('No user email available for recruitment email');
                 return;
             }
 
+            const shareUrl = `${window.location.origin}${window.location.pathname}?booking=${booking.id}`;
+            const participantsNeeded = (activity.min_participants || 5) - booking.participants_requested;
+
             const emailData = {
                 to: this.currentUser.email,
-                subject: `Booking Confirmed: ${activity.title}`,
+                subject: `Booking Created - Help us reach ${activity.min_participants || 5} participants: ${activity.title}`,
                 html: `
-                    <h2>🎉 Your booking request has been created!</h2>
+                    <h2>📅 Your booking request has been created!</h2>
                     <p>Hi ${this.currentUser.name || 'there'},</p>
 
                     <p>You've successfully requested a session for <strong>${activity.title}</strong>.</p>
@@ -853,26 +880,40 @@ class GuidalApp {
                         <p><strong>Activity:</strong> ${activity.title}</p>
                         <p><strong>Requested Date:</strong> ${new Date(booking.requested_date).toLocaleDateString()}</p>
                         <p><strong>Time:</strong> ${new Date(booking.requested_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                        <p><strong>Participants:</strong> ${booking.participants_requested}</p>
+                        <p><strong>Your participants:</strong> ${booking.participants_requested}</p>
+                        <p><strong>Still needed:</strong> ${participantsNeeded} more participants</p>
                         <p><strong>Booking ID:</strong> ${booking.id.substring(0, 8)}</p>
                     </div>
 
-                    <h3>🤝 Help Us Reach the Minimum!</h3>
-                    <p>We need at least ${booking.min_participants_needed || 5} participants to make this session happen. Share this link with friends and colleagues:</p>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #ffc107;">
+                        <h3>🤝 Help Us Reach the Minimum!</h3>
+                        <p>We need <strong>${participantsNeeded} more participants</strong> to make this session happen.</p>
+                        <p><strong>Share this link</strong> with friends, family, and colleagues:</p>
+                    </div>
 
-                    <div style="background: #e7f3ff; padding: 10px; border-radius: 4px; margin: 10px 0;">
-                        <a href="${window.location.origin}${window.location.pathname}?booking=${booking.id}"
-                           style="color: #007bff; text-decoration: none; font-weight: bold;">
-                            ${window.location.origin}${window.location.pathname}?booking=${booking.id}
+                    <div style="background: #e7f3ff; padding: 15px; border-radius: 4px; margin: 15px 0; text-align: center;">
+                        <p style="margin: 0 0 10px 0; font-weight: bold;">Invitation Link:</p>
+                        <a href="${shareUrl}" style="color: #007bff; text-decoration: none; font-weight: bold; word-break: break-all;">
+                            ${shareUrl}
                         </a>
+                        <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">
+                            Copy and paste this link to invite others!
+                        </p>
                     </div>
 
                     <h3>📋 What happens next?</h3>
                     <ul>
-                        <li>When we reach the minimum participants, everyone will be notified</li>
-                        <li>You'll have 48 hours to complete payment</li>
-                        <li>Once everyone pays, your activity is confirmed!</li>
+                        <li><strong>Share the link</strong> - The more people you invite, the better!</li>
+                        <li><strong>When we reach ${activity.min_participants || 5} participants</strong> - Everyone gets notified</li>
+                        <li><strong>Payment time</strong> - You'll have 48 hours to complete payment</li>
+                        <li><strong>Session confirmed</strong> - Once everyone pays, your activity is booked!</li>
                     </ul>
+
+                    <div style="background: #d4edda; padding: 10px; border-radius: 4px; margin: 15px 0;">
+                        <p style="margin: 0; font-size: 14px;">
+                            💡 <strong>Tip:</strong> Share on WhatsApp, email to friends, or post in group chats to fill spots quickly!
+                        </p>
+                    </div>
 
                     <p>Questions? Reply to this email or contact us at info@alellagreentech.org</p>
 
@@ -881,66 +922,88 @@ class GuidalApp {
             };
 
             await this.sendEmail(emailData);
-            console.log('✅ Booking confirmation email sent');
+
+            // Log email
+            await this.logEmail(booking.id, null, 'recruitment', this.currentUser.email);
+
+            console.log('✅ Recruitment email sent');
 
         } catch (error) {
-            console.error('❌ Failed to send booking confirmation email:', error);
-            // Don't block the booking process if email fails
+            console.error('❌ Failed to send recruitment email:', error);
         }
     }
 
-    async sendParticipantJoinedEmail(booking, activity, newParticipant) {
+    async sendPaymentRequiredEmail(booking, activity) {
         try {
-            // Send to all existing participants
-            const { data: participants, error } = await window.supabaseClient
-                .from('booking_participants')
-                .select(`
-                    *,
-                    user:profiles!user_id(email, name)
-                `)
-                .eq('booking_request_id', booking.id);
-
-            if (error) throw error;
-
-            const uniqueEmails = [...new Set(participants.map(p => p.user.email).filter(email => email))];
-
-            for (const email of uniqueEmails) {
-                const emailData = {
-                    to: email,
-                    subject: `New Participant Joined: ${activity.title}`,
-                    html: `
-                        <h2>🎉 Someone joined your booking!</h2>
-
-                        <p>Great news! Another participant has joined your ${activity.title} session.</p>
-
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                            <p><strong>Current participants:</strong> ${booking.current_participants} / ${booking.min_participants_needed || 5}</p>
-                            <p><strong>Status:</strong> ${booking.current_participants >= (booking.min_participants_needed || 5)
-                                ? '✅ Ready to confirm!'
-                                : '⏳ Still need ' + ((booking.min_participants_needed || 5) - booking.current_participants) + ' more'}</p>
-                        </div>
-
-                        ${booking.current_participants >= (booking.min_participants_needed || 5)
-                            ? '<p><strong>🎯 Minimum reached!</strong> You\'ll receive payment instructions soon.</p>'
-                            : '<p>Keep sharing the link to reach the minimum faster!</p>'}
-
-                        <p>Thanks,<br>The GUIDAL Team</p>
-                    `
-                };
-
-                await this.sendEmail(emailData);
+            if (!this.currentUser || !this.currentUser.email) {
+                console.log('No user email available for payment email');
+                return;
             }
 
-            console.log('✅ Participant joined emails sent');
+            const paymentDeadline = new Date(Date.now() + 48*60*60*1000);
+            const pricePerPerson = activity.price_euros || 25;
+            const totalAmount = pricePerPerson * booking.participants_requested;
+
+            const emailData = {
+                to: this.currentUser.email,
+                subject: `🎉 Session Confirmed! Payment Required: ${activity.title}`,
+                html: `
+                    <h2>🎉 Congratulations! Your session is confirmed!</h2>
+                    <p>Hi ${this.currentUser.name || 'there'},</p>
+
+                    <p>Great news! We have enough participants for your <strong>${activity.title}</strong> session.</p>
+
+                    <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #28a745;">
+                        <h3>📅 Confirmed Session Details</h3>
+                        <p><strong>Activity:</strong> ${activity.title}</p>
+                        <p><strong>Date:</strong> ${new Date(booking.requested_date).toLocaleDateString()}</p>
+                        <p><strong>Time:</strong> ${new Date(booking.requested_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                        <p><strong>Total participants:</strong> ${booking.current_participants || booking.participants_requested}</p>
+                        <p><strong>Your participants:</strong> ${booking.participants_requested}</p>
+                    </div>
+
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #ffc107;">
+                        <h3>💳 Payment Required</h3>
+                        <p><strong>Amount due:</strong> €${totalAmount} (€${pricePerPerson} × ${booking.participants_requested} participants)</p>
+                        <p><strong>Payment deadline:</strong> ${paymentDeadline.toLocaleDateString()} at ${paymentDeadline.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                        <p><strong>Time remaining:</strong> 48 hours</p>
+                    </div>
+
+                    <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h3>💳 How to Pay</h3>
+                        <p>Payment instructions and secure payment link will be sent in a separate email within the next few minutes.</p>
+                        <p><strong>Or contact us directly:</strong></p>
+                        <ul>
+                            <li>Email: payments@alellagreentech.org</li>
+                            <li>Phone: [Phone number]</li>
+                            <li>Reference: Booking #${booking.id.substring(0, 8)}</li>
+                        </ul>
+                    </div>
+
+                    <h3>⚠️ Important Notes</h3>
+                    <ul>
+                        <li><strong>48-hour deadline:</strong> Payment must be completed within 48 hours to secure your spots</li>
+                        <li><strong>All participants must pay:</strong> The session is only confirmed once everyone has paid</li>
+                        <li><strong>Automatic cancellation:</strong> If not all participants pay by the deadline, the session will be cancelled</li>
+                    </ul>
+
+                    <p>Questions about payment? Reply to this email or contact us at info@alellagreentech.org</p>
+
+                    <p>Thanks,<br>The GUIDAL Team</p>
+                `
+            };
+
+            await this.sendEmail(emailData);
+            console.log('✅ Payment required email sent');
 
         } catch (error) {
-            console.error('❌ Failed to send participant joined emails:', error);
+            console.error('❌ Failed to send payment required email:', error);
         }
     }
 
-    async sendMinimumReachedEmail(booking, activity) {
+    async sendMinimumReachedNotification(booking, activity) {
         try {
-            // Get all participants
+            // Get all participants for this booking
             const { data: participants, error } = await window.supabaseClient
                 .from('booking_participants')
                 .select(`
@@ -951,30 +1014,36 @@ class GuidalApp {
 
             if (error) throw error;
 
+            // Send email to each unique participant
             const uniqueEmails = [...new Set(participants.map(p => p.user.email).filter(email => email))];
 
             for (const email of uniqueEmails) {
+                const participant = participants.find(p => p.user.email === email);
+                const pricePerPerson = activity.price_euros || 25;
+                const totalAmount = pricePerPerson * participant.participants_count;
+
                 const emailData = {
                     to: email,
                     subject: `🎉 Minimum Reached! Payment Required: ${activity.title}`,
                     html: `
-                        <h2>🎉 Great news! Your session is ready to confirm!</h2>
+                        <h2>🎉 Great news! Your session has reached minimum participants!</h2>
+                        <p>Hi ${participant.user.name || 'there'},</p>
 
-                        <p>We've reached the minimum participants for your ${activity.title} session!</p>
+                        <p>Excellent! We now have enough participants for the <strong>${activity.title}</strong> session you joined.</p>
 
                         <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #28a745;">
                             <h3>📅 Session Details</h3>
                             <p><strong>Activity:</strong> ${activity.title}</p>
                             <p><strong>Date:</strong> ${new Date(booking.requested_date).toLocaleDateString()}</p>
                             <p><strong>Time:</strong> ${new Date(booking.requested_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                            <p><strong>Final participant count:</strong> ${booking.current_participants}</p>
+                            <p><strong>Total participants:</strong> ${booking.current_participants}</p>
+                            <p><strong>Your participants:</strong> ${participant.participants_count}</p>
                         </div>
 
-                        <h3>💳 Payment Required</h3>
-                        <p>You have <strong>48 hours</strong> to complete your payment to secure your spot.</p>
-
-                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                            <p><strong>Amount:</strong> €${activity.price || 25} per person</p>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #ffc107;">
+                            <h3>💳 Payment Required</h3>
+                            <p>You have <strong>48 hours</strong> to complete your payment to secure your spot.</p>
+                            <p><strong>Amount due:</strong> €${totalAmount} (€${pricePerPerson} × ${participant.participants_count} participants)</p>
                             <p><strong>Payment deadline:</strong> ${new Date(Date.now() + 48*60*60*1000).toLocaleString()}</p>
                         </div>
 
@@ -987,12 +1056,111 @@ class GuidalApp {
                 };
 
                 await this.sendEmail(emailData);
+
+                // Log email for this participant
+                await this.logEmail(booking.id, participant.id, 'minimum_reached', email);
             }
 
-            console.log('✅ Minimum reached emails sent');
+            console.log('✅ Minimum reached emails sent to all participants');
 
         } catch (error) {
             console.error('❌ Failed to send minimum reached emails:', error);
+        }
+    }
+
+    async logEmail(bookingId, participantId, emailType, recipientEmail, emailData = {}) {
+        try {
+            await window.supabaseClient
+                .from('booking_email_log')
+                .insert({
+                    booking_request_id: bookingId,
+                    participant_id: participantId,
+                    email_type: emailType,
+                    recipient_email: recipientEmail,
+                    email_data: emailData
+                });
+
+            console.log(`📧 Email logged: ${emailType} to ${recipientEmail}`);
+        } catch (error) {
+            console.error('❌ Failed to log email:', error);
+            // Don't throw - email logging failure shouldn't break the flow
+        }
+    }
+
+    updateBookingStatusUI(booking, uiStatus, activity) {
+        try {
+            const statusBadge = document.getElementById('booking-status-badge');
+            const paymentStatusItem = document.getElementById('payment-status-item');
+            const paymentDeadlineItem = document.getElementById('payment-deadline-item');
+            const paymentActionBtn = document.getElementById('payment-action-btn');
+            const shareSection = document.querySelector('.share-section');
+
+            if (!statusBadge) return;
+
+            switch (uiStatus) {
+                case 'recruiting':
+                    statusBadge.textContent = 'Waiting for more participants';
+                    statusBadge.className = 'status-badge status-pending';
+                    paymentStatusItem.style.display = 'none';
+                    paymentDeadlineItem.style.display = 'none';
+                    paymentActionBtn.style.display = 'none';
+                    if (shareSection) shareSection.style.display = 'block';
+                    break;
+
+                case 'payment_required':
+                    statusBadge.textContent = 'Payment Required';
+                    statusBadge.className = 'status-badge status-payment-required';
+
+                    // Show payment status
+                    paymentStatusItem.style.display = 'block';
+                    document.getElementById('payment-status').textContent = 'Pending Payment';
+
+                    // Show payment deadline
+                    paymentDeadlineItem.style.display = 'block';
+                    const deadline = new Date(Date.now() + 48*60*60*1000);
+                    document.getElementById('payment-deadline').textContent =
+                        deadline.toLocaleDateString() + ' at ' + deadline.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    // Show payment button
+                    paymentActionBtn.style.display = 'inline-block';
+
+                    // Hide share section since minimum is reached
+                    if (shareSection) shareSection.style.display = 'none';
+
+                    // Update the success message
+                    const successMessage = document.querySelector('.success-message h3');
+                    if (successMessage) {
+                        successMessage.textContent = 'Session Ready! Payment Required';
+                    }
+
+                    // Update what happens next
+                    const nextStepsList = document.querySelector('.next-steps ul');
+                    if (nextStepsList) {
+                        nextStepsList.innerHTML = `
+                            <li>Complete your payment within <strong>48 hours</strong> to secure your spot</li>
+                            <li>Once all participants pay, your session will be confirmed</li>
+                            <li>You'll receive a final confirmation email with all details</li>
+                        `;
+                    }
+                    break;
+
+                case 'confirmed':
+                    statusBadge.textContent = 'Session Confirmed';
+                    statusBadge.className = 'status-badge status-confirmed';
+
+                    paymentStatusItem.style.display = 'block';
+                    document.getElementById('payment-status').textContent = 'Payment Complete';
+
+                    paymentDeadlineItem.style.display = 'none';
+                    paymentActionBtn.style.display = 'none';
+                    if (shareSection) shareSection.style.display = 'none';
+                    break;
+            }
+
+            console.log(`✅ UI updated for status: ${uiStatus}`);
+
+        } catch (error) {
+            console.error('❌ Failed to update booking status UI:', error);
         }
     }
 
@@ -1688,8 +1856,22 @@ async function createNewBooking() {
         const shareUrl = `${window.location.origin}${window.location.pathname}?booking=${data.id}`;
         document.getElementById('share-link').value = shareUrl;
 
-        // Send booking confirmation email
-        await this.sendBookingConfirmationEmail(data, window.currentBookingActivity);
+        // Determine if minimum participants reached immediately
+        const meetsMinimum = participants >= (activity.min_participants || 5);
+
+        if (meetsMinimum) {
+            // Set payment deadline and send payment email
+            await this.setPaymentDeadlineAndNotify(data, window.currentBookingActivity);
+
+            // Update UI for payment required
+            this.updateBookingStatusUI(data, 'payment_required', activity);
+        } else {
+            // Send recruitment email with share link
+            await this.sendRecruitmentEmail(data, window.currentBookingActivity);
+
+            // Update UI for recruitment phase
+            this.updateBookingStatusUI(data, 'recruiting', activity);
+        }
 
         // Show success step
         showStep(2);
@@ -1780,12 +1962,13 @@ async function joinExistingBooking() {
             .single();
 
         if (!fetchError && updatedBooking) {
-            // Send participant joined email to all participants
-            await window.app.sendParticipantJoinedEmail(updatedBooking, updatedBooking.activity);
+            // Check if minimum just reached with this join
+            const minimumJustReached = await window.supabaseClient
+                .rpc('check_minimum_participants', { p_booking_id: window.selectedBookingId });
 
-            // Check if minimum reached and send milestone email
-            if (updatedBooking.current_participants >= (updatedBooking.min_participants_needed || 5)) {
-                await window.app.sendMinimumReachedEmail(updatedBooking, updatedBooking.activity);
+            if (minimumJustReached.data) {
+                // Minimum was just reached - send milestone emails to all participants
+                await window.app.sendMinimumReachedNotification(updatedBooking, updatedBooking.activity);
             }
         }
 
@@ -1898,6 +2081,49 @@ async function handleShareLink(bookingId) {
     }
 }
 
+function proceedToPayment() {
+    // Placeholder for payment processing
+    // In production, this would integrate with Stripe, PayPal, or other payment processor
+
+    if (!window.currentBookingActivity) {
+        alert('Booking information not found');
+        return;
+    }
+
+    const bookingId = document.getElementById('booking-reference').textContent;
+    const activity = window.currentBookingActivity;
+
+    // For now, show payment information
+    const paymentInfo = `
+Payment Information:
+
+Activity: ${activity.title}
+Booking ID: ${bookingId}
+Amount: €${activity.price_euros || 25} per person
+
+Payment Methods:
+- Bank Transfer
+- Credit/Debit Card
+- PayPal
+
+You will receive payment instructions via email shortly.
+
+Contact: payments@alellagreentech.org
+Phone: [Phone number]
+    `;
+
+    alert(paymentInfo);
+
+    // In production, this would:
+    // 1. Open payment processor (Stripe checkout, PayPal, etc.)
+    // 2. Handle payment success/failure
+    // 3. Update participant payment status in database
+    // 4. Send confirmation emails
+    // 5. Update UI to show payment complete status
+
+    console.log('🔄 Payment process initiated for booking:', bookingId);
+}
+
 // Make booking functions available globally
 window.closeBookingModal = closeBookingModal;
 window.showStep = showStep;
@@ -1907,6 +2133,7 @@ window.joinExistingBooking = joinExistingBooking;
 window.copyShareLink = copyShareLink;
 window.shareViaEmail = shareViaEmail;
 window.shareViaWhatsApp = shareViaWhatsApp;
+window.proceedToPayment = proceedToPayment;
 
 // Legacy functions for backward compatibility
 function initializeEventSystem() {
