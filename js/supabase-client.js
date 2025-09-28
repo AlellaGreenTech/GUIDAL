@@ -288,15 +288,17 @@ class GuidalDB {
     return data || []
   }
 
-  // Simplified method for testing - just query scheduled_visits directly
+  // Fixed method with proper filtering logic
   static async getActivities(filters = {}) {
     console.log('🔍 Getting activities with filters:', filters)
 
-    // For science-in-action, get activity templates
-    if (filters.type === 'science-stations') {
-      console.log('📋 Fetching activity templates for science-in-action')
+    let allResults = []
+
+    // Always include science-in-action templates for future activities (unless specifically filtering for something else)
+    if (!filters.type || filters.type === 'science-stations' || filters.time_filter !== 'past') {
+      console.log('📋 Fetching science-in-action templates')
       try {
-        const { data, error } = await supabase
+        const { data: scienceStations, error: scienceError } = await supabase
           .from('activities')
           .select(`
             *,
@@ -305,51 +307,103 @@ class GuidalDB {
           .eq('status', 'published')
           .eq('activity_type_id', (await supabase.from('activity_types').select('id').eq('slug', 'science-stations').single()).data?.id)
 
-        if (error) throw error
-        return data || []
+        if (!scienceError && scienceStations) {
+          // Only include if no specific type filter OR filtering for science-stations
+          if (!filters.type || filters.type === 'science-stations') {
+            allResults.push(...scienceStations)
+          }
+        }
       } catch (error) {
         console.error('❌ Error fetching science stations:', error)
-        return []
       }
     }
 
-    // For everything else, just query scheduled_visits directly
-    console.log('📅 Fetching scheduled visits directly')
-    try {
-      const { data, error } = await supabase
-        .from('scheduled_visits')
-        .select('*')
-        .order('scheduled_date', { ascending: true, nullsFirst: false })
+    // Get scheduled visits (workshops, events, school visits, etc.)
+    if (!filters.type || filters.type !== 'science-stations') {
+      console.log('📅 Fetching scheduled visits')
+      try {
+        let query = supabase
+          .from('scheduled_visits')
+          .select('*')
+          .order('scheduled_date', { ascending: true, nullsFirst: false })
 
-      if (error) throw error
+        // Apply visit type filtering based on activity type requested
+        if (filters.type) {
+          if (filters.type === 'workshops') {
+            query = query.eq('visit_type', 'individual_workshop')
+          } else if (filters.type === 'school-visits') {
+            query = query.eq('visit_type', 'school_group')
+          } else if (filters.type === 'events') {
+            query = query.eq('visit_type', 'public_event')
+          } else if (filters.type === 'lunches') {
+            query = query.eq('visit_type', 'special_lunch')
+          }
+        }
 
-      console.log('✅ Raw scheduled visits:', data?.length || 0)
+        const { data, error } = await query
 
-      // Transform to look like activities
-      const transformedVisits = (data || []).map(visit => ({
-        ...visit,
-        title: visit.title,
-        description: visit.description,
-        date_time: visit.scheduled_date,
-        duration_minutes: visit.duration_minutes,
-        max_participants: visit.max_participants,
-        current_participants: visit.current_participants,
-        activity_type: {
-          id: 'scheduled-visit',
-          name: visit.visit_type?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Workshop',
-          slug: visit.visit_type || 'workshops',
-          color: '#2196f3',
-          icon: visit.visit_type === 'school_group' ? '🏫' : '📅'
-        },
-        status: visit.status || 'confirmed'
-      }))
+        if (error) throw error
 
-      console.log('🔄 Transformed visits:', transformedVisits.length)
-      return transformedVisits
-    } catch (error) {
-      console.error('❌ Error fetching scheduled visits:', error)
-      return []
+        console.log('✅ Raw scheduled visits:', data?.length || 0)
+
+        // Transform to look like activities with correct activity types
+        const transformedVisits = (data || []).map(visit => {
+          let activityType = {
+            id: 'scheduled-visit',
+            name: 'Workshop',
+            slug: 'workshops',
+            color: '#ff9800',
+            icon: '🔧'
+          }
+
+          // Set correct activity type based on visit_type
+          if (visit.visit_type === 'school_group') {
+            activityType = {
+              id: 'school-visit',
+              name: 'School Visit',
+              slug: 'school-visits',
+              color: '#28a745',
+              icon: '🏫'
+            }
+          } else if (visit.visit_type === 'public_event') {
+            activityType = {
+              id: 'event',
+              name: 'Event',
+              slug: 'events',
+              color: '#17a2b8',
+              icon: '🎉'
+            }
+          } else if (visit.visit_type === 'special_lunch') {
+            activityType = {
+              id: 'lunch',
+              name: 'Special Lunch',
+              slug: 'lunches',
+              color: '#6f42c1',
+              icon: '🍽️'
+            }
+          }
+
+          return {
+            ...visit,
+            title: visit.title,
+            description: visit.description,
+            date_time: visit.scheduled_date,
+            duration_minutes: visit.duration_minutes,
+            max_participants: visit.max_participants,
+            current_participants: visit.current_participants,
+            activity_type: activityType,
+            status: visit.status || 'confirmed'
+          }
+        })
+
+        allResults.push(...transformedVisits)
+      } catch (error) {
+        console.error('❌ Error fetching scheduled visits:', error)
+      }
     }
+
+    console.log('🔄 Total activities found:', allResults.length)
+    return allResults
   }
 
   // Legacy method support - can be removed later
