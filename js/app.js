@@ -696,17 +696,401 @@ class GuidalApp {
     }
 
     async handleScienceStationBooking(activityId, activityTitle) {
-        // Handle booking a science-in-action station
-        // This would typically open a form to schedule the station as part of a visit
-        console.log('Booking science station:', activityTitle)
+        console.log('Booking science station:', activityTitle, 'ID:', activityId)
 
         if (!this.currentUser) {
             this.showAuthModal(activityId, activityTitle)
             return
         }
 
-        // For now, show a message - this could open a scheduling modal
-        this.showNotification(`${activityTitle} can be included in school visits. Contact us to schedule!`, 'info')
+        // Load and show the booking modal
+        await this.loadBookingModal()
+        this.openBookingModal(activityId, activityTitle)
+    }
+
+    async loadBookingModal() {
+        // Load the booking modal component if not already loaded
+        const container = document.getElementById('booking-modal-container')
+        if (container && !container.innerHTML.trim()) {
+            try {
+                const response = await fetch('/components/booking-modal.html')
+                const html = await response.text()
+                container.innerHTML = html
+                console.log('📋 Booking modal loaded successfully')
+            } catch (error) {
+                console.error('❌ Failed to load booking modal:', error)
+                this.showNotification('Failed to load booking form', 'error')
+            }
+        }
+    }
+
+    openBookingModal(activityId, activityTitle) {
+        const modal = document.getElementById('booking-modal')
+        const modalTitle = document.getElementById('booking-modal-title')
+
+        if (!modal) {
+            console.error('❌ Booking modal not found')
+            return
+        }
+
+        // Set the activity details
+        window.currentBookingActivity = { id: activityId, title: activityTitle }
+
+        // Update modal title
+        if (modalTitle) {
+            modalTitle.textContent = `Book: ${activityTitle}`
+        }
+
+        // Reset to first step
+        this.showBookingStep(1)
+
+        // Load activity details and existing visits
+        this.loadActivityBookingData(activityId)
+
+        // Apply date restrictions
+        this.applyBookingRestrictions()
+
+        // Show modal
+        modal.style.display = 'flex'
+        document.body.style.overflow = 'hidden'
+
+        console.log('📋 Booking modal opened for:', activityTitle)
+    }
+
+    async loadActivityBookingData(activityId) {
+        try {
+            // Get activity details
+            const { data: activity, error: activityError } = await window.supabaseClient
+                .from('activities')
+                .select(`
+                    *,
+                    activity_type:activity_types!activity_type_id(*)
+                `)
+                .eq('id', activityId)
+                .single()
+
+            if (activityError) throw activityError
+
+            // Update activity info in modal
+            document.getElementById('min-participants').textContent = activity.min_participants || 5
+            document.getElementById('price-per-person').textContent = activity.price_euros || 25
+            document.getElementById('activity-duration').textContent = activity.duration_minutes
+                ? `${Math.round(activity.duration_minutes / 60)} hours`
+                : '2 hours'
+
+            // Load existing bookings for this activity
+            const { data: existingBookings, error: bookingsError } = await window.supabaseClient
+                .from('booking_requests')
+                .select('*')
+                .eq('activity_id', activityId)
+                .eq('status', 'pending')
+                .gte('requested_date', new Date().toISOString())
+
+            if (bookingsError) throw bookingsError
+
+            // Show existing visits section if there are any
+            const existingVisitsSection = document.getElementById('existing-visits-section')
+            const existingVisitsList = document.getElementById('existing-visits-list')
+
+            if (existingBookings && existingBookings.length > 0) {
+                existingVisitsSection.style.display = 'block'
+                existingVisitsList.innerHTML = existingBookings.map(booking => `
+                    <div class="existing-visit-card" onclick="selectExistingBooking('${booking.id}')">
+                        <div class="visit-date">
+                            <strong>${new Date(booking.requested_date).toLocaleDateString()}</strong>
+                            at ${new Date(booking.requested_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </div>
+                        <div class="visit-participants">
+                            ${booking.current_participants} / ${booking.min_participants_needed} participants
+                        </div>
+                        <div class="visit-status">
+                            ${booking.current_participants >= booking.min_participants_needed
+                                ? '✅ Ready to confirm'
+                                : '⏳ Needs more participants'}
+                        </div>
+                    </div>
+                `).join('')
+            } else {
+                existingVisitsSection.style.display = 'none'
+            }
+
+        } catch (error) {
+            console.error('❌ Failed to load booking data:', error)
+            this.showNotification('Failed to load booking information', 'error')
+        }
+    }
+
+    showBookingStep(stepNumber) {
+        // Hide all steps
+        for (let i = 1; i <= 3; i++) {
+            const step = document.getElementById(`booking-step-${i}`)
+            if (step) step.style.display = 'none'
+        }
+
+        // Show requested step
+        const targetStep = document.getElementById(`booking-step-${stepNumber}`)
+        if (targetStep) targetStep.style.display = 'block'
+    }
+
+    async sendBookingConfirmationEmail(booking, activity) {
+        try {
+            if (!this.currentUser || !this.currentUser.email) {
+                console.log('No user email available for booking confirmation');
+                return;
+            }
+
+            const emailData = {
+                to: this.currentUser.email,
+                subject: `Booking Confirmed: ${activity.title}`,
+                html: `
+                    <h2>🎉 Your booking request has been created!</h2>
+                    <p>Hi ${this.currentUser.name || 'there'},</p>
+
+                    <p>You've successfully requested a session for <strong>${activity.title}</strong>.</p>
+
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h3>📅 Booking Details</h3>
+                        <p><strong>Activity:</strong> ${activity.title}</p>
+                        <p><strong>Requested Date:</strong> ${new Date(booking.requested_date).toLocaleDateString()}</p>
+                        <p><strong>Time:</strong> ${new Date(booking.requested_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                        <p><strong>Participants:</strong> ${booking.participants_requested}</p>
+                        <p><strong>Booking ID:</strong> ${booking.id.substring(0, 8)}</p>
+                    </div>
+
+                    <h3>🤝 Help Us Reach the Minimum!</h3>
+                    <p>We need at least ${booking.min_participants_needed || 5} participants to make this session happen. Share this link with friends and colleagues:</p>
+
+                    <div style="background: #e7f3ff; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                        <a href="${window.location.origin}${window.location.pathname}?booking=${booking.id}"
+                           style="color: #007bff; text-decoration: none; font-weight: bold;">
+                            ${window.location.origin}${window.location.pathname}?booking=${booking.id}
+                        </a>
+                    </div>
+
+                    <h3>📋 What happens next?</h3>
+                    <ul>
+                        <li>When we reach the minimum participants, everyone will be notified</li>
+                        <li>You'll have 48 hours to complete payment</li>
+                        <li>Once everyone pays, your activity is confirmed!</li>
+                    </ul>
+
+                    <p>Questions? Reply to this email or contact us at info@alellagreentech.org</p>
+
+                    <p>Thanks,<br>The GUIDAL Team</p>
+                `
+            };
+
+            await this.sendEmail(emailData);
+            console.log('✅ Booking confirmation email sent');
+
+        } catch (error) {
+            console.error('❌ Failed to send booking confirmation email:', error);
+            // Don't block the booking process if email fails
+        }
+    }
+
+    async sendParticipantJoinedEmail(booking, activity, newParticipant) {
+        try {
+            // Send to all existing participants
+            const { data: participants, error } = await window.supabaseClient
+                .from('booking_participants')
+                .select(`
+                    *,
+                    user:profiles!user_id(email, name)
+                `)
+                .eq('booking_request_id', booking.id);
+
+            if (error) throw error;
+
+            const uniqueEmails = [...new Set(participants.map(p => p.user.email).filter(email => email))];
+
+            for (const email of uniqueEmails) {
+                const emailData = {
+                    to: email,
+                    subject: `New Participant Joined: ${activity.title}`,
+                    html: `
+                        <h2>🎉 Someone joined your booking!</h2>
+
+                        <p>Great news! Another participant has joined your ${activity.title} session.</p>
+
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <p><strong>Current participants:</strong> ${booking.current_participants} / ${booking.min_participants_needed || 5}</p>
+                            <p><strong>Status:</strong> ${booking.current_participants >= (booking.min_participants_needed || 5)
+                                ? '✅ Ready to confirm!'
+                                : '⏳ Still need ' + ((booking.min_participants_needed || 5) - booking.current_participants) + ' more'}</p>
+                        </div>
+
+                        ${booking.current_participants >= (booking.min_participants_needed || 5)
+                            ? '<p><strong>🎯 Minimum reached!</strong> You\'ll receive payment instructions soon.</p>'
+                            : '<p>Keep sharing the link to reach the minimum faster!</p>'}
+
+                        <p>Thanks,<br>The GUIDAL Team</p>
+                    `
+                };
+
+                await this.sendEmail(emailData);
+            }
+
+            console.log('✅ Participant joined emails sent');
+
+        } catch (error) {
+            console.error('❌ Failed to send participant joined emails:', error);
+        }
+    }
+
+    async sendMinimumReachedEmail(booking, activity) {
+        try {
+            // Get all participants
+            const { data: participants, error } = await window.supabaseClient
+                .from('booking_participants')
+                .select(`
+                    *,
+                    user:profiles!user_id(email, name)
+                `)
+                .eq('booking_request_id', booking.id);
+
+            if (error) throw error;
+
+            const uniqueEmails = [...new Set(participants.map(p => p.user.email).filter(email => email))];
+
+            for (const email of uniqueEmails) {
+                const emailData = {
+                    to: email,
+                    subject: `🎉 Minimum Reached! Payment Required: ${activity.title}`,
+                    html: `
+                        <h2>🎉 Great news! Your session is ready to confirm!</h2>
+
+                        <p>We've reached the minimum participants for your ${activity.title} session!</p>
+
+                        <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #28a745;">
+                            <h3>📅 Session Details</h3>
+                            <p><strong>Activity:</strong> ${activity.title}</p>
+                            <p><strong>Date:</strong> ${new Date(booking.requested_date).toLocaleDateString()}</p>
+                            <p><strong>Time:</strong> ${new Date(booking.requested_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                            <p><strong>Final participant count:</strong> ${booking.current_participants}</p>
+                        </div>
+
+                        <h3>💳 Payment Required</h3>
+                        <p>You have <strong>48 hours</strong> to complete your payment to secure your spot.</p>
+
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <p><strong>Amount:</strong> €${activity.price || 25} per person</p>
+                            <p><strong>Payment deadline:</strong> ${new Date(Date.now() + 48*60*60*1000).toLocaleString()}</p>
+                        </div>
+
+                        <p><strong>Payment instructions will be sent in a separate email shortly.</strong></p>
+
+                        <p>Once all participants complete payment, your session will be officially confirmed!</p>
+
+                        <p>Thanks,<br>The GUIDAL Team</p>
+                    `
+                };
+
+                await this.sendEmail(emailData);
+            }
+
+            console.log('✅ Minimum reached emails sent');
+
+        } catch (error) {
+            console.error('❌ Failed to send minimum reached emails:', error);
+        }
+    }
+
+    async sendEmail(emailData) {
+        // Simple email service integration
+        // In production, this would use a service like Resend, SendGrid, or EmailJS
+
+        try {
+            // For now, we'll use EmailJS for client-side email sending
+            // You'll need to configure EmailJS with your service
+
+            console.log('📧 Email would be sent:', {
+                to: emailData.to,
+                subject: emailData.subject,
+                preview: emailData.html.substring(0, 100) + '...'
+            });
+
+            // Placeholder for actual email service integration
+            // await emailjs.send('service_id', 'template_id', emailData);
+
+            // For development, show notification instead
+            this.showNotification(`Email sent: ${emailData.subject}`, 'success');
+
+        } catch (error) {
+            console.error('❌ Email service error:', error);
+            throw error;
+        }
+    }
+
+    applyBookingRestrictions() {
+        // Apply date and time restrictions from admin configuration
+        const dateInput = document.getElementById('booking-date')
+        const timeSelect = document.getElementById('booking-time')
+        const restrictionsDiv = document.getElementById('date-restrictions')
+
+        if (!dateInput || !timeSelect) return
+
+        // Get restrictions from admin config if available
+        const restrictions = window.getBookingRestrictions ? window.getBookingRestrictions() : null
+
+        if (restrictions) {
+            // Set min and max dates
+            dateInput.min = restrictions.minDate
+            dateInput.max = restrictions.maxDate
+
+            // Update time options from admin config
+            if (window.bookingConfigManager) {
+                window.bookingConfigManager.updateBookingModalTimeOptions()
+            }
+
+            // Add date validation
+            dateInput.addEventListener('change', (e) => {
+                const selectedDate = e.target.value
+                if (window.isDateBlocked && window.isDateBlocked(selectedDate)) {
+                    alert('This date is not available for booking. Please select another date.')
+                    e.target.value = ''
+                    return
+                }
+
+                // Check day of week restrictions
+                const dateObj = new Date(selectedDate)
+                const dayOfWeek = dateObj.getDay()
+                if (restrictions.blockedDays.includes(dayOfWeek)) {
+                    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                    alert(`${dayNames[dayOfWeek]}s are not available for booking. Please select another date.`)
+                    e.target.value = ''
+                }
+            })
+
+            // Show restrictions info
+            let restrictionsText = []
+            if (restrictions.blockedDays.length > 0) {
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                const blockedDayNames = restrictions.blockedDays.map(d => dayNames[d])
+                restrictionsText.push(`Not available: ${blockedDayNames.join(', ')}`)
+            }
+
+            if (restrictions.blockedRanges.length > 0) {
+                restrictionsText.push(`${restrictions.blockedRanges.length} blocked date range(s)`)
+            }
+
+            if (restrictionsText.length > 0) {
+                restrictionsDiv.innerHTML = `<small>📅 ${restrictionsText.join(' • ')}</small>`
+            }
+        } else {
+            // Default restrictions if no admin config
+            const today = new Date()
+            const minDate = new Date(today)
+            minDate.setDate(today.getDate() + 7) // 7 days advance booking
+
+            const maxDate = new Date(today)
+            maxDate.setDate(today.getDate() + 365) // 1 year max
+
+            dateInput.min = minDate.toISOString().split('T')[0]
+            dateInput.max = maxDate.toISOString().split('T')[0]
+
+            restrictionsDiv.innerHTML = '<small>📅 Minimum 7 days advance booking required</small>'
+        }
     }
 
     async handleActivityRegistration(activityId, activityTitle) {
@@ -925,6 +1309,15 @@ class GuidalApp {
                         this.pendingRegistration.activityTitle
                     );
                     this.pendingRegistration = null;
+                }
+
+                // If there was a pending booking from share link, handle it
+                const pendingBookingId = sessionStorage.getItem('pendingBookingId');
+                if (pendingBookingId) {
+                    sessionStorage.removeItem('pendingBookingId');
+                    setTimeout(() => {
+                        handleShareLink(pendingBookingId);
+                    }, 1000); // Small delay to ensure UI is ready
                 }
             } else if (event === 'SIGNED_OUT') {
                 this.currentUser = null;
@@ -1201,6 +1594,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the main application
     window.app = new GuidalApp();
+
+    // Check for share link in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookingId = urlParams.get('booking');
+    if (bookingId) {
+        console.log('📋 Detected share link for booking:', bookingId);
+        setTimeout(() => {
+            handleShareLink(bookingId);
+        }, 2000); // Wait for app to fully initialize
+    }
 });
 
 // Global function for onclick handlers (ensures it's available immediately)
@@ -1225,6 +1628,285 @@ function filterActivitiesByTime(timeType) {
 
 // Make it available on window for the HTML onclick handlers
 window.filterActivitiesByTime = filterActivitiesByTime;
+
+// Global booking modal functions
+function closeBookingModal() {
+    const modal = document.getElementById('booking-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function showStep(stepNumber) {
+    if (window.app && window.app.showBookingStep) {
+        window.app.showBookingStep(stepNumber);
+    }
+}
+
+async function createNewBooking() {
+    const date = document.getElementById('booking-date').value;
+    const time = document.getElementById('booking-time').value;
+    const participants = document.getElementById('participants-count').value;
+
+    if (!date || !time) {
+        alert('Please select both date and time');
+        return;
+    }
+
+    if (!window.currentBookingActivity) {
+        console.error('No current booking activity');
+        return;
+    }
+
+    try {
+        // Create datetime string
+        const requestedDate = new Date(`${date}T${time}:00`);
+
+        // Create booking request
+        const { data, error } = await window.supabaseClient
+            .from('booking_requests')
+            .insert({
+                activity_id: window.currentBookingActivity.id,
+                requested_date: requestedDate.toISOString(),
+                participants_requested: parseInt(participants),
+                current_participants: parseInt(participants),
+                status: 'pending'
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        // Update modal with booking details
+        document.getElementById('selected-date-display').textContent =
+            requestedDate.toLocaleDateString() + ' at ' + requestedDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('current-count').textContent = participants;
+        document.getElementById('booking-reference').textContent = data.id.substring(0, 8);
+
+        // Generate share link
+        const shareUrl = `${window.location.origin}${window.location.pathname}?booking=${data.id}`;
+        document.getElementById('share-link').value = shareUrl;
+
+        // Send booking confirmation email
+        await this.sendBookingConfirmationEmail(data, window.currentBookingActivity);
+
+        // Show success step
+        showStep(2);
+
+    } catch (error) {
+        console.error('❌ Failed to create booking:', error);
+        alert('Failed to create booking: ' + error.message);
+    }
+}
+
+function selectExistingBooking(bookingId) {
+    window.selectedBookingId = bookingId;
+    showStep(3);
+
+    // Load booking details for step 3
+    loadJoinBookingDetails(bookingId);
+}
+
+async function loadJoinBookingDetails(bookingId) {
+    try {
+        const { data: booking, error } = await window.supabaseClient
+            .from('booking_requests')
+            .select(`
+                *,
+                activity:activities(title, description)
+            `)
+            .eq('id', bookingId)
+            .single();
+
+        if (error) throw error;
+
+        const detailsContainer = document.getElementById('join-booking-details');
+        detailsContainer.innerHTML = `
+            <div class="booking-details-card">
+                <h4>${booking.activity.title}</h4>
+                <p><strong>Date:</strong> ${new Date(booking.requested_date).toLocaleDateString()}</p>
+                <p><strong>Time:</strong> ${new Date(booking.requested_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                <p><strong>Current participants:</strong> ${booking.current_participants} / ${booking.min_participants_needed || 5}</p>
+                <p><strong>Status:</strong> ${booking.current_participants >= (booking.min_participants_needed || 5)
+                    ? '✅ Ready to confirm'
+                    : '⏳ Needs more participants'}</p>
+            </div>
+        `;
+
+    } catch (error) {
+        console.error('❌ Failed to load booking details:', error);
+        document.getElementById('join-booking-details').innerHTML = '<p>Failed to load booking details</p>';
+    }
+}
+
+async function joinExistingBooking() {
+    const participants = document.getElementById('join-participants-count').value;
+
+    if (!window.selectedBookingId) {
+        console.error('No booking selected');
+        return;
+    }
+
+    try {
+        // Add participant to existing booking
+        const { data, error } = await window.supabaseClient
+            .from('booking_participants')
+            .insert({
+                booking_request_id: window.selectedBookingId,
+                user_id: window.app.currentUser.id,
+                participants_count: parseInt(participants)
+            });
+
+        if (error) throw error;
+
+        // Update booking participant count
+        const { error: updateError } = await window.supabaseClient
+            .rpc('increment_booking_participants', {
+                booking_id: window.selectedBookingId,
+                participant_count: parseInt(participants)
+            });
+
+        if (updateError) throw updateError;
+
+        // Get updated booking info for email notifications
+        const { data: updatedBooking, error: fetchError } = await window.supabaseClient
+            .from('booking_requests')
+            .select(`
+                *,
+                activity:activities(*)
+            `)
+            .eq('id', window.selectedBookingId)
+            .single();
+
+        if (!fetchError && updatedBooking) {
+            // Send participant joined email to all participants
+            await window.app.sendParticipantJoinedEmail(updatedBooking, updatedBooking.activity);
+
+            // Check if minimum reached and send milestone email
+            if (updatedBooking.current_participants >= (updatedBooking.min_participants_needed || 5)) {
+                await window.app.sendMinimumReachedEmail(updatedBooking, updatedBooking.activity);
+            }
+        }
+
+        alert('Successfully joined the booking!');
+        closeBookingModal();
+
+    } catch (error) {
+        console.error('❌ Failed to join booking:', error);
+        alert('Failed to join booking: ' + error.message);
+    }
+}
+
+function copyShareLink() {
+    const shareLink = document.getElementById('share-link');
+    shareLink.select();
+    shareLink.setSelectionRange(0, 99999); // For mobile devices
+
+    try {
+        document.execCommand('copy');
+
+        // Show temporary feedback
+        const copyBtn = event.target;
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        copyBtn.style.background = '#28a745';
+
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.style.background = '#007bff';
+        }, 2000);
+
+    } catch (err) {
+        console.error('Failed to copy link:', err);
+        alert('Failed to copy link. Please copy manually.');
+    }
+}
+
+function shareViaEmail() {
+    const shareUrl = document.getElementById('share-link').value;
+    const subject = encodeURIComponent(`Join my activity booking - ${window.currentBookingActivity?.title || 'Activity'}`);
+    const body = encodeURIComponent(`Hi! I've requested a booking for "${window.currentBookingActivity?.title || 'an activity'}" and we need more participants to make it happen. Join me using this link: ${shareUrl}`);
+
+    window.open(`mailto:?subject=${subject}&body=${body}`);
+}
+
+function shareViaWhatsApp() {
+    const shareUrl = document.getElementById('share-link').value;
+    const message = encodeURIComponent(`Hi! I've requested a booking for "${window.currentBookingActivity?.title || 'an activity'}" and we need more participants to make it happen. Join me: ${shareUrl}`);
+
+    window.open(`https://wa.me/?text=${message}`);
+}
+
+async function handleShareLink(bookingId) {
+    try {
+        // Get booking details
+        const { data: booking, error } = await window.supabaseClient
+            .from('booking_requests')
+            .select(`
+                *,
+                activity:activities(*)
+            `)
+            .eq('id', bookingId)
+            .single();
+
+        if (error) throw error;
+
+        console.log('📋 Share link booking found:', booking);
+
+        // Check if user is logged in
+        if (!window.app.currentUser) {
+            // Store booking ID for after login
+            sessionStorage.setItem('pendingBookingId', bookingId);
+            window.app.showNotification('Please log in to join this booking', 'info');
+            // Redirect to login or show login modal
+            window.location.href = '/pages/auth/login.html';
+            return;
+        }
+
+        // Load booking modal and pre-populate with this booking
+        await window.app.loadBookingModal();
+
+        // Set current activity
+        window.currentBookingActivity = {
+            id: booking.activity.id,
+            title: booking.activity.title
+        };
+
+        // Set selected booking
+        window.selectedBookingId = bookingId;
+
+        // Open modal directly to join step
+        const modal = document.getElementById('booking-modal');
+        const modalTitle = document.getElementById('booking-modal-title');
+
+        if (modalTitle) {
+            modalTitle.textContent = `Join: ${booking.activity.title}`;
+        }
+
+        showStep(3);
+        await loadJoinBookingDetails(bookingId);
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        window.app.showNotification(`Ready to join "${booking.activity.title}"!`, 'success');
+
+    } catch (error) {
+        console.error('❌ Failed to handle share link:', error);
+        window.app.showNotification('Invalid or expired booking link', 'error');
+    }
+}
+
+// Make booking functions available globally
+window.closeBookingModal = closeBookingModal;
+window.showStep = showStep;
+window.createNewBooking = createNewBooking;
+window.selectExistingBooking = selectExistingBooking;
+window.joinExistingBooking = joinExistingBooking;
+window.copyShareLink = copyShareLink;
+window.shareViaEmail = shareViaEmail;
+window.shareViaWhatsApp = shareViaWhatsApp;
 
 // Legacy functions for backward compatibility
 function initializeEventSystem() {
