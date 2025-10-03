@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Halloween Events - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .container { max-width: 1000px; margin: 2rem auto; padding: 2rem; }
+        .status { padding: 1rem; margin: 1rem 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { background: #28a745; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; margin: 0.5rem; }
+        button:hover { background: #218838; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { border: 1px solid #ddd; padding: 0.75rem; text-align: left; }
+        th { background: #f8f9fa; }
+        pre { background: #f8f9fa; padding: 1rem; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Debug Halloween Events</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Check Database for Halloween Events</h2>
+
+        <button onclick="checkScheduledVisits()">Check scheduled_visits table</button>
+        <button onclick="checkActivitiesTable()">Check activities table</button>
+        <button onclick="testGetActivities()">Test getActivities() with events filter</button>
+
+        <div id="results"></div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        async function waitForSupabase() {
+            let attempts = 0;
+            while (!window.supabaseClient && attempts < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            if (!window.supabaseClient) {
+                throw new Error('Supabase client not available');
+            }
+            return window.supabaseClient;
+        }
+
+        async function checkScheduledVisits() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="info status">Checking scheduled_visits table...</div>';
+
+            try {
+                const supabase = await waitForSupabase();
+
+                const { data, error } = await supabase
+                    .from('scheduled_visits')
+                    .select('*')
+                    .eq('visit_type', 'public_event')
+                    .order('scheduled_date', { ascending: true });
+
+                if (error) throw error;
+
+                let html = `<h3>scheduled_visits table (visit_type = 'public_event')</h3>`;
+                html += `<p>Found ${data.length} events</p>`;
+
+                if (data.length > 0) {
+                    html += '<table><tr><th>ID</th><th>Title</th><th>Date</th><th>Visit Type</th><th>Status</th><th>URL</th></tr>';
+                    data.forEach(row => {
+                        html += `<tr>
+                            <td>${row.id}</td>
+                            <td>${row.title || row.school_name}</td>
+                            <td>${row.scheduled_date}</td>
+                            <td>${row.visit_type}</td>
+                            <td>${row.status}</td>
+                            <td>${row.url || 'N/A'}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    html += '<h4>Full data:</h4><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error status">Error: ${error.message}</div>`;
+                console.error(error);
+            }
+        }
+
+        async function checkActivitiesTable() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="info status">Checking activities table...</div>';
+
+            try {
+                const supabase = await waitForSupabase();
+
+                const { data, error } = await supabase
+                    .from('activities')
+                    .select('*')
+                    .ilike('title', '%halloween%');
+
+                if (error) throw error;
+
+                let html = `<h3>activities table (title contains 'halloween')</h3>`;
+                html += `<p>Found ${data.length} activities</p>`;
+
+                if (data.length > 0) {
+                    html += '<table><tr><th>ID</th><th>Title</th><th>Activity Type</th><th>Start Date</th><th>Status</th></tr>';
+                    data.forEach(row => {
+                        html += `<tr>
+                            <td>${row.id}</td>
+                            <td>${row.title}</td>
+                            <td>${row.activity_type}</td>
+                            <td>${row.start_date}</td>
+                            <td>${row.status}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    html += '<h4>Full data:</h4><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error status">Error: ${error.message}</div>`;
+                console.error(error);
+            }
+        }
+
+        async function testGetActivities() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="info status">Testing GuidalDB.getActivities()...</div>';
+
+            try {
+                if (!window.GuidalDB) {
+                    throw new Error('GuidalDB not available');
+                }
+
+                console.log('Calling GuidalDB.getActivities with events filter...');
+                const activities = await GuidalDB.getActivities({
+                    type: 'events',
+                    time_filter: 'upcoming'
+                });
+
+                let html = `<h3>GuidalDB.getActivities({ type: 'events', time_filter: 'upcoming' })</h3>`;
+                html += `<p>Returned ${activities.length} activities</p>`;
+
+                if (activities.length > 0) {
+                    html += '<table><tr><th>Title</th><th>Activity Type</th><th>Date</th><th>Status</th></tr>';
+                    activities.forEach(activity => {
+                        html += `<tr>
+                            <td>${activity.title}</td>
+                            <td>${activity.activity_type?.name || 'N/A'}</td>
+                            <td>${activity.date_time}</td>
+                            <td>${activity.status}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    html += '<h4>Full data:</h4><pre>' + JSON.stringify(activities, null, 2) + '</pre>';
+                } else {
+                    html += '<div class="error status">No activities returned! Check console for logs.</div>';
+                }
+
+                resultsDiv.innerHTML = html;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error status">Error: ${error.message}</div>`;
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
