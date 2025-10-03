@@ -129,7 +129,7 @@ class GuidalApp {
 
             // Add timeout to database call
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Database timeout')), 3000)
+                setTimeout(() => reject(new Error('Database timeout')), 10000)
             );
 
             // Use database with proper admin RLS policies
