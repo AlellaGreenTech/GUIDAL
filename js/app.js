@@ -610,6 +610,14 @@ class GuidalApp {
     }
 
     getGREENsInfo(activity) {
+        // Don't show GREENs for events (they use different pricing)
+        const activityType = activity.activity_type;
+        const activityTypeSlug = activityType?.slug || 'other';
+
+        if (activityTypeSlug === 'events' || activityTypeSlug === 'annual-events') {
+            return ''; // No GREENs display for events
+        }
+
         // Calculate GREENs based on duration: 1 GREEN per 30 minutes (no fractions)
         const durationMinutes = activity.duration_minutes || 0;
         const calculatedCost = durationMinutes > 0 ? Math.ceil(durationMinutes / 30) : 0;
