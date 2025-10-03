@@ -494,7 +494,7 @@ class GuidalApp {
                     ${dateDisplay}
                     ${this.getCompletedBadge(activity)}
                 </p>
-                <p class="activity-description">${activity.description}</p>
+                <p class="activity-description">${this.formatDescription(activity.description)}</p>
                 <div class="activity-details">
                     <span class="participants">${participantInfo}</span>
                     <span class="duration">${this.formatActivityDuration(activity)}</span>
@@ -509,6 +509,17 @@ class GuidalApp {
         `;
 
         return card;
+    }
+
+    formatDescription(description) {
+        if (!description) return '';
+
+        // Convert WhatsApp URLs to buttons
+        const whatsappRegex = /(https:\/\/chat\.whatsapp\.com\/[a-zA-Z0-9]+)/g;
+
+        return description.replace(whatsappRegex, (url) => {
+            return `<br><a href="${url}" target="_blank" style="display: inline-block; background: #25D366; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: bold; margin-top: 0.5rem;">💬 Join WhatsApp</a>`;
+        });
     }
 
     getActivityImage(activity) {
@@ -780,6 +791,11 @@ class GuidalApp {
                 return ''; // No button for completed activities - badge shows status
             } else if (!activityDate) {
                 return `<button class="btn btn-info" disabled>📅 Coming Soon</button>`;
+            }
+
+            // Special handling for SCARY PUMPKIN PATCH
+            if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
+                return `<a href="events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
         }
 
@@ -1609,23 +1625,78 @@ class GuidalApp {
     }
 
     updateUIForLoggedInUser() {
+        console.log('🔧 updateUIForLoggedInUser called');
+        console.log('👤 Current user:', this.currentUser);
+
         const loginBtn = document.querySelector('.login-btn');
+        console.log('🔘 Login button found:', loginBtn);
+
         if (loginBtn) {
             const userName = this.currentUser.profile?.full_name || this.currentUser.email || 'My Account';
             const firstName = userName.split(' ')[0]; // Just use first name for subtlety
+            console.log('👋 Setting user name to:', firstName);
+
             loginBtn.innerHTML = `
                 <span>${firstName}</span>
                 <div class="user-dropdown">
-                    <a href="pages/profile.html">Profile</a>
-                    <a href="#" onclick="app.logout()">Logout</a>
+                    <a href="pages/profile.html" onclick="event.stopPropagation();">Profile</a>
+                    <a href="#" onclick="event.stopPropagation(); app.logout(); return false;">Logout</a>
                 </div>
             `;
             loginBtn.classList.add('user-menu');
             loginBtn.href = '#'; // Prevent navigation, use dropdown instead
+
+            console.log('✅ Dropdown HTML added');
+
+            // Toggle dropdown on click
             loginBtn.onclick = function(e) {
-                e.preventDefault(); // Prevent default link behavior
+                console.log('🖱️ Login button clicked!');
+                e.preventDefault();
+                e.stopPropagation();
+
+                const dropdown = this.querySelector('.user-dropdown');
+                console.log('📋 Dropdown element:', dropdown);
+
+                const isVisible = dropdown.style.opacity === '1';
+                console.log('👁️ Dropdown visible?', isVisible);
+
+                // Close all other dropdowns first
+                document.querySelectorAll('.user-dropdown').forEach(d => {
+                    d.style.opacity = '0';
+                    d.style.visibility = 'hidden';
+                    d.style.transform = 'translateY(-10px)';
+                });
+
+                // Toggle this dropdown
+                if (!isVisible) {
+                    console.log('✅ Opening dropdown');
+                    dropdown.style.opacity = '1';
+                    dropdown.style.visibility = 'visible';
+                    dropdown.style.transform = 'translateY(0)';
+                    dropdown.style.display = 'block';
+                    dropdown.style.zIndex = '9999';
+                } else {
+                    console.log('❌ Closing dropdown');
+                    dropdown.style.display = 'none';
+                }
+
                 return false;
             };
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.user-menu')) {
+                    document.querySelectorAll('.user-dropdown').forEach(dropdown => {
+                        dropdown.style.opacity = '0';
+                        dropdown.style.visibility = 'hidden';
+                        dropdown.style.transform = 'translateY(-10px)';
+                    });
+                }
+            });
+
+            console.log('✅ Click handler attached to login button');
+        } else {
+            console.error('❌ Login button not found!');
         }
 
         // Update auth link in About section

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book SCARY PUMPKIN PATCH - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .checkout-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .checkout-header {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .item-label {
+            flex: 1;
+            font-weight: 500;
+        }
+        .item-price {
+            width: 80px;
+            text-align: right;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .item-input {
+            width: 80px;
+            padding: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        .item-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            margin-top: 1rem;
+            border-top: 3px solid #ff6b35;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b35;
+        }
+        .payment-button {
+            display: block;
+            width: 100%;
+            background: #0070ba;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 1.5rem;
+            transition: background 0.3s;
+        }
+        .payment-button:hover {
+            background: #005a94;
+        }
+        .info-box {
+            background: #fff5e6;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ff6b35;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .whatsapp-note {
+            background: #d1f2eb;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">SCARY PUMPKIN PATCH Checkout 🎃👻</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="checkout-container">
+            <div class="checkout-header">
+                <h2>🎃 Book Your Visit</h2>
+                <p>SCARY PUMPKIN PATCH</p>
+            </div>
+
+            <div class="info-box">
+                <strong>ℹ️ About SCARES:</strong> 1 SCARE = 1 EUR<br>
+                Use SCARES for pumpkins, food, drinks, and other items at the farm!
+            </div>
+
+            <div class="item-row">
+                <div class="item-label">
+                    👨 Adult Entrance Ticket
+                </div>
+                <div class="item-price">€20 each</div>
+                <input type="number" id="adults" class="item-input" min="0" value="0" oninput="calculateTotal()">
+            </div>
+
+            <div class="item-row">
+                <div class="item-label">
+                    👶 Child Entrance Ticket
+                </div>
+                <div class="item-price">€10 each</div>
+                <input type="number" id="children" class="item-input" min="0" value="0" oninput="calculateTotal()">
+            </div>
+
+            <div class="item-row">
+                <div class="item-label">
+                    🎃 SCARES<br>
+                    <small style="color: #666;">For pumpkins, food, etc.</small>
+                </div>
+                <div class="item-price">€1 each</div>
+                <input type="number" id="scares" class="item-input" min="0" value="0" oninput="calculateTotal()">
+            </div>
+
+            <div class="total-row">
+                <div>TOTAL</div>
+                <div id="total">€0</div>
+            </div>
+
+            <a href="https://www.paypal.com/ncp/payment/4T2B69VFPFHH8" target="_blank" class="payment-button" id="payButton">
+                💳 Pay with PayPal
+            </a>
+
+            <div class="whatsapp-note">
+                <strong>📅 Don't forget!</strong><br>
+                After payment, join our WhatsApp group to schedule your visit:<br>
+                <a href="https://chat.whatsapp.com/GYQmIVwu3fID0VcW4QmUM2" target="_blank" style="color: #25D366; font-weight: bold;">💬 Join WhatsApp Group</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Alella Green Tech Foundation. <a href="../index.html">Back to GUIDAL</a></p>
+        </div>
+    </footer>
+
+    <script>
+        function calculateTotal() {
+            const adults = parseInt(document.getElementById('adults').value) || 0;
+            const children = parseInt(document.getElementById('children').value) || 0;
+            const scares = parseInt(document.getElementById('scares').value) || 0;
+
+            const total = (adults * 20) + (children * 10) + (scares * 1);
+
+            document.getElementById('total').textContent = '€' + total;
+
+            // Update PayPal button href with amount (note: PayPal link might need amount parameter)
+            const payButton = document.getElementById('payButton');
+            // Keep the original PayPal link as provided
+            payButton.href = 'https://www.paypal.com/ncp/payment/4T2B69VFPFHH8';
+        }
+
+        // Initialize total on page load
+        calculateTotal();
+    </script>
+</body>
+</html>

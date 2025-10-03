@@ -12,7 +12,7 @@
         <div class="container">
             <p class="foundation-presents">The International Green Tech Foundation Presents</p>
             <h1>GUIDAL</h1>
-            <p class="subtitle">The Guide to All at <a href="https://alellagreentech.org" target="_blank" class="agt-link">Alella Green Tech</a></p>
+            <p class="subtitle">Your <span style="color: #28a745; font-weight: 600;">GUID</span>e to <span style="color: #28a745; font-weight: 600;">AL</span>l activities at <a href="https://alellagreentech.org" target="_blank" class="agt-link">Alella Green Tech</a></p>
         </div>
     </header>
     
@@ -39,68 +39,53 @@
         <!-- Mobile App-Style Cards -->
         <div class="mobile-cards">
 
-
-            <!-- About Card -->
-            <div class="mobile-card" id="about-card">
-                <div class="card-header" onclick="toggleCard('about')">
-                    <div class="card-icon">🌿</div>
-                    <div class="card-title">
-                        <h3>About this App</h3>
-                        <span class="card-subtitle">Your guide to our educational farm and R&D center</span>
-                    </div>
-                    <div class="card-chevron">›</div>
-                </div>
-                <div class="card-content" id="about-content">
-                    <div class="welcome-content">
-                        <div class="welcome-text" style="padding-top: 0.5rem;">
-                            <p style="margin-top: 0;">Use this web app to get access to sustainable technology demonstrations, hands-on learning experiences, and green innovation projects.</p>
-                            <p><a href="pages/auth/login.html" class="register-link" id="auth-link">Register to get started!</a></p>
-                            <div class="support-links">
-                                <a href="https://alellagreentech.com/donate/" target="_blank" class="support-link">
-                                    💝📱 Support/Follow Our Foundation
-                                </a>
-                                <a href="https://photos.app.goo.gl/FciKjvJQgpi2ZKvy6" target="_blank" class="gallery-link">
-                                    📸 Past Visits Gallery
-                                </a>
-                            </div>
-                        </div>
-                        <div class="welcome-image">
-                            <img src="images/landing-hero-2025.png" alt="Kids playing and exploring on green grass field at Alella Green Tech" class="hero-image">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Activities Card -->
+            <!-- Activities & Events Card -->
             <div class="mobile-card activities-card" id="activities" style="margin-top: 1rem;">
                 <div class="card-header" onclick="toggleCard('activities')">
                     <div class="card-icon">📅</div>
                     <div class="card-title">
-                        <h3>Activities</h3>
-                        <span class="card-subtitle">School visits, workshops & events</span>
+                        <h3>Activities & Events</h3>
+                        <span class="card-subtitle">School visits, workshops, events & more</span>
                     </div>
                     <div class="card-chevron">›</div>
                 </div>
 
-                <!-- Time Toggle and Search -->
+                <!-- Filters and Search -->
                 <div class="search-container" style="padding: 1rem; border-bottom: 1px solid #eee;">
-                    <div class="time-toggle-container" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; justify-content: center;">
-                        <button id="future-toggle" class="time-toggle-btn active" onclick="toggleTimeFilter('future')" style="flex: 1; padding: 0.5rem 1rem; border: 2px solid #28a745; background: #28a745; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
-                            📅 Future Activities
+                    <!-- Category Tabs (Horizontal) -->
+                    <div class="category-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; flex-wrap: wrap;">
+                        <button class="category-tab active" data-type="all" onclick="filterByType('all')" style="padding: 0.5rem 0.75rem; background: #f0f0f0; border: 2px solid #28a745; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
+                            All
                         </button>
-                        <button id="past-toggle" class="time-toggle-btn" onclick="toggleTimeFilter('past')" style="flex: 1; padding: 0.5rem 1rem; border: 2px solid #28a745; background: transparent; color: #28a745; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
-                            📚 Past Activities
+                        <button class="category-tab" data-type="school-visits" onclick="filterByType('school-visits')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
+                            🏫 Visits
+                        </button>
+                        <button class="category-tab" data-type="workshops" onclick="filterByType('workshops')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
+                            🔧 Workshops
+                        </button>
+                        <button class="category-tab" data-type="events" onclick="filterByType('events')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
+                            🎉 Events
+                        </button>
+                        <button class="category-tab" data-type="lunches" onclick="filterByType('lunches')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
+                            🍽️ Lunches
                         </button>
                     </div>
 
-                    <input type="text" id="activity-search" placeholder="Search activities..." class="search-input" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 0.5rem;">
+                    <!-- Time Filter and Search on same row -->
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <!-- Time Toggle (Compact) -->
+                        <div class="time-toggle-container" style="display: flex; gap: 0.5rem;">
+                            <button id="future-toggle" class="time-toggle-btn active" onclick="toggleTimeFilter('future')" style="padding: 0.5rem 0.75rem; border: 2px solid #28a745; background: #28a745; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease; white-space: nowrap;">
+                                📅 Upcoming
+                            </button>
+                            <button id="past-toggle" class="time-toggle-btn" onclick="toggleTimeFilter('past')" style="padding: 0.5rem 0.75rem; border: 2px solid #28a745; background: transparent; color: #28a745; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease; white-space: nowrap;">
+                                📚 Past
+                            </button>
+                        </div>
 
-                    <select id="activity-filter" class="filter-select" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
-                        <option value="all">All Types</option>
-                        <option value="school-visits">School Visits</option>
-                        <option value="workshops">Workshops</option>
-                        <option value="lunches">Special Lunches</option>
-                    </select>
+                        <!-- Search -->
+                        <input type="text" id="activity-search" placeholder="Search..." class="search-input" style="flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem;">
+                    </div>
                 </div>
 
                 <div class="card-content" id="activities-content">
@@ -342,6 +327,41 @@
                 if (window.filterActivitiesByTime) {
                     window.filterActivitiesByTime('past');
                 }
+            }
+        }
+
+        function filterByType(type) {
+            console.log('📂 Filtering by type:', type);
+
+            // Update active tab styling
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => {
+                if (tab.dataset.type === type) {
+                    tab.classList.add('active');
+                    tab.style.background = '#f0f0f0';
+                    tab.style.borderColor = '#28a745';
+                    tab.style.fontWeight = '600';
+                } else {
+                    tab.classList.remove('active');
+                    tab.style.background = 'white';
+                    tab.style.borderColor = '#ddd';
+                    tab.style.fontWeight = '500';
+                }
+            });
+
+            // Update the activity filter
+            const filterSelect = document.getElementById('activity-filter');
+            if (filterSelect) {
+                filterSelect.value = type;
+            }
+
+            // Reload activities with the filter
+            if (window.app && window.app.loadActivities) {
+                const filters = { time_filter: 'upcoming' };
+                if (type !== 'all') {
+                    filters.type = type;
+                }
+                window.app.loadActivities(filters);
             }
         }
 
