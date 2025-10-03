@@ -298,22 +298,32 @@ class GuidalDB {
     let allResults = []
 
     // Only include science-in-action templates for future activities (NOT for past)
+    // Skip this entirely if filtering for specific non-science-station types
     if (filters.time_filter === 'upcoming' && (!filters.type || filters.type === 'science-stations')) {
       console.log('📋 Fetching science-in-action templates')
       try {
-        const { data: scienceStations, error: scienceError } = await supabase
-          .from('activities')
-          .select(`
-            *,
-            activity_type:activity_types!activity_type_id(id, name, slug, color, icon)
-          `)
-          .eq('status', 'published')
-          .eq('activity_type_id', (await supabase.from('activity_types').select('id').eq('slug', 'science-stations').single()).data?.id)
+        // Get activity_type_id first (cached or quick lookup)
+        const { data: activityTypeData } = await supabase
+          .from('activity_types')
+          .select('id')
+          .eq('slug', 'science-stations')
+          .single()
 
-        if (!scienceError && scienceStations) {
-          // Only include if no specific type filter OR filtering for science-stations
-          if (!filters.type || filters.type === 'science-stations') {
-            allResults.push(...scienceStations)
+        if (activityTypeData?.id) {
+          const { data: scienceStations, error: scienceError } = await supabase
+            .from('activities')
+            .select(`
+              *,
+              activity_type:activity_types!activity_type_id(id, name, slug, color, icon)
+            `)
+            .eq('status', 'published')
+            .eq('activity_type_id', activityTypeData.id)
+
+          if (!scienceError && scienceStations) {
+            // Only include if no specific type filter OR filtering for science-stations
+            if (!filters.type || filters.type === 'science-stations') {
+              allResults.push(...scienceStations)
+            }
           }
         }
       } catch (error) {
@@ -688,7 +698,7 @@ class GuidalDB {
         options: {
           data: {
             full_name: userData.fullName,
-            user_type: userData.userType || 'student'
+            role: userData.userType || 'user'
           }
         }
       })
@@ -698,10 +708,9 @@ class GuidalDB {
       // 2. Create profile entry
       if (authData.user) {
         const profileData = {
-          id: authData.user.id,
-          email,
+          user_id: authData.user.id,
           full_name: userData.fullName,
-          user_type: userData.userType || 'student',
+          role: userData.userType || 'user',
           school_id: userData.schoolId,
           phone: userData.phone,
           emergency_contact: userData.emergencyContact,
@@ -709,7 +718,7 @@ class GuidalDB {
         }
 
         const { error: profileError } = await supabase
-          .from('profiles')
+          .from('user_profiles')
           .insert([profileData])
 
         if (profileError) {
@@ -792,9 +801,9 @@ class GuidalDB {
       if (user && user.id) {
         // Get full profile data
         const { data: profile, error: profileError } = await supabase
-          .from('profiles')
+          .from('user_profiles')
           .select('*')
-          .eq('id', user.id)
+          .eq('user_id', user.id)
           .single()
 
         if (profileError) {
@@ -831,9 +840,9 @@ class GuidalDB {
   static async updateProfile(userId, profileData) {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .update(profileData)
-        .eq('id', userId)
+        .eq('user_id', userId)
         .select()
 
       if (error) throw error
@@ -847,12 +856,9 @@ class GuidalDB {
   static async getProfile(userId) {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          school:schools(name, country)
-        `)
-        .eq('id', userId)
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userId)
         .single()
 
       if (error) throw error
@@ -1061,15 +1067,12 @@ class GuidalDB {
   static async getAllUsers(filters = {}) {
     try {
       let query = supabase
-        .from('profiles')
-        .select(`
-          *,
-          school:schools(name, country)
-        `)
+        .from('user_profiles')
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (filters.userType) {
-        query = query.eq('user_type', filters.userType)
+        query = query.eq('role', filters.userType)
       }
 
       if (filters.schoolId) {
