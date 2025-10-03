@@ -251,6 +251,7 @@
                 <button class="tab-button" data-tab="edit">Edit Profile</button>
                 <button class="tab-button" data-tab="registrations">My Activities</button>
                 <button class="tab-button" data-tab="notifications">Notifications</button>
+                <button class="tab-button" data-tab="admin" id="adminTab" style="display: none; color: #dc3545;">🛡️ Admin</button>
             </div>
 
             <div class="tab-content">
@@ -352,6 +353,35 @@
                         <p>Loading notifications...</p>
                     </div>
                 </div>
+
+                <!-- Admin Tab Panel -->
+                <div class="tab-panel" id="admin">
+                    <h3>🛡️ Admin Dashboard</h3>
+                    <div class="admin-quick-actions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                        <a href="../admin/index.html" class="admin-card" style="display: block; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; text-decoration: none; color: #333; border: 2px solid #dee2e6; transition: all 0.2s ease;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #495057;">Dashboard</h4>
+                            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Manage users, activities, and system settings</p>
+                        </a>
+                        <a href="../admin/reports.html" class="admin-card" style="display: block; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; text-decoration: none; color: #333; border: 2px solid #dee2e6; transition: all 0.2s ease;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📈</div>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #495057;">Reports</h4>
+                            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">View analytics and generate reports</p>
+                        </a>
+                        <a href="../admin/bookings.html" class="admin-card" style="display: block; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; text-decoration: none; color: #333; border: 2px solid #dee2e6; transition: all 0.2s ease;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #495057;">Booking Management</h4>
+                            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Manage booking requests and configurations</p>
+                        </a>
+                    </div>
+                    <style>
+                        .admin-card:hover {
+                            border-color: #28a745 !important;
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                        }
+                    </style>
+                </div>
             </div>
         </div>
     </main>
@@ -412,6 +442,11 @@
                     document.getElementById('profileSchool').textContent = profile.school?.name || 'No school selected';
                     document.getElementById('userType').textContent = profile.user_type || 'student';
                     document.getElementById('phone').textContent = profile.phone || 'Not provided';
+
+                    // Show admin tab if user is admin
+                    if (profile.email === 'martin@guidal.be' || profile.user_type === 'admin') {
+                        document.getElementById('adminTab').style.display = 'block';
+                    }
 
                     // Member since
                     const memberSince = new Date(profile.created_at).getFullYear();

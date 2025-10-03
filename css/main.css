@@ -144,6 +144,79 @@ header .subtitle {
     transform: translateY(-1px);
 }
 
+/* User dropdown menu for when logged in */
+.user-menu {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255,255,255,0.1) !important;
+    font-size: 0.9rem;
+    padding: 8px 12px !important;
+    margin-top: 16px;
+}
+
+.user-menu:hover {
+    background-color: rgba(255,255,255,0.2) !important;
+    transform: none;
+}
+
+.user-menu span {
+    pointer-events: none; /* Prevent span from blocking hover */
+    font-weight: normal;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    min-width: 160px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    margin-top: 5px;
+}
+
+.user-menu:hover .user-dropdown,
+.user-menu:focus .user-dropdown,
+.user-dropdown:hover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-dropdown a {
+    display: block;
+    padding: 12px 16px;
+    color: #333 !important;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+
+.user-dropdown a:last-child {
+    border-bottom: none;
+}
+
+.user-dropdown a:hover {
+    background-color: #f8f9fa;
+    color: #2e7d32 !important;
+}
+
+.user-dropdown a:first-child:hover {
+    border-radius: 8px 8px 0 0;
+}
+
+.user-dropdown a:last-child:hover {
+    border-radius: 0 0 8px 8px;
+}
+
 /* Mobile Navigation */
 @media (max-width: 768px) {
     .mobile-menu-toggle {
@@ -211,6 +284,17 @@ main {
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Allow dropdowns to overflow for activities card */
+.activities-card {
+    overflow: visible;
+}
+
+.activities-card .search-container {
+    overflow: visible;
+    position: relative;
+    z-index: 100;
 }
 
 .mobile-card:hover {
@@ -387,6 +471,12 @@ main {
     gap: 0.75rem;
     margin-bottom: 1rem;
     flex-wrap: wrap;
+}
+
+.search-container {
+    overflow: visible !important;
+    position: relative;
+    z-index: 10;
 }
 
 .search-input, .filter-select {
@@ -1310,6 +1400,9 @@ main.welcome-page .welcome-content {
     background-color: white;
     cursor: pointer;
     transition: border-color 0.3s ease;
+    /* Force dropdown to appear below the select */
+    position: relative;
+    z-index: 1;
 }
 
 .filter-select:focus {

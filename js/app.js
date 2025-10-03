@@ -132,14 +132,13 @@ class GuidalApp {
                 setTimeout(() => reject(new Error('Database timeout')), 3000)
             );
 
-            // Use original getActivities method for now (backward compatible)
+            // Use database with proper admin RLS policies
             this.activities = await Promise.race([
                 GuidalDB.getActivities(filters),
                 timeoutPromise
             ]);
 
-            console.log('✅ Activities loaded:', this.activities.length, 'activities');
-            console.log('📊 First activity sample:', this.activities[0]);
+            console.log('✅ Activities loaded from database:', this.activities.length, 'activities');
             this.renderActivities();
         } catch (error) {
             console.error('❌ Error loading activities:', error);
@@ -150,7 +149,7 @@ class GuidalApp {
     }
 
     getFallbackActivities(filters = {}) {
-        // Include science-in-action templates as fallback
+        // Include science-in-action templates as fallback - Updated to match science-in-action-examples.html
         const scienceInActionTemplates = [
             {
                 id: 'science-1',
@@ -171,6 +170,40 @@ class GuidalApp {
             },
             {
                 id: 'science-2',
+                title: 'Agricultural Drones & Vineyard',
+                description: 'Discover how drones monitor crop health, detect diseases early, and optimize vineyard management through aerial technology.',
+                activity_type: {
+                    id: 'science-stations',
+                    name: 'Science Stations',
+                    slug: 'science-stations',
+                    color: '#e91e63',
+                    icon: '🔬'
+                },
+                date_time: null,
+                suggested_duration_minutes: 60,
+                recommended_group_size: '8-12 students',
+                status: 'published',
+                featured_image: 'images/agricultural-drone-vineyard.png'
+            },
+            {
+                id: 'science-3',
+                title: 'Smart Irrigation Demo',
+                description: 'Visit the smartest automatic irrigation plant in the Maresme - see precision water management and automated watering systems in action.',
+                activity_type: {
+                    id: 'science-stations',
+                    name: 'Science Stations',
+                    slug: 'science-stations',
+                    color: '#e91e63',
+                    icon: '🔬'
+                },
+                date_time: null,
+                suggested_duration_minutes: 45,
+                recommended_group_size: '10-15 students',
+                status: 'published',
+                featured_image: 'images/smart-irrigation-demo.png'
+            },
+            {
+                id: 'science-4',
                 title: 'Erosion Challenge',
                 description: 'Stop erosion, retain water and create a fertile hillside through natural engineering solutions and permaculture techniques.',
                 activity_type: {
@@ -187,7 +220,7 @@ class GuidalApp {
                 featured_image: 'images/swales.jpg'
             },
             {
-                id: 'science-3',
+                id: 'science-5',
                 title: 'Hydraulic Ram Pumps',
                 description: 'Moving water up high without electricity! Discover genius inventions of the past that use water pressure to pump water uphill.',
                 activity_type: {
@@ -202,8 +235,76 @@ class GuidalApp {
                 recommended_group_size: '6-10 students',
                 status: 'published',
                 featured_image: 'images/hydraulic-ram-pump-system.png'
+            },
+            {
+                id: 'science-6',
+                title: 'Wattle & Daub Construction',
+                description: 'Harvest clay, then build a home with mud, hay, and sticks - 6,000-year-old sustainable construction techniques that still work today!',
+                activity_type: {
+                    id: 'science-stations',
+                    name: 'Science Stations',
+                    slug: 'science-stations',
+                    color: '#e91e63',
+                    icon: '🔬'
+                },
+                date_time: null,
+                suggested_duration_minutes: 120,
+                recommended_group_size: '8-15 students',
+                status: 'published',
+                featured_image: 'images/wattle-daub-construction.png'
+            },
+            {
+                id: 'science-7',
+                title: 'Composting & Soil Science',
+                description: 'Discover the science of decomposition, nutrient cycles, and soil health through hands-on composting and soil analysis.',
+                activity_type: {
+                    id: 'science-stations',
+                    name: 'Science Stations',
+                    slug: 'science-stations',
+                    color: '#e91e63',
+                    icon: '🔬'
+                },
+                date_time: null,
+                suggested_duration_minutes: 60,
+                recommended_group_size: '10-20 students',
+                status: 'published',
+                featured_image: 'images/composting-farm-scene.png'
+            },
+            {
+                id: 'science-8',
+                title: 'Planting & Growing',
+                description: 'Plant seeds, track growth, and discover the science of plant biology through hands-on gardening and data collection.',
+                activity_type: {
+                    id: 'science-stations',
+                    name: 'Science Stations',
+                    slug: 'science-stations',
+                    color: '#e91e63',
+                    icon: '🔬'
+                },
+                date_time: null,
+                suggested_duration_minutes: 90,
+                recommended_group_size: '12-25 students',
+                status: 'published',
+                featured_image: 'images/school-visit-planting.png'
+            },
+            {
+                id: 'science-9',
+                title: 'SchoolAIR IoT Sensors',
+                description: 'Build and program IoT environmental monitoring stations that collect real-time air quality and weather data.',
+                activity_type: {
+                    id: 'science-stations',
+                    name: 'Science Stations',
+                    slug: 'science-stations',
+                    color: '#e91e63',
+                    icon: '🔬'
+                },
+                date_time: null,
+                suggested_duration_minutes: 75,
+                recommended_group_size: '6-12 students',
+                status: 'published',
+                featured_image: 'images/school-visit-pond-canoe.png'
             }
-        ]
+        ];
 
         const staticActivities = [
             {
@@ -287,7 +388,19 @@ class GuidalApp {
         if (filters.show_templates) {
             filteredActivities = filteredActivities.filter(activity => !activity.date_time)
         } else if (filters.time_filter === 'upcoming') {
-            filteredActivities = filteredActivities.filter(activity => activity.date_time)
+            // For future activities, show both scheduled activities AND science-in-action templates (bookable)
+            filteredActivities = filteredActivities.filter(activity => {
+                // Include activities with future dates
+                if (activity.date_time) {
+                    const activityDate = new Date(activity.date_time);
+                    return activityDate >= new Date();
+                }
+                // Include science-in-action templates (no date_time but bookable)
+                if (!activity.date_time && activity.activity_type?.slug === 'science-stations') {
+                    return true;
+                }
+                return false;
+            })
         }
 
         if (filters.search) {
@@ -308,15 +421,7 @@ class GuidalApp {
         // Clear existing options except "All Activities"
         filterSelect.innerHTML = '<option value="all">All Activities</option>'
 
-        // Add science-stations as a special option
-        const scienceOption = document.createElement('option')
-        scienceOption.value = 'science-stations'
-        scienceOption.textContent = 'Science-in-Action'
-        filterSelect.appendChild(scienceOption)
-
         this.activityTypes.forEach(type => {
-            // Skip science-stations since we added it manually above
-            if (type.slug === 'science-stations') return
 
             const option = document.createElement('option')
             option.value = type.slug
@@ -349,16 +454,6 @@ class GuidalApp {
     }
 
     createActivityCard(activity) {
-        // Debug: Log BFIS activity details
-        if (activity.title && activity.title.includes('Benjamin Franklin')) {
-            console.log('🚨 DEBUG: BFIS Activity Details:', {
-                title: activity.title,
-                activity_type: activity.activity_type,
-                status: activity.status,
-                description: activity.description,
-                full_activity: activity
-            });
-        }
 
         const card = document.createElement('div');
         card.className = 'activity-card';
@@ -437,22 +532,41 @@ class GuidalApp {
     getDefaultImageForActivity(activity) {
         // Fallback images when database doesn't have featured_image
         const defaultImages = {
+            // School visits
             'Benjamin Franklin International School': 'images/school-visit-planting.png',
             'International School of Prague': 'images/prague-alella-bridge-vineyard.png',
             'Brainstorming Lunch': 'images/brainstorming-lunch.png',
-            'Build Your Own Ram Pump': 'images/hydraulic-ram-pump-system.png',
-            'Hydraulic Ram Pumps': 'images/hydraulic-ram-pump-system.png',
-            'Ram Pump Workshop': 'images/hydraulic-ram-pump-system.png',
-            'Pumped Hydro': 'images/pumped-hydro-simulation.png',
-            'Pumped Hydro Workshop': 'images/pumped-hydro-simulation.png',
+
+            // Science-in-Action stations (exact matches from science-in-action-examples.html)
             'Robotic Gardening': 'images/robotic-gardening-system.png',
+            'Agricultural Drones & Vineyard': 'images/agricultural-drone-vineyard.png',
+            'Smart Irrigation Demo': 'images/smart-irrigation-demo.png',
+            'Erosion Challenge': 'images/swales.jpg',
+            'Hydraulic Ram Pumps': 'images/hydraulic-ram-pump-system.png',
+            'Wattle & Daub Construction': 'images/wattle-daub-construction.png',
+            'Composting & Soil Science': 'images/composting-farm-scene.png',
+            'Planting & Growing': 'images/school-visit-planting.png',
+            'SchoolAIR IoT Sensors': 'images/school-visit-pond-canoe.png',
+
+            // Legacy workshop names for backwards compatibility (maps database workshop titles to correct images)
+            'Build Your Own Ram Pump': 'images/hydraulic-ram-pump-system.png',
+            'Ram Pump Workshop': 'images/hydraulic-ram-pump-system.png',
+            'Ram Pumps Workshop': 'images/hydraulic-ram-pump-system.png',
+            'Pumped Hydro': 'images/swales.jpg', // Actually maps to Erosion Challenge
+            'Pumped Hydro Workshop': 'images/swales.jpg', // Actually maps to Erosion Challenge
+            'Pumped Hydro Storage': 'images/swales.jpg', // Actually maps to Erosion Challenge
             'Robotic Gardening Workshop': 'images/robotic-gardening-system.png',
             'Wattle & Daub': 'images/wattle-daub-construction.png',
             'Wattle and Daub': 'images/wattle-daub-construction.png',
+            'Wattle and Daub Construction': 'images/wattle-daub-construction.png',
             'Traditional Construction': 'images/wattle-daub-construction.png',
             'Agricultural Drones': 'images/agricultural-drone-vineyard.png',
-            'Agricultural Drones & Vineyard': 'images/agricultural-drone-vineyard.png',
             'Drone Vineyard Management': 'images/agricultural-drone-vineyard.png',
+            'Composting Workshop': 'images/composting-farm-scene.png',
+            'Planting Workshop': 'images/school-visit-planting.png',
+            'SchoolAir IoT Monitoring': 'images/school-visit-pond-canoe.png',
+
+            // Events
             'Sustainability Fair': 'images/event-sports-field.png',
             '2022 Mayday 4 Ukraine': 'images/event-sports-field.png',
             'Marina to the rescue': 'images/Marina to the rescue.png',
@@ -1498,15 +1612,20 @@ class GuidalApp {
         const loginBtn = document.querySelector('.login-btn');
         if (loginBtn) {
             const userName = this.currentUser.profile?.full_name || this.currentUser.email || 'My Account';
+            const firstName = userName.split(' ')[0]; // Just use first name for subtlety
             loginBtn.innerHTML = `
-                <span>${userName}</span>
+                <span>${firstName}</span>
                 <div class="user-dropdown">
-                    <a href="pages/profile.html">My Profile</a>
+                    <a href="pages/profile.html">Profile</a>
                     <a href="#" onclick="app.logout()">Logout</a>
                 </div>
             `;
             loginBtn.classList.add('user-menu');
-            loginBtn.href = 'pages/profile.html';
+            loginBtn.href = '#'; // Prevent navigation, use dropdown instead
+            loginBtn.onclick = function(e) {
+                e.preventDefault(); // Prevent default link behavior
+                return false;
+            };
         }
 
         // Update auth link in About section

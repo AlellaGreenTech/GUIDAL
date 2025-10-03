@@ -263,7 +263,10 @@ class GuidalDB {
     let query = supabase
       .from('past_visits')
       .select('*')
-      .order('created_at', { ascending: false })
+      .eq('status', 'completed')  // Only completed visits
+      .not('confirmed_date', 'is', null)  // Must have a confirmed date
+      .lt('confirmed_date', new Date().toISOString().split('T')[0])  // Date must be in the past
+      .order('confirmed_date', { ascending: false })
 
     // Apply filters
     if (filters.visit_type) {
@@ -294,8 +297,8 @@ class GuidalDB {
 
     let allResults = []
 
-    // Always include science-in-action templates for future activities (unless specifically filtering for something else)
-    if (!filters.type || filters.type === 'science-stations' || filters.time_filter !== 'past') {
+    // Only include science-in-action templates for future activities (NOT for past)
+    if (filters.time_filter === 'upcoming' && (!filters.type || filters.type === 'science-stations')) {
       console.log('📋 Fetching science-in-action templates')
       try {
         const { data: scienceStations, error: scienceError } = await supabase
@@ -318,14 +321,48 @@ class GuidalDB {
       }
     }
 
-    // Get scheduled visits (workshops, events, school visits, etc.)
+    // Get scheduled visits (workshops, events, school visits, etc.) OR past visits for past filter
     if (!filters.type || filters.type !== 'science-stations') {
-      console.log('📅 Fetching scheduled visits')
-      try {
-        let query = supabase
-          .from('scheduled_visits')
-          .select('*')
-          .order('scheduled_date', { ascending: true, nullsFirst: false })
+      if (filters.time_filter === 'past') {
+        console.log('📚 Fetching past visits for past activities')
+        try {
+          const pastVisits = await this.getPastVisits(filters)
+
+          // Transform past visits to look like activities
+          const transformedPastVisits = (pastVisits || []).map(visit => {
+            let activityType = {
+              id: 'school-visit',
+              name: 'School Visit',
+              slug: 'school-visits',
+              color: '#28a745',
+              icon: '🏫'
+            }
+
+            return {
+              ...visit,
+              title: visit.school_name ? `Visit to ${visit.school_name}` : 'School Visit',
+              description: visit.additional_comments || 'Completed school visit',
+              date_time: visit.confirmed_date,
+              duration_minutes: visit.duration_minutes || 90,
+              max_participants: visit.student_count || 0,
+              current_participants: visit.student_count || 0,
+              activity_type: activityType,
+              status: 'completed'
+            }
+          })
+
+          allResults.push(...transformedPastVisits)
+          console.log('✅ Added past visits:', transformedPastVisits.length)
+        } catch (error) {
+          console.error('❌ Error fetching past visits:', error)
+        }
+      } else {
+        console.log('📅 Fetching scheduled visits')
+        try {
+          let query = supabase
+            .from('scheduled_visits')
+            .select('*')
+            .order('scheduled_date', { ascending: true, nullsFirst: false })
 
         // Apply visit type filtering based on activity type requested
         if (filters.type) {
@@ -397,12 +434,43 @@ class GuidalDB {
         })
 
         allResults.push(...transformedVisits)
-      } catch (error) {
-        console.error('❌ Error fetching scheduled visits:', error)
+        } catch (error) {
+          console.error('❌ Error fetching scheduled visits:', error)
+        }
       }
     }
 
     console.log('🔄 Total activities found:', allResults.length)
+
+    // Apply time-based filtering
+    if (filters.time_filter) {
+      const currentDate = new Date()
+
+      if (filters.time_filter === 'upcoming') {
+        allResults = allResults.filter(activity => {
+          // Templates (no dates) are always upcoming
+          if (!activity.date_time || activity.date_time === null || activity.date_time === 'TBD') {
+            return true
+          }
+          const activityDate = new Date(activity.date_time)
+          if (isNaN(activityDate.getTime())) return true // Invalid dates default to upcoming
+          return activityDate >= currentDate
+        })
+      } else if (filters.time_filter === 'past') {
+        allResults = allResults.filter(activity => {
+          // Templates never appear in past - be very strict about this
+          if (!activity.date_time || activity.date_time === null || activity.date_time === 'TBD') {
+            return false
+          }
+          const activityDate = new Date(activity.date_time)
+          if (isNaN(activityDate.getTime())) return false // Invalid dates don't appear in past
+          return activityDate < currentDate
+        })
+      }
+
+      console.log(`🕒 After ${filters.time_filter} filtering: ${allResults.length} activities`)
+    }
+
     return allResults
   }
 

@@ -72,8 +72,11 @@ CREATE TABLE IF NOT EXISTS contacts (
 -- PHASE 2: EXTEND VISITS TABLE WITH MISSING FIELDS
 -- =====================================================
 
--- Add missing columns to visits table (without constraints first)
-ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_type TEXT DEFAULT 'school_day_trip';
+-- Add missing columns to visits table
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_type TEXT
+    CHECK (visit_type IN ('school_day_trip', 'school_overnight', 'individual_workshops', 'event', 'special_lunch'))
+    DEFAULT 'school_day_trip';
+
 ALTER TABLE visits ADD COLUMN IF NOT EXISTS proposed_visit_date DATE;
 ALTER TABLE visits ADD COLUMN IF NOT EXISTS city TEXT;
 
@@ -81,7 +84,8 @@ ALTER TABLE visits ADD COLUMN IF NOT EXISTS city TEXT;
 ALTER TABLE visits ADD COLUMN IF NOT EXISTS number_of_nights INTEGER CHECK (number_of_nights >= 0) DEFAULT 0;
 ALTER TABLE visits ADD COLUMN IF NOT EXISTS arrival_date_time TIMESTAMP WITH TIME ZONE;
 ALTER TABLE visits ADD COLUMN IF NOT EXISTS departure_date_time TIMESTAMP WITH TIME ZONE;
-ALTER TABLE visits ADD COLUMN IF NOT EXISTS accommodation_selection TEXT;
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS accommodation_selection TEXT
+    CHECK (accommodation_selection IN ('fort_flappy', 'liberation_lodge', 'dirt_cheap_cabin', 'your_tent', 'no_preference'));
 ALTER TABLE visits ADD COLUMN IF NOT EXISTS accommodation_needs TEXT;
 
 -- Contact relationship fields
@@ -91,29 +95,11 @@ ALTER TABLE visits ADD COLUMN IF NOT EXISTS school_id UUID REFERENCES schools(id
 
 -- Enhanced metadata
 ALTER TABLE visits ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'website_form'; -- Track where the visit request came from
-ALTER TABLE visits ADD COLUMN IF NOT EXISTS priority_level TEXT DEFAULT 'normal';
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS priority_level TEXT CHECK (priority_level IN ('low', 'normal', 'high', 'urgent')) DEFAULT 'normal';
 
--- Add constraints after columns exist
+-- Business logic constraints (with safe execution)
 DO $$
 BEGIN
-    -- Add visit_type constraint
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'valid_visit_type') THEN
-        ALTER TABLE visits ADD CONSTRAINT valid_visit_type
-            CHECK (visit_type IN ('school_day_trip', 'school_overnight', 'individual_workshops', 'event', 'special_lunch'));
-    END IF;
-
-    -- Add accommodation selection constraint
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'valid_accommodation') THEN
-        ALTER TABLE visits ADD CONSTRAINT valid_accommodation
-            CHECK (accommodation_selection IN ('fort_flappy', 'liberation_lodge', 'dirt_cheap_cabin', 'your_tent', 'no_preference') OR accommodation_selection IS NULL);
-    END IF;
-
-    -- Add priority level constraint
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'valid_priority') THEN
-        ALTER TABLE visits ADD CONSTRAINT valid_priority
-            CHECK (priority_level IN ('low', 'normal', 'high', 'urgent'));
-    END IF;
-
     -- Add overnight data validation constraint
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'valid_overnight_data') THEN
         ALTER TABLE visits ADD CONSTRAINT valid_overnight_data
