@@ -468,7 +468,7 @@ class GuidalApp {
         // Special date handling for Pumpkin Patch
         let dateDisplay;
         if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
-            dateDisplay = 'October 10-31, 2025';
+            dateDisplay = 'October 10-31, 2025. Any time. Boo! us on WhatsApp first';
         } else if (activity.date_time) {
             dateDisplay = new Date(activity.date_time).toLocaleDateString('en-US', {
                 year: 'numeric',
