@@ -190,6 +190,33 @@
             display: block;
         }
 
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 2rem auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 711px;
+            border: none;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .video-container {
+                max-width: 100%;
+            }
+
+            .video-container iframe {
+                height: 600px;
+            }
+        }
+
         @media (max-width: 768px) {
             .hero-content h1 {
                 font-size: 1.8rem;
@@ -238,7 +265,9 @@
             <h2>Workshop Overview</h2>
             <p>Discover Joseph-Michel Montgolfier's ingenious 1796 invention that uses water hammer principles to pump water to heights much greater than the source - all without electricity! In this hands-on workshop, you'll learn how hydraulic ram pumps work and explore the physics behind this sustainable water transportation technology.</p>
 
-            <img src="../images/hydraulic-ram-pump-system.png" alt="Ram pump demonstration" class="workshop-image">
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/JyNmKp_2wXE" title="Ram Pump Demonstration" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
 
             <div class="info-grid">
                 <div class="info-card">
