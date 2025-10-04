@@ -342,7 +342,7 @@ class GuidalDB {
             .from('scheduled_visits')
             .select(`
               *,
-              activity:activities(
+              activities!activity_id(
                 title,
                 description,
                 featured_image,
@@ -412,12 +412,12 @@ class GuidalDB {
           return {
             ...visit,
             // Use activity template data if available, fall back to visit data
-            title: visit.activity?.title || visit.title,
-            description: visit.activity?.description || visit.description,
-            featured_image: visit.activity?.featured_image || visit.featured_image,
-            details_page_url: visit.activity?.details_page_url || visit.details_page_url,
-            tutorial_page_url: visit.activity?.tutorial_page_url || visit.tutorial_page_url,
-            teacher_notes_url: visit.activity?.teacher_notes_url || visit.teacher_notes_url,
+            title: visit.activities?.title || visit.title,
+            description: visit.activities?.description || visit.description,
+            featured_image: visit.activities?.featured_image || visit.featured_image,
+            details_page_url: visit.activities?.details_page_url || visit.details_page_url,
+            tutorial_page_url: visit.activities?.tutorial_page_url || visit.tutorial_page_url,
+            teacher_notes_url: visit.activities?.teacher_notes_url || visit.teacher_notes_url,
             date_time: visit.scheduled_date,
             duration_minutes: visit.duration_minutes,
             max_participants: visit.max_participants,
