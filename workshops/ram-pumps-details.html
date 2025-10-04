@@ -136,6 +136,52 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
+        .access-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .access-link {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .access-link:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .access-link.teacher-link {
+            background: #9C27B0;
+        }
+
+        .access-link.teacher-link:hover {
+            background: #7B1FA2;
+        }
+
+        .access-link.disabled {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .access-link.disabled:hover {
+            transform: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
         .workshop-image {
             width: 100%;
             max-width: 600px;
@@ -243,6 +289,15 @@
             <p>Book this workshop for your group or join an upcoming session</p>
             <a href="#" class="btn-book" onclick="alert('Booking system coming soon! Contact us for availability.'); return false;">Book Workshop</a>
             <p style="margin-top: 1rem; font-size: 0.9rem;">Available on request for groups • Can be included in school visits</p>
+
+            <div class="access-links">
+                <a href="ram-pumps-tutorial.html" class="access-link">
+                    📚 Full Tutorial (Booking Required)
+                </a>
+                <a href="ram-pumps-teacher-notes.html" class="access-link teacher-link">
+                    🎓 Teacher Notes (School Visits)
+                </a>
+            </div>
         </section>
 
         <section class="overview-section">
