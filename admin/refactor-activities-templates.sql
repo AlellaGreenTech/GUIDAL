@@ -9,18 +9,19 @@ ADD COLUMN IF NOT EXISTS activity_id UUID REFERENCES activities(id);
 
 COMMENT ON COLUMN scheduled_visits.activity_id IS 'References the activity template this visit is based on';
 
--- STEP 2: Move content fields to activities table (templates)
+-- STEP 2: Add necessary columns to activities table (templates)
 -- These fields should live in activities, not scheduled_visits:
 -- - title, description (already there)
 -- - featured_image, details_page_url, tutorial_page_url, teacher_notes_url
--- - duration_minutes (template default, can be overridden in scheduled_visits)
+-- - duration_minutes (already there), max_participants, min_participants
 
--- Check if activities table already has these columns
 ALTER TABLE activities
 ADD COLUMN IF NOT EXISTS featured_image TEXT,
 ADD COLUMN IF NOT EXISTS details_page_url TEXT,
 ADD COLUMN IF NOT EXISTS tutorial_page_url TEXT,
-ADD COLUMN IF NOT EXISTS teacher_notes_url TEXT;
+ADD COLUMN IF NOT EXISTS teacher_notes_url TEXT,
+ADD COLUMN IF NOT EXISTS max_participants INTEGER,
+ADD COLUMN IF NOT EXISTS min_participants INTEGER;
 
 -- STEP 3: Create activity templates from unique workshops in scheduled_visits
 -- This groups all "Ram Pumps Workshop Session" entries into one template
