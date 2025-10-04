@@ -382,6 +382,11 @@
                     setTimeout(() => {
                         filterActivitiesByType(pendingFilter);
                     }, 1000);
+                } else {
+                    // Default to showing events on page load
+                    setTimeout(() => {
+                        filterByType('events');
+                    }, 1000);
                 }
 
                 // Debug: check if activities are rendered and re-expand if needed
