@@ -481,6 +481,21 @@ class GuidalDB {
       console.log(`🕒 After ${filters.time_filter} filtering: ${allResults.length} activities`)
     }
 
+    // Sort results: Events first, then by date
+    allResults.sort((a, b) => {
+      const aIsEvent = a.activity_type?.slug === 'events'
+      const bIsEvent = b.activity_type?.slug === 'events'
+
+      // Events always come first
+      if (aIsEvent && !bIsEvent) return -1
+      if (!aIsEvent && bIsEvent) return 1
+
+      // Within same type, sort by date (earliest first)
+      const aDate = new Date(a.date_time || '9999-12-31')
+      const bDate = new Date(b.date_time || '9999-12-31')
+      return aDate - bDate
+    })
+
     return allResults
   }
 
