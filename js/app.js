@@ -581,7 +581,11 @@ class GuidalApp {
             'Sustainability Fair': 'images/event-sports-field.png',
             '2022 Mayday 4 Ukraine': 'images/event-sports-field.png',
             'Marina to the rescue': 'images/Marina to the rescue.png',
-            'Prague meets Alella': 'images/prague meets alella.png'
+            'Prague meets Alella': 'images/prague meets alella.png',
+
+            // Halloween Events
+            'SCARY PUMPKIN PATCH - Pick Your Own Pumpkin 👻🎃': 'images/pumpkin-patch.jpg',
+            'Halloween Party 2025 🎃👻': 'images/halloween-party.png'
         };
 
         // If no specific image found, use generic images by activity type
