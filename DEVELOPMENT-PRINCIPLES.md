@@ -56,4 +56,12 @@ WHERE title = 'Workshop Name';
 5. **Schema Changes**: Don't be afraid to add columns - it's better than hardcoding
 
 ---
+
+## TODO / Feature Requests
+
+### Activities & Events Section
+- [ ] **Show upcoming events at the top of the list when "All" is selected** - Currently defaults to Events filter, but when users click "All", events should still appear at the top of the combined list for visibility
+- [ ] **Change top menu item from "Activities" to "Activities & Events"** - Better reflects the content and matches the section title
+
+---
 *This document serves as a reminder to always consider the database-first approach when adding new features or fixing issues.*
