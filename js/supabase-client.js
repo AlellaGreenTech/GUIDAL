@@ -340,7 +340,17 @@ class GuidalDB {
         try {
           let query = supabase
             .from('scheduled_visits')
-            .select('*')
+            .select(`
+              *,
+              activity:activities(
+                title,
+                description,
+                featured_image,
+                details_page_url,
+                tutorial_page_url,
+                teacher_notes_url
+              )
+            `)
             .order('scheduled_date', { ascending: true, nullsFirst: false })
 
         // Apply visit type filtering based on activity type requested
@@ -401,8 +411,13 @@ class GuidalDB {
 
           return {
             ...visit,
-            title: visit.title,
-            description: visit.description,
+            // Use activity template data if available, fall back to visit data
+            title: visit.activity?.title || visit.title,
+            description: visit.activity?.description || visit.description,
+            featured_image: visit.activity?.featured_image || visit.featured_image,
+            details_page_url: visit.activity?.details_page_url || visit.details_page_url,
+            tutorial_page_url: visit.activity?.tutorial_page_url || visit.tutorial_page_url,
+            teacher_notes_url: visit.activity?.teacher_notes_url || visit.teacher_notes_url,
             date_time: visit.scheduled_date,
             duration_minutes: visit.duration_minutes,
             max_participants: visit.max_participants,
