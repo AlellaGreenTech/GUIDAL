@@ -467,8 +467,10 @@ class GuidalApp {
 
         // Special date handling for Pumpkin Patch
         let dateDisplay;
+        let whatsappButton = '';
         if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
             dateDisplay = 'October 10-31, 2025. Any time. Boo! us on WhatsApp first';
+            whatsappButton = '<a href="https://chat.whatsapp.com/GYQmIVwu3fID0VcW4QmUM2" target="_blank" style="display: inline-block; background: #25D366; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; text-decoration: none; font-size: 0.75rem; font-weight: bold; margin-left: 0.5rem;">💬 WhatsApp us!</a>';
         } else if (activity.date_time) {
             dateDisplay = new Date(activity.date_time).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -498,6 +500,7 @@ class GuidalApp {
                 <h3>${activity.title}</h3>
                 <p class="activity-date">
                     ${dateDisplay}
+                    ${whatsappButton}
                     ${this.getCompletedBadge(activity)}
                 </p>
                 <p class="activity-description">${this.formatDescription(activity.description)}</p>
