@@ -548,13 +548,14 @@ class GuidalApp {
             'International School of Prague': 'images/prague-alella-bridge-vineyard.png',
             'Brainstorming Lunch': 'images/brainstorming-lunch.png',
 
-            // Science-in-Action stations (exact matches from science-in-action-examples.html)
+            // Science-in-Action stations (exact matches from database)
             'Robotic Gardening': 'images/robotic-gardening-system.png',
             'Agricultural Drones & Vineyard': 'images/agricultural-drone-vineyard.png',
             'Smart Irrigation Demo': 'images/smart-irrigation-demo.png',
             'Erosion Challenge': 'images/swales.jpg',
             'Hydraulic Ram Pumps': 'images/hydraulic-ram-pump-system.png',
             'Wattle & Daub Construction': 'images/wattle-daub-construction.png',
+            'Wattle and Daub Construction': 'images/wattle-daub-construction.png',
             'Composting & Soil Science': 'images/composting-farm-scene.png',
             'Planting & Growing': 'images/school-visit-planting.png',
             'SchoolAIR IoT Sensors': 'images/school-visit-pond-canoe.png',
