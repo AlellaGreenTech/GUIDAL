@@ -465,13 +465,19 @@ class GuidalApp {
         card.setAttribute('data-type', activityTypeSlug);
         card.setAttribute('data-date', activity.date_time || 'TBD');
 
-        const dateDisplay = activity.date_time
-            ? new Date(activity.date_time).toLocaleDateString('en-US', {
+        // Special date handling for Pumpkin Patch
+        let dateDisplay;
+        if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
+            dateDisplay = 'October 10-31, 2025';
+        } else if (activity.date_time) {
+            dateDisplay = new Date(activity.date_time).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
-              })
-            : 'Available on Request';
+            });
+        } else {
+            dateDisplay = 'Available on Request';
+        }
 
         const participantInfo = activity.max_participants
             ? `Max ${activity.max_participants} ${activityTypeSlug === 'school-visits' ? 'students' : 'participants'}`
