@@ -843,12 +843,10 @@ class GuidalApp {
         }
 
         if (isUpcoming) {
-            return `<button class="btn btn-primary" onclick="app.handleActivityRegistration('${activity.id}', '${activity.title}')">
-                        ${activity.credits_required > 0 ? `Book (${activity.credits_required} Green$)` : 'Book'}
-                    </button>`;
+            return `<button class="btn btn-primary" onclick="app.handleActivityRegistration('${activity.id}', '${activity.title}')">Book</button>`;
         }
 
-        return `<a href="#" class="btn">More Info</a>`
+        return `<a href="#" class="btn">Learn More</a>`
     }
 
     async handleScienceStationBooking(activityId, activityTitle) {
