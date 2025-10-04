@@ -560,6 +560,15 @@ class GuidalApp {
             'Planting & Growing': 'images/school-visit-planting.png',
             'SchoolAIR IoT Sensors': 'images/school-visit-pond-canoe.png',
 
+            // Workshop session titles (scheduled_visits table)
+            'Composting Workshop Session': 'images/composting-farm-scene.png',
+            'Planting Workshop Session': 'images/school-visit-planting.png',
+            'Erosion Control Workshop': 'images/swales.jpg',
+            'Ram Pumps Workshop Session': 'images/hydraulic-ram-pump-system.png',
+            'Robotic Gardening Workshop Session': 'images/robotic-gardening-system.png',
+            'Wattle & Daub Workshop Session': 'images/wattle-daub-construction.png',
+            'Smart Irrigation Workshop Session': 'images/smart-irrigation-demo.png',
+
             // Legacy workshop names for backwards compatibility (maps database workshop titles to correct images)
             'Build Your Own Ram Pump': 'images/hydraulic-ram-pump-system.png',
             'Ram Pump Workshop': 'images/hydraulic-ram-pump-system.png',
