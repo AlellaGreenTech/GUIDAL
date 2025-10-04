@@ -791,10 +791,15 @@ class GuidalApp {
         const activityType = activity.activity_type
         const activityTypeSlug = activityType?.slug || 'other'
 
-        // Handle unscheduled workshops (available on request)
-        if (activityTypeSlug === 'workshops' && !activity.date_time) {
+        // Handle workshops (both scheduled and on-request)
+        if (activityTypeSlug === 'workshops') {
             const detailsUrl = activity.details_page_url || '#';
-            return `<a href="${detailsUrl}" class="btn btn-primary">Learn More</a>`;
+            return `
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <a href="${detailsUrl}" class="btn">Learn More</a>
+                    <button class="btn btn-primary" onclick="app.handleActivityRegistration('${activity.id}', '${activity.title}')">Book</button>
+                </div>
+            `;
         }
 
         // Handle science-in-action templates (no dates)
