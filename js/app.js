@@ -846,7 +846,9 @@ class GuidalApp {
             return `<button class="btn btn-primary" onclick="app.handleActivityRegistration('${activity.id}', '${activity.title}')">Book</button>`;
         }
 
-        return `<a href="#" class="btn">Learn More</a>`
+        // Use details_page_url if available, otherwise generic Learn More
+        const detailsUrl = activity.details_page_url || '#';
+        return `<a href="${detailsUrl}" class="btn">Learn More</a>`
     }
 
     async handleScienceStationBooking(activityId, activityTitle) {

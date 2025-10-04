@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ram Pumps Workshop - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .workshop-hero {
+            position: relative;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 2;
+            width: 90%;
+        }
+
+        .hero-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .overview-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .info-card h3 {
+            color: #2196F3;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .what-youll-learn {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .what-youll-learn h2 {
+            color: #1565C0;
+            margin-bottom: 1rem;
+        }
+
+        .learning-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .learning-list li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .learning-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .cta-section {
+            background: #2196F3;
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .cta-section h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .btn-book {
+            display: inline-block;
+            background: white;
+            color: #2196F3;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-book:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .workshop-image {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 8px;
+            margin: 1rem auto;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Green Technology Education</p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#activities">All Activities</a></li>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#booking">Book Now</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="workshop-hero">
+            <img src="../images/hydraulic-ram-pump-system.png" alt="Hydraulic ram pump system for water elevation" class="hero-image">
+            <div class="hero-content">
+                <h1>💧 Ram Pumps Workshop</h1>
+                <p class="hero-subtitle">Move Water MUCH Higher with NO Electrical Energy</p>
+            </div>
+        </div>
+
+        <section id="overview" class="overview-section">
+            <h2>Workshop Overview</h2>
+            <p>Discover Joseph-Michel Montgolfier's ingenious 1796 invention that uses water hammer principles to pump water to heights much greater than the source - all without electricity! In this hands-on workshop, you'll learn how hydraulic ram pumps work and explore the physics behind this sustainable water transportation technology.</p>
+
+            <img src="../images/hydraulic-ram-pump-system.png" alt="Ram pump demonstration" class="workshop-image">
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>⏱️ Duration</h3>
+                    <p>2-3 hours</p>
+                </div>
+                <div class="info-card">
+                    <h3>👥 Group Size</h3>
+                    <p>Up to 15 participants</p>
+                </div>
+                <div class="info-card">
+                    <h3>🎯 Level</h3>
+                    <p>Suitable for ages 10+ and adults</p>
+                </div>
+                <div class="info-card">
+                    <h3>📍 Location</h3>
+                    <p>GUIDAL Campus, Alella</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="what-youll-learn">
+            <h2>What You'll Learn</h2>
+            <ul class="learning-list">
+                <li><strong>Water Hammer Physics</strong> - Understand the sudden pressure surge when flowing water stops abruptly</li>
+                <li><strong>Energy Conservation</strong> - Learn how ram pumps trade large volumes at low lift for small volumes at high lift</li>
+                <li><strong>System Design</strong> - Discover the key components: air chamber, check valve, waste valve, and drive pipe</li>
+                <li><strong>Efficiency Testing</strong> - Calculate pump efficiency by comparing potential energy input and output</li>
+                <li><strong>Failure Modes</strong> - Understand what makes a ram pump fail and how to optimize performance</li>
+                <li><strong>Real-World Applications</strong> - Explore how this 200+ year old technology provides sustainable water solutions today</li>
+            </ul>
+        </section>
+
+        <section class="overview-section">
+            <h2>Workshop Activities</h2>
+            <p>This interactive workshop includes:</p>
+            <ul>
+                <li>🔧 <strong>Hands-on demonstrations</strong> with our working ram pump system</li>
+                <li>📊 <strong>Physics experiments</strong> to test efficiency and performance</li>
+                <li>🧪 <strong>Problem-solving challenges</strong> - induce failure modes and troubleshoot</li>
+                <li>💡 <strong>Design discussions</strong> on optimizing ram pump systems</li>
+                <li>🌍 <strong>Sustainability exploration</strong> - how this tech can solve water access problems</li>
+            </ul>
+        </section>
+
+        <section id="booking" class="cta-section">
+            <h2>Ready to Learn About Ram Pumps?</h2>
+            <p>Book this workshop for your group or join an upcoming session</p>
+            <a href="#" class="btn-book" onclick="alert('Booking system coming soon! Contact us for availability.'); return false;">Book Workshop</a>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">Available on request for groups • Can be included in school visits</p>
+        </section>
+
+        <section class="overview-section">
+            <h2>Perfect For</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>🏫 School Groups</h3>
+                    <p>Great for physics, engineering, and environmental science classes</p>
+                </div>
+                <div class="info-card">
+                    <h3>🌱 Sustainability Enthusiasts</h3>
+                    <p>Learn practical off-grid water solutions</p>
+                </div>
+                <div class="info-card">
+                    <h3>🔧 DIY Makers</h3>
+                    <p>Understand the technology to build your own system</p>
+                </div>
+                <div class="info-card">
+                    <h3>👨‍🏫 Educators</h3>
+                    <p>Gain hands-on teaching experience with this classic physics demonstration</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 GUIDAL. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/mobile-menu.js"></script>
+</body>
+</html>
