@@ -465,13 +465,13 @@ class GuidalApp {
         card.setAttribute('data-type', activityTypeSlug);
         card.setAttribute('data-date', activity.date_time || 'TBD');
 
-        const dateDisplay = activity.date_time 
+        const dateDisplay = activity.date_time
             ? new Date(activity.date_time).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
               })
-            : 'Date: TBD';
+            : 'Available on Request';
 
         const participantInfo = activity.max_participants
             ? `Max ${activity.max_participants} ${activityTypeSlug === 'school-visits' ? 'students' : 'participants'}`

@@ -297,39 +297,8 @@ class GuidalDB {
 
     let allResults = []
 
-    // Only include science-in-action templates for future activities (NOT for past)
-    // Skip this entirely if filtering for specific non-science-station types
-    if (filters.time_filter === 'upcoming' && (!filters.type || filters.type === 'science-stations')) {
-      console.log('📋 Fetching science-in-action templates')
-      try {
-        // Get activity_type_id first (cached or quick lookup)
-        const { data: activityTypeData } = await supabase
-          .from('activity_types')
-          .select('id')
-          .eq('slug', 'science-stations')
-          .single()
-
-        if (activityTypeData?.id) {
-          const { data: scienceStations, error: scienceError } = await supabase
-            .from('activities')
-            .select(`
-              *,
-              activity_type:activity_types!activity_type_id(id, name, slug, color, icon)
-            `)
-            .eq('status', 'published')
-            .eq('activity_type_id', activityTypeData.id)
-
-          if (!scienceError && scienceStations) {
-            // Only include if no specific type filter OR filtering for science-stations
-            if (!filters.type || filters.type === 'science-stations') {
-              allResults.push(...scienceStations)
-            }
-          }
-        }
-      } catch (error) {
-        console.error('❌ Error fetching science stations:', error)
-      }
-    }
+    // NOTE: Science sessions are now stored as unscheduled workshops in scheduled_visits
+    // with scheduled_date = NULL. No need to fetch from activities table anymore.
 
     // Get scheduled visits (workshops, events, school visits, etc.) OR past visits for past filter
     if (!filters.type || filters.type !== 'science-stations') {
