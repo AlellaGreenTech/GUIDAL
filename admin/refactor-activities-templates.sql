@@ -23,7 +23,12 @@ ADD COLUMN IF NOT EXISTS teacher_notes_url TEXT,
 ADD COLUMN IF NOT EXISTS max_participants INTEGER,
 ADD COLUMN IF NOT EXISTS min_participants INTEGER;
 
--- STEP 3: Create activity templates from unique workshops in scheduled_visits
+-- STEP 3: Ensure 'workshops' activity type exists
+INSERT INTO activity_types (name, slug, color, icon)
+VALUES ('Workshops', 'workshops', '#ff9800', '🔧')
+ON CONFLICT (slug) DO NOTHING;
+
+-- STEP 4: Create activity templates from unique workshops in scheduled_visits
 -- This groups all "Ram Pumps Workshop Session" entries into one template
 
 INSERT INTO activities (
@@ -89,8 +94,12 @@ WHERE sv.visit_type = 'individual_workshop'
     OR REGEXP_REPLACE(sv.title, ' Workshop Session$', '') = a.title
   );
 
--- STEP 5: For events and school visits, create templates too
--- Events template
+-- STEP 5: Ensure 'events' activity type exists
+INSERT INTO activity_types (name, slug, color, icon)
+VALUES ('Events', 'events', '#17a2b8', '🎉')
+ON CONFLICT (slug) DO NOTHING;
+
+-- STEP 6: For events, create templates too
 INSERT INTO activities (
   id,
   title,
@@ -117,7 +126,7 @@ FROM activities a
 WHERE sv.visit_type = 'public_event'
   AND sv.title = a.title;
 
--- STEP 6: Verify the relationships
+-- STEP 7: Verify the relationships
 SELECT
   a.title as activity_template,
   COUNT(sv.id) as scheduled_instances,
@@ -129,7 +138,7 @@ WHERE a.status = 'published'
 GROUP BY a.id, a.title
 ORDER BY a.title;
 
--- STEP 7: (Future) Make activity_id NOT NULL and remove duplicate content from scheduled_visits
+-- STEP 8: (Future) Make activity_id NOT NULL and remove duplicate content from scheduled_visits
 -- Don't run these yet - verify the migration first!
 -- ALTER TABLE scheduled_visits ALTER COLUMN activity_id SET NOT NULL;
 -- ALTER TABLE scheduled_visits DROP COLUMN title, DROP COLUMN description, etc.
