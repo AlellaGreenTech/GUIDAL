@@ -7,6 +7,23 @@
     <link rel="stylesheet" href="../../styles.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
+        /* Fix white subtitle text - need to override header background color inheritance */
+        header {
+            background: white !important;
+        }
+
+        header .subtitle {
+            color: #333 !important;
+        }
+
+        header h1, header h1 a {
+            color: var(--primary-green) !important;
+        }
+
+        header .foundation-presents {
+            color: #666 !important;
+        }
+
         .admin-container {
             max-width: 1200px;
             margin: 2rem auto;
@@ -14,12 +31,23 @@
         }
 
         .admin-header {
-            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
-            color: white;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #1b5e20;
             padding: 2rem;
             border-radius: 12px;
             margin-bottom: 2rem;
             text-align: center;
+            border: 2px solid var(--primary-green);
+        }
+
+        .admin-header h2 {
+            color: #1b5e20;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .admin-header p {
+            color: #2e7d32;
+            margin: 0;
         }
 
         .stats-dashboard {
@@ -186,6 +214,21 @@
         .search-filter-bar select {
             flex: 1;
             min-width: 200px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .search-filter-bar select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 12px;
+            padding-right: 2.5rem;
+            cursor: pointer;
         }
 
         .modal {
@@ -339,8 +382,7 @@
                         <input type="text" id="userSearch" placeholder="Search users...">
                         <select id="userTypeFilter">
                             <option value="">All User Types</option>
-                            <option value="student">Students</option>
-                            <option value="teacher">Teachers</option>
+                            <option value="user">Users</option>
                             <option value="admin">Admins</option>
                             <option value="staff">Staff</option>
                         </select>
@@ -478,7 +520,7 @@
             async init() {
                 await this.checkAdminAccess();
 
-                if (this.currentUser?.profile?.user_type === 'admin') {
+                if (this.currentUser?.profile?.role === 'admin') {
                     this.setupEventListeners();
                     this.setupTabNavigation();
                     await this.loadDashboardStats();
@@ -490,7 +532,7 @@
                 try {
                     this.currentUser = await GuidalDB.getCurrentUser();
 
-                    if (!this.currentUser || this.currentUser.profile?.user_type !== 'admin') {
+                    if (!this.currentUser || this.currentUser.profile?.role !== 'admin') {
                         document.getElementById('accessDenied').style.display = 'block';
                         return;
                     }
@@ -504,25 +546,54 @@
 
             async loadDashboardStats() {
                 try {
-                    const [users, activities, schools] = await Promise.all([
-                        GuidalDB.getAllUsers(),
-                        GuidalDB.getActivities(),
-                        GuidalDB.getSchools()
-                    ]);
+                    console.log('📊 Loading dashboard stats...');
 
-                    document.getElementById('totalUsers').textContent = users.length;
-                    document.getElementById('totalActivities').textContent = activities.length;
-                    document.getElementById('totalSchools').textContent = schools.length;
+                    // Load each stat separately to handle errors better
+                    let users = [];
+                    let activities = [];
+                    let schools = [];
+
+                    try {
+                        users = await GuidalDB.getAllUsers() || [];
+                        console.log('✅ Users loaded:', users.length);
+                        document.getElementById('totalUsers').textContent = users.length;
+                    } catch (error) {
+                        console.error('❌ Failed to load users:', error);
+                        document.getElementById('totalUsers').textContent = 'Error';
+                    }
+
+                    try {
+                        activities = await GuidalDB.getActivities() || [];
+                        console.log('✅ Activities loaded:', activities.length);
+                        document.getElementById('totalActivities').textContent = activities.length;
+                    } catch (error) {
+                        console.error('❌ Failed to load activities:', error);
+                        document.getElementById('totalActivities').textContent = 'Error';
+                    }
+
+                    try {
+                        schools = await GuidalDB.getSchools() || [];
+                        console.log('✅ Schools loaded:', schools.length);
+                        document.getElementById('totalSchools').textContent = schools.length;
+                    } catch (error) {
+                        console.error('❌ Failed to load schools:', error);
+                        document.getElementById('totalSchools').textContent = 'Error';
+                    }
 
                     // Count registrations (simplified)
-                    let totalRegistrations = 0;
-                    for (let activity of activities) {
-                        totalRegistrations += activity.current_participants || 0;
+                    try {
+                        let totalRegistrations = 0;
+                        for (let activity of activities) {
+                            totalRegistrations += activity.current_participants || 0;
+                        }
+                        document.getElementById('totalRegistrations').textContent = totalRegistrations;
+                    } catch (error) {
+                        console.error('❌ Failed to count registrations:', error);
+                        document.getElementById('totalRegistrations').textContent = 'Error';
                     }
-                    document.getElementById('totalRegistrations').textContent = totalRegistrations;
 
                 } catch (error) {
-                    console.error('Failed to load dashboard stats:', error);
+                    console.error('❌ Failed to load dashboard stats:', error);
                 }
             }
 
@@ -591,9 +662,9 @@
                 }
             }
 
-            renderUsersTable() {
+            renderUsersTable(usersToRender = null) {
                 const container = document.getElementById('usersTable');
-                const users = this.data.users;
+                const users = usersToRender || this.data.users;
 
                 if (users.length === 0) {
                     container.innerHTML = '<p>No users found.</p>';
@@ -618,7 +689,7 @@
                                 <tr>
                                     <td>${user.full_name || 'No name'}</td>
                                     <td>${user.email}</td>
-                                    <td><span class="user-type-badge type-${user.user_type}">${user.user_type}</span></td>
+                                    <td><span class="user-type-badge type-${user.role}">${user.role}</span></td>
                                     <td>${user.school?.name || 'No school'}</td>
                                     <td>${user.credits || 0}</td>
                                     <td>${new Date(user.created_at).toLocaleDateString()}</td>
@@ -654,9 +725,9 @@
                 }
             }
 
-            renderActivitiesTable() {
+            renderActivitiesTable(activitiesToRender = null) {
                 const container = document.getElementById('activitiesTable');
-                const activities = this.data.activities;
+                const activities = activitiesToRender || this.data.activities;
 
                 if (activities.length === 0) {
                     container.innerHTML = '<p>No activities found.</p>';
@@ -679,7 +750,7 @@
                             ${activities.map(activity => `
                                 <tr>
                                     <td>${activity.title}</td>
-                                    <td>${activity.activity_type}</td>
+                                    <td>${activity.activity_type?.name || activity.type || 'N/A'}</td>
                                     <td>${activity.date_time ? new Date(activity.date_time).toLocaleDateString() : 'TBD'}</td>
                                     <td>${activity.current_participants || 0}/${activity.max_participants || '∞'}</td>
                                     <td><span class="status-badge status-${activity.status}">${activity.status}</span></td>
@@ -715,9 +786,9 @@
                 }
             }
 
-            renderSchoolsTable() {
+            renderSchoolsTable(schoolsToRender = null) {
                 const container = document.getElementById('schoolsTable');
-                const schools = this.data.schools;
+                const schools = schoolsToRender || this.data.schools;
 
                 if (schools.length === 0) {
                     container.innerHTML = '<p>No schools found.</p>';
@@ -791,7 +862,62 @@
                     this.sendNotification();
                 });
 
-                // Search and filter functionality would be implemented here
+                // User search and filters
+                document.getElementById('userSearch').addEventListener('input', () => this.filterUsers());
+                document.getElementById('userTypeFilter').addEventListener('change', () => this.filterUsers());
+                document.getElementById('schoolFilter').addEventListener('change', () => this.filterUsers());
+
+                // Activity search and filters
+                document.getElementById('activitySearch').addEventListener('input', () => this.filterActivities());
+                document.getElementById('activityStatusFilter').addEventListener('change', () => this.filterActivities());
+
+                // School search
+                document.getElementById('schoolSearch').addEventListener('input', () => this.filterSchools());
+            }
+
+            filterUsers() {
+                const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+                const typeFilter = document.getElementById('userTypeFilter').value;
+                const schoolFilter = document.getElementById('schoolFilter').value;
+
+                const filteredUsers = this.data.users.filter(user => {
+                    const matchesSearch = !searchTerm ||
+                        user.full_name?.toLowerCase().includes(searchTerm) ||
+                        user.email?.toLowerCase().includes(searchTerm);
+                    const matchesType = !typeFilter || user.role === typeFilter;
+                    const matchesSchool = !schoolFilter || user.school_id === schoolFilter;
+
+                    return matchesSearch && matchesType && matchesSchool;
+                });
+
+                this.renderUsersTable(filteredUsers);
+            }
+
+            filterActivities() {
+                const searchTerm = document.getElementById('activitySearch').value.toLowerCase();
+                const statusFilter = document.getElementById('activityStatusFilter').value;
+
+                const filteredActivities = this.data.activities.filter(activity => {
+                    const matchesSearch = !searchTerm ||
+                        activity.title?.toLowerCase().includes(searchTerm);
+                    const matchesStatus = !statusFilter || activity.status === statusFilter;
+
+                    return matchesSearch && matchesStatus;
+                });
+
+                this.renderActivitiesTable(filteredActivities);
+            }
+
+            filterSchools() {
+                const searchTerm = document.getElementById('schoolSearch').value.toLowerCase();
+
+                const filteredSchools = this.data.schools.filter(school => {
+                    return !searchTerm ||
+                        school.name?.toLowerCase().includes(searchTerm) ||
+                        school.country?.toLowerCase().includes(searchTerm);
+                });
+
+                this.renderSchoolsTable(filteredSchools);
             }
 
             async sendNotification() {

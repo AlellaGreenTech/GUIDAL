@@ -19,7 +19,7 @@ SELECT
   description,
   'individual_workshop' as visit_type,
   NULL as scheduled_date,  -- NULL = available on request, not scheduled
-  suggested_duration_minutes as duration_minutes,
+  duration_minutes,
   15 as max_participants,  -- Default max
   1 as min_participants,
   'confirmed' as status,

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Halloween Events - GUIDAL Admin</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .event-card {
+            background: white;
+            padding: 2rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 2px solid #ff8c42;
+        }
+        .status {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #28a745;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+        button:hover { background: #218838; }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="../index.html">GUIDAL</a></h1>
+            <p class="subtitle">Add Halloween Events to Database</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="info status">
+            <strong>📋 Instructions:</strong> This tool will add two Halloween party events to the activities database.
+        </div>
+
+        <div class="event-card">
+            <h2>🎃 Halloween Party - October 25, 2025</h2>
+            <p><strong>Date:</strong> 2025-10-25</p>
+            <p><strong>Time:</strong> 12:30 PM - Late</p>
+            <p><strong>Location:</strong> Can Picard Educational Farm</p>
+            <button id="add-oct25" onclick="addOctoberEvent()">Add October 25 Event</button>
+            <div id="oct25-status"></div>
+        </div>
+
+        <div class="event-card">
+            <h2>🎃 Halloween Party - November 1, 2025</h2>
+            <p><strong>Date:</strong> 2025-11-01</p>
+            <p><strong>Time:</strong> 12:30 PM - Late</p>
+            <p><strong>Location:</strong> Can Picard Educational Farm</p>
+            <button id="add-nov1" onclick="addNovemberEvent()">Add November 1 Event</button>
+            <div id="nov1-status"></div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <button onclick="window.location.href='../index.html'">← Back to Home</button>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        async function waitForSupabase() {
+            let attempts = 0;
+            while (!window.supabaseClient && attempts < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            if (!window.supabaseClient) {
+                throw new Error('Supabase client not available');
+            }
+            return window.supabaseClient;
+        }
+
+        async function addOctoberEvent() {
+            const button = document.getElementById('add-oct25');
+            const statusDiv = document.getElementById('oct25-status');
+
+            button.disabled = true;
+            statusDiv.innerHTML = '<div class="info status">Adding event...</div>';
+
+            try {
+                const supabase = await waitForSupabase();
+
+                const eventData = {
+                    title: 'Halloween Party 2025 🎃👻',
+                    description: 'Join us for a family-friendly Halloween celebration featuring pumpkin picking, carving, wood-fired pizza, wine tasting, and festive fun at our educational farm. Activities include: pumpkin patch, pumpkin carving, wood fire pizza, wine tasting, and Halloween parties. Family-friendly event, costumes encouraged!',
+                    visit_type: 'public_event',
+                    scheduled_date: '2025-10-25T12:30:00+00:00',
+                    duration_minutes: 360,
+                    max_participants: 100,
+                    current_participants: 0,
+                    min_participants: 1,
+                    booking_type: 'admin_scheduled',
+                    status: 'confirmed'
+                };
+
+                const { data, error } = await supabase
+                    .from('scheduled_visits')
+                    .insert([eventData])
+                    .select();
+
+                if (error) {
+                    throw error;
+                }
+
+                statusDiv.innerHTML = '<div class="success status">✅ October 25 event added successfully! ID: ' + data[0].id + '</div>';
+                console.log('October event added:', data);
+            } catch (error) {
+                console.error('Error adding October event:', error);
+                statusDiv.innerHTML = '<div class="error status">❌ Error: ' + error.message + '</div>';
+                button.disabled = false;
+            }
+        }
+
+        async function addNovemberEvent() {
+            const button = document.getElementById('add-nov1');
+            const statusDiv = document.getElementById('nov1-status');
+
+            button.disabled = true;
+            statusDiv.innerHTML = '<div class="info status">Adding event...</div>';
+
+            try {
+                const supabase = await waitForSupabase();
+
+                const eventData = {
+                    title: 'Halloween Party 2025 🎃👻',
+                    description: 'Join us for a family-friendly Halloween celebration featuring pumpkin picking, carving, wood-fired pizza, wine tasting, and festive fun at our educational farm. Activities include: pumpkin patch, pumpkin carving, wood fire pizza, wine tasting, and Halloween parties. Family-friendly event, costumes encouraged!',
+                    visit_type: 'public_event',
+                    scheduled_date: '2025-11-01T12:30:00+00:00',
+                    duration_minutes: 360,
+                    max_participants: 100,
+                    current_participants: 0,
+                    min_participants: 1,
+                    booking_type: 'admin_scheduled',
+                    status: 'confirmed'
+                };
+
+                const { data, error } = await supabase
+                    .from('scheduled_visits')
+                    .insert([eventData])
+                    .select();
+
+                if (error) {
+                    throw error;
+                }
+
+                statusDiv.innerHTML = '<div class="success status">✅ November 1 event added successfully! ID: ' + data[0].id + '</div>';
+                console.log('November event added:', data);
+            } catch (error) {
+                console.error('Error adding November event:', error);
+                statusDiv.innerHTML = '<div class="error status">❌ Error: ' + error.message + '</div>';
+                button.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
