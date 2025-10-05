@@ -472,6 +472,20 @@
                 if (error) {
                     console.error('❌ Error loading categories:', error);
                     console.log('💡 Make sure to run database/activity-categories-schema.sql in Supabase');
+                    console.log('📋 Full error details:', JSON.stringify(error, null, 2));
+
+                    // Show error in carousel area
+                    const carousel = document.getElementById('categoryCarousel');
+                    if (carousel) {
+                        const styleEl = carousel.querySelector('style');
+                        carousel.innerHTML = styleEl.outerHTML + `
+                            <div style="padding: 2rem; text-align: center; width: 100%; color: #d32f2f; background: #ffebee; border-radius: 8px; margin: 1rem;">
+                                <strong>Error loading categories:</strong><br>
+                                ${error.message || 'Unknown error'}<br>
+                                <small>Check console for details. Make sure to run database/activity-categories-schema.sql</small>
+                            </div>
+                        `;
+                    }
                     return;
                 }
 
@@ -508,6 +522,7 @@
         // Auto-expand activities card on page load
         document.addEventListener('DOMContentLoaded', function() {
             // Load categories first
+            console.log('📍 DOM loaded, starting category load...');
             loadCategories();
 
             // Small delay to ensure proper rendering
