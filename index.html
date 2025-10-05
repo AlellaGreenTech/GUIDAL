@@ -84,13 +84,13 @@
             });
 
             // Cookie redirect - if user has visited before, redirect to activities
-            if (document.cookie.includes('guidal_visited=true')) {
+            if (document.cookie.includes('guidal_visited_v2=true')) {
                 window.location.href = 'activities.html';
             } else {
                 // Set the visited cookie (expires in 1 year)
                 const date = new Date();
                 date.setTime(date.getTime() + (365*24*60*60*1000));
-                document.cookie = 'guidal_visited=true; expires=' + date.toUTCString() + '; path=/';
+                document.cookie = 'guidal_visited_v2=true; expires=' + date.toUTCString() + '; path=/';
             }
         });
     </script>
