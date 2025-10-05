@@ -107,16 +107,8 @@
 
             <!-- Activities & Events Card -->
             <div class="mobile-card activities-card" id="activities" style="margin-top: 1rem;">
-                <div class="card-header" onclick="toggleCard('activities')">
-                    <div class="card-title">
-                        <h3>Activities & Events</h3>
-                        <span class="card-subtitle">School visits, workshops, events & more</span>
-                    </div>
-                    <div class="card-chevron">›</div>
-                </div>
-
                 <!-- Search and Time Filter -->
-                <div class="search-container" style="padding: 1rem; border-bottom: 1px solid #eee;">
+                <div class="search-container" style="padding: 1rem; background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.12);">
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <!-- Time Toggle -->
                         <div class="time-toggle-container" style="display: flex; gap: 0.5rem;">
@@ -133,7 +125,7 @@
                     </div>
                 </div>
 
-                <div class="card-content" id="activities-content">
+                <div class="card-content" id="activities-content" style="max-height: none; overflow: visible;">
                     <div class="activity-cards" id="activity-grid">
                         <!-- Activities will be loaded dynamically from database -->
                     </div>
@@ -358,11 +350,6 @@
             if (activitiesCard) {
                 activitiesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-                // Expand the activities card if not already open
-                if (!activitiesCard.classList.contains('active')) {
-                    toggleCard('activities');
-                }
-
                 // Filter activities by category using the junction table
                 setTimeout(async () => {
                     try {
@@ -499,8 +486,7 @@
 
             // Small delay to ensure proper rendering
             setTimeout(() => {
-                console.log('🎯 Auto-expanding activities card');
-                toggleCard('activities');
+                console.log('🎯 Activities section ready (no toggle needed)');
 
                 // Check for pending activity filter from science-in-action page
                 const pendingFilter = sessionStorage.getItem('pendingActivityFilter');
@@ -519,20 +505,12 @@
                     }, 1000);
                 }
 
-                // Debug: check if activities are rendered and re-expand if needed
+                // Debug: check if activities are rendered
                 setTimeout(() => {
                     const activityGrid = document.getElementById('activity-grid');
                     console.log('🔍 Activity grid children:', activityGrid?.children.length);
                     if (activityGrid && activityGrid.children.length > 0) {
                         console.log('✅ Activities are rendered in DOM');
-                        // Re-expand the activities card to ensure proper height calculation
-                        const activitiesCard = document.getElementById('activities');
-                        const activitiesContent = document.getElementById('activities-content');
-                        if (activitiesCard && activitiesContent) {
-                            activitiesCard.classList.add('active');
-                            activitiesContent.style.maxHeight = activitiesContent.scrollHeight + 'px';
-                            console.log('🔧 Re-expanded activities card with height:', activitiesContent.scrollHeight + 'px');
-                        }
                     } else {
                         console.log('❌ No activities in DOM');
                     }
