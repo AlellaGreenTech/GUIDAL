@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directions - GUIDAL</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .directions-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .directions-hero {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .directions-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .directions-hero p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .transit-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .transit-image {
+            width: 100%;
+            max-width: 700px;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .step-card {
+            background: #f5f5f5;
+            border-left: 4px solid #2e7d32;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 6px;
+        }
+
+        .step-card h3 {
+            color: #2e7d32;
+            margin-bottom: 0.75rem;
+            font-size: 1.3rem;
+        }
+
+        .step-card p {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .map-link {
+            display: inline-block;
+            background: #2196f3;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .map-link:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white;
+        }
+
+        .gate-code {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .gate-code strong {
+            color: #ff9800;
+            font-size: 1.5rem;
+        }
+
+        .contact-box {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .contact-box a {
+            color: #1976d2;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .contact-box a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .directions-hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="container" style="display: flex; align-items: center; gap: 2rem;">
+            <a href="../index.html" style="text-decoration: none; display: flex; align-items: center; padding: 0.75rem 0;">
+                <span style="font-size: 1.5rem; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">GUIDAL</span>
+            </a>
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu" style="flex: 1;">
+                <li><a href="directions.html" class="active">Directions</a></li>
+                <li><a href="../activities.html">Activities</a></li>
+                <li><a href="kits.html">Kits</a></li>
+                <li><a href="visit-planning.html">Plan Visit</a></li>
+                <li><a href="follow-post.html">Follow & Share</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="auth/login.html" class="login-btn">Login/Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="directions-container">
+        <div class="directions-hero">
+            <h1>🗺️ How to Get to Us</h1>
+            <p>Camí Baix de Tiana 2b, Alella</p>
+        </div>
+
+        <!-- Public Transit Section -->
+        <div class="transit-section">
+            <h2 style="color: #2e7d32; margin-bottom: 1rem;">🚌 From Barcelona by Public Transit</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 1rem;">
+                Take the <strong>Sagalés E19 bus</strong> and walk 10 minutes to our gate.
+                <br>
+                <strong>Total time: ~30 minutes</strong> from Barcelona stop to our gate!
+            </p>
+
+            <img src="/Users/martinpicard/can picard/images/directions.png"
+                 alt="Directions from Barcelona to Can Picard Farm"
+                 class="transit-image">
+        </div>
+
+        <!-- Step-by-Step Directions -->
+        <div class="transit-section">
+            <h2 style="color: #2e7d32; margin-bottom: 1.5rem;">🚶 Step-by-Step from the Bus Stop</h2>
+
+            <!-- Step 1 -->
+            <div class="step-card">
+                <h3>STEP 1: Find Our Dirt Track</h3>
+                <p>
+                    Our dirt track starts <strong>BETWEEN #2 and #4</strong> of Camí Baix de Tiana.
+                </p>
+                <a href="https://goo.gl/maps/zPq3zZhuXyH2" target="_blank" class="map-link">
+                    📍 View Track Entrance on Google Maps
+                </a>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card">
+                <h3>STEP 2: Enter Through the Green Gate</h3>
+                <p>
+                    At the first opportunity, turn off the dirt track and go through a green gate.
+                </p>
+
+                <div class="gate-code">
+                    <p style="margin-bottom: 0.5rem;">Gate Keypad Code:</p>
+                    <strong>7530</strong> then press <strong>SUBMIT</strong>
+                </div>
+
+                <div class="contact-box">
+                    <p style="margin: 0;">
+                        <strong>Problem with the gate?</strong><br>
+                        Call us: <a href="tel:606551138">606 551 138</a>
+                    </p>
+                </div>
+
+                <a href="https://goo.gl/maps/TiGjuSQQCDy" target="_blank" class="map-link">
+                    📍 View Gate Location on Google Maps
+                </a>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card">
+                <h3>STEP 3: Drive Up & Park</h3>
+                <p>
+                    Drive up the hill and take a <strong>right after the large white tank</strong> into the parking lot.
+                </p>
+                <p style="background: #fff9c4; padding: 0.75rem; border-radius: 6px; margin-top: 1rem;">
+                    <strong>⚠️ Car a bit fragile?</strong><br>
+                    Park in the public parking right behind you off the main road and walk 5 minutes to us.
+                </p>
+            </div>
+        </div>
+
+        <!-- Google Maps Embed -->
+        <div class="transit-section">
+            <h2 style="color: #2e7d32; margin-bottom: 1rem;">📍 Location Map</h2>
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2992.1234567890!2d2.2945678!3d41.4912345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDI5JzI4LjQiTiAywrAxNyczOC40IkU!5e0!3m2!1sen!2ses!4v1234567890"
+                width="100%"
+                height="400"
+                style="border:0; border-radius: 8px;"
+                allowfullscreen=""
+                loading="lazy">
+            </iframe>
+            <p style="text-align: center; margin-top: 1rem;">
+                <a href="https://maps.app.goo.gl/EHQnazxcwPDvXBz48" target="_blank" class="map-link">
+                    🗺️ Open in Google Maps
+                </a>
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech - The International Green Tech Foundation. All rights reserved.</p>
+            <p>Camí Baix de Tiana 2b, Alella</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+                mobileMenuToggle.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.main-nav')) {
+                    navMenu.classList.remove('active');
+                    mobileMenuToggle.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
