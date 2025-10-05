@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activities & Events - GUIDAL</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="container" style="display: flex; align-items: center; gap: 2rem;">
+            <a href="index.html" style="text-decoration: none; display: flex; align-items: center; padding: 0.75rem 0;">
+                <span style="font-size: 1.5rem; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">GUIDAL</span>
+            </a>
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu" style="flex: 1;">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pages/welcome.html">Welcome</a></li>
+                <li><a href="activities.html" class="active">Activities</a></li>
+                <li><a href="pages/kits.html">Kits</a></li>
+                <li><a href="pages/visit-planning.html">Plan Visit</a></li>
+                <li><a href="pages/follow-post.html">Follow & Share</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="pages/auth/login.html" class="login-btn">Login/Register</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <!-- Mobile App-Style Cards -->
+        <div class="mobile-cards">
+
+            <!-- Activities & Events Card -->
+            <div class="mobile-card activities-card" id="activities" style="margin-top: 1rem;">
+                <div class="card-header" onclick="toggleCard('activities')" style="display: flex; align-items: center; gap: 1rem;">
+                    <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
+                        <span style="font-size: 2rem; font-weight: bold; color: #2e7d32; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">GUIDAL</span>
+                    </a>
+                    <div class="card-title" style="flex: 1;">
+                        <h3>Activities & Events</h3>
+                        <span class="card-subtitle">School visits, workshops, events & more</span>
+                    </div>
+                    <div class="card-chevron">›</div>
+                </div>
+
+                <!-- Filters and Search -->
+                <div class="search-container" style="padding: 1rem; border-bottom: 1px solid #eee;">
+                    <!-- Category Tabs (Horizontal Scroll) -->
+                    <div class="category-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; overflow-y: hidden; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 0.25rem;">
+                        <style>
+                            .category-tabs::-webkit-scrollbar { display: none; }
+                        </style>
+                        <button class="category-tab active" data-type="all" onclick="filterByType('all')" style="padding: 0.5rem 0.75rem; background: #f0f0f0; border: 2px solid #28a745; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
+                            All
+                        </button>
+                        <button class="category-tab" data-type="school-visits" onclick="filterByType('school-visits')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
+                            🏫 Visits
+                        </button>
+                        <button class="category-tab" data-type="workshops" onclick="filterByType('workshops')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
+                            🔧 Workshops
+                        </button>
+                        <button class="category-tab" data-type="events" onclick="filterByType('events')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
+                            🎉 Events
+                        </button>
+                        <button class="category-tab" data-type="lunches" onclick="filterByType('lunches')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
+                            🍽️ Lunches
+                        </button>
+                    </div>
+
+                    <!-- Time Filter and Search on same row -->
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <!-- Time Toggle (Compact) -->
+                        <div class="time-toggle-container" style="display: flex; gap: 0.5rem;">
+                            <button id="future-toggle" class="time-toggle-btn active" onclick="toggleTimeFilter('future')" style="padding: 0.5rem 0.75rem; border: 2px solid #28a745; background: #28a745; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease; white-space: nowrap;">
+                                📅 Upcoming
+                            </button>
+                            <button id="past-toggle" class="time-toggle-btn" onclick="toggleTimeFilter('past')" style="padding: 0.5rem 0.75rem; border: 2px solid #28a745; background: transparent; color: #28a745; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease; white-space: nowrap;">
+                                📚 Past
+                            </button>
+                        </div>
+
+                        <!-- Search -->
+                        <input type="text" id="activity-search" placeholder="Search..." class="search-input" style="flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem;">
+                    </div>
+                </div>
+
+                <div class="card-content" id="activities-content">
+                    <div class="activity-cards" id="activity-grid">
+                        <!-- Activities will be loaded dynamically from database -->
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- Close mobile-cards -->
+    </main>
+    
+    <!-- School Login Modal -->
+    <div id="loginModal" class="login-modal" style="display: none;">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>School Visit Login</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalSchoolInfo" class="school-info">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+
+                <div class="modal-auth-links">
+                    <p>Don't have an account? <a href="pages/auth/register.html">Register here</a></p>
+                </div>
+
+                <form id="modalLoginForm" class="modal-login-form">
+                    <div class="form-group">
+                        <label for="modalUsername">Username (your email address):</label>
+                        <input type="email" id="modalUsername" name="email" required placeholder="Enter your email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="modalPassword">Password:</label>
+                        <div class="password-input-container">
+                            <input type="password" id="modalPassword" name="password" required>
+                            <button type="button" class="password-toggle" onclick="toggleModalPassword()" aria-label="Toggle password visibility">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="modalCancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
+
+                <div class="modal-forgot-password">
+                    <a href="pages/auth/login.html">Forgot your password?</a>
+                </div>
+
+                <div class="modal-auth-links">
+                    <p>Don't have an account? <a href="pages/auth/register.html">Register here</a></p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Booking Modal Component -->
+    <div id="booking-modal-container"></div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech. Sustainable learning for a better future.</p>
+        </div>
+    </footer>
+
+    <!-- Additional styles for completed visit buttons and dropdown -->
+    <style>
+        .btn-disabled {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            cursor: not-allowed !important;
+            opacity: 0.65 !important;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: white !important;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268 !important;
+            border-color: #545b62 !important;
+        }
+
+    </style>
+
+    <!-- Mobile Menu & Card Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+                mobileMenuToggle.classList.toggle('active');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.main-nav')) {
+                    navMenu.classList.remove('active');
+                    mobileMenuToggle.classList.remove('active');
+                }
+            });
+
+            // Close menu when clicking a nav link
+            const navLinks = document.querySelectorAll('.nav-menu a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navMenu.classList.remove('active');
+                    mobileMenuToggle.classList.remove('active');
+                });
+            });
+        });
+
+        // Mobile App-Style Card Toggle Function
+        function toggleCard(cardId) {
+            // Handle the activities card which has ID 'activities' instead of 'activities-card'
+            const actualCardId = cardId === 'activities' ? 'activities' : cardId + '-card';
+            const card = document.getElementById(actualCardId);
+            const content = document.getElementById(cardId + '-content');
+            const chevron = card ? card.querySelector('.card-chevron') : null;
+
+            // Check if elements exist before manipulating them
+            if (!card || !content) {
+                console.error('Card or content not found for cardId:', cardId);
+                return;
+            }
+
+            // Toggle the active state
+            card.classList.toggle('active');
+
+            if (card.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                if (chevron) {
+                    chevron.style.transform = 'rotate(90deg)';
+                    chevron.textContent = '‹';
+                }
+            } else {
+                content.style.maxHeight = '0';
+                if (chevron) {
+                    chevron.style.transform = 'rotate(0deg)';
+                    chevron.textContent = '›';
+                }
+            }
+        }
+
+        // Modal password toggle function
+        function toggleModalPassword() {
+            const passwordInput = document.getElementById('modalPassword');
+            const toggleButton = passwordInput.nextElementSibling;
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.textContent = '🙈';
+                toggleButton.setAttribute('aria-label', 'Hide password');
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.textContent = '👁️';
+                toggleButton.setAttribute('aria-label', 'Show password');
+            }
+        }
+
+        // Time filter toggle function for activities
+        function toggleTimeFilter(timeType) {
+            console.log('🕒 Toggling time filter to:', timeType);
+
+            // Update button states
+            const futureBtn = document.getElementById('future-toggle');
+            const pastBtn = document.getElementById('past-toggle');
+
+            if (timeType === 'future') {
+                futureBtn.classList.add('active');
+                pastBtn.classList.remove('active');
+
+                // Update button styles
+                futureBtn.style.background = '#28a745';
+                futureBtn.style.color = 'white';
+                pastBtn.style.background = 'transparent';
+                pastBtn.style.color = '#28a745';
+
+                // Filter to show future activities
+                if (window.filterActivitiesByTime) {
+                    window.filterActivitiesByTime('future');
+                }
+            } else {
+                pastBtn.classList.add('active');
+                futureBtn.classList.remove('active');
+
+                // Update button styles
+                pastBtn.style.background = '#28a745';
+                pastBtn.style.color = 'white';
+                futureBtn.style.background = 'transparent';
+                futureBtn.style.color = '#28a745';
+
+                // Filter to show past activities
+                if (window.filterActivitiesByTime) {
+                    window.filterActivitiesByTime('past');
+                }
+            }
+        }
+
+        function filterByType(type) {
+            console.log('📂 Filtering by type:', type);
+
+            // Update active tab styling
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => {
+                if (tab.dataset.type === type) {
+                    tab.classList.add('active');
+                    tab.style.background = '#f0f0f0';
+                    tab.style.borderColor = '#28a745';
+                    tab.style.fontWeight = '600';
+                } else {
+                    tab.classList.remove('active');
+                    tab.style.background = 'white';
+                    tab.style.borderColor = '#ddd';
+                    tab.style.fontWeight = '500';
+                }
+            });
+
+            // Update the activity filter
+            const filterSelect = document.getElementById('activity-filter');
+            if (filterSelect) {
+                filterSelect.value = type;
+            }
+
+            // Reload activities with the filter
+            if (window.app && window.app.loadActivities) {
+                const filters = { time_filter: 'upcoming' };
+                if (type !== 'all') {
+                    filters.type = type;
+                }
+                window.app.loadActivities(filters);
+            }
+        }
+
+        // Auto-expand activities card on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure proper rendering
+            setTimeout(() => {
+                console.log('🎯 Auto-expanding activities card');
+                toggleCard('activities');
+
+                // Check for pending activity filter from science-in-action page
+                const pendingFilter = sessionStorage.getItem('pendingActivityFilter');
+                if (pendingFilter) {
+                    // Clear the stored filter
+                    sessionStorage.removeItem('pendingActivityFilter');
+
+                    // Apply the filter after a short delay to ensure the page is ready
+                    setTimeout(() => {
+                        filterActivitiesByType(pendingFilter);
+                    }, 1000);
+                } else {
+                    // Default to showing events on page load
+                    setTimeout(() => {
+                        filterByType('events');
+                    }, 1000);
+                }
+
+                // Debug: check if activities are rendered and re-expand if needed
+                setTimeout(() => {
+                    const activityGrid = document.getElementById('activity-grid');
+                    console.log('🔍 Activity grid children:', activityGrid?.children.length);
+                    if (activityGrid && activityGrid.children.length > 0) {
+                        console.log('✅ Activities are rendered in DOM');
+                        // Re-expand the activities card to ensure proper height calculation
+                        const activitiesCard = document.getElementById('activities');
+                        const activitiesContent = document.getElementById('activities-content');
+                        if (activitiesCard && activitiesContent) {
+                            activitiesCard.classList.add('active');
+                            activitiesContent.style.maxHeight = activitiesContent.scrollHeight + 'px';
+                            console.log('🔧 Re-expanded activities card with height:', activitiesContent.scrollHeight + 'px');
+                        }
+                    } else {
+                        console.log('❌ No activities in DOM');
+                    }
+                }, 2000);
+            }, 500);
+        });
+
+        // Function to filter activities by type when Events link is clicked
+        function filterActivitiesByType(filterType) {
+            // First expand the activities card if it's not already open
+            const activitiesCard = document.getElementById('activities');
+            const activitiesContent = document.getElementById('activities-content');
+
+            if (activitiesCard && activitiesContent) {
+                // Expand the activities card
+                activitiesCard.classList.add('active');
+                activitiesContent.style.maxHeight = activitiesContent.scrollHeight + 'px';
+
+                // Update the chevron
+                const chevron = activitiesCard.querySelector('.card-chevron');
+                if (chevron) {
+                    chevron.style.transform = 'rotate(90deg)';
+                    chevron.textContent = '‹';
+                }
+
+                // Set the filter dropdown to the specified type
+                setTimeout(() => {
+                    const filterSelect = document.getElementById('activity-filter');
+                    if (filterSelect) {
+                        filterSelect.value = filterType;
+                        // Trigger the change event if there's a handler
+                        filterSelect.dispatchEvent(new Event('change'));
+                    }
+                }, 100);
+            }
+        }
+    </script>
+
+    <!-- Required Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/privacy-config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
