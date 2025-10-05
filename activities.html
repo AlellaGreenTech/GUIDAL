@@ -454,32 +454,54 @@
         async function loadCategories() {
             try {
                 console.log('🎨 Loading activity categories from database...');
-                const { data: categories, error } = await supabaseClient
+
+                // Check if supabase client is available
+                if (!window.supabaseClient) {
+                    console.error('❌ Supabase client not initialized yet, retrying...');
+                    // Retry after a short delay
+                    setTimeout(loadCategories, 500);
+                    return;
+                }
+
+                const { data: categories, error } = await window.supabaseClient
                     .from('activity_categories')
                     .select('*')
                     .eq('active', true)
                     .order('display_order', { ascending: true });
 
                 if (error) {
-                    console.error('Error loading categories:', error);
+                    console.error('❌ Error loading categories:', error);
+                    console.log('💡 Make sure to run database/activity-categories-schema.sql in Supabase');
                     return;
                 }
 
-                console.log('✅ Loaded categories:', categories);
+                console.log('✅ Loaded categories:', categories?.length || 0, 'categories');
 
                 // Render category carousel
                 const carousel = document.getElementById('categoryCarousel');
-                if (carousel && categories && categories.length > 0) {
-                    carousel.innerHTML = carousel.querySelector('style').outerHTML + categories.map(category => `
-                        <div class="carousel-card"
-                             onclick="filterByCategory('${category.slug}')"
-                             style="background-image: url('${category.image_url}');">
-                            <div class="carousel-card-title">${category.name}</div>
-                        </div>
-                    `).join('');
+                if (carousel) {
+                    // Keep the style element
+                    const styleEl = carousel.querySelector('style');
+
+                    if (categories && categories.length > 0) {
+                        carousel.innerHTML = styleEl.outerHTML + categories.map(category => `
+                            <div class="carousel-card"
+                                 onclick="filterByCategory('${category.slug}')"
+                                 style="background-image: url('${category.image_url}');">
+                                <div class="carousel-card-title">${category.name}</div>
+                            </div>
+                        `).join('');
+                        console.log('✅ Rendered', categories.length, 'category cards');
+                    } else {
+                        carousel.innerHTML = styleEl.outerHTML + `
+                            <div style="padding: 2rem; text-align: center; width: 100%; color: #666;">
+                                No categories found. Please run database/activity-categories-schema.sql in your Supabase dashboard.
+                            </div>
+                        `;
+                    }
                 }
             } catch (err) {
-                console.error('Exception loading categories:', err);
+                console.error('❌ Exception loading categories:', err);
             }
         }
 
