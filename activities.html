@@ -32,13 +32,13 @@
     
     <main class="container">
         <!-- Category Carousel Section -->
-        <section class="category-carousel-section" style="margin: 2rem 0 3rem 0;">
+        <section class="category-carousel-section" style="margin: 2rem 0 1rem 0;">
             <h2 style="font-size: 2.5rem; font-weight: 400; color: #202124; margin-bottom: 1.5rem; text-align: center;">
                 What kind of activity would you like to do?
             </h2>
 
             <!-- Carousel Container -->
-            <div class="carousel-wrapper" style="position: relative; margin: 0 -1rem;">
+            <div class="carousel-wrapper" style="position: relative; margin: 0 -1rem; margin-bottom: 2rem;">
                 <button class="carousel-nav carousel-prev" onclick="scrollCarousel(-1)" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 10; background: white; border: none; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
                     ‹
                 </button>
@@ -47,8 +47,8 @@
                     <style>
                         .category-carousel::-webkit-scrollbar { display: none; }
                         .carousel-card {
-                            min-width: 280px;
-                            height: 200px;
+                            min-width: 320px;
+                            height: 240px;
                             border-radius: 12px;
                             overflow: hidden;
                             cursor: pointer;
@@ -75,7 +75,7 @@
                             right: 0;
                             padding: 1.5rem 1rem;
                             color: white;
-                            font-size: 1.1rem;
+                            font-size: 1.2rem;
                             font-weight: 500;
                             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
                         }
@@ -88,7 +88,7 @@
                             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                         }
                         @media (max-width: 768px) {
-                            .carousel-card { min-width: 240px; height: 180px; }
+                            .carousel-card { min-width: 280px; height: 200px; }
                             .carousel-nav { display: none; }
                         }
                     </style>
@@ -99,11 +99,6 @@
                 <button class="carousel-nav carousel-next" onclick="scrollCarousel(1)" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 10; background: white; border: none; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
                     ›
                 </button>
-            </div>
-
-            <!-- Featured Events Space -->
-            <div class="featured-events-space" style="margin-top: 3rem; min-height: 100px;">
-                <!-- This space will be used for featured events and text -->
             </div>
         </section>
 
@@ -120,33 +115,10 @@
                     <div class="card-chevron">›</div>
                 </div>
 
-                <!-- Filters and Search -->
+                <!-- Search and Time Filter -->
                 <div class="search-container" style="padding: 1rem; border-bottom: 1px solid #eee;">
-                    <!-- Category Tabs (Horizontal Scroll) -->
-                    <div class="category-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; overflow-y: hidden; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 0.25rem;">
-                        <style>
-                            .category-tabs::-webkit-scrollbar { display: none; }
-                        </style>
-                        <button class="category-tab active" data-type="all" onclick="filterByType('all')" style="padding: 0.5rem 0.75rem; background: #f0f0f0; border: 2px solid #28a745; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
-                            All
-                        </button>
-                        <button class="category-tab" data-type="school-visits" onclick="filterByType('school-visits')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
-                            🏫 Visits
-                        </button>
-                        <button class="category-tab" data-type="workshops" onclick="filterByType('workshops')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
-                            🔧 Workshops
-                        </button>
-                        <button class="category-tab" data-type="events" onclick="filterByType('events')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
-                            🎉 Events
-                        </button>
-                        <button class="category-tab" data-type="lunches" onclick="filterByType('lunches')" style="padding: 0.5rem 0.75rem; background: white; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
-                            🍽️ Lunches
-                        </button>
-                    </div>
-
-                    <!-- Time Filter and Search on same row -->
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <!-- Time Toggle (Compact) -->
+                        <!-- Time Toggle -->
                         <div class="time-toggle-container" style="display: flex; gap: 0.5rem;">
                             <button id="future-toggle" class="time-toggle-btn active" onclick="toggleTimeFilter('future')" style="padding: 0.5rem 0.75rem; border: 2px solid #28a745; background: #28a745; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease; white-space: nowrap;">
                                 📅 Upcoming
