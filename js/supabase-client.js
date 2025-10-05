@@ -366,6 +366,26 @@ class GuidalDB {
           }
         }
 
+        // Apply category filtering if provided
+        if (filters.category_id) {
+          console.log('🎨 Filtering by category:', filters.category_id)
+          // First get activity IDs that match this category
+          const { data: categoryLinks, error: linkError } = await supabase
+            .from('activity_category_links')
+            .select('activity_id')
+            .eq('category_id', filters.category_id)
+
+          if (!linkError && categoryLinks && categoryLinks.length > 0) {
+            const activityIds = categoryLinks.map(link => link.activity_id)
+            console.log('✅ Found activities in category:', activityIds.length)
+            query = query.in('activity_id', activityIds)
+          } else {
+            console.log('⚠️ No activities found for this category')
+            // Return empty array if no activities match this category
+            return []
+          }
+        }
+
         const { data, error } = await query
 
         if (error) throw error

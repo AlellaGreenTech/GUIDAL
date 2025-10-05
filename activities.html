@@ -93,37 +93,7 @@
                         }
                     </style>
 
-                    <!-- Category Cards -->
-                    <div class="carousel-card" onclick="filterByCategory('electronics')" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=400&fit=crop');">
-                        <div class="carousel-card-title">Electronics for Sustainability</div>
-                    </div>
-                    <div class="carousel-card" onclick="filterByCategory('permaculture')" style="background-image: url('https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&h=400&fit=crop');">
-                        <div class="carousel-card-title">Permaculture</div>
-                    </div>
-                    <div class="carousel-card" onclick="filterByCategory('robotics')" style="background-image: url('https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&h=400&fit=crop');">
-                        <div class="carousel-card-title">Robotics & Gardening</div>
-                    </div>
-                    <div class="carousel-card" onclick="filterByCategory('renewable-energy')" style="background-image: url('https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&h=400&fit=crop');">
-                        <div class="carousel-card-title">Renewable Energy</div>
-                    </div>
-                    <div class="carousel-card" onclick="filterByCategory('construction')" style="background-image: url('https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&h=400&fit=crop');">
-                        <div class="carousel-card-title">Sustainable Construction</div>
-                    </div>
-                    <div class="carousel-card" onclick="filterByCategory('citizen-science')" style="background-image: url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&h=400&fit=crop');">
-                        <div class="carousel-card-title">Citizen Science</div>
-                    </div>
-                    <div class="carousel-card" onclick="filterByCategory('green-crafts')" style="background-image: url('https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=600&h=400&fit=crop');">
-                        <div class="carousel-card-title">Green Crafts</div>
-                    </div>
-                    <div class="carousel-card" onclick="filterByCategory('wine-produce')" style="background-image: url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=600&h=400&fit=crop');">
-                        <div class="carousel-card-title">Wine & Produce</div>
-                    </div>
-                    <div class="carousel-card" onclick="filterByCategory('volunteering')" style="background-image: url('https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&h=400&fit=crop');">
-                        <div class="carousel-card-title">Volunteering</div>
-                    </div>
-                    <div class="carousel-card" onclick="filterByCategory('green-engineering')" style="background-image: url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop');">
-                        <div class="carousel-card-title">Green Engineering</div>
-                    </div>
+                    <!-- Category Cards will be loaded dynamically from database -->
                 </div>
 
                 <button class="carousel-nav carousel-next" onclick="scrollCarousel(1)" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 10; background: white; border: none; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
@@ -408,8 +378,9 @@
         }
 
         // Category filter function
-        function filterByCategory(category) {
-            console.log('🎨 Filtering by category:', category);
+        async function filterByCategory(categorySlug) {
+            console.log('🎨 Filtering by category:', categorySlug);
+
             // Scroll down to activities section
             const activitiesCard = document.getElementById('activities');
             if (activitiesCard) {
@@ -420,11 +391,26 @@
                     toggleCard('activities');
                 }
 
-                // Filter activities by category (to be implemented based on your data structure)
-                // For now, we'll just expand the activities section
-                setTimeout(() => {
-                    // You can add category-specific filtering logic here
-                    // For example: filterByType('workshops') or custom category filtering
+                // Filter activities by category using the junction table
+                setTimeout(async () => {
+                    try {
+                        // Get category ID first
+                        const { data: category } = await supabaseClient
+                            .from('activity_categories')
+                            .select('id')
+                            .eq('slug', categorySlug)
+                            .single();
+
+                        if (category && window.app && window.app.loadActivities) {
+                            // Load activities filtered by category
+                            window.app.loadActivities({
+                                category_id: category.id,
+                                time_filter: 'upcoming'
+                            });
+                        }
+                    } catch (err) {
+                        console.error('Error filtering by category:', err);
+                    }
                 }, 500);
             }
         }
@@ -464,8 +450,44 @@
             }
         }
 
+        // Load categories from database
+        async function loadCategories() {
+            try {
+                console.log('🎨 Loading activity categories from database...');
+                const { data: categories, error } = await supabaseClient
+                    .from('activity_categories')
+                    .select('*')
+                    .eq('active', true)
+                    .order('display_order', { ascending: true });
+
+                if (error) {
+                    console.error('Error loading categories:', error);
+                    return;
+                }
+
+                console.log('✅ Loaded categories:', categories);
+
+                // Render category carousel
+                const carousel = document.getElementById('categoryCarousel');
+                if (carousel && categories && categories.length > 0) {
+                    carousel.innerHTML = carousel.querySelector('style').outerHTML + categories.map(category => `
+                        <div class="carousel-card"
+                             onclick="filterByCategory('${category.slug}')"
+                             style="background-image: url('${category.image_url}');">
+                            <div class="carousel-card-title">${category.name}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('Exception loading categories:', err);
+            }
+        }
+
         // Auto-expand activities card on page load
         document.addEventListener('DOMContentLoaded', function() {
+            // Load categories first
+            loadCategories();
+
             // Small delay to ensure proper rendering
             setTimeout(() => {
                 console.log('🎯 Auto-expanding activities card');
