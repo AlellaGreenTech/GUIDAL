@@ -1,6 +1,11 @@
 -- Fix Activity Categories Permissions
 -- This fixes the RLS policies to allow public read access
 
+-- First, grant SELECT permissions to anon and authenticated roles
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT SELECT ON public.activity_categories TO anon, authenticated;
+GRANT SELECT ON public.activity_category_links TO anon, authenticated;
+
 -- Drop existing policies if they exist
 DROP POLICY IF EXISTS "Activity categories are viewable by everyone" ON public.activity_categories;
 DROP POLICY IF EXISTS "Activity category links are viewable by everyone" ON public.activity_category_links;
@@ -9,7 +14,7 @@ DROP POLICY IF EXISTS "Only admins can update activity categories" ON public.act
 DROP POLICY IF EXISTS "Only admins can delete activity categories" ON public.activity_categories;
 DROP POLICY IF EXISTS "Only admins can manage category links" ON public.activity_category_links;
 
--- Disable RLS temporarily to allow access
+-- Disable RLS to allow access
 ALTER TABLE public.activity_categories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activity_category_links DISABLE ROW LEVEL SECURITY;
 
