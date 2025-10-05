@@ -1449,6 +1449,107 @@
                     this.value = this.value.replace(/\b\w/g, l => l.toUpperCase());
                 });
             }
+
+            // Form submission handling
+            const form = document.getElementById('visitPlanningForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn ? submitBtn.textContent : '';
+
+                    try {
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = '⏳ Submitting...';
+                        }
+
+                        // Gather form data
+                        const formData = new FormData(form);
+
+                        // Build the visit data object
+                        const visitData = {
+                            // Visit type and basic info
+                            visit_type: formData.get('visitType') || 'school_day_trip',
+
+                            // Contact information
+                            contact_email: formData.get('leadTeacherEmail'),
+                            lead_teacher_contact: formData.get('leadTeacherName'),
+
+                            // School information
+                            school_name: formData.get('schoolName'),
+                            country_of_origin: formData.get('country'),
+                            city: formData.get('city'),
+
+                            // Visit details
+                            proposed_visit_date: formData.get('proposedVisitDate') || null,
+                            potential_visit_dates: formData.get('visitDates') || null,
+                            preferred_language: formData.get('language'),
+
+                            // Participant numbers
+                            number_of_students: parseInt(formData.get('studentCount')) || 0,
+                            number_of_adults: parseInt(formData.get('adultCount')) || 0,
+
+                            // Visit format and focus
+                            visit_format: formData.get('visitFormat'),
+                            visit_format_other: formData.get('visitFormatOther') || null,
+                            educational_focus: formData.get('educationalFocus'),
+                            educational_focus_other: formData.get('educationalFocusOther') || null,
+
+                            // Food and comments
+                            food_preferences: formData.get('foodPreferences') || null,
+                            additional_comments: formData.get('additionalComments') || null,
+
+                            // Overnight-specific fields
+                            number_of_nights: formData.get('visitType') === 'school_overnight' ? parseInt(formData.get('numberOfNights') || formData.get('customNights') || 0) : 0,
+                            arrival_date_time: formData.get('arrivalDateTime') || null,
+                            departure_date_time: formData.get('departureDateTime') || null,
+                            accommodation_selection: formData.get('accommodationSelection') || null,
+                            accommodation_needs: formData.get('accommodationNeeds') || null,
+                            schedule_preferences: formData.get('schedulePreferences') || null,
+
+                            // Metadata
+                            status: 'pending'
+                        };
+
+                        console.log('📝 Submitting visit request:', visitData);
+
+                        // Wait for Supabase client to be ready
+                        if (!window.supabaseClient) {
+                            throw new Error('Database connection not ready. Please refresh the page and try again.');
+                        }
+
+                        // Submit to database
+                        const { data, error } = await window.supabaseClient
+                            .from('visits')
+                            .insert([visitData])
+                            .select();
+
+                        if (error) {
+                            console.error('❌ Error submitting visit:', error);
+                            throw new Error(error.message || 'Failed to submit visit request');
+                        }
+
+                        console.log('✅ Visit request submitted successfully:', data);
+
+                        // Show success message
+                        alert('✅ Thank you! Your visit request has been submitted successfully. We will contact you soon at ' + visitData.contact_email);
+
+                        // Reset form
+                        form.reset();
+
+                    } catch (error) {
+                        console.error('❌ Form submission error:', error);
+                        alert('❌ Error submitting form: ' + error.message + '\n\nPlease try again or contact us directly via WhatsApp.');
+                    } finally {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalBtnText;
+                        }
+                    }
+                });
+            }
         });
     </script>
 </body>
