@@ -31,6 +31,112 @@
     </nav>
     
     <main class="container">
+        <!-- Category Carousel Section -->
+        <section class="category-carousel-section" style="margin: 2rem 0 3rem 0;">
+            <h2 style="font-size: 2.5rem; font-weight: 400; color: #202124; margin-bottom: 1.5rem; text-align: center;">
+                What kind of activity would you like to do?
+            </h2>
+
+            <!-- Carousel Container -->
+            <div class="carousel-wrapper" style="position: relative; margin: 0 -1rem;">
+                <button class="carousel-nav carousel-prev" onclick="scrollCarousel(-1)" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 10; background: white; border: none; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                    ‹
+                </button>
+
+                <div class="category-carousel" id="categoryCarousel" style="display: flex; gap: 1.5rem; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: 1rem; scrollbar-width: none; -webkit-overflow-scrolling: touch;">
+                    <style>
+                        .category-carousel::-webkit-scrollbar { display: none; }
+                        .carousel-card {
+                            min-width: 280px;
+                            height: 200px;
+                            border-radius: 12px;
+                            overflow: hidden;
+                            cursor: pointer;
+                            transition: transform 0.3s ease, box-shadow 0.3s ease;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+                            position: relative;
+                            background-size: cover;
+                            background-position: center;
+                        }
+                        .carousel-card:hover {
+                            transform: translateY(-4px);
+                            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+                        }
+                        .carousel-card::before {
+                            content: '';
+                            position: absolute;
+                            inset: 0;
+                            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%);
+                        }
+                        .carousel-card-title {
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                            padding: 1.5rem 1rem;
+                            color: white;
+                            font-size: 1.1rem;
+                            font-weight: 500;
+                            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                        }
+                        .carousel-nav {
+                            font-size: 2rem;
+                            color: #5f6368;
+                        }
+                        .carousel-nav:hover {
+                            background: #f8f9fa;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                        }
+                        @media (max-width: 768px) {
+                            .carousel-card { min-width: 240px; height: 180px; }
+                            .carousel-nav { display: none; }
+                        }
+                    </style>
+
+                    <!-- Category Cards -->
+                    <div class="carousel-card" onclick="filterByCategory('electronics')" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=400&fit=crop');">
+                        <div class="carousel-card-title">Electronics for Sustainability</div>
+                    </div>
+                    <div class="carousel-card" onclick="filterByCategory('permaculture')" style="background-image: url('https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&h=400&fit=crop');">
+                        <div class="carousel-card-title">Permaculture</div>
+                    </div>
+                    <div class="carousel-card" onclick="filterByCategory('robotics')" style="background-image: url('https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&h=400&fit=crop');">
+                        <div class="carousel-card-title">Robotics & Gardening</div>
+                    </div>
+                    <div class="carousel-card" onclick="filterByCategory('renewable-energy')" style="background-image: url('https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&h=400&fit=crop');">
+                        <div class="carousel-card-title">Renewable Energy</div>
+                    </div>
+                    <div class="carousel-card" onclick="filterByCategory('construction')" style="background-image: url('https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&h=400&fit=crop');">
+                        <div class="carousel-card-title">Sustainable Construction</div>
+                    </div>
+                    <div class="carousel-card" onclick="filterByCategory('citizen-science')" style="background-image: url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&h=400&fit=crop');">
+                        <div class="carousel-card-title">Citizen Science</div>
+                    </div>
+                    <div class="carousel-card" onclick="filterByCategory('green-crafts')" style="background-image: url('https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=600&h=400&fit=crop');">
+                        <div class="carousel-card-title">Green Crafts</div>
+                    </div>
+                    <div class="carousel-card" onclick="filterByCategory('wine-produce')" style="background-image: url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=600&h=400&fit=crop');">
+                        <div class="carousel-card-title">Wine & Produce</div>
+                    </div>
+                    <div class="carousel-card" onclick="filterByCategory('volunteering')" style="background-image: url('https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&h=400&fit=crop');">
+                        <div class="carousel-card-title">Volunteering</div>
+                    </div>
+                    <div class="carousel-card" onclick="filterByCategory('green-engineering')" style="background-image: url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop');">
+                        <div class="carousel-card-title">Green Engineering</div>
+                    </div>
+                </div>
+
+                <button class="carousel-nav carousel-next" onclick="scrollCarousel(1)" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 10; background: white; border: none; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                    ›
+                </button>
+            </div>
+
+            <!-- Featured Events Space -->
+            <div class="featured-events-space" style="margin-top: 3rem; min-height: 100px;">
+                <!-- This space will be used for featured events and text -->
+            </div>
+        </section>
+
         <!-- Mobile App-Style Cards -->
         <div class="mobile-cards">
 
@@ -288,6 +394,38 @@
                 if (window.filterActivitiesByTime) {
                     window.filterActivitiesByTime('past');
                 }
+            }
+        }
+
+        // Carousel navigation function
+        function scrollCarousel(direction) {
+            const carousel = document.getElementById('categoryCarousel');
+            const scrollAmount = 300;
+            carousel.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+
+        // Category filter function
+        function filterByCategory(category) {
+            console.log('🎨 Filtering by category:', category);
+            // Scroll down to activities section
+            const activitiesCard = document.getElementById('activities');
+            if (activitiesCard) {
+                activitiesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Expand the activities card if not already open
+                if (!activitiesCard.classList.contains('active')) {
+                    toggleCard('activities');
+                }
+
+                // Filter activities by category (to be implemented based on your data structure)
+                // For now, we'll just expand the activities section
+                setTimeout(() => {
+                    // You can add category-specific filtering logic here
+                    // For example: filterByType('workshops') or custom category filtering
+                }, 500);
             }
         }
 
