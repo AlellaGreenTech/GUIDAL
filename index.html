@@ -52,8 +52,11 @@
 
                 <!-- Filters and Search -->
                 <div class="search-container" style="padding: 1rem; border-bottom: 1px solid #eee;">
-                    <!-- Category Tabs (Horizontal) -->
-                    <div class="category-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; flex-wrap: wrap;">
+                    <!-- Category Tabs (Horizontal Scroll) -->
+                    <div class="category-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; overflow-y: hidden; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 0.25rem;">
+                        <style>
+                            .category-tabs::-webkit-scrollbar { display: none; }
+                        </style>
                         <button class="category-tab active" data-type="all" onclick="filterByType('all')" style="padding: 0.5rem 0.75rem; background: #f0f0f0; border: 2px solid #28a745; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">
                             All
                         </button>
