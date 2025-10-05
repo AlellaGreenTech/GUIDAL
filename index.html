@@ -28,7 +28,7 @@
             </button>
             <ul class="nav-menu" style="flex: 1;">
                 <li><a href="pages/directions.html">Directions</a></li>
-                <li><a href="activities.html">Activities</a></li>
+                <li><a href="pages/activities.html">Activities</a></li>
                 <li><a href="pages/kits.html">Kits</a></li>
                 <li><a href="pages/visit-planning.html">Plan Visit</a></li>
                 <li><a href="pages/follow-post.html">Follow & Share</a></li>
@@ -45,7 +45,7 @@
                 We're thrilled to host you at our living laboratory at Can Picard Farm. Explore hands-on learning experiences
                 in green technology, permaculture, and sustainable practices. Get ready for a day of discovery!
             </p>
-            <a href="activities.html" class="btn" style="display: inline-block; background: #28a745; color: white; padding: 1rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: all 0.3s ease;">
+            <a href="pages/activities.html" class="btn" style="display: inline-block; background: #28a745; color: white; padding: 1rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: all 0.3s ease;">
                 View Activities & Events
             </a>
         </section>
@@ -87,7 +87,7 @@
 
             // Cookie redirect - if user has visited before, redirect to activities
             if (document.cookie.includes('guidal_visited_v2=true')) {
-                window.location.href = 'activities.html';
+                window.location.href = 'pages/activities.html';
             } else {
                 // Set the visited cookie (expires in 1 year)
                 const date = new Date();
