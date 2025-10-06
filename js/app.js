@@ -841,7 +841,7 @@ class GuidalApp {
 
             // Special handling for SCARY PUMPKIN PATCH
             if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
-                return `<a href="events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+                return `<a href="https://alellagreentech.com/halloween2025" target="_blank" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
         }
 
