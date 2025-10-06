@@ -43,16 +43,9 @@
                     ‹
                 </button>
 
-                <div class="category-carousel" id="categoryCarousel" style="display: flex; gap: 1.5rem; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: 2rem calc(50% - 180px); scrollbar-width: none; -webkit-overflow-scrolling: touch; align-items: center;">
+                <div class="category-carousel" id="categoryCarousel" style="display: flex; gap: 1.5rem; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: 2rem 50%; scrollbar-width: none; -webkit-overflow-scrolling: touch; align-items: center;">
                     <style>
                         .category-carousel::-webkit-scrollbar { display: none; }
-                        /* Add padding so first and last cards can center */
-                        @media (max-width: 768px) {
-                            .category-carousel {
-                                padding-left: calc(50% - 150px) !important;
-                                padding-right: calc(50% - 150px) !important;
-                            }
-                        }
                         .carousel-card {
                             min-width: 280px;
                             height: 200px;
