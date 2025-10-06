@@ -304,36 +304,42 @@ class GuidalDB {
     if (!filters.type || filters.type !== 'science-stations') {
       if (filters.time_filter === 'past') {
         console.log('📚 Fetching past visits for past activities')
-        try {
-          const pastVisits = await this.getPastVisits(filters)
 
-          // Transform past visits to look like activities
-          const transformedPastVisits = (pastVisits || []).map(visit => {
-            let activityType = {
-              id: 'school-visit',
-              name: 'School Visit',
-              slug: 'school-visits',
-              color: '#28a745',
-              icon: '🏫'
-            }
+        // Only fetch past school visits if NOT filtering by category (since school visits won't have category links)
+        if (!filters.category_id) {
+          try {
+            const pastVisits = await this.getPastVisits(filters)
 
-            return {
-              ...visit,
-              title: visit.school_name ? `Visit to ${visit.school_name}` : 'School Visit',
-              description: visit.additional_comments || 'Completed school visit',
-              date_time: visit.confirmed_date,
-              duration_minutes: visit.duration_minutes || 90,
-              max_participants: visit.student_count || 0,
-              current_participants: visit.student_count || 0,
-              activity_type: activityType,
-              status: 'completed'
-            }
-          })
+            // Transform past visits to look like activities
+            const transformedPastVisits = (pastVisits || []).map(visit => {
+              let activityType = {
+                id: 'school-visit',
+                name: 'School Visit',
+                slug: 'school-visits',
+                color: '#28a745',
+                icon: '🏫'
+              }
 
-          allResults.push(...transformedPastVisits)
-          console.log('✅ Added past visits:', transformedPastVisits.length)
-        } catch (error) {
-          console.error('❌ Error fetching past visits:', error)
+              return {
+                ...visit,
+                title: visit.school_name ? `Visit to ${visit.school_name}` : 'School Visit',
+                description: visit.additional_comments || 'Completed school visit',
+                date_time: visit.confirmed_date,
+                duration_minutes: visit.duration_minutes || 90,
+                max_participants: visit.student_count || 0,
+                current_participants: visit.student_count || 0,
+                activity_type: activityType,
+                status: 'completed'
+              }
+            })
+
+            allResults.push(...transformedPastVisits)
+            console.log('✅ Added past visits:', transformedPastVisits.length)
+          } catch (error) {
+            console.error('❌ Error fetching past visits:', error)
+          }
+        } else {
+          console.log('⏭️ Skipping past school visits due to category filter')
         }
       } else {
         console.log('📅 Fetching scheduled visits')

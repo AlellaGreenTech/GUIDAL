@@ -345,6 +345,9 @@
         async function filterByCategory(categorySlug) {
             console.log('🎨 Filtering by category:', categorySlug);
 
+            // Ensure Upcoming button is visually active
+            toggleTimeFilter('future');
+
             // Scroll down to activities section
             const activitiesCard = document.getElementById('activities');
             if (activitiesCard) {
@@ -361,7 +364,7 @@
                             .single();
 
                         if (category && window.app && window.app.loadActivities) {
-                            // Load activities filtered by category
+                            // Load activities filtered by category (upcoming by default)
                             window.app.loadActivities({
                                 category_id: category.id,
                                 time_filter: 'upcoming'
