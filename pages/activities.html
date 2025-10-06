@@ -421,6 +421,8 @@
             // Filter activities by category using the junction table
             setTimeout(async () => {
                 try {
+                    console.log('📊 Loading activities for category:', categorySlug);
+
                     // Get category ID first
                     const { data: category } = await supabaseClient
                         .from('activity_categories')
@@ -429,14 +431,18 @@
                         .single();
 
                     if (category && window.app && window.app.loadActivities) {
+                        console.log('✅ Found category ID:', category.id, 'Loading activities...');
                         // Load activities filtered by category (upcoming by default)
-                        window.app.loadActivities({
+                        await window.app.loadActivities({
                             category_id: category.id,
                             time_filter: 'upcoming'
                         });
+                        console.log('✅ Activities loaded for', categorySlug);
+                    } else {
+                        console.error('❌ Missing:', { category, app: !!window.app, loadActivities: !!window.app?.loadActivities });
                     }
                 } catch (err) {
-                    console.error('Error filtering by category:', err);
+                    console.error('❌ Error filtering by category:', err);
                 }
             }, skipScroll ? 100 : 500);
         }
@@ -589,18 +595,24 @@
                     }
                 });
 
-                // If we found a centered card and it's not already active
-                if (closestCard && !closestCard.classList.contains('active')) {
+                // If we found a centered card
+                if (closestCard) {
                     // Get the category slug from the onclick attribute
                     const onclickAttr = closestCard.getAttribute('onclick');
                     const slugMatch = onclickAttr.match(/filterByCategory\('([^']+)'/);
 
                     if (slugMatch && slugMatch[1]) {
                         const categorySlug = slugMatch[1];
-                        console.log('🎯 Auto-selecting centered card:', categorySlug);
 
-                        // Trigger the filter with skipScroll=true to prevent jumping
-                        filterByCategory(categorySlug, closestCard, true);
+                        // Only trigger if this card is not already active
+                        if (!closestCard.classList.contains('active')) {
+                            console.log('🎯 Auto-selecting centered card:', categorySlug);
+
+                            // Trigger the filter with skipScroll=true to prevent jumping
+                            filterByCategory(categorySlug, closestCard, true);
+                        } else {
+                            console.log('⏭️ Card already active:', categorySlug);
+                        }
                     }
                 }
             }, 150); // Debounce scroll events
