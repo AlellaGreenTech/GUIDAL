@@ -400,6 +400,40 @@
                 }
             }
 
+            // Special handling for School Field Trips category
+            if (categorySlug === 'school-visits' || categorySlug === 'school-field-trips') {
+                // Show special "Plan Your Visit" card instead of activities
+                const activityGrid = document.getElementById('activity-grid');
+                if (activityGrid) {
+                    activityGrid.innerHTML = `
+                        <div style="max-width: 600px; margin: 3rem auto; text-align: center; padding: 3rem; background: linear-gradient(135deg, #2196f3, #1976d2); border-radius: 16px; box-shadow: 0 8px 24px rgba(33, 150, 243, 0.3);">
+                            <h2 style="color: white; font-size: 2rem; margin-bottom: 1rem;">🎓 School Field Trips</h2>
+                            <p style="color: white; font-size: 1.1rem; opacity: 0.95; margin-bottom: 2rem; line-height: 1.6;">
+                                Bring your students to our living laboratory! Experience hands-on learning in green technology, permaculture, and sustainable practices.
+                            </p>
+                            <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                                <p style="color: white; font-size: 1rem; margin-bottom: 0.5rem;">
+                                    ✓ Customized learning experiences<br>
+                                    ✓ Aligned with educational standards<br>
+                                    ✓ Interactive workshops & activities<br>
+                                    ✓ Experienced educators & guides
+                                </p>
+                            </div>
+                            <a href="visit-planning.html" style="display: inline-block; background: white; color: #2196f3; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.2rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                                📋 Plan Your School's Visit
+                            </a>
+                        </div>
+                    `;
+                }
+
+                // Scroll to activities section
+                const activitiesCard = document.getElementById('activities');
+                if (activitiesCard && !skipScroll) {
+                    activitiesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                return;
+            }
+
             // Ensure Upcoming button is visually active (but don't trigger filter)
             const futureBtn = document.getElementById('future-toggle');
             const pastBtn = document.getElementById('past-toggle');
