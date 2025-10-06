@@ -38,11 +38,7 @@
             </h2>
 
             <!-- Carousel Container -->
-            <div class="carousel-wrapper" style="position: relative; margin: 0 -1rem; margin-bottom: 2rem;">
-                <button class="carousel-nav carousel-prev" onclick="scrollCarousel(-1)" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 10; background: white; border: none; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
-                    ‹
-                </button>
-
+            <div class="carousel-wrapper" style="position: relative; margin: 0 -1rem; margin-bottom: 1rem;">
                 <div class="category-carousel" id="categoryCarousel" style="display: flex; gap: 1.5rem; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: 2rem 50%; scrollbar-width: none; -webkit-overflow-scrolling: touch; align-items: center;">
                     <style>
                         .category-carousel::-webkit-scrollbar { display: none; }
@@ -105,13 +101,32 @@
                             font-size: 1.4rem;
                             font-weight: 600;
                         }
+                        .carousel-controls {
+                            display: flex;
+                            gap: 1rem;
+                            justify-content: center;
+                            margin-top: 1.5rem;
+                        }
                         .carousel-nav {
-                            font-size: 2rem;
+                            font-size: 1.5rem;
                             color: #5f6368;
+                            background: white;
+                            border: 2px solid #e0e0e0;
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.3s ease;
                         }
                         .carousel-nav:hover {
                             background: #f8f9fa;
-                            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                            border-color: #28a745;
+                            color: #28a745;
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
                         }
                         @media (max-width: 768px) {
                             .carousel-card {
@@ -122,16 +137,22 @@
                                 min-width: 300px;
                                 height: 220px;
                             }
-                            .carousel-nav { display: none; }
+                            .carousel-controls { display: none; }
                         }
                     </style>
 
                     <!-- Category Cards will be loaded dynamically from database -->
                 </div>
 
-                <button class="carousel-nav carousel-next" onclick="scrollCarousel(1)" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 10; background: white; border: none; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
-                    ›
-                </button>
+                <!-- Navigation Controls Below Carousel -->
+                <div class="carousel-controls">
+                    <button class="carousel-nav carousel-prev" onclick="scrollCarousel(-1)" aria-label="Previous">
+                        ‹
+                    </button>
+                    <button class="carousel-nav carousel-next" onclick="scrollCarousel(1)" aria-label="Next">
+                        ›
+                    </button>
+                </div>
             </div>
         </section>
 
