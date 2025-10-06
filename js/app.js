@@ -470,7 +470,7 @@ class GuidalApp {
         let whatsappButton = '';
         if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
             dateDisplay = 'October 10-31, 2025. Any time. Boo! us on WhatsApp first';
-            whatsappButton = '<a href="https://chat.whatsapp.com/GYQmIVwu3fID0VcW4QmUM2" target="_blank" style="display: inline-block; background: #25D366; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; text-decoration: none; font-size: 0.75rem; font-weight: bold; margin-left: 0.5rem;">💬 WhatsApp us!</a>';
+            whatsappButton = '<a href="https://chat.whatsapp.com/HnWhcfwNLenGKXMFOR6JUG" target="_blank" class="btn" style="background: #25D366 !important; color: white !important; border-color: #25D366 !important;">💬 Request Visit</a>';
         } else if (activity.date_time) {
             dateDisplay = new Date(activity.date_time).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -500,19 +500,19 @@ class GuidalApp {
                 <h3>${activity.title}</h3>
                 <p class="activity-date">
                     ${dateDisplay}
-                    ${whatsappButton}
                     ${this.getCompletedBadge(activity)}
                 </p>
                 <p class="activity-description">${this.formatDescription(activity.description)}</p>
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin: 0.5rem 0;">
+                    ${whatsappButton}
+                    ${this.getActivityButton(activity)}
+                </div>
                 <div class="activity-details">
                     <span class="participants">${participantInfo}</span>
                     <span class="duration">${this.formatActivityDuration(activity)}</span>
                 </div>
                 <div class="activity-actions">
                     ${greensInfo}
-                    <div class="activity-button-wrapper">
-                        ${this.getActivityButton(activity)}
-                    </div>
                 </div>
             </div>
         `;
@@ -841,7 +841,7 @@ class GuidalApp {
 
             // Special handling for SCARY PUMPKIN PATCH
             if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
-                return `<a href="https://alellagreentech.com/halloween2025" target="_blank" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+                return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
         }
 

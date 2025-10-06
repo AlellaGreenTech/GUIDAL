@@ -96,6 +96,37 @@
             margin-top: 1.5rem;
             text-align: center;
         }
+        .customer-info-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+        .form-input::placeholder {
+            color: #999;
+        }
     </style>
 </head>
 <body>
@@ -114,21 +145,51 @@
             </div>
 
             <div class="info-box">
-                <strong>ℹ️ About SCARES:</strong> 1 SCARE = 1 EUR<br>
-                Use SCARES for pumpkins, food, drinks, and other items at the farm!
+                Get your visit pass, party tickets, pumpkin and food SCARES here!
+            </div>
+
+            <!-- Customer Information Form -->
+            <div class="customer-info-section">
+                <h3 style="margin-bottom: 1rem; color: #333;">📧 Your Information</h3>
+                <div class="form-group">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" class="form-input" required placeholder="Enter your first name">
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" class="form-input" required placeholder="Enter your last name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email (to receive tickets) *</label>
+                    <input type="email" id="email" class="form-input" required placeholder="your.email@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone (optional)</label>
+                    <input type="tel" id="phone" class="form-input" placeholder="+34 123 456 789">
+                </div>
             </div>
 
             <div class="item-row">
                 <div class="item-label">
-                    👨 Adult Entrance Ticket
+                    👨👶 Pumpkin Patch Visit (adult or child) - ANY DAY
                 </div>
-                <div class="item-price">€20 each</div>
+                <div class="item-price">€5 per person</div>
+                <input type="number" id="visit" class="item-input" min="0" value="0" oninput="calculateTotal()">
+            </div>
+
+            <div class="item-row">
+                <div class="item-label">
+                    👨 Adult Entrance Party Ticket<br>
+                    <small style="color: #666;">October 25th, 2025</small>
+                </div>
+                <div class="item-price">€15 each</div>
                 <input type="number" id="adults" class="item-input" min="0" value="0" oninput="calculateTotal()">
             </div>
 
             <div class="item-row">
                 <div class="item-label">
-                    👶 Child Entrance Ticket
+                    👶 Child Entrance Party Ticket<br>
+                    <small style="color: #666;">October 25th, 2025</small>
                 </div>
                 <div class="item-price">€10 each</div>
                 <input type="number" id="children" class="item-input" min="0" value="0" oninput="calculateTotal()">
@@ -148,14 +209,27 @@
                 <div id="total">€0</div>
             </div>
 
-            <a href="https://www.paypal.com/ncp/payment/4T2B69VFPFHH8" target="_blank" class="payment-button" id="payButton">
-                💳 Pay with PayPal
-            </a>
+            <button type="button" class="payment-button" id="continueButton" onclick="handleContinueToPayment()" style="background: #28a745;">
+                ✓ Continue to Payment
+            </button>
+
+            <div id="paypalSection" style="display: none;">
+                <div style="text-align: center; color: #28a745; font-weight: bold; margin: 1rem 0; padding: 1rem; background: #d4edda; border-radius: 8px;">
+                    ✅ Order confirmed! Click below to complete payment.
+                </div>
+
+                <a href="https://www.paypal.com/ncp/payment/4T2B69VFPFHH8" target="_blank" class="payment-button" id="payButton">
+                    💳 Pay with PayPal
+                </a>
+            </div>
 
             <div class="whatsapp-note">
                 <strong>📅 Don't forget!</strong><br>
-                After payment, join our WhatsApp group to schedule your visit:<br>
-                <a href="https://chat.whatsapp.com/GYQmIVwu3fID0VcW4QmUM2" target="_blank" style="color: #25D366; font-weight: bold;">💬 Join WhatsApp Group</a>
+                After payment, contact us on WhatsApp:<br>
+                <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
+                    <a href="https://chat.whatsapp.com/HnWhcfwNLenGKXMFOR6JUG" target="_blank" style="background: #25D366; color: white; padding: 0.75rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;">💬 Request Visit Time</a>
+                    <a href="https://chat.whatsapp.com/GYQmIVwu3fID0VcW4QmUM2" target="_blank" style="background: #25D366; color: white; padding: 0.75rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;">💬 Join Party WhatsApp Group</a>
+                </div>
             </div>
         </div>
     </main>
@@ -166,13 +240,18 @@
         </div>
     </footer>
 
+    <!-- Supabase Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+
     <script>
         function calculateTotal() {
+            const visit = parseInt(document.getElementById('visit').value) || 0;
             const adults = parseInt(document.getElementById('adults').value) || 0;
             const children = parseInt(document.getElementById('children').value) || 0;
             const scares = parseInt(document.getElementById('scares').value) || 0;
 
-            const total = (adults * 20) + (children * 10) + (scares * 1);
+            const total = (visit * 5) + (adults * 15) + (children * 10) + (scares * 1);
 
             document.getElementById('total').textContent = '€' + total;
 
@@ -184,6 +263,209 @@
 
         // Initialize total on page load
         calculateTotal();
+
+        // Handle continue to payment button
+        async function handleContinueToPayment() {
+            const success = await saveOrderToDatabase();
+            if (success) {
+                // Hide continue button and show PayPal section
+                document.getElementById('continueButton').style.display = 'none';
+                document.getElementById('paypalSection').style.display = 'block';
+
+                // Scroll to PayPal button
+                document.getElementById('paypalSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Validate and save order to database before payment
+        async function saveOrderToDatabase() {
+            // Get customer info
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+
+            // Validate required fields
+            if (!firstName || !lastName || !email) {
+                alert('⚠️ Please fill in all required fields (First Name, Last Name, and Email)');
+                return false;
+            }
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('⚠️ Please enter a valid email address');
+                return false;
+            }
+
+            // Get quantities
+            const visit = parseInt(document.getElementById('visit').value) || 0;
+            const adults = parseInt(document.getElementById('adults').value) || 0;
+            const children = parseInt(document.getElementById('children').value) || 0;
+            const scares = parseInt(document.getElementById('scares').value) || 0;
+
+            // Calculate total
+            const total = (visit * 5) + (adults * 15) + (children * 10) + (scares * 1);
+
+            // Validate that at least one item is selected
+            if (total === 0) {
+                alert('⚠️ Please select at least one item before proceeding to payment');
+                return false;
+            }
+
+            try {
+                // For now, store order in localStorage until database is ready
+                // This allows testing the flow while database schema is being set up
+                const orderNumber = 'PP-' + new Date().toISOString().split('T')[0].replace(/-/g, '') + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+
+                // Try to save to database, but don't fail if it's not ready yet
+                try {
+                    const { data: orderNumberData, error: orderNumberError } = await window.supabaseClient
+                        .rpc('generate_pumpkin_order_number');
+
+                    if (orderNumberError) {
+                        console.warn('Database not ready yet, using local order number');
+                    } else {
+                        orderNumber = orderNumberData;
+                    }
+                } catch (dbError) {
+                    console.warn('Database not ready:', dbError.message);
+                }
+
+                // Create order in database
+                let order = null;
+                try {
+                    const { data: orderData, error: orderError } = await window.supabaseClient
+                        .from('pumpkin_patch_orders')
+                        .insert({
+                            order_number: orderNumber,
+                            first_name: firstName,
+                            last_name: lastName,
+                            email: email,
+                            phone: phone || null,
+                            total_amount: total,
+                            status: 'pending',
+                            payment_status: 'pending'
+                        })
+                        .select()
+                        .single();
+
+                    if (orderError) {
+                        console.warn('Database insert failed:', orderError.message);
+                        // Create a temporary order object for localStorage
+                        order = {
+                            id: 'temp-' + Date.now(),
+                            order_number: orderNumber,
+                            first_name: firstName,
+                            last_name: lastName,
+                            email: email,
+                            phone: phone,
+                            total_amount: total
+                        };
+                    } else {
+                        order = orderData;
+                        console.log('✅ Order created in database:', order);
+                    }
+                } catch (dbError) {
+                    console.warn('Database not available:', dbError.message);
+                    // Create a temporary order object
+                    order = {
+                        id: 'temp-' + Date.now(),
+                        order_number: orderNumber,
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: email,
+                        phone: phone,
+                        total_amount: total
+                    };
+                }
+
+                // Create order items
+                const orderItems = [];
+
+                if (visit > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: 'Pumpkin Patch Visit (adult or child) - ANY DAY',
+                        item_type: 'visit_pass',
+                        quantity: visit,
+                        unit_price: 5,
+                        total_price: visit * 5
+                    });
+                }
+
+                if (adults > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: 'Adult Entrance Party Ticket',
+                        item_type: 'party_ticket',
+                        quantity: adults,
+                        unit_price: 15,
+                        total_price: adults * 15,
+                        metadata: { date: '2025-10-25', participant_type: 'adult' }
+                    });
+                }
+
+                if (children > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: 'Child Entrance Party Ticket',
+                        item_type: 'party_ticket',
+                        quantity: children,
+                        unit_price: 10,
+                        total_price: children * 10,
+                        metadata: { date: '2025-10-25', participant_type: 'child' }
+                    });
+                }
+
+                if (scares > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: 'SCARES (for pumpkins, food, etc.)',
+                        item_type: 'scare_token',
+                        quantity: scares,
+                        unit_price: 1,
+                        total_price: scares * 1
+                    });
+                }
+
+                // Insert all order items (only if database is available)
+                if (orderItems.length > 0 && !order.id.toString().startsWith('temp-')) {
+                    try {
+                        const { error: itemsError } = await window.supabaseClient
+                            .from('pumpkin_patch_order_items')
+                            .insert(orderItems);
+
+                        if (itemsError) {
+                            console.warn('Could not save order items to database:', itemsError.message);
+                        } else {
+                            console.log('✅ Order items created:', orderItems.length, 'items');
+                        }
+                    } catch (itemsDbError) {
+                        console.warn('Database not available for order items:', itemsDbError.message);
+                    }
+                }
+
+                // Store order info in session storage for reference
+                sessionStorage.setItem('pumpkin_order_id', order.id);
+                sessionStorage.setItem('pumpkin_order_number', orderNumber);
+                sessionStorage.setItem('pumpkin_order_total', total);
+                sessionStorage.setItem('pumpkin_order_details', JSON.stringify({
+                    customer: { firstName, lastName, email, phone },
+                    items: orderItems,
+                    total: total
+                }));
+
+                console.log('✅ Order saved:', orderNumber);
+
+                return true;
+
+            } catch (error) {
+                console.error('❌ Error saving order:', error);
+                alert('⚠️ Error creating order. Please try again or contact support.\n\nError: ' + error.message);
+                return false;
+            }
+        }
     </script>
 </body>
 </html>
