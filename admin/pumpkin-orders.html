@@ -244,11 +244,17 @@
 </head>
 <body>
     <nav class="main-nav">
-        <div class="container" style="display: flex; align-items: center; gap: 2rem;">
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between; gap: 2rem;">
             <a href="../index.html" style="text-decoration: none; display: flex; flex-direction: column; padding: 0.75rem 0;">
                 <span style="font-size: 1.5rem; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); line-height: 1;">GUIDAL</span>
                 <span style="font-size: 0.7rem; color: white; opacity: 0.85; margin-top: 0.15rem;">at Alella Green Tech</span>
             </a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span id="userEmail" style="color: white; font-size: 0.9rem;"></span>
+                <button onclick="logout()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                    Logout
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -389,8 +395,22 @@
                 return;
             }
 
+            // Display user email in nav
+            document.getElementById('userEmail').textContent = user.email;
+
             await loadOrders();
         });
+
+        // Logout function
+        async function logout() {
+            const { error } = await window.supabaseClient.auth.signOut();
+            if (error) {
+                console.error('Logout error:', error);
+                alert('Error logging out');
+            } else {
+                window.location.href = '../index.html';
+            }
+        }
 
         async function loadOrders() {
             try {
