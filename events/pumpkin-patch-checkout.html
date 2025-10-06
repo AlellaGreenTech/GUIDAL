@@ -51,6 +51,12 @@
             outline: none;
             border-color: #ff6b35;
         }
+        /* Always show number input spinners */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+            height: 40px;
+        }
         .total-row {
             display: flex;
             justify-content: space-between;
