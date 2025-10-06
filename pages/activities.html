@@ -375,7 +375,7 @@
         }
 
         // Category filter function
-        async function filterByCategory(categorySlug, cardElement) {
+        async function filterByCategory(categorySlug, cardElement, skipScroll = false) {
             console.log('🎨 Filtering by category:', categorySlug);
 
             // Update active state for all cards
@@ -386,48 +386,50 @@
             if (cardElement) {
                 cardElement.classList.add('active');
 
-                // Scroll the active card to center of viewport
-                const carousel = document.getElementById('categoryCarousel');
-                const cardRect = cardElement.getBoundingClientRect();
-                const carouselRect = carousel.getBoundingClientRect();
-                const scrollLeft = cardElement.offsetLeft - (carouselRect.width / 2) + (cardRect.width / 2);
+                // Scroll the active card to center of viewport (unless triggered by scroll)
+                if (!skipScroll) {
+                    const carousel = document.getElementById('categoryCarousel');
+                    const cardRect = cardElement.getBoundingClientRect();
+                    const carouselRect = carousel.getBoundingClientRect();
+                    const scrollLeft = cardElement.offsetLeft - (carouselRect.width / 2) + (cardRect.width / 2);
 
-                carousel.scrollTo({
-                    left: scrollLeft,
-                    behavior: 'smooth'
-                });
+                    carousel.scrollTo({
+                        left: scrollLeft,
+                        behavior: 'smooth'
+                    });
+                }
             }
 
             // Ensure Upcoming button is visually active
             toggleTimeFilter('future');
 
-            // Scroll down to activities section
+            // Scroll down to activities section (only if not triggered by scroll)
             const activitiesCard = document.getElementById('activities');
-            if (activitiesCard) {
+            if (activitiesCard && !skipScroll) {
                 activitiesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                // Filter activities by category using the junction table
-                setTimeout(async () => {
-                    try {
-                        // Get category ID first
-                        const { data: category } = await supabaseClient
-                            .from('activity_categories')
-                            .select('id')
-                            .eq('slug', categorySlug)
-                            .single();
-
-                        if (category && window.app && window.app.loadActivities) {
-                            // Load activities filtered by category (upcoming by default)
-                            window.app.loadActivities({
-                                category_id: category.id,
-                                time_filter: 'upcoming'
-                            });
-                        }
-                    } catch (err) {
-                        console.error('Error filtering by category:', err);
-                    }
-                }, 500);
             }
+
+            // Filter activities by category using the junction table
+            setTimeout(async () => {
+                try {
+                    // Get category ID first
+                    const { data: category } = await supabaseClient
+                        .from('activity_categories')
+                        .select('id')
+                        .eq('slug', categorySlug)
+                        .single();
+
+                    if (category && window.app && window.app.loadActivities) {
+                        // Load activities filtered by category (upcoming by default)
+                        window.app.loadActivities({
+                            category_id: category.id,
+                            time_filter: 'upcoming'
+                        });
+                    }
+                } catch (err) {
+                    console.error('Error filtering by category:', err);
+                }
+            }, skipScroll ? 100 : 500);
         }
 
         function filterByType(type) {
@@ -542,11 +544,69 @@
             }
         }
 
+        // Detect which card is centered during scroll
+        let scrollTimeout;
+        function handleCarouselScroll() {
+            // Clear previous timeout
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+
+            // Wait for scroll to settle before updating
+            scrollTimeout = setTimeout(() => {
+                const carousel = document.getElementById('categoryCarousel');
+                if (!carousel) return;
+
+                const cards = carousel.querySelectorAll('.carousel-card');
+                const carouselRect = carousel.getBoundingClientRect();
+                const carouselCenter = carouselRect.left + (carouselRect.width / 2);
+
+                let closestCard = null;
+                let closestDistance = Infinity;
+
+                // Find which card is closest to center
+                cards.forEach(card => {
+                    const cardRect = card.getBoundingClientRect();
+                    const cardCenter = cardRect.left + (cardRect.width / 2);
+                    const distance = Math.abs(cardCenter - carouselCenter);
+
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestCard = card;
+                    }
+                });
+
+                // If we found a centered card and it's not already active
+                if (closestCard && !closestCard.classList.contains('active')) {
+                    // Get the category slug from the onclick attribute
+                    const onclickAttr = closestCard.getAttribute('onclick');
+                    const slugMatch = onclickAttr.match(/filterByCategory\('([^']+)'/);
+
+                    if (slugMatch && slugMatch[1]) {
+                        const categorySlug = slugMatch[1];
+                        console.log('🎯 Auto-selecting centered card:', categorySlug);
+
+                        // Trigger the filter with skipScroll=true to prevent jumping
+                        filterByCategory(categorySlug, closestCard, true);
+                    }
+                }
+            }, 150); // Debounce scroll events
+        }
+
         // Auto-expand activities card on page load
         document.addEventListener('DOMContentLoaded', function() {
             // Load categories first
             console.log('📍 DOM loaded, starting category load...');
             loadCategories();
+
+            // Add scroll listener to carousel after it loads
+            setTimeout(() => {
+                const carousel = document.getElementById('categoryCarousel');
+                if (carousel) {
+                    carousel.addEventListener('scroll', handleCarouselScroll);
+                    console.log('✅ Carousel scroll detection enabled');
+                }
+            }, 1500);
 
             // Small delay to ensure proper rendering
             setTimeout(() => {
