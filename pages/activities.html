@@ -43,30 +43,51 @@
                     ‹
                 </button>
 
-                <div class="category-carousel" id="categoryCarousel" style="display: flex; gap: 1.5rem; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: 1rem; scrollbar-width: none; -webkit-overflow-scrolling: touch;">
+                <div class="category-carousel" id="categoryCarousel" style="display: flex; gap: 1.5rem; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; padding: 2rem 1rem; scrollbar-width: none; -webkit-overflow-scrolling: touch; align-items: center;">
                     <style>
                         .category-carousel::-webkit-scrollbar { display: none; }
                         .carousel-card {
-                            min-width: 320px;
-                            height: 240px;
+                            min-width: 280px;
+                            height: 200px;
                             border-radius: 12px;
                             overflow: hidden;
                             cursor: pointer;
-                            transition: transform 0.3s ease, box-shadow 0.3s ease;
+                            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                             box-shadow: 0 1px 3px rgba(0,0,0,0.12);
                             position: relative;
                             background-size: cover;
                             background-position: center;
+                            opacity: 0.6;
+                            filter: grayscale(20%) brightness(0.9);
+                            transform: scale(0.9);
+                            flex-shrink: 0;
+                        }
+                        .carousel-card.active {
+                            min-width: 360px;
+                            height: 260px;
+                            opacity: 1;
+                            filter: grayscale(0%) brightness(1);
+                            transform: scale(1);
+                            box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+                            z-index: 2;
                         }
                         .carousel-card:hover {
-                            transform: translateY(-4px);
-                            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+                            opacity: 0.85;
+                            filter: grayscale(10%) brightness(0.95);
+                        }
+                        .carousel-card.active:hover {
+                            opacity: 1;
+                            filter: grayscale(0%) brightness(1);
                         }
                         .carousel-card::before {
                             content: '';
                             position: absolute;
                             inset: 0;
                             background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%);
+                            transition: opacity 0.3s ease;
+                        }
+                        .carousel-card:not(.active)::before {
+                            opacity: 0.8;
                         }
                         .carousel-card-title {
                             position: absolute;
@@ -78,6 +99,11 @@
                             font-size: 1.2rem;
                             font-weight: 500;
                             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                            transition: font-size 0.3s ease;
+                        }
+                        .carousel-card.active .carousel-card-title {
+                            font-size: 1.4rem;
+                            font-weight: 600;
                         }
                         .carousel-nav {
                             font-size: 2rem;
@@ -88,7 +114,14 @@
                             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                         }
                         @media (max-width: 768px) {
-                            .carousel-card { min-width: 280px; height: 200px; }
+                            .carousel-card {
+                                min-width: 240px;
+                                height: 180px;
+                            }
+                            .carousel-card.active {
+                                min-width: 300px;
+                                height: 220px;
+                            }
                             .carousel-nav { display: none; }
                         }
                     </style>
@@ -342,8 +375,28 @@
         }
 
         // Category filter function
-        async function filterByCategory(categorySlug) {
+        async function filterByCategory(categorySlug, cardElement) {
             console.log('🎨 Filtering by category:', categorySlug);
+
+            // Update active state for all cards
+            const allCards = document.querySelectorAll('.carousel-card');
+            allCards.forEach(card => card.classList.remove('active'));
+
+            // Set clicked card as active
+            if (cardElement) {
+                cardElement.classList.add('active');
+
+                // Scroll the active card to center of viewport
+                const carousel = document.getElementById('categoryCarousel');
+                const cardRect = cardElement.getBoundingClientRect();
+                const carouselRect = carousel.getBoundingClientRect();
+                const scrollLeft = cardElement.offsetLeft - (carouselRect.width / 2) + (cardRect.width / 2);
+
+                carousel.scrollTo({
+                    left: scrollLeft,
+                    behavior: 'smooth'
+                });
+            }
 
             // Ensure Upcoming button is visually active
             toggleTimeFilter('future');
@@ -460,14 +513,22 @@
                     const styleEl = carousel.querySelector('style');
 
                     if (categories && categories.length > 0) {
-                        carousel.innerHTML = styleEl.outerHTML + categories.map(category => `
-                            <div class="carousel-card"
-                                 onclick="filterByCategory('${category.slug}')"
+                        carousel.innerHTML = styleEl.outerHTML + categories.map((category, index) => `
+                            <div class="carousel-card ${index === 0 ? 'active' : ''}"
+                                 onclick="filterByCategory('${category.slug}', this)"
                                  style="background-image: url('${category.image_url}');">
                                 <div class="carousel-card-title">${category.name}</div>
                             </div>
                         `).join('');
                         console.log('✅ Rendered', categories.length, 'category cards');
+
+                        // Auto-select the first category after a brief delay
+                        setTimeout(() => {
+                            const firstCard = carousel.querySelector('.carousel-card.active');
+                            if (firstCard && categories[0]) {
+                                filterByCategory(categories[0].slug, firstCard);
+                            }
+                        }, 1000);
                     } else {
                         carousel.innerHTML = styleEl.outerHTML + `
                             <div style="padding: 2rem; text-align: center; width: 100%; color: #666;">
