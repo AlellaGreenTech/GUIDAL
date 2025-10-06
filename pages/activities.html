@@ -400,8 +400,17 @@
                 }
             }
 
-            // Ensure Upcoming button is visually active
-            toggleTimeFilter('future');
+            // Ensure Upcoming button is visually active (but don't trigger filter)
+            const futureBtn = document.getElementById('future-toggle');
+            const pastBtn = document.getElementById('past-toggle');
+            if (futureBtn && pastBtn) {
+                futureBtn.classList.add('active');
+                pastBtn.classList.remove('active');
+                futureBtn.style.background = '#28a745';
+                futureBtn.style.color = 'white';
+                pastBtn.style.background = 'transparent';
+                pastBtn.style.color = '#28a745';
+            }
 
             // Scroll down to activities section (only if not triggered by scroll)
             const activitiesCard = document.getElementById('activities');
