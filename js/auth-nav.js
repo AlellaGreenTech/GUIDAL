@@ -12,8 +12,12 @@
         }
 
         try {
-            // Get current user
-            const { data: { user } } = await window.supabaseClient.auth.getUser();
+            // Wait for session to be ready
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Get current user session
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            const user = session?.user;
 
             // Find the login button
             const loginBtn = document.querySelector('.login-btn');
