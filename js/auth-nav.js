@@ -203,30 +203,44 @@
         console.log('🖱️ Toggle dropdown clicked');
         event.preventDefault();
         event.stopPropagation();
+
         const dropdown = document.getElementById('userDropdown');
         console.log('📋 Dropdown element:', dropdown);
+
         if (dropdown) {
             const isShowing = dropdown.classList.contains('show');
             console.log('👁️ Currently showing:', isShowing);
+
+            // Close all dropdowns first
+            document.querySelectorAll('.user-dropdown.show').forEach(d => {
+                if (d !== dropdown) d.classList.remove('show');
+            });
+
+            // Toggle this dropdown
             dropdown.classList.toggle('show');
             console.log('✅ Toggled to:', dropdown.classList.contains('show'));
         } else {
             console.error('❌ Dropdown element not found!');
         }
+
+        return false;
     };
 
-    // Close dropdown when clicking outside (with slight delay to avoid immediate close)
-    setTimeout(() => {
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('userDropdown');
-            if (dropdown && dropdown.classList.contains('show')) {
-                if (!e.target.closest('.user-menu-container')) {
-                    dropdown.classList.remove('show');
-                    console.log('🚪 Closed dropdown (clicked outside)');
-                }
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        // Don't close if clicking on the user menu itself
+        if (e.target.closest('.user-menu')) {
+            return;
+        }
+
+        const dropdown = document.getElementById('userDropdown');
+        if (dropdown && dropdown.classList.contains('show')) {
+            if (!e.target.closest('.user-menu-container')) {
+                dropdown.classList.remove('show');
+                console.log('🚪 Closed dropdown (clicked outside)');
             }
-        });
-    }, 100);
+        }
+    });
 
     // Logout function
     window.logoutUser = async function(event) {
