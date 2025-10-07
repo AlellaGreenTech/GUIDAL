@@ -447,11 +447,11 @@
                     `;
                 }
 
-                // Scroll to activities section
-                const activitiesCard = document.getElementById('activities');
-                if (activitiesCard && !skipScroll) {
-                    activitiesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
+                // Don't auto-scroll - let user see carousel
+                // const activitiesCard = document.getElementById('activities');
+                // if (activitiesCard && !skipScroll) {
+                //     activitiesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // }
                 return;
             }
 
@@ -467,11 +467,11 @@
                 pastBtn.style.color = '#28a745';
             }
 
-            // Scroll down to activities section (only if not triggered by scroll)
-            const activitiesCard = document.getElementById('activities');
-            if (activitiesCard && !skipScroll) {
-                activitiesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            // Don't auto-scroll - let user see carousel at top
+            // const activitiesCard = document.getElementById('activities');
+            // if (activitiesCard && !skipScroll) {
+            //     activitiesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // }
 
             // Filter activities by category using the junction table
             setTimeout(async () => {
