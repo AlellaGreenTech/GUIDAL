@@ -333,6 +333,7 @@
                         <th>Date</th>
                         <th>Customer</th>
                         <th>Email</th>
+                        <th>Party Date</th>
                         <th>Items</th>
                         <th>Amount</th>
                         <th>Payment</th>
@@ -487,6 +488,9 @@
                     </td>
                     <td>${order.first_name} ${order.last_name}</td>
                     <td>${order.email}</td>
+                    <td>${order.party_date ? `
+                        <strong style="color: #ff6b35;">🎃 ${new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</strong>
+                    ` : '<span style="color: #999;">-</span>'}</td>
                     <td class="order-items">
                         ${order.items.map(item =>
                             `${item.quantity}x ${item.item_name}`
