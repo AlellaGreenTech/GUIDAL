@@ -182,16 +182,16 @@
     // Helper to get profile path
     function getProfilePath() {
         const path = window.location.pathname;
-        // If already in /pages/auth/, just go to profile.html
-        if (path.includes('/pages/auth/')) {
+        // If already in /pages/, just go to profile.html
+        if (path.includes('/pages/')) {
             return 'profile.html';
         }
-        // If in /pages/, go to auth/profile.html
-        if (path.includes('/pages/')) {
-            return 'auth/profile.html';
+        // If in /admin/ or /events/, go up to pages
+        if (path.includes('/admin/') || path.includes('/events/')) {
+            return '../pages/profile.html';
         }
-        // If at root or in /admin/ or /events/, go to pages/auth/profile.html
-        return 'pages/auth/profile.html';
+        // If at root, go to pages/profile.html
+        return 'pages/profile.html';
     }
 
     // Helper to get admin path
