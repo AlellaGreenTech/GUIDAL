@@ -604,7 +604,8 @@ class GuidalApp {
 
             // Halloween Events
             'SCARY PUMPKIN PATCH - Pick Your Own Pumpkin 👻🎃': 'images/pumpkin-patch.jpg',
-            'Halloween Party 2025 🎃👻': 'images/halloween-party.png'
+            'Halloween Party 2025 🎃👻': 'images/halloween-party.png',
+            'Halloween Mini-Party 2025 🎃👻': 'images/halloween-party.png'
         };
 
         // If no specific image found, use generic images by activity type
@@ -845,6 +846,10 @@ class GuidalApp {
             }
 
             if (activity.title && activity.title.includes('Halloween Party 2025')) {
+                return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+            }
+
+            if (activity.title && activity.title.includes('Halloween Mini-Party 2025')) {
                 return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
         }
