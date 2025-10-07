@@ -198,11 +198,12 @@
         return 'admin/pumpkin-orders.html';
     }
 
-    // Toggle user dropdown
+    // Toggle user dropdown - completely rewritten approach
     window.toggleUserDropdown = function(event) {
         console.log('🖱️ Toggle dropdown clicked');
         event.preventDefault();
         event.stopPropagation();
+        event.stopImmediatePropagation();
 
         const dropdown = document.getElementById('userDropdown');
         console.log('📋 Dropdown element:', dropdown);
@@ -211,14 +212,15 @@
             const isShowing = dropdown.classList.contains('show');
             console.log('👁️ Currently showing:', isShowing);
 
-            // Close all dropdowns first
-            document.querySelectorAll('.user-dropdown.show').forEach(d => {
-                if (d !== dropdown) d.classList.remove('show');
-            });
-
-            // Toggle this dropdown
-            dropdown.classList.toggle('show');
-            console.log('✅ Toggled to:', dropdown.classList.contains('show'));
+            if (isShowing) {
+                // Close it
+                dropdown.classList.remove('show');
+                console.log('❌ Closed dropdown');
+            } else {
+                // Open it
+                dropdown.classList.add('show');
+                console.log('✅ Opened dropdown');
+            }
         } else {
             console.error('❌ Dropdown element not found!');
         }
@@ -226,20 +228,18 @@
         return false;
     };
 
-    // Close dropdown when clicking outside
+    // Close dropdown when clicking outside - use timeout to avoid same-click interference
     document.addEventListener('click', function(e) {
-        // Don't close if clicking on the user menu itself
-        if (e.target.closest('.user-menu')) {
-            return;
-        }
-
-        const dropdown = document.getElementById('userDropdown');
-        if (dropdown && dropdown.classList.contains('show')) {
+        setTimeout(() => {
+            // Check if click was outside the menu
             if (!e.target.closest('.user-menu-container')) {
-                dropdown.classList.remove('show');
-                console.log('🚪 Closed dropdown (clicked outside)');
+                const dropdown = document.getElementById('userDropdown');
+                if (dropdown && dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                    console.log('🚪 Closed dropdown (clicked outside)');
+                }
             }
-        }
+        }, 0);
     });
 
     // Logout function
