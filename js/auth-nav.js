@@ -87,7 +87,11 @@
                             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                             min-width: 180px;
                             margin-top: 0.5rem;
-                            z-index: 1000;
+                            z-index: 9999;
+                            display: none;
+                        }
+                        .user-dropdown.show {
+                            display: block;
                         }
                         .user-dropdown a {
                             display: flex;
@@ -121,7 +125,7 @@
                                 <path d="M7 10l5 5 5-5z"/>
                             </svg>
                         </a>
-                        <div class="user-dropdown" id="userDropdown" style="display: none;">
+                        <div class="user-dropdown" id="userDropdown">
                             <a href="${profilePath}">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -202,11 +206,10 @@
         const dropdown = document.getElementById('userDropdown');
         console.log('📋 Dropdown element:', dropdown);
         if (dropdown) {
-            const currentDisplay = dropdown.style.display;
-            console.log('👁️ Current display:', currentDisplay);
-            const newDisplay = (currentDisplay === 'none' || currentDisplay === '') ? 'block' : 'none';
-            dropdown.style.display = newDisplay;
-            console.log('✅ New display:', newDisplay);
+            const isShowing = dropdown.classList.contains('show');
+            console.log('👁️ Currently showing:', isShowing);
+            dropdown.classList.toggle('show');
+            console.log('✅ Toggled to:', dropdown.classList.contains('show'));
         } else {
             console.error('❌ Dropdown element not found!');
         }
@@ -215,9 +218,9 @@
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('userDropdown');
-        if (dropdown && dropdown.style.display === 'block') {
+        if (dropdown && dropdown.classList.contains('show')) {
             if (!e.target.closest('.user-menu-container')) {
-                dropdown.style.display = 'none';
+                dropdown.classList.remove('show');
             }
         }
     });
