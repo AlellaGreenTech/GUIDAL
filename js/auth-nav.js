@@ -215,15 +215,18 @@
         }
     };
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        const dropdown = document.getElementById('userDropdown');
-        if (dropdown && dropdown.classList.contains('show')) {
-            if (!e.target.closest('.user-menu-container')) {
-                dropdown.classList.remove('show');
+    // Close dropdown when clicking outside (with slight delay to avoid immediate close)
+    setTimeout(() => {
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown && dropdown.classList.contains('show')) {
+                if (!e.target.closest('.user-menu-container')) {
+                    dropdown.classList.remove('show');
+                    console.log('🚪 Closed dropdown (clicked outside)');
+                }
             }
-        }
-    });
+        });
+    }, 100);
 
     // Logout function
     window.logoutUser = async function(event) {
