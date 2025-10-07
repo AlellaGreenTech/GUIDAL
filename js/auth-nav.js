@@ -30,14 +30,16 @@
 
                 // Get user profile for display name
                 let displayName = user.email.split('@')[0]; // Default to email username
+                let profile = null;
 
                 try {
-                    const { data: profile } = await window.supabaseClient
+                    const { data } = await window.supabaseClient
                         .from('profiles')
                         .select('full_name, user_type')
                         .eq('id', user.id)
                         .single();
 
+                    profile = data;
                     if (profile && profile.full_name) {
                         displayName = profile.full_name;
                     }
