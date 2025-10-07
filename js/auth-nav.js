@@ -79,19 +79,22 @@
                             border-radius: 4px;
                         }
                         .user-dropdown {
-                            position: absolute;
-                            top: 100%;
-                            right: 0;
-                            background: white;
-                            border-radius: 8px;
-                            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                            min-width: 180px;
-                            margin-top: 0.5rem;
-                            z-index: 9999;
-                            display: none;
+                            position: fixed !important;
+                            top: 60px !important;
+                            right: 20px !important;
+                            background: white !important;
+                            border-radius: 8px !important;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                            min-width: 180px !important;
+                            z-index: 99999 !important;
+                            display: none !important;
+                            visibility: hidden !important;
+                            opacity: 0 !important;
                         }
                         .user-dropdown.show {
-                            display: block;
+                            display: block !important;
+                            visibility: visible !important;
+                            opacity: 1 !important;
                         }
                         .user-dropdown a {
                             display: flex;
