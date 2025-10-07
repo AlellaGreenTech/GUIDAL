@@ -227,6 +227,12 @@
             } else {
                 dropdown.classList.add('show');
                 console.log('✅ Dropdown opened');
+                console.log('🔍 Dropdown element:', dropdown);
+                console.log('🔍 Dropdown computed style:', window.getComputedStyle(dropdown).display);
+                console.log('🔍 Dropdown visibility:', window.getComputedStyle(dropdown).visibility);
+                console.log('🔍 Dropdown opacity:', window.getComputedStyle(dropdown).opacity);
+                console.log('🔍 Dropdown position:', window.getComputedStyle(dropdown).position);
+                console.log('🔍 Dropdown z-index:', window.getComputedStyle(dropdown).zIndex);
             }
         } else {
             // Click was outside - close if open
