@@ -874,13 +874,13 @@ class GuidalApp {
                 return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
 
-            // Halloween Mini-Party (Nov 1) - check this FIRST before the regular party
+            // Halloween Mini-Party (Nov 1) - check this FIRST before the Maxi party
             if (activity.title && activity.title.includes('Halloween Mini-Party 2025')) {
                 return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
 
-            // Halloween Party (Oct 25) - with WhatsApp button
-            if (activity.title && activity.title.includes('Halloween Party 2025')) {
+            // Halloween Maxi-Party (Oct 25) - with WhatsApp button
+            if (activity.title && activity.title.includes('Halloween Maxi-Party 2025')) {
                 return `
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>
