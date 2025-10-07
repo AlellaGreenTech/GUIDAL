@@ -1696,6 +1696,15 @@ class GuidalApp {
         const loginBtn = document.querySelector('.login-btn');
         console.log('🔘 Login button found:', loginBtn);
 
+        // Check if auth-nav.js has already created a user menu
+        const userMenuContainer = document.querySelector('.user-menu-container');
+        if (userMenuContainer) {
+            console.log('✅ User menu already created by auth-nav.js, skipping app.js update');
+            // Just update activity buttons
+            this.renderActivities();
+            return;
+        }
+
         if (loginBtn) {
             const userName = this.currentUser.profile?.full_name || this.currentUser.email || 'My Account';
             const firstName = userName.split(' ')[0]; // Just use first name for subtlety
@@ -1704,7 +1713,7 @@ class GuidalApp {
             loginBtn.innerHTML = `
                 <span>${firstName}</span>
                 <div class="user-dropdown">
-                    <a href="pages/profile.html" onclick="event.stopPropagation();">Profile</a>
+                    <a href="${this.getAuthPath('profile.html')}" onclick="event.stopPropagation();">Profile</a>
                     <a href="#" onclick="event.stopPropagation(); app.logout(); return false;">Logout</a>
                 </div>
             `;
