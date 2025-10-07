@@ -557,9 +557,11 @@
                     <td class="order-items">
                         ${order.items.map(item => {
                             const counts = [];
+                            console.log('Item:', item.item_name, 'adult_count:', item.adult_count, 'child_count:', item.child_count);
                             if (item.adult_count && item.adult_count > 0) counts.push(`${item.adult_count} adults`);
                             if (item.child_count && item.child_count > 0) counts.push(`${item.child_count} children`);
                             const countStr = counts.length > 0 ? ` (${counts.join(', ')})` : '';
+                            console.log('countStr:', countStr);
                             return `${item.quantity}x ${item.item_name}${countStr}`;
                         }).join('<br>')}
                     </td>
