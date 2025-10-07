@@ -158,12 +158,23 @@
                         menuButton.addEventListener('click', function(e) {
                             e.preventDefault();
                             e.stopPropagation();
+                            e.stopImmediatePropagation();
+
                             const dropdown = document.getElementById('userDropdown');
                             if (dropdown) {
+                                const willBeShown = !dropdown.classList.contains('show');
                                 dropdown.classList.toggle('show');
                                 console.log('🖱️ Dropdown toggled:', dropdown.classList.contains('show'));
+
+                                // Mark that we just opened it so click-outside doesn't close it
+                                if (willBeShown) {
+                                    dropdown.dataset.justOpened = 'true';
+                                    setTimeout(() => {
+                                        delete dropdown.dataset.justOpened;
+                                    }, 100);
+                                }
                             }
-                        });
+                        }, true); // Use capture phase
                     }
 
                     if (logoutLink) {
@@ -223,7 +234,12 @@
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('userDropdown');
-        const menuButton = document.getElementById('userMenuButton');
+
+        // Don't close if it was just opened
+        if (dropdown && dropdown.dataset.justOpened) {
+            console.log('⏭️ Skipping close - dropdown just opened');
+            return;
+        }
 
         // Only close if dropdown exists, is shown, and click was outside
         if (dropdown && dropdown.classList.contains('show')) {
