@@ -5,8 +5,6 @@ INSERT INTO activities (
     title,
     description,
     date_time,
-    duration_hours,
-    max_participants,
     activity_type,
     status,
     image_url,
@@ -16,8 +14,6 @@ INSERT INTO activities (
     'Halloween Mini-Party 2025 🎃👻',
     'Join us for a family-friendly Halloween mini-celebration featuring pumpkin picking, carving, wood-fired pizza, wine tasting, and festive fun at our educational farm. Activities include: pumpkin patch, pumpkin carving, wood fire pizza, wine tasting, and Halloween parties. Family-friendly event, costumes encouraged!',
     '2025-11-01 16:00:00+00',  -- November 1st, 2025 at 4 PM
-    6,  -- 6 hours duration
-    100,  -- Max 100 participants
     'events',
     'upcoming',
     'images/halloween-party.png',
