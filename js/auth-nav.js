@@ -116,7 +116,7 @@
                         }
                     </style>
                     <div class="user-menu-container">
-                        <a href="#" class="user-menu" onclick="toggleUserDropdown(event); return false;">
+                        <a href="#" class="user-menu" id="userMenuButton">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
                             </svg>
@@ -139,7 +139,7 @@
                                 </svg>
                                 Admin
                             </a>` : ''}
-                            <a href="#" onclick="logoutUser(event)">
+                            <a href="#" class="logout-link">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
                                 </svg>
@@ -148,6 +148,28 @@
                         </div>
                     </div>
                 `;
+
+                // Attach event listeners after DOM is updated
+                setTimeout(() => {
+                    const menuButton = document.getElementById('userMenuButton');
+                    const logoutLink = document.querySelector('.logout-link');
+
+                    if (menuButton) {
+                        menuButton.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const dropdown = document.getElementById('userDropdown');
+                            if (dropdown) {
+                                dropdown.classList.toggle('show');
+                                console.log('🖱️ Dropdown toggled:', dropdown.classList.contains('show'));
+                            }
+                        });
+                    }
+
+                    if (logoutLink) {
+                        logoutLink.addEventListener('click', window.logoutUser);
+                    }
+                }, 0);
             } else {
                 // User is not logged in - ensure login button is visible
                 console.log('👤 No user logged in');
@@ -198,48 +220,18 @@
         return 'admin/pumpkin-orders.html';
     }
 
-    // Toggle user dropdown - completely rewritten approach
-    window.toggleUserDropdown = function(event) {
-        console.log('🖱️ Toggle dropdown clicked');
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-
-        const dropdown = document.getElementById('userDropdown');
-        console.log('📋 Dropdown element:', dropdown);
-
-        if (dropdown) {
-            const isShowing = dropdown.classList.contains('show');
-            console.log('👁️ Currently showing:', isShowing);
-
-            if (isShowing) {
-                // Close it
-                dropdown.classList.remove('show');
-                console.log('❌ Closed dropdown');
-            } else {
-                // Open it
-                dropdown.classList.add('show');
-                console.log('✅ Opened dropdown');
-            }
-        } else {
-            console.error('❌ Dropdown element not found!');
-        }
-
-        return false;
-    };
-
-    // Close dropdown when clicking outside - use timeout to avoid same-click interference
+    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
-        setTimeout(() => {
-            // Check if click was outside the menu
+        const dropdown = document.getElementById('userDropdown');
+        const menuButton = document.getElementById('userMenuButton');
+
+        // Only close if dropdown exists, is shown, and click was outside
+        if (dropdown && dropdown.classList.contains('show')) {
             if (!e.target.closest('.user-menu-container')) {
-                const dropdown = document.getElementById('userDropdown');
-                if (dropdown && dropdown.classList.contains('show')) {
-                    dropdown.classList.remove('show');
-                    console.log('🚪 Closed dropdown (clicked outside)');
-                }
+                dropdown.classList.remove('show');
+                console.log('🚪 Closed dropdown (clicked outside)');
             }
-        }, 0);
+        }
     });
 
     // Logout function
