@@ -557,8 +557,8 @@
                     <td class="order-items">
                         ${order.items.map(item => {
                             const counts = [];
-                            if (item.adult_count > 0) counts.push(`${item.adult_count} adults`);
-                            if (item.child_count > 0) counts.push(`${item.child_count} children`);
+                            if (item.adult_count && item.adult_count > 0) counts.push(`${item.adult_count} adults`);
+                            if (item.child_count && item.child_count > 0) counts.push(`${item.child_count} children`);
                             const countStr = counts.length > 0 ? ` (${counts.join(', ')})` : '';
                             return `${item.quantity}x ${item.item_name}${countStr}`;
                         }).join('<br>')}
@@ -682,8 +682,8 @@
                     <h3 style="margin-bottom: 1rem;">Order Items:</h3>
                     ${order.items.map(item => {
                         const counts = [];
-                        if (item.adult_count > 0) counts.push(`${item.adult_count} adults`);
-                        if (item.child_count > 0) counts.push(`${item.child_count} children`);
+                        if (item.adult_count && item.adult_count > 0) counts.push(`${item.adult_count} adults`);
+                        if (item.child_count && item.child_count > 0) counts.push(`${item.child_count} children`);
                         const countStr = counts.length > 0 ? `<br><small style="color: #666;">${counts.join(', ')}</small>` : '';
                         return `
                         <div class="detail-row">
