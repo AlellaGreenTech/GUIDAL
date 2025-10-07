@@ -14,15 +14,17 @@ BEGIN
     WHERE name = 'Events' OR slug = 'events' OR name ILIKE '%event%'
     LIMIT 1;
 
-    -- Insert the new activity with only essential columns
+    -- Insert the new activity with required columns including slug
     INSERT INTO activities (
         title,
+        slug,
         description,
         date_time,
         activity_type_id,
         status
     ) VALUES (
         'Halloween Mini-Party 2025 🎃👻',
+        'halloween-mini-party-2025',
         'Join us for a family-friendly Halloween mini-celebration featuring pumpkin picking, carving, wood-fired pizza, wine tasting, and festive fun at our educational farm. Activities include: pumpkin patch, pumpkin carving, wood fire pizza, wine tasting, and Halloween parties. Family-friendly event, costumes encouraged!',
         '2025-11-01 16:00:00+00',  -- November 1st, 2025 at 4 PM
         events_type_id,
