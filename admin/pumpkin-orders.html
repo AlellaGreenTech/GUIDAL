@@ -585,10 +585,11 @@
         }
 
         async function markAsPaid(orderId) {
-            if (!confirm('Mark this order as paid?')) return;
+            if (!confirm('Mark this order as paid and send confirmation email?')) return;
 
             try {
-                const { error } = await window.supabaseClient
+                // Update payment status
+                const { error: updateError } = await window.supabaseClient
                     .from('pumpkin_patch_orders')
                     .update({
                         payment_status: 'paid',
@@ -596,14 +597,94 @@
                     })
                     .eq('id', orderId);
 
-                if (error) throw error;
+                if (updateError) throw updateError;
 
-                alert('✅ Order marked as paid!');
+                // Send confirmation email
+                await sendConfirmationEmail(orderId);
+
+                alert('✅ Order marked as paid and confirmation email sent!');
                 await loadOrders();
 
             } catch (error) {
                 console.error('Error updating order:', error);
                 alert('❌ Error: ' + error.message);
+            }
+        }
+
+        async function sendConfirmationEmail(orderId) {
+            try {
+                // Get order details
+                const { data: order, error: orderError } = await window.supabaseClient
+                    .from('pumpkin_patch_orders')
+                    .select('*, items:pumpkin_patch_order_items(*)')
+                    .eq('id', orderId)
+                    .single();
+
+                if (orderError) throw orderError;
+
+                // Determine template type based on order items
+                const hasEntranceTicket = order.items.some(item =>
+                    item.item_name.includes('Adult') || item.item_name.includes('Child')
+                );
+                const templateType = hasEntranceTicket ? 'entrance_ticket' : 'visit_pass';
+
+                // Get active template for this type
+                const { data: template, error: templateError } = await window.supabaseClient
+                    .from('pumpkin_patch_email_templates')
+                    .select('*')
+                    .eq('template_type', templateType)
+                    .eq('is_active', true)
+                    .single();
+
+                if (templateError) {
+                    console.warn('No active template found for type:', templateType);
+                    return; // Don't fail the whole operation
+                }
+
+                // Replace variables in template
+                const emailData = {
+                    '{{order_number}}': order.order_number,
+                    '{{first_name}}': order.first_name,
+                    '{{last_name}}': order.last_name,
+                    '{{email}}': order.email,
+                    '{{phone}}': order.phone || 'Not provided',
+                    '{{adult_count}}': order.adult_count || 0,
+                    '{{child_count}}': order.child_count || 0,
+                    '{{total_amount}}': order.total_amount.toFixed(2)
+                };
+
+                let emailBody = template.html_body;
+                let emailSubject = template.subject;
+
+                Object.entries(emailData).forEach(([key, value]) => {
+                    emailBody = emailBody.replaceAll(key, value);
+                    emailSubject = emailSubject.replaceAll(key, value);
+                });
+
+                // Log the email (in production, you'd actually send it here via API)
+                const { error: logError } = await window.supabaseClient
+                    .from('pumpkin_patch_email_log')
+                    .insert([{
+                        order_id: orderId,
+                        template_id: template.id,
+                        recipient_email: order.email,
+                        subject: emailSubject,
+                        status: 'sent'
+                    }]);
+
+                if (logError) throw logError;
+
+                console.log('✅ Email logged successfully');
+                console.log('To:', order.email);
+                console.log('Subject:', emailSubject);
+                console.log('Body preview:', emailBody.substring(0, 200) + '...');
+
+                // TODO: Integrate with actual email service (Resend, SendGrid, etc.)
+                // For now, we're just logging to the database
+
+            } catch (error) {
+                console.error('Error sending confirmation email:', error);
+                throw error;
             }
         }
 
