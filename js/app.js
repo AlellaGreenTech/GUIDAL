@@ -87,6 +87,16 @@ class GuidalApp {
         console.log('✅ GUIDAL app initialized successfully');
     }
 
+    // Helper to get correct auth path based on current location
+    getAuthPath(page = 'login.html') {
+        const path = window.location.pathname;
+        // If we're already in /pages/ directory, use relative path
+        if (path.includes('/pages/')) {
+            return `auth/${page}`;
+        }
+        // If at root or other directories, use full path
+        return `pages/auth/${page}`;
+    }
 
     async checkAuthStatus() {
         try {
@@ -1771,14 +1781,14 @@ class GuidalApp {
             loginBtn.textContent = 'Login/Register';
             loginBtn.classList.remove('user-menu');
             loginBtn.innerHTML = 'Login/Register';
-            loginBtn.href = 'pages/auth/login.html';
+            loginBtn.href = this.getAuthPath('login.html');
         }
 
         // Update auth link in About section
         const authLink = document.getElementById('auth-link');
         if (authLink) {
             authLink.textContent = 'Register to get started!';
-            authLink.href = 'pages/auth/login.html';
+            authLink.href = this.getAuthPath('login.html');
         }
 
         // Update activity buttons
@@ -1794,7 +1804,7 @@ class GuidalApp {
         if (isPrivacyMode && visitType === 'prague') {
             // Redirect to simplified Prague registration
             const currentUrl = encodeURIComponent(window.location.href);
-            const pragueRegisterUrl = `pages/auth/register-prague.html?returnTo=${currentUrl}`;
+            const pragueRegisterUrl = `${this.getAuthPath('register-prague.html')}?returnTo=${currentUrl}`;
             window.location.href = pragueRegisterUrl;
             return;
         }
@@ -1813,16 +1823,16 @@ class GuidalApp {
 
             if (isNewUser) {
                 // Redirect to registration with return URL
-                const registerUrl = `pages/auth/register.html?returnTo=${currentUrl}`;
+                const registerUrl = `${this.getAuthPath('register.html')}?returnTo=${currentUrl}`;
                 window.location.href = registerUrl;
             } else {
                 // Redirect to login with return URL
-                const loginUrl = `pages/auth/login.html?return_url=${currentUrl}`;
+                const loginUrl = `${this.getAuthPath('login.html')}?return_url=${currentUrl}`;
                 window.location.href = loginUrl;
             }
         } else {
             // Default to login
-            const loginUrl = `pages/auth/login.html?return_url=${currentUrl}`;
+            const loginUrl = `${this.getAuthPath('login.html')}?return_url=${currentUrl}`;
             window.location.href = loginUrl;
         }
     }
