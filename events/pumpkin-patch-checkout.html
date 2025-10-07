@@ -373,6 +373,12 @@
                     console.warn('Database not ready:', dbError.message);
                 }
 
+                // Calculate total people count
+                // For party tickets: adults and children are separate
+                // For visit passes: count all visits as adults (since it's "adult or child")
+                const totalAdults = adults + (visit > 0 && adults === 0 && children === 0 ? visit : 0);
+                const totalChildren = children;
+
                 // Create order in database
                 let order = null;
                 try {
@@ -385,8 +391,8 @@
                             email: email,
                             phone: phone || null,
                             total_amount: total,
-                            adult_count: adults,
-                            child_count: children,
+                            adult_count: totalAdults,
+                            child_count: totalChildren,
                             party_date: partyDate || null,
                             status: 'pending',
                             payment_status: 'pending'

@@ -43,8 +43,7 @@ SET html_body = '<!DOCTYPE html>
                 <p><strong>Customer:</strong> {{first_name}} {{last_name}}</p>
                 <p><strong>Email:</strong> {{email}}</p>
                 <p><strong>Phone:</strong> {{phone}}</p>
-                <p><strong>Adults:</strong> {{adult_count}}</p>
-                <p><strong>Children:</strong> {{child_count}}</p>
+                <p><strong>Items Purchased:</strong><br>{{items}}</p>
                 <p><strong>Total Amount:</strong> €{{total_amount}}</p>
             </div>
 
@@ -118,6 +117,7 @@ SET html_body = '<!DOCTYPE html>
                 <p><strong>Customer:</strong> {{first_name}} {{last_name}}</p>
                 <p><strong>Email:</strong> {{email}}</p>
                 <p><strong>Phone:</strong> {{phone}}</p>
+                <p><strong>Items Purchased:</strong><br>{{items}}</p>
                 <p><strong>Total Amount:</strong> €{{total_amount}}</p>
             </div>
 

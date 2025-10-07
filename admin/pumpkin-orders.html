@@ -783,6 +783,11 @@
                     });
                 }
 
+                // Format items list for email
+                const itemsList = order.items.map(item =>
+                    `${item.quantity}x ${item.item_name}`
+                ).join('<br>');
+
                 // Replace variables in template
                 const emailData = {
                     '{{order_number}}': order.order_number,
@@ -793,6 +798,7 @@
                     '{{party_date}}': partyDateForEmail,
                     '{{adult_count}}': order.adult_count || 0,
                     '{{child_count}}': order.child_count || 0,
+                    '{{items}}': itemsList,
                     '{{total_amount}}': order.total_amount.toFixed(2),
                     '{{qr_code}}': qrCodeUrl
                 };
@@ -920,6 +926,11 @@
                     });
                 }
 
+                // Format items list for email
+                const itemsList = order.items.map(item =>
+                    `${item.quantity}x ${item.item_name}`
+                ).join('<br>');
+
                 // Replace variables in template
                 const emailData = {
                     '{{order_number}}': order.order_number,
@@ -930,6 +941,7 @@
                     '{{party_date}}': partyDateForEmail,
                     '{{adult_count}}': order.adult_count || 0,
                     '{{child_count}}': order.child_count || 0,
+                    '{{items}}': itemsList,
                     '{{total_amount}}': order.total_amount.toFixed(2),
                     '{{qr_code}}': qrCodeUrl
                 };
