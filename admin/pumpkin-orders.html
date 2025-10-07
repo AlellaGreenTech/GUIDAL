@@ -530,6 +530,9 @@
             const order = allOrders.find(o => o.id === orderId);
             if (!order) return;
 
+            console.log('Order data:', order);
+            console.log('Party date:', order.party_date);
+
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
                 <div class="detail-row">
