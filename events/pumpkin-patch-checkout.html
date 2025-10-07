@@ -46,16 +46,25 @@
             border-radius: 4px;
             text-align: center;
             font-size: 1rem;
+            -moz-appearance: textfield; /* Firefox */
         }
         .item-input:focus {
             outline: none;
             border-color: #ff6b35;
         }
-        /* Always show number input spinners */
+        /* Always show number input spinners and make them larger */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             opacity: 1;
             height: 40px;
+        }
+        /* Disable text input, only allow spinner clicks */
+        .item-input {
+            pointer-events: none;
+        }
+        .item-input::-webkit-inner-spin-button,
+        .item-input::-webkit-outer-spin-button {
+            pointer-events: auto;
         }
         .total-row {
             display: flex;
