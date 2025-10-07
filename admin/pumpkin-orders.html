@@ -368,7 +368,6 @@
             <table id="ordersTable" style="display: none;">
                 <thead>
                     <tr>
-                        <th>Order #</th>
                         <th>Date</th>
                         <th>Customer</th>
                         <th>Email</th>
@@ -521,7 +520,6 @@
 
             tbody.innerHTML = orders.map(order => `
                 <tr>
-                    <td><strong>${order.order_number}</strong></td>
                     <td>${new Date(order.created_at).toLocaleDateString()}<br>
                         <small>${new Date(order.created_at).toLocaleTimeString()}</small>
                     </td>
