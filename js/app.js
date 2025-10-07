@@ -1724,73 +1724,9 @@ class GuidalApp {
             return;
         }
 
-        if (loginBtn) {
-            const userName = this.currentUser.profile?.full_name || this.currentUser.email || 'My Account';
-            const firstName = userName.split(' ')[0]; // Just use first name for subtlety
-            console.log('👋 Setting user name to:', firstName);
-
-            loginBtn.innerHTML = `
-                <span>${firstName}</span>
-                <div class="user-dropdown">
-                    <a href="${this.getAuthPath('profile.html')}" onclick="event.stopPropagation();">Profile</a>
-                    <a href="#" onclick="event.stopPropagation(); app.logout(); return false;">Logout</a>
-                </div>
-            `;
-            loginBtn.classList.add('user-menu');
-            loginBtn.href = '#'; // Prevent navigation, use dropdown instead
-
-            console.log('✅ Dropdown HTML added');
-
-            // Toggle dropdown on click
-            loginBtn.onclick = function(e) {
-                console.log('🖱️ Login button clicked!');
-                e.preventDefault();
-                e.stopPropagation();
-
-                const dropdown = this.querySelector('.user-dropdown');
-                console.log('📋 Dropdown element:', dropdown);
-
-                const isVisible = dropdown.style.opacity === '1';
-                console.log('👁️ Dropdown visible?', isVisible);
-
-                // Close all other dropdowns first
-                document.querySelectorAll('.user-dropdown').forEach(d => {
-                    d.style.opacity = '0';
-                    d.style.visibility = 'hidden';
-                    d.style.transform = 'translateY(-10px)';
-                });
-
-                // Toggle this dropdown
-                if (!isVisible) {
-                    console.log('✅ Opening dropdown');
-                    dropdown.style.opacity = '1';
-                    dropdown.style.visibility = 'visible';
-                    dropdown.style.transform = 'translateY(0)';
-                    dropdown.style.display = 'block';
-                    dropdown.style.zIndex = '9999';
-                } else {
-                    console.log('❌ Closing dropdown');
-                    dropdown.style.display = 'none';
-                }
-
-                return false;
-            };
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.user-menu')) {
-                    document.querySelectorAll('.user-dropdown').forEach(dropdown => {
-                        dropdown.style.opacity = '0';
-                        dropdown.style.visibility = 'hidden';
-                        dropdown.style.transform = 'translateY(-10px)';
-                    });
-                }
-            });
-
-            console.log('✅ Click handler attached to login button');
-        } else {
-            console.error('❌ Login button not found!');
-        }
+        // If we reach here, auth-nav.js hasn't loaded yet (shouldn't happen normally)
+        // Just skip - auth-nav.js will handle it when it loads
+        console.log('⚠️ auth-nav.js has not created user menu yet, skipping app.js fallback');
 
         // Update auth link in About section
         const authLink = document.getElementById('auth-link');
