@@ -98,6 +98,24 @@ class GuidalApp {
         return `pages/auth/${page}`;
     }
 
+    // Helper to get correct image path based on current location
+    getImagePath(imagePath) {
+        if (!imagePath) return null;
+
+        // If already an absolute path or external URL, return as-is
+        if (imagePath.startsWith('http') || imagePath.startsWith('/')) {
+            return imagePath;
+        }
+
+        const path = window.location.pathname;
+        // If we're in /pages/ directory, need to go up one level
+        if (path.includes('/pages/')) {
+            return `../${imagePath}`;
+        }
+        // If at root, use path as-is
+        return imagePath;
+    }
+
     async checkAuthStatus() {
         try {
             // Add timeout to auth check
@@ -545,10 +563,11 @@ class GuidalApp {
         // Use featured_image from database if available
         console.log(`🖼️ Activity "${activity.title}" - featured_image: ${JSON.stringify(activity.featured_image)}`);
         const imageSrc = activity.featured_image || this.getDefaultImageForActivity(activity);
-        console.log(`🖼️ Using image: ${imageSrc}`);
+        const correctedImagePath = this.getImagePath(imageSrc);
+        console.log(`🖼️ Using image: ${imageSrc} → ${correctedImagePath}`);
 
-        if (imageSrc) {
-            return `<img src="${imageSrc}" alt="${activity.title}" class="activity-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        if (correctedImagePath) {
+            return `<img src="${correctedImagePath}" alt="${activity.title}" class="activity-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="image-placeholder" style="display:none;">
                         <p>${this.getActivityIcon(activity.activity_type?.slug)} ${activity.activity_type?.name || 'Activity'}</p>
                     </div>`;
