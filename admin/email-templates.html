@@ -341,6 +341,7 @@
                             </div>
                         </div>
                         <div class="template-actions">
+                            <button class="btn btn-small btn-primary" onclick="previewTemplateById('${template.id}')">Preview</button>
                             <button class="btn btn-small btn-secondary" onclick="editTemplate('${template.id}')">Edit</button>
                             <button class="btn btn-small btn-danger" onclick="deleteTemplate('${template.id}')">Delete</button>
                         </div>
@@ -406,6 +407,10 @@
             const html = document.getElementById('templateBody').value;
             const subject = document.getElementById('templateSubject').value;
 
+            // Generate sample QR code
+            const sampleQrData = 'ORDER:PUMP-2025-001|NAME:John Doe|ADULTS:2|CHILDREN:3|EVENT:Oct 25|SCARES:20|TOTAL:€75.00';
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(sampleQrData)}`;
+
             // Replace variables with sample data
             const sampleData = {
                 '{{order_number}}': 'PUMP-2025-001',
@@ -415,10 +420,46 @@
                 '{{phone}}': '+32 123 456 789',
                 '{{adult_count}}': '2',
                 '{{child_count}}': '3',
-                '{{total_amount}}': '75.00'
+                '{{total_amount}}': '75.00',
+                '{{qr_code}}': qrCodeUrl
             };
 
             let preview = html;
+            Object.entries(sampleData).forEach(([key, value]) => {
+                preview = preview.replaceAll(key, value);
+            });
+
+            const previewFrame = document.getElementById('previewFrame');
+            const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            previewDoc.open();
+            previewDoc.write(preview);
+            previewDoc.close();
+
+            document.getElementById('previewModal').classList.add('show');
+        }
+
+        function previewTemplateById(templateId) {
+            const template = templates.find(t => t.id === templateId);
+            if (!template) return;
+
+            // Generate sample QR code
+            const sampleQrData = 'ORDER:PUMP-2025-001|NAME:John Doe|ADULTS:2|CHILDREN:3|EVENT:Oct 25|SCARES:20|TOTAL:€75.00';
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(sampleQrData)}`;
+
+            // Replace variables with sample data
+            const sampleData = {
+                '{{order_number}}': 'PUMP-2025-001',
+                '{{first_name}}': 'John',
+                '{{last_name}}': 'Doe',
+                '{{email}}': 'john@example.com',
+                '{{phone}}': '+32 123 456 789',
+                '{{adult_count}}': '2',
+                '{{child_count}}': '3',
+                '{{total_amount}}': '75.00',
+                '{{qr_code}}': qrCodeUrl
+            };
+
+            let preview = template.html_body;
             Object.entries(sampleData).forEach(([key, value]) => {
                 preview = preview.replaceAll(key, value);
             });
