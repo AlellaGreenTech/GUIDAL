@@ -196,11 +196,19 @@
 
     // Toggle user dropdown
     window.toggleUserDropdown = function(event) {
+        console.log('🖱️ Toggle dropdown clicked');
         event.preventDefault();
         event.stopPropagation();
         const dropdown = document.getElementById('userDropdown');
+        console.log('📋 Dropdown element:', dropdown);
         if (dropdown) {
-            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            const currentDisplay = dropdown.style.display;
+            console.log('👁️ Current display:', currentDisplay);
+            const newDisplay = (currentDisplay === 'none' || currentDisplay === '') ? 'block' : 'none';
+            dropdown.style.display = newDisplay;
+            console.log('✅ New display:', newDisplay);
+        } else {
+            console.error('❌ Dropdown element not found!');
         }
     };
 
