@@ -552,6 +552,27 @@
                     <span class="detail-label">Phone:</span>
                     <span class="detail-value">${order.phone || 'N/A'}</span>
                 </div>
+                ${order.party_date ? `
+                <div class="detail-row" style="background: #fff3cd; padding: 0.75rem; border-radius: 4px; border-left: 4px solid #ff6b35;">
+                    <span class="detail-label">🎃 Party Date:</span>
+                    <span class="detail-value" style="font-weight: bold; color: #ff6b35;">
+                        ${new Date(order.party_date).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}
+                    </span>
+                </div>
+                ` : ''}
+                <div class="detail-row">
+                    <span class="detail-label">Adults:</span>
+                    <span class="detail-value">${order.adult_count || 0}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Children:</span>
+                    <span class="detail-value">${order.child_count || 0}</span>
+                </div>
                 <div style="margin: 1.5rem 0; padding-top: 1rem; border-top: 2px solid #ff6b35;">
                     <h3 style="margin-bottom: 1rem;">Order Items:</h3>
                     ${order.items.map(item => `
@@ -695,7 +716,7 @@
             }
 
             // Create CSV content
-            const headers = ['Order Number', 'Date', 'First Name', 'Last Name', 'Email', 'Phone', 'Items', 'Total Amount', 'Payment Status'];
+            const headers = ['Order Number', 'Date', 'First Name', 'Last Name', 'Email', 'Phone', 'Party Date', 'Adults', 'Children', 'Items', 'Total Amount', 'Payment Status'];
             const rows = allOrders.map(order => [
                 order.order_number,
                 new Date(order.created_at).toLocaleString(),
@@ -703,6 +724,9 @@
                 order.last_name,
                 order.email,
                 order.phone || '',
+                order.party_date || 'N/A',
+                order.adult_count || 0,
+                order.child_count || 0,
                 order.items.map(item => `${item.quantity}x ${item.item_name}`).join('; '),
                 order.total_amount,
                 order.payment_status

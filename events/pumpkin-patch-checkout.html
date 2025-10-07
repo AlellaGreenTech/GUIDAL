@@ -184,6 +184,18 @@
                 </div>
             </div>
 
+            <!-- Party Date Selection (shown only when party tickets selected) -->
+            <div id="partyDateSection" style="display: none; background: #fff3cd; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #ff6b35;">
+                <h3 style="margin-top: 0; color: #ff6b35;">📅 Select Party Date *</h3>
+                <div class="form-group">
+                    <select id="partyDate" class="form-input" style="width: 100%; font-size: 1rem;">
+                        <option value="">-- Select your party date --</option>
+                        <option value="2025-10-25">🎃 October 25th, 2025 (Maxi-Party)</option>
+                        <option value="2025-11-01">🎃 November 1st, 2025 (Mini-Party)</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="item-row">
                 <div class="item-label">
                     👨👶 Pumpkin Patch Visit (adult or child) - <strong>NON</strong>-PARTY-DAY VISIT
@@ -270,6 +282,10 @@
 
             document.getElementById('total').textContent = '€' + total;
 
+            // Show/hide party date selector
+            const hasPartyTickets = adults > 0 || children > 0;
+            document.getElementById('partyDateSection').style.display = hasPartyTickets ? 'block' : 'none';
+
             // Update PayPal button href with amount (note: PayPal link might need amount parameter)
             const payButton = document.getElementById('payButton');
             // Keep the original PayPal link as provided
@@ -319,6 +335,16 @@
             const children = parseInt(document.getElementById('children').value) || 0;
             const scares = parseInt(document.getElementById('scares').value) || 0;
 
+            // Validate party date if party tickets selected
+            const hasPartyTickets = adults > 0 || children > 0;
+            const partyDate = document.getElementById('partyDate').value;
+
+            if (hasPartyTickets && !partyDate) {
+                alert('⚠️ Please select a party date (October 25th or November 1st)');
+                document.getElementById('partyDate').focus();
+                return false;
+            }
+
             // Calculate total
             const total = (visit * 5) + (adults * 15) + (children * 10) + (scares * 1);
 
@@ -361,6 +387,7 @@
                             total_amount: total,
                             adult_count: adults,
                             child_count: children,
+                            party_date: partyDate || null,
                             status: 'pending',
                             payment_status: 'pending'
                         })
