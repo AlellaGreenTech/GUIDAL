@@ -406,6 +406,23 @@
         </div>
     </div>
 
+    <!-- Email Preview Modal -->
+    <div id="emailPreviewModal" class="order-details-modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2>📧 Email Preview</h2>
+                <button class="close-modal" onclick="closeEmailPreview()">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="margin: 5px 0;"><strong>To:</strong> <span id="previewEmailTo"></span></p>
+                    <p style="margin: 5px 0;"><strong>Subject:</strong> <span id="previewEmailSubject"></span></p>
+                </div>
+                <iframe id="emailPreviewFrame" style="width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 8px; background: white;"></iframe>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="container">
             <p>&copy; 2025 Alella Green Tech Foundation. <a href="../index.html">Back to GUIDAL</a></p>
@@ -551,6 +568,9 @@
                     <td class="action-buttons">
                         <button class="btn btn-primary btn-small" onclick="viewOrder('${order.id}')">
                             View
+                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="previewEmail('${order.id}')">
+                            📧 Email
                         </button>
                         ${order.payment_status === 'pending' ? `
                             <button class="btn btn-success btn-small" onclick="markAsPaid('${order.id}')">
@@ -850,10 +870,109 @@
             alert('✅ CSV exported successfully!');
         }
 
+        async function previewEmail(orderId) {
+            try {
+                // Get order details
+                const { data: order, error: orderError } = await window.supabaseClient
+                    .from('pumpkin_patch_orders')
+                    .select('*, items:pumpkin_patch_order_items(*)')
+                    .eq('id', orderId)
+                    .single();
+
+                if (orderError) throw orderError;
+
+                // Determine template type based on order items
+                const hasEntranceTicket = order.items.some(item =>
+                    item.item_name.includes('Adult') || item.item_name.includes('Child')
+                );
+                const templateType = hasEntranceTicket ? 'entrance_ticket' : 'visit_pass';
+
+                // Get active template for this type
+                const { data: template, error: templateError } = await window.supabaseClient
+                    .from('pumpkin_patch_email_templates')
+                    .select('*')
+                    .eq('template_type', templateType)
+                    .eq('is_active', true)
+                    .single();
+
+                if (templateError) {
+                    alert('⚠️ No active email template found for this order type');
+                    return;
+                }
+
+                // Generate QR code data
+                const scares = order.items.find(item => item.item_name.includes('SCARE'))?.quantity || 0;
+                const partyDateFormatted = order.party_date ?
+                    new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) :
+                    'Visit Pass';
+
+                const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${order.adult_count || 0}|CHILDREN:${order.child_count || 0}|EVENT:${partyDateFormatted}|SCARES:${scares}|TOTAL:€${order.total_amount}`;
+                const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`;
+
+                // Format party date for email
+                let partyDateForEmail = 'Visit Pass (any non-party day)';
+                if (order.party_date) {
+                    const date = new Date(order.party_date);
+                    partyDateForEmail = date.toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                }
+
+                // Replace variables in template
+                const emailData = {
+                    '{{order_number}}': order.order_number,
+                    '{{first_name}}': order.first_name,
+                    '{{last_name}}': order.last_name,
+                    '{{email}}': order.email,
+                    '{{phone}}': order.phone || 'Not provided',
+                    '{{party_date}}': partyDateForEmail,
+                    '{{adult_count}}': order.adult_count || 0,
+                    '{{child_count}}': order.child_count || 0,
+                    '{{total_amount}}': order.total_amount.toFixed(2),
+                    '{{qr_code}}': qrCodeUrl
+                };
+
+                let emailBody = template.html_body;
+                let emailSubject = template.subject;
+
+                Object.entries(emailData).forEach(([key, value]) => {
+                    emailBody = emailBody.replaceAll(key, value);
+                    emailSubject = emailSubject.replaceAll(key, value);
+                });
+
+                // Display preview
+                document.getElementById('previewEmailTo').textContent = order.email;
+                document.getElementById('previewEmailSubject').textContent = emailSubject;
+
+                const previewFrame = document.getElementById('emailPreviewFrame');
+                const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                previewDoc.open();
+                previewDoc.write(emailBody);
+                previewDoc.close();
+
+                document.getElementById('emailPreviewModal').style.display = 'flex';
+            } catch (error) {
+                console.error('Error previewing email:', error);
+                alert('Failed to preview email: ' + error.message);
+            }
+        }
+
+        function closeEmailPreview() {
+            document.getElementById('emailPreviewModal').style.display = 'none';
+        }
+
         // Close modal when clicking outside
         document.getElementById('orderModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
+            }
+        });
+
+        document.getElementById('emailPreviewModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEmailPreview();
             }
         });
     </script>
