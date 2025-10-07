@@ -28,16 +28,17 @@
             align-items: center;
             padding: 1rem 0;
             border-bottom: 1px solid #eee;
+            gap: 1rem;
         }
         .item-label {
             flex: 1;
             font-weight: 500;
         }
         .item-price {
-            width: 80px;
-            text-align: right;
-            color: #666;
-            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ff6b35;
+            font-size: 1rem;
+            white-space: nowrap;
         }
         .item-input {
             width: 80px;
@@ -200,7 +201,7 @@
                     👨 Adult Entrance Party Ticket<br>
                     <small style="color: #666;">October 25th / November 1st 2025</small>
                 </div>
-                <div class="item-price">€15 each</div>
+                <div class="item-price">€15 x</div>
                 <input type="number" id="adults" class="item-input" min="0" value="0" oninput="calculateTotal()">
             </div>
 
@@ -209,7 +210,7 @@
                     👶 Child Entrance Party Ticket<br>
                     <small style="color: #666;">October 25th / November 1st 2025</small>
                 </div>
-                <div class="item-price">€10 each</div>
+                <div class="item-price">€10 x</div>
                 <input type="number" id="children" class="item-input" min="0" value="0" oninput="calculateTotal()">
             </div>
 
@@ -218,7 +219,7 @@
                     🎃 SCARES<br>
                     <small style="color: #666;">For pumpkins, food, etc.</small>
                 </div>
-                <div class="item-price">€1 each</div>
+                <div class="item-price">€1 x</div>
                 <input type="number" id="scares" class="item-input" min="0" value="0" oninput="calculateTotal()">
             </div>
 
@@ -226,7 +227,7 @@
                 <div class="item-label">
                     👨👶 Pumpkin Patch Visit (adult or child) - <strong>NON</strong>-PARTY-DAY VISIT
                 </div>
-                <div class="item-price">€5 per person</div>
+                <div class="item-price">€5 x</div>
                 <input type="number" id="visit" class="item-input" min="0" value="0" oninput="calculateTotal()">
             </div>
 
