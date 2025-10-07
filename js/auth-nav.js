@@ -58,7 +58,7 @@
                             </svg>
                         </a>
                         <div class="user-dropdown" id="userDropdown" style="display: none;">
-                            <a href="${getBasePath()}pages/auth/profile.html">
+                            <a href="${getProfilePath()}">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                                 </svg>
@@ -85,12 +85,27 @@
     // Helper to get base path (handles being in subdirectories)
     function getBasePath() {
         const path = window.location.pathname;
-        if (path.includes('/pages/')) {
-            return '../';
-        } else if (path.includes('/admin/') || path.includes('/events/')) {
+        // If we're in /pages/, /admin/, or /events/, go up one level
+        if (path.includes('/pages/') || path.includes('/admin/') || path.includes('/events/')) {
             return '../';
         }
+        // If we're at root
         return '';
+    }
+
+    // Helper to get profile path
+    function getProfilePath() {
+        const path = window.location.pathname;
+        // If already in /pages/auth/, just go to profile.html
+        if (path.includes('/pages/auth/')) {
+            return 'profile.html';
+        }
+        // If in /pages/, go to auth/profile.html
+        if (path.includes('/pages/')) {
+            return 'auth/profile.html';
+        }
+        // If at root or in /admin/ or /events/, go to pages/auth/profile.html
+        return 'pages/auth/profile.html';
     }
 
     // Toggle user dropdown
@@ -127,8 +142,15 @@
 
             console.log('✅ Logged out successfully');
 
-            // Redirect to home page
-            window.location.href = getBasePath() + 'index.html';
+            // Redirect to home page (activities is the main landing)
+            const path = window.location.pathname;
+            if (path.includes('/pages/')) {
+                window.location.href = '../index.html';
+            } else if (path.includes('/admin/') || path.includes('/events/')) {
+                window.location.href = '../pages/activities.html';
+            } else {
+                window.location.href = 'index.html';
+            }
         } catch (error) {
             console.error('❌ Logout error:', error);
             alert('Error logging out. Please try again.');
