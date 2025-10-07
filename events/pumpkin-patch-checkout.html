@@ -177,7 +177,7 @@
 
             <div class="item-row">
                 <div class="item-label">
-                    👨👶 Pumpkin Patch Visit (adult or child) - ANY DAY
+                    👨👶 Pumpkin Patch Visit (adult or child) - <strong>NON</strong>-PARTY-DAY VISIT
                 </div>
                 <div class="item-price">€5 per person</div>
                 <input type="number" id="visit" class="item-input" min="0" value="0" oninput="calculateTotal()">
@@ -392,7 +392,7 @@
                 if (visit > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: 'Pumpkin Patch Visit (adult or child) - ANY DAY',
+                        item_name: 'Pumpkin Patch Visit (adult or child) - NON-PARTY-DAY VISIT',
                         item_type: 'visit_pass',
                         quantity: visit,
                         unit_price: 5,
