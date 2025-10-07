@@ -39,6 +39,7 @@ SET html_body = '<!DOCTYPE html>
             <div class="ticket-info">
                 <h3>📋 Order Details</h3>
                 <p><strong>Order Number:</strong> {{order_number}}</p>
+                <p><strong>Event Date:</strong> {{party_date}}</p>
                 <p><strong>Customer:</strong> {{first_name}} {{last_name}}</p>
                 <p><strong>Email:</strong> {{email}}</p>
                 <p><strong>Phone:</strong> {{phone}}</p>
