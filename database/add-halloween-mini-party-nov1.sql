@@ -29,7 +29,7 @@ BEGIN
         'Join us for a family-friendly Halloween mini-celebration featuring pumpkin picking, carving, wood-fired pizza, wine tasting, and festive fun at our educational farm. Activities include: pumpkin patch, pumpkin carving, wood fire pizza, wine tasting, and Halloween parties. Family-friendly event, costumes encouraged!',
         '2025-11-01 16:00:00+00',  -- November 1st, 2025 at 4 PM
         events_type_id,
-        'confirmed',
+        'published',
         200
     )
     RETURNING id INTO new_activity_id;
