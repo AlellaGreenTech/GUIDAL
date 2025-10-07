@@ -151,32 +151,7 @@
 
                 // Attach event listeners after DOM is updated
                 setTimeout(() => {
-                    const menuButton = document.getElementById('userMenuButton');
                     const logoutLink = document.querySelector('.logout-link');
-
-                    if (menuButton) {
-                        menuButton.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-
-                            const dropdown = document.getElementById('userDropdown');
-                            if (dropdown) {
-                                const willBeShown = !dropdown.classList.contains('show');
-                                dropdown.classList.toggle('show');
-                                console.log('🖱️ Dropdown toggled:', dropdown.classList.contains('show'));
-
-                                // Mark that we just opened it so click-outside doesn't close it
-                                if (willBeShown) {
-                                    dropdown.dataset.justOpened = 'true';
-                                    setTimeout(() => {
-                                        delete dropdown.dataset.justOpened;
-                                    }, 100);
-                                }
-                            }
-                        }, true); // Use capture phase
-                    }
-
                     if (logoutLink) {
                         logoutLink.addEventListener('click', window.logoutUser);
                     }
@@ -231,19 +206,28 @@
         return 'admin/pumpkin-orders.html';
     }
 
-    // Close dropdown when clicking outside
+    // Handle all dropdown interactions with a single document click listener
     document.addEventListener('click', function(e) {
+        const menuButton = document.getElementById('userMenuButton');
         const dropdown = document.getElementById('userDropdown');
 
-        // Don't close if it was just opened
-        if (dropdown && dropdown.dataset.justOpened) {
-            console.log('⏭️ Skipping close - dropdown just opened');
-            return;
-        }
+        if (!menuButton || !dropdown) return;
 
-        // Only close if dropdown exists, is shown, and click was outside
-        if (dropdown && dropdown.classList.contains('show')) {
-            if (!e.target.closest('.user-menu-container')) {
+        // Check if click was on the menu button or its children
+        if (e.target === menuButton || menuButton.contains(e.target)) {
+            e.preventDefault();
+            // Toggle the dropdown
+            const isCurrentlyShown = dropdown.classList.contains('show');
+            if (isCurrentlyShown) {
+                dropdown.classList.remove('show');
+                console.log('❌ Dropdown closed');
+            } else {
+                dropdown.classList.add('show');
+                console.log('✅ Dropdown opened');
+            }
+        } else {
+            // Click was outside - close if open
+            if (dropdown.classList.contains('show')) {
                 dropdown.classList.remove('show');
                 console.log('🚪 Closed dropdown (clicked outside)');
             }
