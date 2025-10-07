@@ -440,7 +440,9 @@
                         item_type: 'visit_pass',
                         quantity: visit,
                         unit_price: 5,
-                        total_price: visit * 5
+                        total_price: visit * 5,
+                        adult_count: visit,  // Count visits as adults for clarity
+                        child_count: 0
                     });
                 }
 
@@ -452,6 +454,8 @@
                         quantity: adults,
                         unit_price: 15,
                         total_price: adults * 15,
+                        adult_count: adults,
+                        child_count: 0,
                         metadata: { date: '2025-10-25', participant_type: 'adult' }
                     });
                 }
@@ -464,6 +468,8 @@
                         quantity: children,
                         unit_price: 10,
                         total_price: children * 10,
+                        adult_count: 0,
+                        child_count: children,
                         metadata: { date: '2025-10-25', participant_type: 'child' }
                     });
                 }
@@ -475,7 +481,9 @@
                         item_type: 'scare_token',
                         quantity: scares,
                         unit_price: 1,
-                        total_price: scares * 1
+                        total_price: scares * 1,
+                        adult_count: 0,
+                        child_count: 0
                     });
                 }
 

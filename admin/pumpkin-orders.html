@@ -555,9 +555,13 @@
                         <strong style="color: #ff6b35;">🎃 ${new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</strong>
                     ` : '<span style="color: #999;">-</span>'}</td>
                     <td class="order-items">
-                        ${order.items.map(item =>
-                            `${item.quantity}x ${item.item_name}`
-                        ).join('<br>')}
+                        ${order.items.map(item => {
+                            const counts = [];
+                            if (item.adult_count > 0) counts.push(`${item.adult_count} adults`);
+                            if (item.child_count > 0) counts.push(`${item.child_count} children`);
+                            const countStr = counts.length > 0 ? ` (${counts.join(', ')})` : '';
+                            return `${item.quantity}x ${item.item_name}${countStr}`;
+                        }).join('<br>')}
                     </td>
                     <td><strong>€${order.total_amount}</strong></td>
                     <td>
@@ -676,12 +680,18 @@
                 </div>
                 <div style="margin: 1.5rem 0; padding-top: 1rem; border-top: 2px solid #ff6b35;">
                     <h3 style="margin-bottom: 1rem;">Order Items:</h3>
-                    ${order.items.map(item => `
+                    ${order.items.map(item => {
+                        const counts = [];
+                        if (item.adult_count > 0) counts.push(`${item.adult_count} adults`);
+                        if (item.child_count > 0) counts.push(`${item.child_count} children`);
+                        const countStr = counts.length > 0 ? `<br><small style="color: #666;">${counts.join(', ')}</small>` : '';
+                        return `
                         <div class="detail-row">
-                            <span class="detail-label">${item.quantity}x ${item.item_name}</span>
+                            <span class="detail-label">${item.quantity}x ${item.item_name}${countStr}</span>
                             <span class="detail-value">€${item.total_price}</span>
                         </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
                 <div class="detail-row" style="border-top: 2px solid #ff6b35; padding-top: 1rem; font-weight: bold; font-size: 1.2rem;">
                     <span class="detail-label">Total:</span>
