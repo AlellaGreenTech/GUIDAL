@@ -839,8 +839,12 @@ class GuidalApp {
                 return `<button class="btn btn-info" disabled>📅 Coming Soon</button>`;
             }
 
-            // Special handling for SCARY PUMPKIN PATCH
+            // Special handling for Halloween events - direct to checkout without login
             if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
+                return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+            }
+
+            if (activity.title && activity.title.includes('Halloween Party 2025')) {
                 return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
         }
