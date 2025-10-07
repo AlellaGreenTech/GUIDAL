@@ -74,11 +74,11 @@ SET html_body = '<!DOCTYPE html>
 </body>
 </html>',
 updated_at = NOW()
-WHERE template_type = ''entrance_ticket'';
+WHERE template_type = 'entrance_ticket';
 
 -- Update Visit Pass template
 UPDATE pumpkin_patch_email_templates
-SET html_body = ''<!DOCTYPE html>
+SET html_body = '<!DOCTYPE html>
 <html>
 <head>
     <style>
@@ -145,11 +145,11 @@ SET html_body = ''<!DOCTYPE html>
         </div>
     </div>
 </body>
-</html>'',
+</html>',
 updated_at = NOW()
-WHERE template_type = ''visit_pass'';
+WHERE template_type = 'visit_pass';
 
 -- Verify updates
 SELECT name, template_type, updated_at
 FROM pumpkin_patch_email_templates
-WHERE template_type IN (''entrance_ticket'', ''visit_pass'');
+WHERE template_type IN ('entrance_ticket', 'visit_pass');
