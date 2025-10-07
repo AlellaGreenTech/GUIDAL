@@ -289,6 +289,45 @@
             </div>
         </div>
 
+        <!-- Event Summary Cards -->
+        <div class="stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card" style="background: linear-gradient(135deg, #ff6b35, #ff8c42); color: white;">
+                <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem;">🎃 Oct 25th Maxi-Party</div>
+                <div style="display: flex; gap: 1.5rem; justify-content: center; margin-top: 1rem;">
+                    <div>
+                        <div style="font-size: 1.8rem; font-weight: bold;" id="oct25Adults">-</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Adults</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 1.8rem; font-weight: bold;" id="oct25Children">-</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Children</div>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #ff8c42, #ffa500); color: white;">
+                <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem;">🎃 Nov 1st Mini-Party</div>
+                <div style="display: flex; gap: 1.5rem; justify-content: center; margin-top: 1rem;">
+                    <div>
+                        <div style="font-size: 1.8rem; font-weight: bold;" id="nov1Adults">-</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Adults</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 1.8rem; font-weight: bold;" id="nov1Children">-</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Children</div>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #28a745, #5cb85c); color: white;">
+                <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem;">👨👶 Visit Passes</div>
+                <div style="display: flex; gap: 1.5rem; justify-content: center; margin-top: 1rem;">
+                    <div>
+                        <div style="font-size: 1.8rem; font-weight: bold;" id="visitTotal">-</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">Total Visitors</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Filters -->
         <div class="filters">
             <div class="filter-group">
@@ -528,6 +567,34 @@
             document.getElementById('totalRevenue').textContent = '€' + totalRevenue.toFixed(2);
             document.getElementById('pendingPayments').textContent = pendingPayments;
             document.getElementById('paidOrders').textContent = paidOrders;
+
+            // Calculate event-specific totals
+            let oct25Adults = 0, oct25Children = 0;
+            let nov1Adults = 0, nov1Children = 0;
+            let visitTotal = 0;
+
+            orders.forEach(order => {
+                if (order.party_date === '2025-10-25') {
+                    oct25Adults += order.adult_count || 0;
+                    oct25Children += order.child_count || 0;
+                } else if (order.party_date === '2025-11-01') {
+                    nov1Adults += order.adult_count || 0;
+                    nov1Children += order.child_count || 0;
+                }
+
+                // Count visit passes (orders with visit items)
+                const visitItems = order.items.filter(item =>
+                    item.item_name.toLowerCase().includes('visit') ||
+                    item.item_name.toLowerCase().includes('non-party')
+                );
+                visitTotal += visitItems.reduce((sum, item) => sum + item.quantity, 0);
+            });
+
+            document.getElementById('oct25Adults').textContent = oct25Adults;
+            document.getElementById('oct25Children').textContent = oct25Children;
+            document.getElementById('nov1Adults').textContent = nov1Adults;
+            document.getElementById('nov1Children').textContent = nov1Children;
+            document.getElementById('visitTotal').textContent = visitTotal;
         }
 
         function viewOrder(orderId) {
