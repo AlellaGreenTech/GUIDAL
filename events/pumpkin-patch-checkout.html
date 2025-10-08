@@ -196,6 +196,18 @@
                 </div>
             </div>
 
+            <!-- Visit Date Selection (shown only when visit pass selected) -->
+            <div id="visitDateSection" style="display: none; background: #d4edda; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #28a745;">
+                <h3 style="margin-top: 0; color: #28a745;">📅 Select Visit Date *</h3>
+                <p style="margin-bottom: 1rem; color: #666;">Choose any date from October 10-31, 2025 (except party days)</p>
+                <div class="form-group">
+                    <input type="date" id="visitDate" class="form-input" style="width: 100%; font-size: 1rem;" min="2025-10-10" max="2025-10-31">
+                </div>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                    <strong>Not available:</strong> October 25th & November 1st (Party Days)
+                </p>
+            </div>
+
             <div class="item-row">
                 <div class="item-label">
                     👨 Adult Entrance Party Ticket<br>
@@ -286,6 +298,10 @@
             const hasPartyTickets = adults > 0 || children > 0;
             document.getElementById('partyDateSection').style.display = hasPartyTickets ? 'block' : 'none';
 
+            // Show/hide visit date selector
+            const hasVisitPass = visit > 0;
+            document.getElementById('visitDateSection').style.display = hasVisitPass ? 'block' : 'none';
+
             // Update PayPal button href with amount (note: PayPal link might need amount parameter)
             const payButton = document.getElementById('payButton');
             // Keep the original PayPal link as provided
@@ -345,6 +361,23 @@
                 return false;
             }
 
+            // Validate visit date if visit pass selected
+            const hasVisitPass = visit > 0;
+            const visitDate = document.getElementById('visitDate').value;
+
+            if (hasVisitPass && !visitDate) {
+                alert('⚠️ Please select a visit date');
+                document.getElementById('visitDate').focus();
+                return false;
+            }
+
+            // Validate that visit date is not a party date
+            if (visitDate && (visitDate === '2025-10-25' || visitDate === '2025-11-01')) {
+                alert('⚠️ Visit passes are not valid on party days (October 25th or November 1st). Please select a different date.');
+                document.getElementById('visitDate').focus();
+                return false;
+            }
+
             // Calculate total
             const total = (visit * 5) + (adults * 15) + (children * 10) + (scares * 1);
 
@@ -394,6 +427,7 @@
                             adult_count: totalAdults,
                             child_count: totalChildren,
                             party_date: partyDate || null,
+                            visit_date: visitDate || null,
                             status: 'pending',
                             payment_status: 'pending'
                         })
