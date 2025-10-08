@@ -15,12 +15,21 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .checkout-header {
-            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(255, 140, 66, 0.9)), url('../images/scary-skeleton-over-field1.png');
+            background-size: cover;
+            background-position: center;
             color: white;
             padding: 2rem;
             border-radius: 8px;
             margin-bottom: 2rem;
             text-align: center;
+            position: relative;
+        }
+        .checkout-header h2,
+        .checkout-header p {
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         .item-row {
             display: flex;
