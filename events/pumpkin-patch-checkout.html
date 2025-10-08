@@ -168,20 +168,25 @@
             <div class="customer-info-section">
                 <h3 style="margin-bottom: 1rem; color: #333;">📧 Your Information</h3>
                 <div class="form-group">
-                    <label for="firstName">First Name *</label>
-                    <input type="text" id="firstName" class="form-input" required placeholder="Enter your first name">
-                </div>
-                <div class="form-group">
-                    <label for="lastName">Last Name *</label>
-                    <input type="text" id="lastName" class="form-input" required placeholder="Enter your last name">
-                </div>
-                <div class="form-group">
                     <label for="email">Email (to receive tickets) *</label>
                     <input type="email" id="email" class="form-input" required placeholder="your.email@example.com">
+                    <small id="returningCustomerMessage" style="color: #28a745; display: none; margin-top: 0.5rem;">
+                        ✓ Welcome back! We found your previous order. Your details are filled in.
+                    </small>
                 </div>
-                <div class="form-group">
-                    <label for="phone">Phone (optional)</label>
-                    <input type="tel" id="phone" class="form-input" placeholder="+34 123 456 789">
+                <div id="customerDetailsSection">
+                    <div class="form-group">
+                        <label for="firstName">First Name *</label>
+                        <input type="text" id="firstName" class="form-input" required placeholder="Enter your first name">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name *</label>
+                        <input type="text" id="lastName" class="form-input" required placeholder="Enter your last name">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone (optional)</label>
+                        <input type="tel" id="phone" class="form-input" placeholder="+34 123 456 789">
+                    </div>
                 </div>
             </div>
 
@@ -284,6 +289,61 @@
     <script src="../js/supabase-client.js"></script>
 
     <script>
+        // Email lookup for returning customers
+        let emailLookupTimeout;
+        document.getElementById('email').addEventListener('input', function(e) {
+            const email = e.target.value.trim();
+
+            // Clear previous timeout
+            clearTimeout(emailLookupTimeout);
+
+            // Hide returning customer message while typing
+            document.getElementById('returningCustomerMessage').style.display = 'none';
+
+            // Only lookup if valid email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return;
+            }
+
+            // Debounce - wait 500ms after user stops typing
+            emailLookupTimeout = setTimeout(async () => {
+                await lookupCustomerByEmail(email);
+            }, 500);
+        });
+
+        async function lookupCustomerByEmail(email) {
+            try {
+                // Look up most recent order with this email
+                const { data, error } = await window.supabaseClient
+                    .from('pumpkin_patch_orders')
+                    .select('first_name, last_name, phone')
+                    .eq('email', email)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (error) {
+                    console.error('Error looking up customer:', error);
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    // Found previous order - auto-fill details
+                    const customer = data[0];
+                    document.getElementById('firstName').value = customer.first_name;
+                    document.getElementById('lastName').value = customer.last_name;
+                    document.getElementById('phone').value = customer.phone || '';
+
+                    // Show welcome back message
+                    document.getElementById('returningCustomerMessage').style.display = 'block';
+
+                    console.log('✓ Returning customer found, details auto-filled');
+                }
+            } catch (err) {
+                console.error('Error in email lookup:', err);
+            }
+        }
+
         function calculateTotal() {
             const visit = parseInt(document.getElementById('visit').value) || 0;
             const adults = parseInt(document.getElementById('adults').value) || 0;
