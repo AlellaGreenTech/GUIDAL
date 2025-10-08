@@ -8,7 +8,7 @@ SET
     slug = 'family-farm-visits',
     description = 'Plan a fun and educational farm visit for your family',
     display_order = 3,
-    image_url = 'images/family-farm-visit.jpg',
+    image_url = '../images/agricultural-drone-vineyard.png',
     active = true
 WHERE slug = 'family-visits' OR slug = 'family-farm-visits' OR name = 'Family Farm Visits';
 
@@ -26,7 +26,7 @@ SELECT
     'family-farm-visits',
     'Plan a fun and educational farm visit for your family',
     3,
-    'images/family-farm-visit.jpg',
+    '../images/agricultural-drone-vineyard.png',
     true
 WHERE NOT EXISTS (
     SELECT 1 FROM activity_categories
