@@ -702,10 +702,8 @@
                         filterActivitiesByType(pendingFilter);
                     }, 1000);
                 } else {
-                    // Default to showing events on page load
-                    setTimeout(() => {
-                        filterByType('events');
-                    }, 1000);
+                    // No default filter - show all activities on page load
+                    console.log('✅ No default filter applied - showing all activities');
                 }
 
                 // Debug: check if activities are rendered
