@@ -447,6 +447,29 @@
         </div>
     </div>
 
+    <!-- Send Email Modal -->
+    <div id="sendEmailModal" class="order-details-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>📧 Send Email</h2>
+                <button class="close-modal" onclick="closeSendEmailModal()">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <p style="margin-bottom: 1.5rem;">Select an email template to send to the customer:</p>
+                <select id="sendEmailTemplateSelect" style="width: 100%; padding: 0.75rem; border: 2px solid #ff6b35; border-radius: 4px; font-size: 1rem; margin-bottom: 1.5rem;">
+                    <option value="entrance_ticket">🎃 Party Entrance Ticket</option>
+                    <option value="visit_pass">🎟️ Visit Pass Confirmation</option>
+                </select>
+                <button class="btn btn-primary" onclick="sendEmailFromModal()" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
+                    📧 Send Email
+                </button>
+                <p style="margin-top: 1rem; font-size: 0.85rem; color: #666; text-align: center;">
+                    <em>Note: Entrance ticket email is auto-sent when marking order as PAID</em>
+                </p>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="container">
             <p>&copy; 2025 Alella Green Tech Foundation. <a href="../index.html">Back to GUIDAL</a></p>
@@ -595,7 +618,7 @@
                         <button class="btn btn-primary btn-small" onclick="viewOrder('${order.id}')">
                             View
                         </button>
-                        <button class="btn btn-secondary btn-small" onclick="previewEmail('${order.id}')">
+                        <button class="btn btn-secondary btn-small" onclick="showEmailModal('${order.id}')">
                             📧 Email
                         </button>
                         ${order.payment_status === 'pending' ? `
@@ -1086,6 +1109,76 @@
             document.getElementById('emailPreviewModal').style.display = 'none';
         }
 
+        let currentEmailOrderId = null;
+
+        function showEmailModal(orderId) {
+            currentEmailOrderId = orderId;
+            const order = allOrders.find(o => o.id === orderId);
+
+            // Auto-select the appropriate template based on order type
+            const hasEntranceTicket = order.items.some(item =>
+                item.item_name.includes('Adult') || item.item_name.includes('Child')
+            );
+            const templateSelect = document.getElementById('sendEmailTemplateSelect');
+            templateSelect.value = hasEntranceTicket ? 'entrance_ticket' : 'visit_pass';
+
+            document.getElementById('sendEmailModal').style.display = 'flex';
+        }
+
+        function closeSendEmailModal() {
+            document.getElementById('sendEmailModal').style.display = 'none';
+            currentEmailOrderId = null;
+        }
+
+        async function sendEmailFromModal() {
+            const templateType = document.getElementById('sendEmailTemplateSelect').value;
+
+            if (!currentEmailOrderId) {
+                alert('Error: No order selected');
+                return;
+            }
+
+            if (!confirm(`Send ${templateType.replace('_', ' ')} email to customer?`)) return;
+
+            try {
+                const order = allOrders.find(o => o.id === currentEmailOrderId);
+                if (!order) throw new Error('Order not found');
+
+                // Call Edge Function to send email via Resend
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+                const functionResponse = await fetch(
+                    `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session.access_token}`
+                        },
+                        body: JSON.stringify({
+                            orderId: currentEmailOrderId,
+                            templateType: templateType
+                        })
+                    }
+                );
+
+                const result = await functionResponse.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to send email');
+                }
+
+                alert(`✅ Email sent successfully to ${order.email}\n\nResend ID: ${result.resendId}`);
+
+                // Close modal
+                closeSendEmailModal();
+
+            } catch (error) {
+                console.error('Error sending email:', error);
+                alert('❌ Failed to send email: ' + error.message);
+            }
+        }
+
         // Close modal when clicking outside
         document.getElementById('orderModal').addEventListener('click', function(e) {
             if (e.target === this) {
@@ -1096,6 +1189,12 @@
         document.getElementById('emailPreviewModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeEmailPreview();
+            }
+        });
+
+        document.getElementById('sendEmailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSendEmailModal();
             }
         });
     </script>
