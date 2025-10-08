@@ -1,19 +1,54 @@
 -- Remove duplicate workshop templates in scheduled_visits
 -- Keep only one template per activity_id where visit_type = 'individual_workshop'
 
--- First, let's see what duplicates we have
+-- Step 1: See what duplicates we have
 SELECT
     activity_id,
     title,
-    COUNT(*) as count
+    id,
+    created_at,
+    ROW_NUMBER() OVER (PARTITION BY activity_id, visit_type ORDER BY created_at ASC) as rn
 FROM scheduled_visits
 WHERE visit_type = 'individual_workshop'
   AND scheduled_date IS NULL
-GROUP BY activity_id, title
-HAVING COUNT(*) > 1
-ORDER BY count DESC;
+ORDER BY activity_id, created_at;
 
--- Delete duplicates, keeping only the oldest record for each activity_id
+-- Step 2: For each duplicate group, update foreign key references
+-- to point to the record we're keeping (the oldest one)
+
+-- Update activity_category_links to point to the kept record
+UPDATE activity_category_links acl
+SET activity_id = keeper.id
+FROM (
+    SELECT DISTINCT ON (sv.activity_id)
+        sv.id,
+        sv.activity_id
+    FROM scheduled_visits sv
+    WHERE sv.visit_type = 'individual_workshop'
+      AND sv.scheduled_date IS NULL
+    ORDER BY sv.activity_id, sv.created_at ASC
+) keeper
+WHERE acl.activity_id IN (
+    -- Get IDs of duplicates to be deleted
+    SELECT id
+    FROM (
+        SELECT id,
+               activity_id,
+               ROW_NUMBER() OVER (
+                   PARTITION BY activity_id, visit_type
+                   ORDER BY created_at ASC
+               ) as rn
+        FROM scheduled_visits
+        WHERE visit_type = 'individual_workshop'
+          AND scheduled_date IS NULL
+    ) t
+    WHERE rn > 1
+)
+AND keeper.activity_id = (
+    SELECT activity_id FROM scheduled_visits WHERE id = acl.activity_id
+);
+
+-- Step 3: Now delete the duplicates
 DELETE FROM scheduled_visits
 WHERE id IN (
     SELECT id
@@ -30,7 +65,7 @@ WHERE id IN (
     WHERE rn > 1
 );
 
--- Verify - should show no duplicates now
+-- Step 4: Verify - should show no duplicates now
 SELECT
     activity_id,
     title,
