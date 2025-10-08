@@ -836,23 +836,31 @@
                     emailSubject = emailSubject.replaceAll(key, value);
                 });
 
-                // Log email attempt
-                const { error: logError } = await window.supabaseClient
-                    .from('pumpkin_patch_email_log')
-                    .insert({
-                        order_id: orderId,
-                        template_type: templateType,
-                        recipient_email: order.email,
-                        subject: emailSubject,
-                        status: 'sent',
-                        sent_at: new Date().toISOString()
-                    });
+                // Call Edge Function to send email via Resend
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
 
-                if (logError) {
-                    console.error('Failed to log email:', logError);
+                const functionResponse = await fetch(
+                    `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session.access_token}`
+                        },
+                        body: JSON.stringify({
+                            orderId: orderId,
+                            templateType: templateType
+                        })
+                    }
+                );
+
+                const result = await functionResponse.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to send email');
                 }
 
-                alert(`✅ Email sent successfully to ${order.email}\n\nNote: This is a simulated send. In production, integrate with Resend or SendGrid to actually send emails.`);
+                alert(`✅ Email sent successfully to ${order.email}\n\nResend ID: ${result.resendId}`);
 
                 // Refresh the order details to show new email in history
                 closeModal();
@@ -893,7 +901,7 @@
 
         async function sendConfirmationEmail(orderId) {
             try {
-                // Get order details
+                // Get order details to determine template type
                 const { data: order, error: orderError } = await window.supabaseClient
                     .from('pumpkin_patch_orders')
                     .select('*, items:pumpkin_patch_order_items(*)')
@@ -908,87 +916,32 @@
                 );
                 const templateType = hasEntranceTicket ? 'entrance_ticket' : 'visit_pass';
 
-                // Get active template for this type
-                const { data: template, error: templateError } = await window.supabaseClient
-                    .from('pumpkin_patch_email_templates')
-                    .select('*')
-                    .eq('template_type', templateType)
-                    .eq('is_active', true)
-                    .single();
+                // Call Edge Function to send email via Resend
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
 
-                if (templateError) {
-                    console.warn('No active template found for type:', templateType);
-                    return; // Don't fail the whole operation
+                const functionResponse = await fetch(
+                    `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session.access_token}`
+                        },
+                        body: JSON.stringify({
+                            orderId: orderId,
+                            templateType: templateType
+                        })
+                    }
+                );
+
+                const result = await functionResponse.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to send email');
                 }
 
-                // Generate QR code data
-                const scares = order.items.find(item => item.item_name.includes('SCARE'))?.quantity || 0;
-                const partyDateFormatted = order.party_date ?
-                    new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) :
-                    'Visit Pass';
-
-                const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${order.adult_count || 0}|CHILDREN:${order.child_count || 0}|EVENT:${partyDateFormatted}|SCARES:${scares}|TOTAL:€${order.total_amount}`;
-                const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`;
-
-                // Format party date for email
-                let partyDateForEmail = 'Visit Pass (any non-party day)';
-                if (order.party_date) {
-                    const date = new Date(order.party_date);
-                    partyDateForEmail = date.toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric'
-                    });
-                }
-
-                // Format items list for email
-                const itemsList = order.items.map(item =>
-                    `${item.quantity}x ${item.item_name}`
-                ).join('<br>');
-
-                // Replace variables in template
-                const emailData = {
-                    '{{order_number}}': order.order_number,
-                    '{{first_name}}': order.first_name,
-                    '{{last_name}}': order.last_name,
-                    '{{email}}': order.email,
-                    '{{phone}}': order.phone || 'Not provided',
-                    '{{party_date}}': partyDateForEmail,
-                    '{{adult_count}}': order.adult_count || 0,
-                    '{{child_count}}': order.child_count || 0,
-                    '{{items}}': itemsList,
-                    '{{total_amount}}': order.total_amount.toFixed(2),
-                    '{{qr_code}}': qrCodeUrl
-                };
-
-                let emailBody = template.html_body;
-                let emailSubject = template.subject;
-
-                Object.entries(emailData).forEach(([key, value]) => {
-                    emailBody = emailBody.replaceAll(key, value);
-                    emailSubject = emailSubject.replaceAll(key, value);
-                });
-
-                // Log the email (in production, you'd actually send it here via API)
-                const { error: logError } = await window.supabaseClient
-                    .from('pumpkin_patch_email_log')
-                    .insert([{
-                        order_id: orderId,
-                        template_id: template.id,
-                        recipient_email: order.email,
-                        subject: emailSubject,
-                        status: 'sent'
-                    }]);
-
-                if (logError) throw logError;
-
-                console.log('✅ Email logged successfully');
-                console.log('To:', order.email);
-                console.log('Subject:', emailSubject);
-                console.log('Body preview:', emailBody.substring(0, 200) + '...');
-
-                // TODO: Integrate with actual email service (Resend, SendGrid, etc.)
-                // For now, we're just logging to the database
+                console.log('✅ Email sent successfully via Resend');
+                console.log('Resend ID:', result.resendId);
 
             } catch (error) {
                 console.error('Error sending confirmation email:', error);
