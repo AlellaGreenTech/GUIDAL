@@ -479,12 +479,17 @@
                     console.log('📊 Loading activities for category:', categorySlug);
 
                     if (window.app && window.app.loadActivities) {
-                        // For events category, use type filter instead of category_id
-                        // This ensures all events (visit_type = 'public_event') are shown
+                        // For events and workshops categories, use type filter instead of category_id
+                        // This ensures all items of that type are shown
                         if (categorySlug === 'events') {
                             console.log('🎉 Loading all events by type');
                             await window.app.loadActivities({
                                 type: 'events'
+                            });
+                        } else if (categorySlug === 'workshops') {
+                            console.log('🔧 Loading all workshops by type');
+                            await window.app.loadActivities({
+                                type: 'workshops'
                             });
                         } else {
                             // For other categories, use category_id from junction table
