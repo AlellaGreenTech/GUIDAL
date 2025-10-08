@@ -41,31 +41,57 @@
             white-space: nowrap;
         }
         .item-input {
-            width: 80px;
+            width: 60px;
             padding: 0.5rem;
             border: 2px solid #ddd;
-            border-radius: 4px;
             text-align: center;
-            font-size: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
             -moz-appearance: textfield; /* Firefox */
+            background: white;
         }
         .item-input:focus {
             outline: none;
             border-color: #ff6b35;
         }
-        /* Always show number input spinners and make them larger */
+        /* Hide default spinners - we'll use custom buttons */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
-            opacity: 1;
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .quantity-btn {
+            width: 40px;
             height: 40px;
+            border: 2px solid #ff6b35;
+            background: white;
+            color: #ff6b35;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        /* Disable text input, only allow spinner clicks */
-        .item-input {
-            pointer-events: none;
+        .quantity-btn:active {
+            background: #ff6b35;
+            color: white;
+            transform: scale(0.95);
         }
-        .item-input::-webkit-inner-spin-button,
-        .item-input::-webkit-outer-spin-button {
-            pointer-events: auto;
+        @media (hover: hover) {
+            .quantity-btn:hover {
+                background: #ff6b35;
+                color: white;
+            }
         }
         .total-row {
             display: flex;
@@ -299,12 +325,20 @@
                         <div class="item-row">
                             <div class="item-label">👨 Adult Entrance Ticket</div>
                             <div class="item-price">€15 x</div>
-                            <input type="number" id="adults" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('adults', -1)">−</button>
+                                <input type="number" id="adults" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('adults', 1)">+</button>
+                            </div>
                         </div>
                         <div class="item-row">
                             <div class="item-label">👶 Child Entrance Ticket</div>
                             <div class="item-price">€10 x</div>
-                            <input type="number" id="children" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('children', -1)">−</button>
+                                <input type="number" id="children" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('children', 1)">+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -327,7 +361,11 @@
                         <div class="item-row">
                             <div class="item-label">👨👶 Visit Pass (Adult or Child)</div>
                             <div class="item-price">€5 x</div>
-                            <input type="number" id="visit" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('visit', -1)">−</button>
+                                <input type="number" id="visit" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('visit', 1)">+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -353,7 +391,11 @@
                                 <small style="color: #999;">5 SCARES</small>
                             </div>
                             <div class="item-price">€5 x</div>
-                            <input type="number" id="smallPumpkin" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('smallPumpkin', -1)">−</button>
+                                <input type="number" id="smallPumpkin" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('smallPumpkin', 1)">+</button>
+                            </div>
                         </div>
                         <div class="item-row">
                             <div class="item-label">
@@ -361,7 +403,11 @@
                                 <small style="color: #999;">10 SCARES</small>
                             </div>
                             <div class="item-price">€10 x</div>
-                            <input type="number" id="mediumPumpkin" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('mediumPumpkin', -1)">−</button>
+                                <input type="number" id="mediumPumpkin" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('mediumPumpkin', 1)">+</button>
+                            </div>
                         </div>
                         <div class="item-row">
                             <div class="item-label">
@@ -369,7 +415,11 @@
                                 <small style="color: #999;">15 SCARES</small>
                             </div>
                             <div class="item-price">€15 x</div>
-                            <input type="number" id="largePumpkin" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('largePumpkin', -1)">−</button>
+                                <input type="number" id="largePumpkin" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('largePumpkin', 1)">+</button>
+                            </div>
                         </div>
                         <div class="item-row" style="border-bottom: none;">
                             <div class="item-label">
@@ -377,7 +427,11 @@
                                 <small style="color: #999;">For food, activities, etc.</small>
                             </div>
                             <div class="item-price">€1 x</div>
-                            <input type="number" id="scares" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('scares', -1)">−</button>
+                                <input type="number" id="scares" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('scares', 1)">+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -424,6 +478,15 @@
     <script src="../js/supabase-client.js"></script>
 
     <script>
+        // Quantity change function for +/- buttons
+        function changeQuantity(inputId, delta) {
+            const input = document.getElementById(inputId);
+            const currentValue = parseInt(input.value) || 0;
+            const newValue = Math.max(0, currentValue + delta);
+            input.value = newValue;
+            calculateTotal();
+        }
+
         // Accordion toggle function
         function toggleAccordion(section) {
             const content = document.getElementById(section + 'Content');
