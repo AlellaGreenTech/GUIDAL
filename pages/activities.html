@@ -473,27 +473,39 @@
             //     activitiesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
             // }
 
-            // Filter activities by category using the junction table
+            // Filter activities by category
             setTimeout(async () => {
                 try {
                     console.log('📊 Loading activities for category:', categorySlug);
 
-                    // Get category ID first
-                    const { data: category } = await supabaseClient
-                        .from('activity_categories')
-                        .select('id')
-                        .eq('slug', categorySlug)
-                        .single();
+                    if (window.app && window.app.loadActivities) {
+                        // For events category, use type filter instead of category_id
+                        // This ensures all events (visit_type = 'public_event') are shown
+                        if (categorySlug === 'events') {
+                            console.log('🎉 Loading all events by type');
+                            await window.app.loadActivities({
+                                type: 'events'
+                            });
+                        } else {
+                            // For other categories, use category_id from junction table
+                            const { data: category } = await supabaseClient
+                                .from('activity_categories')
+                                .select('id')
+                                .eq('slug', categorySlug)
+                                .single();
 
-                    if (category && window.app && window.app.loadActivities) {
-                        console.log('✅ Found category ID:', category.id, 'Loading activities...');
-                        // Load activities filtered by category (no time filter - show all)
-                        await window.app.loadActivities({
-                            category_id: category.id
-                        });
+                            if (category) {
+                                console.log('✅ Found category ID:', category.id, 'Loading activities...');
+                                await window.app.loadActivities({
+                                    category_id: category.id
+                                });
+                            } else {
+                                console.error('❌ Category not found:', categorySlug);
+                            }
+                        }
                         console.log('✅ Activities loaded for', categorySlug);
                     } else {
-                        console.error('❌ Missing:', { category, app: !!window.app, loadActivities: !!window.app?.loadActivities });
+                        console.error('❌ App not ready');
                     }
                 } catch (err) {
                     console.error('❌ Error filtering by category:', err);
