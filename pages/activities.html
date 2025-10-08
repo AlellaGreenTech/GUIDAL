@@ -593,17 +593,8 @@
                         `).join('');
                         console.log('✅ Rendered', categories.length, 'category cards');
 
-                        // Auto-select the first category after app is ready
-                        const waitForApp = setInterval(() => {
-                            if (window.app && window.app.loadActivities) {
-                                clearInterval(waitForApp);
-                                const firstCard = carousel.querySelector('.carousel-card.active');
-                                if (firstCard && categories[0]) {
-                                    console.log('🎯 Auto-selecting first category:', categories[0].slug);
-                                    filterByCategory(categories[0].slug, firstCard);
-                                }
-                            }
-                        }, 100);
+                        // Don't auto-select any category - let user choose or show all activities
+                        console.log('ℹ️ Categories loaded - click a category to filter');
                     } else {
                         carousel.innerHTML = styleEl.outerHTML + `
                             <div style="padding: 2rem; text-align: center; width: 100%; color: #666;">
