@@ -172,6 +172,24 @@
             min-width: 280px;
         }
 
+        /* Sticky action buttons column */
+        th:last-child,
+        td:last-child {
+            position: sticky;
+            right: 0;
+            background: white;
+            box-shadow: -2px 0 4px rgba(0,0,0,0.1);
+        }
+
+        th:last-child {
+            background: #ff6b35;
+            z-index: 2;
+        }
+
+        tr:hover td:last-child {
+            background: #f8f9fa;
+        }
+
         .btn-small {
             padding: 0.25rem 0.75rem;
             font-size: 0.85rem;
