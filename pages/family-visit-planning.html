@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Your Family Visit - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .visit-header {
+            background: linear-gradient(rgba(76, 175, 80, 0.8), rgba(56, 142, 60, 0.8)), url('../images/family-farm-visit.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .visit-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .visit-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .form-section h3 {
+            color: #4caf50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #e8f5e9;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #388e3c, #4caf50);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="container">
+            <a href="../index.html" style="text-decoration: none; display: flex; flex-direction: column;">
+                <span style="font-size: 1.5rem; font-weight: bold; color: white;">GUIDAL</span>
+                <span style="font-size: 0.7rem; color: white; opacity: 0.85;">at Alella Green Tech</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="directions.html">Directions</a></li>
+                <li><a href="activities.html">Activities</a></li>
+                <li><a href="kits.html">Kits</a></li>
+                <li><a href="visit-planning.html">Plan Visit</a></li>
+                <li><a href="follow-post.html">Follow & Share</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="auth/login.html" class="login-btn">Login/Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="visit-header">
+        <div class="container">
+            <h1>👨‍👩‍👧‍👦 Plan Your Family Farm Visit</h1>
+            <p class="visit-subtitle">Create wonderful memories while learning about sustainable farming and green technology</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="form-container">
+            <div class="info-box">
+                <h3>🌱 What to Expect</h3>
+                <ul>
+                    <li>Interactive farm activities suitable for all ages</li>
+                    <li>Learn about sustainable farming and permaculture</li>
+                    <li>See innovative green technology in action</li>
+                    <li>Hands-on experiences with plants, water systems, and more</li>
+                    <li>Picnic areas available (bring your own food)</li>
+                </ul>
+                <p><strong>Duration:</strong> Typically 2-3 hours | <strong>Cost:</strong> Free (donations welcome)</p>
+            </div>
+
+            <form id="familyVisitForm">
+                <div class="form-section">
+                    <h3>👨‍👩‍👧‍👦 Family Contact Information</h3>
+
+                    <div class="form-group">
+                        <label for="contactName" class="required-field">Contact Person Name</label>
+                        <input type="text" id="contactName" name="contactName" placeholder="Your full name" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contactEmail" class="required-field">Email</label>
+                            <input type="email" id="contactEmail" name="contactEmail" placeholder="your.email@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPhone" class="required-field">Phone</label>
+                            <input type="tel" id="contactPhone" name="contactPhone" placeholder="+34 123 456 789" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>📅 Visit Details</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="preferredDate" class="required-field">Preferred Date</label>
+                            <input type="date" id="preferredDate" name="preferredDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="alternateDate">Alternate Date</label>
+                            <input type="date" id="alternateDate" name="alternateDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="numberOfAdults" class="required-field">Number of Adults</label>
+                            <input type="number" id="numberOfAdults" name="numberOfAdults" min="1" max="20" value="2" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="numberOfChildren">Number of Children</label>
+                            <input type="number" id="numberOfChildren" name="numberOfChildren" min="0" max="20" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="childrenAges">Ages of Children (if applicable)</label>
+                        <input type="text" id="childrenAges" name="childrenAges" placeholder="e.g., 5, 8, 12">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🎯 Interests & Special Requests</h3>
+
+                    <div class="form-group">
+                        <label for="interests">What interests your family most?</label>
+                        <select id="interests" name="interests" multiple size="5">
+                            <option value="permaculture">Permaculture & Sustainable Farming</option>
+                            <option value="water">Water Systems & Conservation</option>
+                            <option value="energy">Renewable Energy</option>
+                            <option value="animals">Farm Animals</option>
+                            <option value="plants">Plants & Gardening</option>
+                            <option value="composting">Composting & Soil Health</option>
+                            <option value="technology">Green Technology</option>
+                        </select>
+                        <small style="color: #666; display: block; margin-top: 0.5rem;">Hold Ctrl (Cmd on Mac) to select multiple</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="specialNeeds">Any special needs or accessibility requirements?</label>
+                        <textarea id="specialNeeds" name="specialNeeds" rows="3" placeholder="Please let us know if anyone has mobility issues, allergies, or other needs we should be aware of"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additionalComments">Additional Comments or Questions</label>
+                        <textarea id="additionalComments" name="additionalComments" rows="4" placeholder="Anything else you'd like us to know?"></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">📨 Submit Visit Request</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Alella Green Tech Foundation. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+
+    <script>
+        // Set minimum date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('preferredDate').min = tomorrow.toISOString().split('T')[0];
+        document.getElementById('alternateDate').min = tomorrow.toISOString().split('T')[0];
+
+        document.getElementById('familyVisitForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const interests = Array.from(document.getElementById('interests').selectedOptions).map(opt => opt.value);
+
+            try {
+                const { data, error } = await GuidalDB.supabase
+                    .from('family_visit_requests')
+                    .insert({
+                        contact_name: formData.get('contactName'),
+                        contact_email: formData.get('contactEmail'),
+                        contact_phone: formData.get('contactPhone'),
+                        preferred_date: formData.get('preferredDate'),
+                        alternate_date: formData.get('alternateDate') || null,
+                        number_of_adults: parseInt(formData.get('numberOfAdults')) || 0,
+                        number_of_children: parseInt(formData.get('numberOfChildren')) || 0,
+                        children_ages: formData.get('childrenAges') || null,
+                        interests: interests,
+                        special_needs: formData.get('specialNeeds') || null,
+                        additional_comments: formData.get('additionalComments') || null,
+                        status: 'pending'
+                    });
+
+                if (error) throw error;
+
+                alert('✅ Thank you! Your family visit request has been submitted. We\'ll contact you soon to confirm the details.');
+                this.reset();
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('❌ There was an error submitting your request. Please email us directly at info@guidal.be');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -421,9 +421,9 @@
                 }
             }
 
-            // Special handling for School Field Trips category
+            // Special handling for School Field Trips and Family Visits categories
             if (categorySlug === 'school-visits' || categorySlug === 'school-field-trips') {
-                // Show special "Plan Your Visit" card instead of activities
+                // Show special "Plan Your Visit" card for schools
                 const activityGrid = document.getElementById('activity-grid');
                 if (activityGrid) {
                     activityGrid.innerHTML = `
@@ -452,6 +452,34 @@
                 // if (activitiesCard && !skipScroll) {
                 //     activitiesCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 // }
+                return;
+            }
+
+            // Special handling for Family Visits category
+            if (categorySlug === 'family-visits') {
+                // Show special "Plan Your Visit" card for families
+                const activityGrid = document.getElementById('activity-grid');
+                if (activityGrid) {
+                    activityGrid.innerHTML = `
+                        <div style="max-width: 600px; margin: 3rem auto; text-align: center; padding: 3rem; background: linear-gradient(135deg, #4caf50, #388e3c); border-radius: 16px; box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);">
+                            <h2 style="color: white; font-size: 2rem; margin-bottom: 1rem;">👨‍👩‍👧‍👦 Family Farm Visits</h2>
+                            <p style="color: white; font-size: 1.1rem; opacity: 0.95; margin-bottom: 2rem; line-height: 1.6;">
+                                Create wonderful family memories while learning about sustainable farming and green technology together!
+                            </p>
+                            <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                                <p style="color: white; font-size: 1rem; margin-bottom: 0.5rem;">
+                                    ✓ Fun for all ages<br>
+                                    ✓ Interactive farm activities<br>
+                                    ✓ Learn about sustainability<br>
+                                    ✓ Picnic areas available
+                                </p>
+                            </div>
+                            <a href="family-visit-planning.html" style="display: inline-block; background: white; color: #4caf50; padding: 1.25rem 3rem; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.2rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                                📋 Plan Your Family Visit
+                            </a>
+                        </div>
+                    `;
+                }
                 return;
             }
 
