@@ -381,6 +381,8 @@
                         <th>Customer</th>
                         <th>Email</th>
                         <th>Party Date</th>
+                        <th>Adults</th>
+                        <th>Children</th>
                         <th>Items</th>
                         <th>Amount</th>
                         <th>Payment</th>
@@ -554,16 +556,12 @@
                     <td>${order.party_date ? `
                         <strong style="color: #ff6b35;">🎃 ${new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</strong>
                     ` : '<span style="color: #999;">-</span>'}</td>
+                    <td><strong>${order.adult_count || 0}</strong></td>
+                    <td><strong>${order.child_count || 0}</strong></td>
                     <td class="order-items">
-                        ${order.items.map(item => {
-                            const counts = [];
-                            console.log('Item:', item.item_name, 'adult_count:', item.adult_count, 'child_count:', item.child_count);
-                            if (item.adult_count && item.adult_count > 0) counts.push(`${item.adult_count} adults`);
-                            if (item.child_count && item.child_count > 0) counts.push(`${item.child_count} children`);
-                            const countStr = counts.length > 0 ? ` (${counts.join(', ')})` : '';
-                            console.log('countStr:', countStr);
-                            return `${item.quantity}x ${item.item_name}${countStr}`;
-                        }).join('<br>')}
+                        ${order.items.map(item =>
+                            `${item.quantity}x ${item.item_name}`
+                        ).join('<br>')}
                     </td>
                     <td><strong>€${order.total_amount}</strong></td>
                     <td>
