@@ -143,6 +143,75 @@
         .form-input::placeholder {
             color: #999;
         }
+
+        /* Accordion styles */
+        .accordion {
+            margin-bottom: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        .accordion.has-items {
+            border-color: #ff6b35;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+        }
+        .accordion-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: background 0.3s;
+        }
+        .accordion-header:hover {
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+        }
+        .accordion-header.active {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+        }
+        .accordion-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .accordion-badge {
+            background: #ff6b35;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            min-width: 24px;
+            text-align: center;
+        }
+        .accordion-header.active .accordion-badge {
+            background: white;
+            color: #ff6b35;
+        }
+        .accordion-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+        .accordion-icon.open {
+            transform: rotate(180deg);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: white;
+        }
+        .accordion-content.open {
+            max-height: 1000px;
+        }
+        .accordion-body {
+            padding: 1rem 1.5rem;
+        }
     </style>
 </head>
 <body>
@@ -213,39 +282,105 @@
                 </p>
             </div>
 
-            <div class="item-row">
-                <div class="item-label">
-                    👨 Adult Entrance Party Ticket<br>
-                    <small style="color: #666;">October 25th / November 1st 2025</small>
+            <!-- Party Tickets Accordion -->
+            <div class="accordion" id="partyAccordion">
+                <div class="accordion-header" onclick="toggleAccordion('party')">
+                    <div class="accordion-title">
+                        🎃 Party Tickets
+                        <span class="accordion-badge" id="partyBadge">0</span>
+                    </div>
+                    <span class="accordion-icon" id="partyIcon">▼</span>
                 </div>
-                <div class="item-price">€15 x</div>
-                <input type="number" id="adults" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                <div class="accordion-content" id="partyContent">
+                    <div class="accordion-body">
+                        <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
+                            <strong>October 25th or November 1st, 2025</strong>
+                        </p>
+                        <div class="item-row">
+                            <div class="item-label">👨 Adult Entrance Ticket</div>
+                            <div class="item-price">€15 x</div>
+                            <input type="number" id="adults" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                        </div>
+                        <div class="item-row">
+                            <div class="item-label">👶 Child Entrance Ticket</div>
+                            <div class="item-price">€10 x</div>
+                            <input type="number" id="children" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="item-row">
-                <div class="item-label">
-                    👶 Child Entrance Party Ticket<br>
-                    <small style="color: #666;">October 25th / November 1st 2025</small>
+            <!-- Non-Party Visits Accordion -->
+            <div class="accordion" id="visitAccordion">
+                <div class="accordion-header" onclick="toggleAccordion('visit')">
+                    <div class="accordion-title">
+                        🌾 Non-Party Day Visits
+                        <span class="accordion-badge" id="visitBadge">0</span>
+                    </div>
+                    <span class="accordion-icon" id="visitIcon">▼</span>
                 </div>
-                <div class="item-price">€10 x</div>
-                <input type="number" id="children" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                <div class="accordion-content" id="visitContent">
+                    <div class="accordion-body">
+                        <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
+                            <strong>Any day October 10-31 (except party days)</strong>
+                        </p>
+                        <div class="item-row">
+                            <div class="item-label">👨👶 Visit Pass (Adult or Child)</div>
+                            <div class="item-price">€5 x</div>
+                            <input type="number" id="visit" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="item-row">
-                <div class="item-label">
-                    🎃 SCARES<br>
-                    <small style="color: #666;">For pumpkins, food, etc.</small>
+            <!-- Pumpkins & Food Accordion -->
+            <div class="accordion" id="pumpkinsAccordion">
+                <div class="accordion-header" onclick="toggleAccordion('pumpkins')">
+                    <div class="accordion-title">
+                        🎃 Pumpkins & Food
+                        <span class="accordion-badge" id="pumpkinsBadge">0</span>
+                    </div>
+                    <span class="accordion-icon" id="pumpkinsIcon">▼</span>
                 </div>
-                <div class="item-price">€1 x</div>
-                <input type="number" id="scares" class="item-input" min="0" value="0" oninput="calculateTotal()">
-            </div>
-
-            <div class="item-row">
-                <div class="item-label">
-                    👨👶 Pumpkin Patch Visit (adult or child) - <strong>NON</strong>-PARTY-DAY VISIT
+                <div class="accordion-content" id="pumpkinsContent">
+                    <div class="accordion-body">
+                        <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
+                            <strong>Purchase SCARES for pumpkins and food</strong>
+                        </p>
+                        <div class="item-row">
+                            <div class="item-label">
+                                🎃 Small Pumpkin<br>
+                                <small style="color: #999;">5 SCARES</small>
+                            </div>
+                            <div class="item-price">€5 x</div>
+                            <input type="number" id="smallPumpkin" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                        </div>
+                        <div class="item-row">
+                            <div class="item-label">
+                                🎃 Medium Pumpkin<br>
+                                <small style="color: #999;">10 SCARES</small>
+                            </div>
+                            <div class="item-price">€10 x</div>
+                            <input type="number" id="mediumPumpkin" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                        </div>
+                        <div class="item-row">
+                            <div class="item-label">
+                                🎃 Large Pumpkin<br>
+                                <small style="color: #999;">15 SCARES</small>
+                            </div>
+                            <div class="item-price">€15 x</div>
+                            <input type="number" id="largePumpkin" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                        </div>
+                        <div class="item-row" style="border-bottom: none;">
+                            <div class="item-label">
+                                💰 Individual SCARES<br>
+                                <small style="color: #999;">For food, activities, etc.</small>
+                            </div>
+                            <div class="item-price">€1 x</div>
+                            <input type="number" id="scares" class="item-input" min="0" value="0" oninput="calculateTotal()">
+                        </div>
+                    </div>
                 </div>
-                <div class="item-price">€5 x</div>
-                <input type="number" id="visit" class="item-input" min="0" value="0" oninput="calculateTotal()">
             </div>
 
             <div class="total-row">
@@ -289,6 +424,25 @@
     <script src="../js/supabase-client.js"></script>
 
     <script>
+        // Accordion toggle function
+        function toggleAccordion(section) {
+            const content = document.getElementById(section + 'Content');
+            const icon = document.getElementById(section + 'Icon');
+            const header = content.previousElementSibling;
+
+            const isOpen = content.classList.contains('open');
+
+            if (isOpen) {
+                content.classList.remove('open');
+                icon.classList.remove('open');
+                header.classList.remove('active');
+            } else {
+                content.classList.add('open');
+                icon.classList.add('open');
+                header.classList.add('active');
+            }
+        }
+
         // Email lookup for returning customers
         let emailLookupTimeout;
         let isReturningCustomer = false;
@@ -345,14 +499,35 @@
         }
 
         function calculateTotal() {
+            // Get all quantities
             const visit = parseInt(document.getElementById('visit').value) || 0;
             const adults = parseInt(document.getElementById('adults').value) || 0;
             const children = parseInt(document.getElementById('children').value) || 0;
+            const smallPumpkin = parseInt(document.getElementById('smallPumpkin').value) || 0;
+            const mediumPumpkin = parseInt(document.getElementById('mediumPumpkin').value) || 0;
+            const largePumpkin = parseInt(document.getElementById('largePumpkin').value) || 0;
             const scares = parseInt(document.getElementById('scares').value) || 0;
 
-            const total = (visit * 5) + (adults * 15) + (children * 10) + (scares * 1);
+            // Calculate total
+            const total = (visit * 5) + (adults * 15) + (children * 10) +
+                         (smallPumpkin * 5) + (mediumPumpkin * 10) + (largePumpkin * 15) +
+                         (scares * 1);
 
             document.getElementById('total').textContent = '€' + total;
+
+            // Update accordion badges
+            const partyCount = adults + children;
+            const visitCount = visit;
+            const pumpkinsCount = smallPumpkin + mediumPumpkin + largePumpkin + scares;
+
+            document.getElementById('partyBadge').textContent = partyCount;
+            document.getElementById('visitBadge').textContent = visitCount;
+            document.getElementById('pumpkinsBadge').textContent = pumpkinsCount;
+
+            // Highlight accordions with items
+            document.getElementById('partyAccordion').classList.toggle('has-items', partyCount > 0);
+            document.getElementById('visitAccordion').classList.toggle('has-items', visitCount > 0);
+            document.getElementById('pumpkinsAccordion').classList.toggle('has-items', pumpkinsCount > 0);
 
             // Show/hide party date selector
             const hasPartyTickets = adults > 0 || children > 0;
@@ -430,6 +605,9 @@
             const visit = parseInt(document.getElementById('visit').value) || 0;
             const adults = parseInt(document.getElementById('adults').value) || 0;
             const children = parseInt(document.getElementById('children').value) || 0;
+            const smallPumpkin = parseInt(document.getElementById('smallPumpkin').value) || 0;
+            const mediumPumpkin = parseInt(document.getElementById('mediumPumpkin').value) || 0;
+            const largePumpkin = parseInt(document.getElementById('largePumpkin').value) || 0;
             const scares = parseInt(document.getElementById('scares').value) || 0;
 
             // Validate party date if party tickets selected
@@ -460,7 +638,9 @@
             }
 
             // Calculate total
-            const total = (visit * 5) + (adults * 15) + (children * 10) + (scares * 1);
+            const total = (visit * 5) + (adults * 15) + (children * 10) +
+                         (smallPumpkin * 5) + (mediumPumpkin * 10) + (largePumpkin * 15) +
+                         (scares * 1);
 
             // Validate that at least one item is selected
             if (total === 0) {
@@ -589,10 +769,49 @@
                     });
                 }
 
+                if (smallPumpkin > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: 'Small Pumpkin (5 SCARES)',
+                        item_type: 'pumpkin',
+                        quantity: smallPumpkin,
+                        unit_price: 5,
+                        total_price: smallPumpkin * 5,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (mediumPumpkin > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: 'Medium Pumpkin (10 SCARES)',
+                        item_type: 'pumpkin',
+                        quantity: mediumPumpkin,
+                        unit_price: 10,
+                        total_price: mediumPumpkin * 10,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (largePumpkin > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: 'Large Pumpkin (15 SCARES)',
+                        item_type: 'pumpkin',
+                        quantity: largePumpkin,
+                        unit_price: 15,
+                        total_price: largePumpkin * 15,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
                 if (scares > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: 'SCARES (for pumpkins, food, etc.)',
+                        item_name: 'Individual SCARES (for food, activities, etc.)',
                         item_type: 'scare_token',
                         quantity: scares,
                         unit_price: 1,
