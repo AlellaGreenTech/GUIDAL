@@ -427,6 +427,10 @@ class GuidalApp {
                 if (!activity.date_time && activity.activity_type?.slug === 'science-stations') {
                     return true;
                 }
+                // Include Halloween/Pumpkin Patch events (category: events)
+                if (activity.category?.slug === 'events' || activity.activity_type?.slug === 'events') {
+                    return true;
+                }
                 return false;
             })
         }
