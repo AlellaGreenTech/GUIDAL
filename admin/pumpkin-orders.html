@@ -111,12 +111,14 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: visible;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 1200px;
         }
 
         th {
@@ -166,6 +168,8 @@
         .action-buttons {
             display: flex;
             gap: 0.5rem;
+            white-space: nowrap;
+            min-width: 280px;
         }
 
         .btn-small {
