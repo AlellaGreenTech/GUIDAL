@@ -16,54 +16,54 @@ ORDER BY activity_id, created_at;
 -- Step 2: For each duplicate group, update foreign key references
 -- to point to the record we're keeping (the oldest one)
 
--- Update activity_category_links to point to the kept record
-UPDATE activity_category_links acl
-SET activity_id = keeper.id
+-- First, create a temp table with keeper IDs
+CREATE TEMP TABLE keepers AS
+SELECT
+    sv.id as keeper_id,
+    sv.activity_id as orig_activity_id
 FROM (
-    SELECT DISTINCT ON (sv.activity_id)
-        sv.id,
-        sv.activity_id
-    FROM scheduled_visits sv
-    WHERE sv.visit_type = 'individual_workshop'
-      AND sv.scheduled_date IS NULL
-    ORDER BY sv.activity_id, sv.created_at ASC
-) keeper
-WHERE acl.activity_id IN (
-    -- Get IDs of duplicates to be deleted
-    SELECT id
-    FROM (
-        SELECT id,
-               activity_id,
-               ROW_NUMBER() OVER (
-                   PARTITION BY activity_id, visit_type
-                   ORDER BY created_at ASC
-               ) as rn
-        FROM scheduled_visits
-        WHERE visit_type = 'individual_workshop'
-          AND scheduled_date IS NULL
-    ) t
-    WHERE rn > 1
-)
-AND keeper.activity_id = (
-    SELECT activity_id FROM scheduled_visits WHERE id = acl.activity_id
-);
+    SELECT id,
+           activity_id,
+           ROW_NUMBER() OVER (
+               PARTITION BY activity_id, visit_type
+               ORDER BY created_at ASC
+           ) as rn
+    FROM scheduled_visits
+    WHERE visit_type = 'individual_workshop'
+      AND scheduled_date IS NULL
+) sv
+WHERE sv.rn = 1;
+
+-- Create temp table with duplicate IDs to be deleted
+CREATE TEMP TABLE duplicates AS
+SELECT id, activity_id
+FROM (
+    SELECT id,
+           activity_id,
+           ROW_NUMBER() OVER (
+               PARTITION BY activity_id, visit_type
+               ORDER BY created_at ASC
+           ) as rn
+    FROM scheduled_visits
+    WHERE visit_type = 'individual_workshop'
+      AND scheduled_date IS NULL
+) t
+WHERE rn > 1;
+
+-- Update activity_category_links
+UPDATE activity_category_links acl
+SET activity_id = k.keeper_id
+FROM duplicates d
+JOIN keepers k ON d.activity_id = k.orig_activity_id
+WHERE acl.activity_id = d.id;
 
 -- Step 3: Now delete the duplicates
 DELETE FROM scheduled_visits
-WHERE id IN (
-    SELECT id
-    FROM (
-        SELECT id,
-               ROW_NUMBER() OVER (
-                   PARTITION BY activity_id, visit_type
-                   ORDER BY created_at ASC
-               ) as rn
-        FROM scheduled_visits
-        WHERE visit_type = 'individual_workshop'
-          AND scheduled_date IS NULL
-    ) t
-    WHERE rn > 1
-);
+WHERE id IN (SELECT id FROM duplicates);
+
+-- Clean up temp tables
+DROP TABLE IF EXISTS keepers;
+DROP TABLE IF EXISTS duplicates;
 
 -- Step 4: Verify - should show no duplicates now
 SELECT
