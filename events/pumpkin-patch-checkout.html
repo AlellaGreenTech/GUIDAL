@@ -553,10 +553,16 @@
                     isReturningCustomer = true;
 
                     // Show welcome back message and hide customer details fields
-                    document.getElementById('returningCustomerMessage').style.display = 'block';
-                    document.getElementById('customerDetailsSection').style.display = 'none';
+                    const messageEl = document.getElementById('returningCustomerMessage');
+                    const detailsEl = document.getElementById('customerDetailsSection');
+
+                    if (messageEl) messageEl.style.display = 'block';
+                    if (detailsEl) detailsEl.style.display = 'none';
 
                     console.log('✓ Returning customer detected - hiding contact fields');
+                    console.log('Message element:', messageEl ? 'found' : 'NOT FOUND');
+                    console.log('Details element:', detailsEl ? 'found' : 'NOT FOUND');
+                    console.log('Details display:', detailsEl ? detailsEl.style.display : 'N/A');
                 }
             } catch (err) {
                 console.error('Error in email lookup:', err);
