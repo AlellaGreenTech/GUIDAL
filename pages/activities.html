@@ -487,10 +487,9 @@
 
                     if (category && window.app && window.app.loadActivities) {
                         console.log('✅ Found category ID:', category.id, 'Loading activities...');
-                        // Load activities filtered by category (upcoming by default)
+                        // Load activities filtered by category (no time filter - show all)
                         await window.app.loadActivities({
-                            category_id: category.id,
-                            time_filter: 'upcoming'
+                            category_id: category.id
                         });
                         console.log('✅ Activities loaded for', categorySlug);
                     } else {
@@ -529,7 +528,7 @@
 
             // Reload activities with the filter
             if (window.app && window.app.loadActivities) {
-                const filters = { time_filter: 'upcoming' };
+                const filters = {};
                 if (type !== 'all') {
                     filters.type = type;
                 }

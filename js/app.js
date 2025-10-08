@@ -77,7 +77,8 @@ class GuidalApp {
 
         // Load initial data
         await this.loadActivityTypes();
-        await this.loadActivities({ time_filter: 'upcoming' });
+        // Load all activities initially (no time filter) to show everything
+        await this.loadActivities({});
 
         // Set up event listeners
         this.setupEventListeners();
