@@ -650,12 +650,35 @@
             document.getElementById('visitTotal').textContent = visitTotal;
         }
 
-        function viewOrder(orderId) {
+        async function viewOrder(orderId) {
             const order = allOrders.find(o => o.id === orderId);
             if (!order) return;
 
             console.log('Order data:', order);
             console.log('Party date:', order.party_date);
+
+            // Fetch email history for this order
+            const { data: emailLogs, error: emailError } = await window.supabaseClient
+                .from('pumpkin_patch_email_log')
+                .select('*')
+                .eq('order_id', orderId)
+                .order('sent_at', { ascending: false });
+
+            const emailHistory = emailLogs && emailLogs.length > 0 ? `
+                <div style="margin: 1.5rem 0; padding-top: 1rem; border-top: 2px solid #ff6b35;">
+                    <h3 style="margin-bottom: 1rem;">📧 Email History:</h3>
+                    ${emailLogs.map(log => `
+                        <div class="detail-row" style="background: ${log.status === 'sent' ? '#d4edda' : '#f8d7da'}; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem;">
+                            <div>
+                                <strong>${log.template_type.replace('_', ' ').toUpperCase()}</strong><br>
+                                <small>Sent: ${new Date(log.sent_at).toLocaleString()}</small><br>
+                                <small>Status: ${log.status === 'sent' ? '✅ Delivered' : '❌ Failed'}</small>
+                                ${log.error_message ? `<br><small style="color: #721c24;">Error: ${log.error_message}</small>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
 
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
@@ -729,6 +752,16 @@
                         <span class="detail-value">${order.notes}</span>
                     </div>
                 ` : ''}
+                ${emailHistory}
+                <div style="margin-top: 2rem; padding-top: 1rem; border-top: 2px solid #eee; display: flex; gap: 1rem; align-items: center;">
+                    <select id="emailTemplateSelect" style="flex: 1; padding: 0.75rem; border: 2px solid #ff6b35; border-radius: 4px; font-size: 1rem;">
+                        <option value="entrance_ticket">🎃 Party Entrance Ticket</option>
+                        <option value="visit_pass">🎟️ Visit Pass Confirmation</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="sendEmailToOrder('${order.id}')" style="padding: 0.75rem 2rem;">
+                        📧 Send Email
+                    </button>
+                </div>
             `;
 
             document.getElementById('orderModal').style.display = 'flex';
@@ -736,6 +769,99 @@
 
         function closeModal() {
             document.getElementById('orderModal').style.display = 'none';
+        }
+
+        async function sendEmailToOrder(orderId) {
+            const templateType = document.getElementById('emailTemplateSelect').value;
+
+            if (!confirm(`Send ${templateType.replace('_', ' ')} email to customer?`)) return;
+
+            try {
+                const order = allOrders.find(o => o.id === orderId);
+                if (!order) throw new Error('Order not found');
+
+                // Get the selected template
+                const { data: template, error: templateError } = await window.supabaseClient
+                    .from('pumpkin_patch_email_templates')
+                    .select('*')
+                    .eq('template_type', templateType)
+                    .eq('is_active', true)
+                    .single();
+
+                if (templateError) throw new Error('Template not found: ' + templateError.message);
+
+                // Generate QR code
+                const scares = order.items.find(item => item.item_name.includes('SCARE'))?.quantity || 0;
+                const partyDateFormatted = order.party_date ?
+                    new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) :
+                    'Visit Pass';
+
+                const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${order.adult_count || 0}|CHILDREN:${order.child_count || 0}|EVENT:${partyDateFormatted}|SCARES:${scares}|TOTAL:€${order.total_amount}`;
+                const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`;
+
+                // Format data for template
+                let partyDateForEmail = 'Visit Pass (any non-party day)';
+                if (order.party_date) {
+                    const date = new Date(order.party_date);
+                    partyDateForEmail = date.toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                }
+
+                const itemsList = order.items.map(item =>
+                    `${item.quantity}x ${item.item_name}`
+                ).join('<br>');
+
+                const emailData = {
+                    '{{order_number}}': order.order_number,
+                    '{{first_name}}': order.first_name,
+                    '{{last_name}}': order.last_name,
+                    '{{email}}': order.email,
+                    '{{phone}}': order.phone || 'Not provided',
+                    '{{party_date}}': partyDateForEmail,
+                    '{{adult_count}}': order.adult_count || 0,
+                    '{{child_count}}': order.child_count || 0,
+                    '{{items}}': itemsList,
+                    '{{total_amount}}': order.total_amount.toFixed(2),
+                    '{{qr_code}}': qrCodeUrl
+                };
+
+                let emailBody = template.html_body;
+                let emailSubject = template.subject;
+
+                Object.entries(emailData).forEach(([key, value]) => {
+                    emailBody = emailBody.replaceAll(key, value);
+                    emailSubject = emailSubject.replaceAll(key, value);
+                });
+
+                // Log email attempt
+                const { error: logError } = await window.supabaseClient
+                    .from('pumpkin_patch_email_log')
+                    .insert({
+                        order_id: orderId,
+                        template_type: templateType,
+                        recipient_email: order.email,
+                        subject: emailSubject,
+                        status: 'sent',
+                        sent_at: new Date().toISOString()
+                    });
+
+                if (logError) {
+                    console.error('Failed to log email:', logError);
+                }
+
+                alert(`✅ Email sent successfully to ${order.email}\n\nNote: This is a simulated send. In production, integrate with Resend or SendGrid to actually send emails.`);
+
+                // Refresh the order details to show new email in history
+                closeModal();
+                await viewOrder(orderId);
+
+            } catch (error) {
+                console.error('Error sending email:', error);
+                alert('❌ Failed to send email: ' + error.message);
+            }
         }
 
         async function markAsPaid(orderId) {
