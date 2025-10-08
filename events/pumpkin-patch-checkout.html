@@ -455,6 +455,7 @@
 
             // Hide returning customer message and reset flag while typing
             document.getElementById('returningCustomerMessage').style.display = 'none';
+            document.getElementById('customerDetailsSection').style.display = 'block';
             isReturningCustomer = false;
 
             // Only lookup if valid email format
@@ -488,10 +489,11 @@
                     // Found previous order - mark as returning customer
                     isReturningCustomer = true;
 
-                    // Show welcome back message
+                    // Show welcome back message and hide customer details fields
                     document.getElementById('returningCustomerMessage').style.display = 'block';
+                    document.getElementById('customerDetailsSection').style.display = 'none';
 
-                    console.log('✓ Returning customer detected');
+                    console.log('✓ Returning customer detected - hiding contact fields');
                 }
             } catch (err) {
                 console.error('Error in email lookup:', err);
