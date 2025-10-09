@@ -169,7 +169,8 @@
             display: flex;
             gap: 0.5rem;
             white-space: nowrap;
-            min-width: 150px;
+            min-width: 60px;
+            justify-content: center;
         }
 
         .action-dropdown {
@@ -688,13 +689,13 @@
                     </td>
                     <td class="action-buttons">
                         <div class="action-dropdown">
-                            <button class="btn btn-primary btn-small" onclick="viewOrder('${order.id}')">
-                                👁️ View
-                            </button>
                             <button class="btn-dropdown" onclick="toggleActionMenu('${order.id}')">
                                 ⋮
                             </button>
                             <div class="action-menu" id="menu-${order.id}">
+                                <button onclick="viewOrder('${order.id}'); closeAllMenus();">
+                                    👁️ View Details
+                                </button>
                                 ${order.status !== 'cancelled' ? `
                                     ${order.payment_status === 'pending' ? `
                                         <button onclick="markAsPaid('${order.id}'); closeAllMenus();">
@@ -709,7 +710,7 @@
                                     </button>
                                 ` : `
                                     <button disabled style="color: #999;">
-                                        Order Cancelled
+                                        ❌ Order Cancelled
                                     </button>
                                 `}
                             </div>
