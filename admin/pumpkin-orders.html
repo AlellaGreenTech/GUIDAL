@@ -140,10 +140,15 @@
 
         /* Items column formatting */
         .order-items {
-            max-width: 200px;
-            font-size: 0.85rem;
-            line-height: 1.6;
+            max-width: 180px;
+            font-size: 0.75rem;
+            line-height: 1.4;
             white-space: normal;
+        }
+
+        .order-items .item-line {
+            display: block;
+            margin-bottom: 0.15rem;
         }
 
         .status-badge {
@@ -899,9 +904,18 @@
                     <td class="hide-tablet"><strong>${order.adult_count || 0}</strong></td>
                     <td class="hide-tablet"><strong>${order.child_count || 0}</strong></td>
                     <td class="order-items hide-mobile">
-                        ${order.items.map(item =>
-                            `${item.quantity}x ${item.item_name}`
-                        ).join('<br>')}
+                        ${order.items.map(item => {
+                            // Shorten common item names
+                            let shortName = item.item_name
+                                .replace('Entrance Party Ticket', 'Party Ticket')
+                                .replace('Adult Entrance Ticket', 'Adult Ticket')
+                                .replace('Child Entrance Ticket', 'Child Ticket')
+                                .replace('Visit Pass (Adult or Child)', 'Visit Pass')
+                                .replace('Individual SCARES (for food, activities, etc.)', 'SCARES')
+                                .replace('Individual SCARES', 'SCARES')
+                                .replace('Pumpkin', 'Pumpkin');
+                            return `<span class="item-line">${item.quantity}× ${shortName}</span>`;
+                        }).join('')}
                     </td>
                     <td><strong>€${order.total_amount}</strong></td>
                     <td class="action-buttons">
