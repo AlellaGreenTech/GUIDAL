@@ -169,7 +169,74 @@
             display: flex;
             gap: 0.5rem;
             white-space: nowrap;
-            min-width: 280px;
+            min-width: 150px;
+        }
+
+        .action-dropdown {
+            position: relative;
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .btn-dropdown {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .btn-dropdown:hover {
+            background: #5a6268;
+        }
+
+        .action-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 180px;
+            margin-top: 0.25rem;
+        }
+
+        .action-menu.show {
+            display: block;
+        }
+
+        .action-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            color: #333;
+        }
+
+        .action-menu button:hover:not(:disabled) {
+            background: #f8f9fa;
+        }
+
+        .action-menu button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .action-menu button:not(:last-child) {
+            border-bottom: 1px solid #eee;
         }
 
         /* Sticky action buttons column */
@@ -620,17 +687,33 @@
                         </span>
                     </td>
                     <td class="action-buttons">
-                        <button class="btn btn-primary btn-small" onclick="viewOrder('${order.id}')">
-                            View
-                        </button>
-                        <button class="btn btn-secondary btn-small" onclick="showEmailModal('${order.id}')">
-                            📧 Email
-                        </button>
-                        ${order.payment_status === 'pending' ? `
-                            <button class="btn btn-success btn-small" onclick="markAsPaid('${order.id}')">
-                                Mark Paid
+                        <div class="action-dropdown">
+                            <button class="btn btn-primary btn-small" onclick="viewOrder('${order.id}')">
+                                👁️ View
                             </button>
-                        ` : ''}
+                            <button class="btn-dropdown" onclick="toggleActionMenu('${order.id}')">
+                                ⋮
+                            </button>
+                            <div class="action-menu" id="menu-${order.id}">
+                                ${order.status !== 'cancelled' ? `
+                                    ${order.payment_status === 'pending' ? `
+                                        <button onclick="markAsPaid('${order.id}'); closeAllMenus();">
+                                            💰 Mark as Paid
+                                        </button>
+                                    ` : ''}
+                                    <button onclick="showEmailModal('${order.id}'); closeAllMenus();">
+                                        📧 Send Email
+                                    </button>
+                                    <button onclick="cancelOrder('${order.id}'); closeAllMenus();" style="color: #dc3545;">
+                                        🗑️ Cancel Order
+                                    </button>
+                                ` : `
+                                    <button disabled style="color: #999;">
+                                        Order Cancelled
+                                    </button>
+                                `}
+                            </div>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -1235,6 +1318,108 @@
             } catch (error) {
                 console.error('❌ Error sending admin notification:', error);
                 // Don't fail the operation if notification fails
+            }
+        }
+
+        // Toggle action menu dropdown
+        function toggleActionMenu(orderId) {
+            const menu = document.getElementById(`menu-${orderId}`);
+            const isCurrentlyOpen = menu.classList.contains('show');
+
+            // Close all other menus first
+            closeAllMenus();
+
+            // Toggle this menu
+            if (!isCurrentlyOpen) {
+                menu.classList.add('show');
+            }
+        }
+
+        function closeAllMenus() {
+            document.querySelectorAll('.action-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        }
+
+        // Close menus when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.action-dropdown')) {
+                closeAllMenus();
+            }
+        });
+
+        // Cancel order function
+        async function cancelOrder(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) {
+                alert('Order not found');
+                return;
+            }
+
+            if (order.status === 'cancelled') {
+                alert('This order is already cancelled');
+                return;
+            }
+
+            const confirmMessage = order.payment_status === 'paid'
+                ? `Cancel this PAID order?\n\nOrder: ${order.order_number}\nCustomer: ${order.first_name} ${order.last_name}\nAmount: €${order.total_amount}\n\n⚠️ This will:\n- Mark the order as cancelled\n- Subtract €${order.total_amount} from total revenue\n- Send a cancellation email to the customer`
+                : `Cancel this order?\n\nOrder: ${order.order_number}\nCustomer: ${order.first_name} ${order.last_name}\nAmount: €${order.total_amount}\n\nThis will send a cancellation email to the customer.`;
+
+            if (!confirm(confirmMessage)) return;
+
+            try {
+                // Update order status to cancelled
+                const { error: updateError } = await window.supabaseClient
+                    .from('pumpkin_patch_orders')
+                    .update({
+                        status: 'cancelled',
+                        payment_status: 'refunded',
+                        cancelled_at: new Date().toISOString()
+                    })
+                    .eq('id', orderId);
+
+                if (updateError) throw updateError;
+
+                // Send cancellation email
+                await sendCancellationEmail(orderId);
+
+                alert('✅ Order cancelled successfully! Cancellation email sent to customer.');
+                await loadOrders();
+
+            } catch (error) {
+                console.error('Error cancelling order:', error);
+                alert('❌ Error cancelling order: ' + error.message);
+            }
+        }
+
+        // Send cancellation email
+        async function sendCancellationEmail(orderId) {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+                const functionResponse = await fetch(
+                    `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session.access_token}`
+                        },
+                        body: JSON.stringify({
+                            orderId: orderId,
+                            templateType: 'cancellation'
+                        })
+                    }
+                );
+
+                const result = await functionResponse.json();
+
+                if (!result.success) {
+                    console.warn('Failed to send cancellation email:', result.error);
+                }
+            } catch (error) {
+                console.error('Error sending cancellation email:', error);
+                // Don't fail the cancellation if email fails
             }
         }
     </script>

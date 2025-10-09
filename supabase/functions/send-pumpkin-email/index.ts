@@ -79,6 +79,15 @@ serve(async (req) => {
       `${item.quantity}x ${item.item_name}`
     ).join('<br>')
 
+    // Generate cancellation-specific data
+    const cancellationDate = order.cancelled_at
+      ? new Date(order.cancelled_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      : new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+
+    const refundInfo = order.payment_status === 'refunded'
+      ? `Your payment of €${order.total_amount.toFixed(2)} will be refunded to your original payment method within 5-10 business days.`
+      : `No payment was processed for this order, so no refund is necessary.`
+
     // Replace template variables
     const emailData: Record<string, any> = {
       '{{order_number}}': order.order_number,
@@ -87,11 +96,15 @@ serve(async (req) => {
       '{{email}}': order.email,
       '{{phone}}': order.phone || 'Not provided',
       '{{party_date}}': partyDateForEmail,
+      '{{visit_date}}': order.visit_date || order.party_date || 'Not specified',
       '{{adult_count}}': order.adult_count || 0,
       '{{child_count}}': order.child_count || 0,
       '{{items}}': itemsList,
+      '{{items_list}}': itemsList,
       '{{total_amount}}': order.total_amount.toFixed(2),
-      '{{qr_code}}': qrCodeUrl
+      '{{qr_code}}': qrCodeUrl,
+      '{{cancellation_date}}': cancellationDate,
+      '{{refund_info}}': refundInfo
     }
 
     let emailBody = template.html_body
