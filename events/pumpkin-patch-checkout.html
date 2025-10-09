@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book SCARY PUMPKIN PATCH - GUIDAL</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/i18n-switcher.css">
     <style>
         .checkout-container {
             max-width: 600px;
@@ -260,20 +261,23 @@
 </head>
 <body>
     <header>
-        <div class="container">
-            <h1><a href="../index.html">GUIDAL</a></h1>
-            <p class="subtitle">SCARY PUMPKIN PATCH Checkout 🎃👻</p>
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <h1><a href="../index.html">GUIDAL</a></h1>
+                <p class="subtitle" data-i18n="pumpkinPatch.checkout.subtitle">SCARY PUMPKIN PATCH Checkout 🎃👻</p>
+            </div>
+            <div id="language-switcher-container"></div>
         </div>
     </header>
 
     <main class="container">
         <div class="checkout-container">
             <div class="checkout-header">
-                <h2>👻 Book or Buy something SCARY!</h2>
-                <p>SCARY PUMPKIN PATCH</p>
+                <h2 data-i18n="pumpkinPatch.checkout.title">👻 Book or Buy something SCARY!</h2>
+                <p data-i18n="pumpkinPatch.title">SCARY PUMPKIN PATCH</p>
             </div>
 
-            <div class="info-box">
+            <div class="info-box" data-i18n="pumpkinPatch.checkout.infoBox">
                 Get your visit pass, party tickets, pumpkin and food SCARES here!
             </div>
 
@@ -281,7 +285,7 @@
             <div class="accordion" id="partyAccordion">
                 <div class="accordion-header" onclick="toggleAccordion('party')">
                     <div class="accordion-title">
-                        🎃 Party Tickets
+                        <span data-i18n="pumpkinPatch.checkout.partyTickets">🎃 Party Tickets</span>
                         <span class="accordion-badge" id="partyBadge">0</span>
                     </div>
                     <span class="accordion-icon" id="partyIcon">▼</span>
@@ -289,10 +293,10 @@
                 <div class="accordion-content" id="partyContent">
                     <div class="accordion-body">
                         <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
-                            <strong>October 25th or November 1st, 2025</strong>
+                            <strong data-i18n="pumpkinPatch.checkout.partyDates">October 25th or November 1st, 2025</strong>
                         </p>
                         <div class="item-row">
-                            <div class="item-label">👨 Adult Entrance Ticket</div>
+                            <div class="item-label" data-i18n="pumpkinPatch.checkout.adultTicket">👨 Adult Entrance Ticket</div>
                             <div class="item-price">€15 x</div>
                             <div class="quantity-control">
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('adults', -1)">−</button>
@@ -301,7 +305,7 @@
                             </div>
                         </div>
                         <div class="item-row">
-                            <div class="item-label">👶 Child Entrance Ticket</div>
+                            <div class="item-label" data-i18n="pumpkinPatch.checkout.childTicket">👶 Child Entrance Ticket</div>
                             <div class="item-price">€10 x</div>
                             <div class="quantity-control">
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('children', -1)">−</button>
@@ -317,7 +321,7 @@
             <div class="accordion" id="visitAccordion">
                 <div class="accordion-header" onclick="toggleAccordion('visit')">
                     <div class="accordion-title">
-                        🌾 Non-Party Day Visits
+                        <span data-i18n="pumpkinPatch.checkout.nonPartyVisits">🌾 Non-Party Day Visits</span>
                         <span class="accordion-badge" id="visitBadge">0</span>
                     </div>
                     <span class="accordion-icon" id="visitIcon">▼</span>
@@ -325,10 +329,10 @@
                 <div class="accordion-content" id="visitContent">
                     <div class="accordion-body">
                         <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
-                            <strong>Any day October 10-31 (except party days)</strong>
+                            <strong data-i18n="pumpkinPatch.checkout.nonPartyDates">Any day October 10-31 (except party days)</strong>
                         </p>
                         <div class="item-row">
-                            <div class="item-label">👨👶 Visit Pass (Adult or Child)</div>
+                            <div class="item-label" data-i18n="pumpkinPatch.checkout.visitPass">👨👶 Visit Pass (Adult or Child)</div>
                             <div class="item-price">€5 x</div>
                             <div class="quantity-control">
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('visit', -1)">−</button>
@@ -344,7 +348,7 @@
             <div class="accordion" id="pumpkinsAccordion">
                 <div class="accordion-header" onclick="toggleAccordion('pumpkins')">
                     <div class="accordion-title">
-                        🎃 Pumpkins & Food
+                        <span data-i18n="pumpkinPatch.checkout.pumpkinsFood">🎃 Pumpkins & Food</span>
                         <span class="accordion-badge" id="pumpkinsBadge">0</span>
                     </div>
                     <span class="accordion-icon" id="pumpkinsIcon">▼</span>
@@ -352,12 +356,12 @@
                 <div class="accordion-content" id="pumpkinsContent">
                     <div class="accordion-body">
                         <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
-                            <strong>Purchase SCARES for pumpkins and food</strong>
+                            <strong data-i18n="pumpkinPatch.checkout.pumpkinsFoodDescription">Purchase SCARES for pumpkins and food</strong>
                         </p>
                         <div class="item-row">
                             <div class="item-label">
-                                🎃 Small Pumpkin<br>
-                                <small style="color: #999;">5 SCARES</small>
+                                <span data-i18n="pumpkinPatch.checkout.smallPumpkin">🎃 Small Pumpkin</span><br>
+                                <small style="color: #999;">5 <span data-i18n="pumpkinPatch.checkout.scares">SCARES</span></small>
                             </div>
                             <div class="item-price">€5 x</div>
                             <div class="quantity-control">
@@ -368,8 +372,8 @@
                         </div>
                         <div class="item-row">
                             <div class="item-label">
-                                🎃 Medium Pumpkin<br>
-                                <small style="color: #999;">10 SCARES</small>
+                                <span data-i18n="pumpkinPatch.checkout.mediumPumpkin">🎃 Medium Pumpkin</span><br>
+                                <small style="color: #999;">10 <span data-i18n="pumpkinPatch.checkout.scares">SCARES</span></small>
                             </div>
                             <div class="item-price">€10 x</div>
                             <div class="quantity-control">
@@ -380,8 +384,8 @@
                         </div>
                         <div class="item-row">
                             <div class="item-label">
-                                🎃 Large Pumpkin<br>
-                                <small style="color: #999;">15 SCARES</small>
+                                <span data-i18n="pumpkinPatch.checkout.largePumpkin">🎃 Large Pumpkin</span><br>
+                                <small style="color: #999;">15 <span data-i18n="pumpkinPatch.checkout.scares">SCARES</span></small>
                             </div>
                             <div class="item-price">€15 x</div>
                             <div class="quantity-control">
@@ -392,8 +396,8 @@
                         </div>
                         <div class="item-row" style="border-bottom: none;">
                             <div class="item-label">
-                                💰 Individual SCARES<br>
-                                <small style="color: #999;">For food, activities, etc.</small>
+                                <span data-i18n="pumpkinPatch.checkout.individualScares">💰 Individual SCARES</span><br>
+                                <small style="color: #999;" data-i18n="pumpkinPatch.checkout.individualScaresDesc">For food, activities, etc.</small>
                             </div>
                             <div class="item-price">€1 x</div>
                             <div class="quantity-control">
@@ -408,33 +412,33 @@
 
             <!-- Customer Information Form -->
             <div class="customer-info-section">
-                <h3 style="margin-bottom: 1rem; color: #333;">📧 Your Information</h3>
+                <h3 style="margin-bottom: 1rem; color: #333;" data-i18n="pumpkinPatch.checkout.yourInformation">📧 Your Information</h3>
                 <div class="form-group">
-                    <label for="email">Email (to receive tickets) *</label>
-                    <input type="email" id="email" class="form-input" required placeholder="your.email@example.com">
-                    <small id="returningCustomerMessage" style="color: #28a745; display: none; margin-top: 0.5rem;">
+                    <label for="email" data-i18n="pumpkinPatch.checkout.email">Email (to receive tickets) *</label>
+                    <input type="email" id="email" class="form-input" required data-i18n-placeholder data-i18n="pumpkinPatch.checkout.emailPlaceholder">
+                    <small id="returningCustomerMessage" style="color: #28a745; display: none; margin-top: 0.5rem;" data-i18n="pumpkinPatch.checkout.welcomeBack">
                         ✓ Ah, welcome back! You can order without filling in your contact details again.
                     </small>
                 </div>
                 <div id="customerDetailsSection">
                     <div class="form-group">
-                        <label for="firstName">First Name *</label>
-                        <input type="text" id="firstName" class="form-input" required placeholder="Enter your first name">
+                        <label for="firstName" data-i18n="pumpkinPatch.checkout.firstName">First Name *</label>
+                        <input type="text" id="firstName" class="form-input" required data-i18n-placeholder data-i18n="pumpkinPatch.checkout.firstNamePlaceholder">
                     </div>
                     <div class="form-group">
-                        <label for="lastName">Last Name *</label>
-                        <input type="text" id="lastName" class="form-input" required placeholder="Enter your last name">
+                        <label for="lastName" data-i18n="pumpkinPatch.checkout.lastName">Last Name *</label>
+                        <input type="text" id="lastName" class="form-input" required data-i18n-placeholder data-i18n="pumpkinPatch.checkout.lastNamePlaceholder">
                     </div>
                     <div class="form-group">
-                        <label for="phone">Phone (optional)</label>
-                        <input type="tel" id="phone" class="form-input" placeholder="+34 123 456 789">
+                        <label for="phone" data-i18n="pumpkinPatch.checkout.phone">Phone (optional)</label>
+                        <input type="tel" id="phone" class="form-input" data-i18n-placeholder data-i18n="pumpkinPatch.checkout.phonePlaceholder">
                     </div>
                 </div>
             </div>
 
             <!-- Party Date Selection (shown only when party tickets selected) -->
             <div id="partyDateSection" style="display: none; background: #fff3cd; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #ff6b35;">
-                <h3 style="margin-top: 0; color: #ff6b35;">📅 Select Party Date *</h3>
+                <h3 style="margin-top: 0; color: #ff6b35;" data-i18n="pumpkinPatch.checkout.selectPartyDate">📅 Select Party Date *</h3>
                 <div class="form-group">
                     <select id="partyDate" class="form-input" style="width: 100%; font-size: 1rem;">
                         <option value="2025-10-25" selected>🎃 October 25th, 2025 (Maxi-Party)</option>
@@ -445,41 +449,41 @@
 
             <!-- Visit Date Selection (shown only when visit pass selected) -->
             <div id="visitDateSection" style="display: none; background: #d4edda; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #28a745;">
-                <h3 style="margin-top: 0; color: #28a745;">📅 Select Visit Date *</h3>
-                <p style="margin-bottom: 1rem; color: #666;">Choose any date from October 10-31, 2025 (except party days)</p>
+                <h3 style="margin-top: 0; color: #28a745;" data-i18n="pumpkinPatch.checkout.selectVisitDate">📅 Select Visit Date *</h3>
+                <p style="margin-bottom: 1rem; color: #666;" data-i18n="pumpkinPatch.checkout.selectVisitDateDesc">Choose any date from October 10-31, 2025 (except party days)</p>
                 <div class="form-group">
                     <input type="date" id="visitDate" class="form-input" style="width: 100%; font-size: 1rem;" min="2025-10-10" max="2025-10-31">
                 </div>
                 <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
-                    <strong>Not available:</strong> October 25th & November 1st (Party Days)
+                    <strong data-i18n="pumpkinPatch.checkout.notAvailable">Not available:</strong> <span data-i18n="pumpkinPatch.checkout.partyDaysNote">October 25th & November 1st (Party Days)</span>
                 </p>
             </div>
 
             <div class="total-row">
-                <div>TOTAL</div>
+                <div data-i18n="pumpkinPatch.checkout.total">TOTAL</div>
                 <div id="total">€0</div>
             </div>
 
-            <button type="button" class="payment-button" id="continueButton" onclick="handleContinueToPayment()" style="background: #28a745;">
+            <button type="button" class="payment-button" id="continueButton" onclick="handleContinueToPayment()" style="background: #28a745;" data-i18n="pumpkinPatch.checkout.continueToPayment">
                 ✓ Continue to Payment
             </button>
 
             <div id="paypalSection" style="display: none;">
-                <div style="text-align: center; color: #28a745; font-weight: bold; margin: 1rem 0; padding: 1rem; background: #d4edda; border-radius: 8px;">
+                <div style="text-align: center; color: #28a745; font-weight: bold; margin: 1rem 0; padding: 1rem; background: #d4edda; border-radius: 8px;" data-i18n="pumpkinPatch.checkout.orderConfirmed">
                     ✅ Order confirmed! Click below to complete payment.
                 </div>
 
-                <a href="https://www.paypal.com/ncp/payment/4T2B69VFPFHH8" target="_blank" class="payment-button" id="payButton" data-analytics-track="payment" data-analytics-category="checkout" onclick="trackPaymentClick()">
+                <a href="https://www.paypal.com/ncp/payment/4T2B69VFPFHH8" target="_blank" class="payment-button" id="payButton" data-analytics-track="payment" data-analytics-category="checkout" onclick="trackPaymentClick()" data-i18n="pumpkinPatch.checkout.payWithPayPal">
                     💳 Pay with PayPal
                 </a>
             </div>
 
             <div class="whatsapp-note">
-                <strong>📅 Don't forget!</strong><br>
-                After payment, contact us on WhatsApp:<br>
+                <strong data-i18n="pumpkinPatch.checkout.dontForget">📅 Don't forget!</strong><br>
+                <span data-i18n="pumpkinPatch.checkout.afterPayment">After payment, contact us on WhatsApp:</span><br>
                 <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
-                    <a href="https://chat.whatsapp.com/HnWhcfwNLenGKXMFOR6JUG" target="_blank" style="background: #25D366; color: white; padding: 0.75rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;">💬 Request Visit Time</a>
-                    <a href="https://chat.whatsapp.com/GYQmIVwu3fID0VcW4QmUM2" target="_blank" style="background: #25D366; color: white; padding: 0.75rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;">💬 Join Party WhatsApp Group</a>
+                    <a href="https://chat.whatsapp.com/HnWhcfwNLenGKXMFOR6JUG" target="_blank" style="background: #25D366; color: white; padding: 0.75rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;" data-i18n="pumpkinPatch.checkout.requestVisitTime">💬 Request Visit Time</a>
+                    <a href="https://chat.whatsapp.com/GYQmIVwu3fID0VcW4QmUM2" target="_blank" style="background: #25D366; color: white; padding: 0.75rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;" data-i18n="pumpkinPatch.checkout.joinPartyGroup">💬 Join Party WhatsApp Group</a>
                 </div>
             </div>
         </div>
@@ -497,6 +501,10 @@
 
     <!-- Analytics Tracker -->
     <script src="../js/analytics-tracker.js"></script>
+
+    <!-- i18n System -->
+    <script src="../js/i18n.js"></script>
+    <script src="../js/i18n-switcher.js"></script>
 
     <script>
         // Quantity change function for +/- buttons
