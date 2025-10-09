@@ -277,55 +277,6 @@
                 Get your visit pass, party tickets, pumpkin and food SCARES here!
             </div>
 
-            <!-- Customer Information Form -->
-            <div class="customer-info-section">
-                <h3 style="margin-bottom: 1rem; color: #333;">📧 Your Information</h3>
-                <div class="form-group">
-                    <label for="email">Email (to receive tickets) *</label>
-                    <input type="email" id="email" class="form-input" required placeholder="your.email@example.com">
-                    <small id="returningCustomerMessage" style="color: #28a745; display: none; margin-top: 0.5rem;">
-                        ✓ Ah, welcome back! You can order without filling in your contact details again.
-                    </small>
-                </div>
-                <div id="customerDetailsSection">
-                    <div class="form-group">
-                        <label for="firstName">First Name *</label>
-                        <input type="text" id="firstName" class="form-input" required placeholder="Enter your first name">
-                    </div>
-                    <div class="form-group">
-                        <label for="lastName">Last Name *</label>
-                        <input type="text" id="lastName" class="form-input" required placeholder="Enter your last name">
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone (optional)</label>
-                        <input type="tel" id="phone" class="form-input" placeholder="+34 123 456 789">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Party Date Selection (shown only when party tickets selected) -->
-            <div id="partyDateSection" style="display: none; background: #fff3cd; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #ff6b35;">
-                <h3 style="margin-top: 0; color: #ff6b35;">📅 Select Party Date *</h3>
-                <div class="form-group">
-                    <select id="partyDate" class="form-input" style="width: 100%; font-size: 1rem;">
-                        <option value="2025-10-25" selected>🎃 October 25th, 2025 (Maxi-Party)</option>
-                        <option value="2025-11-01">🎃 November 1st, 2025 (Mini-Party)</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Visit Date Selection (shown only when visit pass selected) -->
-            <div id="visitDateSection" style="display: none; background: #d4edda; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #28a745;">
-                <h3 style="margin-top: 0; color: #28a745;">📅 Select Visit Date *</h3>
-                <p style="margin-bottom: 1rem; color: #666;">Choose any date from October 10-31, 2025 (except party days)</p>
-                <div class="form-group">
-                    <input type="date" id="visitDate" class="form-input" style="width: 100%; font-size: 1rem;" min="2025-10-10" max="2025-10-31">
-                </div>
-                <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
-                    <strong>Not available:</strong> October 25th & November 1st (Party Days)
-                </p>
-            </div>
-
             <!-- Party Tickets Accordion -->
             <div class="accordion" id="partyAccordion">
                 <div class="accordion-header" onclick="toggleAccordion('party')">
@@ -453,6 +404,55 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Customer Information Form -->
+            <div class="customer-info-section">
+                <h3 style="margin-bottom: 1rem; color: #333;">📧 Your Information</h3>
+                <div class="form-group">
+                    <label for="email">Email (to receive tickets) *</label>
+                    <input type="email" id="email" class="form-input" required placeholder="your.email@example.com">
+                    <small id="returningCustomerMessage" style="color: #28a745; display: none; margin-top: 0.5rem;">
+                        ✓ Ah, welcome back! You can order without filling in your contact details again.
+                    </small>
+                </div>
+                <div id="customerDetailsSection">
+                    <div class="form-group">
+                        <label for="firstName">First Name *</label>
+                        <input type="text" id="firstName" class="form-input" required placeholder="Enter your first name">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name *</label>
+                        <input type="text" id="lastName" class="form-input" required placeholder="Enter your last name">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone (optional)</label>
+                        <input type="tel" id="phone" class="form-input" placeholder="+34 123 456 789">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Party Date Selection (shown only when party tickets selected) -->
+            <div id="partyDateSection" style="display: none; background: #fff3cd; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #ff6b35;">
+                <h3 style="margin-top: 0; color: #ff6b35;">📅 Select Party Date *</h3>
+                <div class="form-group">
+                    <select id="partyDate" class="form-input" style="width: 100%; font-size: 1rem;">
+                        <option value="2025-10-25" selected>🎃 October 25th, 2025 (Maxi-Party)</option>
+                        <option value="2025-11-01">🎃 November 1st, 2025 (Mini-Party)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Visit Date Selection (shown only when visit pass selected) -->
+            <div id="visitDateSection" style="display: none; background: #d4edda; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #28a745;">
+                <h3 style="margin-top: 0; color: #28a745;">📅 Select Visit Date *</h3>
+                <p style="margin-bottom: 1rem; color: #666;">Choose any date from October 10-31, 2025 (except party days)</p>
+                <div class="form-group">
+                    <input type="date" id="visitDate" class="form-input" style="width: 100%; font-size: 1rem;" min="2025-10-10" max="2025-10-31">
+                </div>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                    <strong>Not available:</strong> October 25th & November 1st (Party Days)
+                </p>
             </div>
 
             <div class="total-row">
