@@ -2,10 +2,9 @@
 
 INSERT INTO pumpkin_patch_email_templates (
     template_type,
-    template_name,
+    name,
     subject,
     html_body,
-    variables_used,
     is_active
 ) VALUES (
     'cancellation',
@@ -131,14 +130,7 @@ INSERT INTO pumpkin_patch_email_templates (
     </div>
 </body>
 </html>',
-    ARRAY['order_number', 'first_name', 'last_name', 'email', 'visit_date', 'total_amount', 'items_list', 'cancellation_date', 'refund_info'],
     true
-)
-ON CONFLICT (template_type) DO UPDATE SET
-    subject = EXCLUDED.subject,
-    html_body = EXCLUDED.html_body,
-    variables_used = EXCLUDED.variables_used,
-    is_active = EXCLUDED.is_active,
-    updated_at = NOW();
+);
 
 COMMENT ON TABLE pumpkin_patch_email_templates IS 'Email templates for pumpkin patch order communications (includes cancellation template)';
