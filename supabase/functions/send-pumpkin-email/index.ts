@@ -39,11 +39,22 @@ serve(async (req) => {
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
       .from('pumpkin_patch_orders')
-      .select('*, items:pumpkin_patch_order_items(*)')
+      .select('*')
       .eq('id', orderId)
       .single()
 
     if (orderError) throw orderError
+
+    // Get order items separately
+    const { data: items, error: itemsError } = await supabaseClient
+      .from('pumpkin_patch_order_items')
+      .select('*')
+      .eq('order_id', orderId)
+
+    if (itemsError) throw itemsError
+
+    // Attach items to order object
+    order.items = items
 
     // Get email template
     const { data: template, error: templateError } = await supabaseClient
