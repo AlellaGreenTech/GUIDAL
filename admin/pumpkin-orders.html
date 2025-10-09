@@ -1202,17 +1202,25 @@
 
         async function sendConfirmationEmail(orderId) {
             try {
-                // Get order details to determine template type
+                // Get order details
                 const { data: order, error: orderError } = await window.supabaseClient
                     .from('pumpkin_patch_orders')
-                    .select('*, items:pumpkin_patch_order_items(*)')
+                    .select('*')
                     .eq('id', orderId)
                     .single();
 
                 if (orderError) throw orderError;
 
+                // Get order items separately
+                const { data: items, error: itemsError } = await window.supabaseClient
+                    .from('pumpkin_patch_order_items')
+                    .select('*')
+                    .eq('order_id', orderId);
+
+                if (itemsError) throw itemsError;
+
                 // Determine template type based on order items
-                const hasEntranceTicket = order.items.some(item =>
+                const hasEntranceTicket = items.some(item =>
                     item.item_name.includes('Adult') || item.item_name.includes('Child')
                 );
                 const templateType = hasEntranceTicket ? 'entrance_ticket' : 'visit_pass';
