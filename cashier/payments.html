@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cashier Payments - GUIDAL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .user-info {
+            color: #666;
+            font-size: 0.875rem;
+        }
+
+        .scanner-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .scanner-card h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        #qr-reader {
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        #qr-reader video {
+            border-radius: 8px;
+        }
+
+        .btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .credit-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .credit-display .label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .credit-display .amount {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .credit-display .guest-name {
+            font-size: 1.25rem;
+            opacity: 0.95;
+        }
+
+        .payment-form {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .quick-btn {
+            padding: 1rem;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .quick-btn:active {
+            background: #667eea;
+            color: white;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .transaction-history {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .transaction-history h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .transaction-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-item .desc {
+            flex: 1;
+        }
+
+        .transaction-item .amount {
+            font-weight: bold;
+            font-size: 1.125rem;
+            color: #dc3545;
+        }
+
+        .transaction-item .time {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        .manual-entry {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .manual-entry h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💳 Cashier Payments</h1>
+            <div class="user-info" id="userInfo">Loading...</div>
+        </div>
+
+        <!-- QR Scanner Section -->
+        <div id="scanner-section" class="scanner-card">
+            <h2>📷 Scan Guest QR Code</h2>
+            <div id="qr-reader"></div>
+            <button class="btn btn-secondary" id="toggleScanner">Start Scanner</button>
+
+            <div class="manual-entry">
+                <h3>Or Enter QR Code Manually</h3>
+                <div class="form-group">
+                    <input type="text" id="manualQRInput" placeholder="GUIDAL-XXXXXXXX" style="text-transform: uppercase;">
+                </div>
+                <button class="btn" onclick="loadGuestByQR(document.getElementById('manualQRInput').value)">
+                    🔍 Load Guest
+                </button>
+            </div>
+        </div>
+
+        <!-- Credit Display (shown after scan) -->
+        <div id="credit-section" class="hidden">
+            <div class="credit-display">
+                <div class="label">Available Credit</div>
+                <div class="amount" id="creditAmount">€0.00</div>
+                <div class="guest-name" id="guestName">Guest Name</div>
+                <div style="font-size: 0.875rem; margin-top: 0.5rem;">
+                    <code id="qrCodeDisplay" style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.5rem; border-radius: 4px;"></code>
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <div class="payment-form">
+                <h3 style="margin-bottom: 1rem; color: #333;">Process Payment</h3>
+
+                <div class="form-group">
+                    <label>Quick Amounts</label>
+                    <div class="quick-amounts">
+                        <button class="quick-btn" onclick="setAmount(1)">€1</button>
+                        <button class="quick-btn" onclick="setAmount(2)">€2</button>
+                        <button class="quick-btn" onclick="setAmount(5)">€5</button>
+                        <button class="quick-btn" onclick="setAmount(10)">€10</button>
+                        <button class="quick-btn" onclick="setAmount(15)">€15</button>
+                        <button class="quick-btn" onclick="setAmount(20)">€20</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentAmount">Amount to Deduct (€)</label>
+                    <input type="number" id="paymentAmount" min="0" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentDescription">Description</label>
+                    <select id="paymentDescription">
+                        <option value="">Select item...</option>
+                        <option value="Small Pumpkin">Small Pumpkin - €5</option>
+                        <option value="Medium Pumpkin">Medium Pumpkin - €10</option>
+                        <option value="Large Pumpkin">Large Pumpkin - €15</option>
+                        <option value="Hot Dog">Hot Dog - €2</option>
+                        <option value="Soft Drink">Soft Drink - €1</option>
+                        <option value="Candy">Candy - €1</option>
+                        <option value="Face Paint">Face Paint - €3</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentLocation">Location (optional)</label>
+                    <select id="paymentLocation">
+                        <option value="">Select location...</option>
+                        <option value="Food Stand">Food Stand</option>
+                        <option value="Pumpkin Patch">Pumpkin Patch</option>
+                        <option value="Activity Area">Activity Area</option>
+                        <option value="Entrance">Entrance</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-success" onclick="processPayment()">
+                    ✅ Process Payment
+                </button>
+
+                <button class="btn btn-danger" onclick="sendTopUpEmail()">
+                    📧 Send Top-Up Email (Insufficient Credit)
+                </button>
+
+                <button class="btn btn-secondary" onclick="resetScanner()">
+                    ↩️ Scan Another Guest
+                </button>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="transaction-history">
+                <h3>Recent Transactions for This Guest</h3>
+                <div id="transactionHistory">No transactions yet</div>
+            </div>
+        </div>
+
+        <!-- Alert Area -->
+        <div id="alertArea"></div>
+    </div>
+
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+
+    <!-- QR Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <script>
+        let html5QrCode;
+        let currentGuestCredit = null;
+        let isScanning = false;
+
+        // Load user info
+        async function loadUserInfo() {
+            try {
+                const { data: { user } } = await window.supabaseClient.auth.getUser();
+                if (!user) {
+                    window.location.href = '../pages/auth/login.html';
+                    return;
+                }
+
+                const { data: profile } = await window.supabaseClient
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (!profile || (profile.role !== 'cashier' && profile.role !== 'admin')) {
+                    showAlert('Unauthorized. Only cashiers and admins can access this page.', 'danger');
+                    setTimeout(() => window.location.href = '../index.html', 3000);
+                    return;
+                }
+
+                document.getElementById('userInfo').textContent = `${profile.full_name || user.email} (${profile.role})`;
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Authentication error', 'danger');
+            }
+        }
+
+        // Initialize QR Scanner
+        function initScanner() {
+            html5QrCode = new Html5Qrcode("qr-reader");
+
+            document.getElementById('toggleScanner').addEventListener('click', function() {
+                if (isScanning) {
+                    stopScanner();
+                } else {
+                    startScanner();
+                }
+            });
+        }
+
+        // Start scanner
+        async function startScanner() {
+            try {
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    onScanSuccess,
+                    onScanFailure
+                );
+                isScanning = true;
+                document.getElementById('toggleScanner').textContent = 'Stop Scanner';
+                document.getElementById('toggleScanner').classList.add('btn-danger');
+            } catch (error) {
+                console.error('Error starting scanner:', error);
+                showAlert('Error starting camera: ' + error, 'danger');
+            }
+        }
+
+        // Stop scanner
+        async function stopScanner() {
+            try {
+                await html5QrCode.stop();
+                isScanning = false;
+                document.getElementById('toggleScanner').textContent = 'Start Scanner';
+                document.getElementById('toggleScanner').classList.remove('btn-danger');
+            } catch (error) {
+                console.error('Error stopping scanner:', error);
+            }
+        }
+
+        // On scan success
+        function onScanSuccess(decodedText) {
+            stopScanner();
+            loadGuestByQR(decodedText);
+        }
+
+        // On scan failure (ignore)
+        function onScanFailure(error) {
+            // Ignore scan failures
+        }
+
+        // Load guest by QR code
+        async function loadGuestByQR(qrCode) {
+            qrCode = qrCode.trim().toUpperCase();
+
+            if (!qrCode) {
+                showAlert('Please enter or scan a QR code', 'warning');
+                return;
+            }
+
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('guest_credits')
+                    .select('*')
+                    .eq('qr_code', qrCode)
+                    .eq('status', 'active')
+                    .single();
+
+                if (error) {
+                    if (error.code === 'PGRST116') {
+                        showAlert('QR code not found or inactive', 'danger');
+                    } else {
+                        showAlert('Error: ' + error.message, 'danger');
+                    }
+                    return;
+                }
+
+                currentGuestCredit = data;
+                displayGuestCredit();
+                loadTransactionHistory();
+
+                // Hide scanner, show credit section
+                document.getElementById('scanner-section').classList.add('hidden');
+                document.getElementById('credit-section').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error loading guest: ' + error.message, 'danger');
+            }
+        }
+
+        // Display guest credit
+        function displayGuestCredit() {
+            document.getElementById('creditAmount').textContent = '€' + currentGuestCredit.credit_balance.toFixed(2);
+            document.getElementById('guestName').textContent = currentGuestCredit.guest_name;
+            document.getElementById('qrCodeDisplay').textContent = currentGuestCredit.qr_code;
+
+            // Change color based on balance
+            const amountEl = document.getElementById('creditAmount');
+            if (currentGuestCredit.credit_balance <= 0) {
+                amountEl.style.color = '#ff4444';
+            } else if (currentGuestCredit.credit_balance < 5) {
+                amountEl.style.color = '#ffaa00';
+            } else {
+                amountEl.style.color = 'white';
+            }
+        }
+
+        // Set quick amount
+        function setAmount(amount) {
+            document.getElementById('paymentAmount').value = amount;
+        }
+
+        // Process payment
+        async function processPayment() {
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const description = document.getElementById('paymentDescription').value;
+            const location = document.getElementById('paymentLocation').value;
+
+            if (!amount || amount <= 0) {
+                showAlert('Please enter a valid amount', 'warning');
+                return;
+            }
+
+            if (!description) {
+                showAlert('Please select a description', 'warning');
+                return;
+            }
+
+            if (amount > currentGuestCredit.credit_balance) {
+                showAlert(`Insufficient credit! Available: €${currentGuestCredit.credit_balance.toFixed(2)}`, 'danger');
+                return;
+            }
+
+            try {
+                const { data, error } = await window.supabaseClient.rpc('deduct_credit', {
+                    p_qr_code: currentGuestCredit.qr_code,
+                    p_amount: amount,
+                    p_description: description,
+                    p_location: location || null,
+                    p_metadata: {}
+                });
+
+                if (error) throw error;
+
+                if (data.success) {
+                    showAlert(`Payment processed! New balance: €${data.new_balance.toFixed(2)}`, 'success');
+
+                    // Update current balance
+                    currentGuestCredit.credit_balance = data.new_balance;
+                    displayGuestCredit();
+
+                    // Clear form
+                    document.getElementById('paymentAmount').value = '';
+                    document.getElementById('paymentDescription').value = '';
+                    document.getElementById('paymentLocation').value = '';
+
+                    // Reload transaction history
+                    loadTransactionHistory();
+                } else {
+                    showAlert('Payment failed: ' + (data.error || 'Unknown error'), 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error processing payment: ' + error.message, 'danger');
+            }
+        }
+
+        // Load transaction history
+        async function loadTransactionHistory() {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('credit_transactions')
+                    .select('*')
+                    .eq('guest_credit_id', currentGuestCredit.id)
+                    .order('transaction_date', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
+
+                const html = data.length > 0 ? data.map(tx => `
+                    <div class="transaction-item">
+                        <div class="desc">
+                            <div>${tx.description}</div>
+                            <div class="time">${new Date(tx.transaction_date).toLocaleString()}</div>
+                        </div>
+                        <div class="amount">-€${tx.amount.toFixed(2)}</div>
+                    </div>
+                `).join('') : '<p style="color: #999; text-align: center;">No transactions yet</p>';
+
+                document.getElementById('transactionHistory').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Send top-up email
+        async function sendTopUpEmail() {
+            if (!confirm(`Send top-up email to ${currentGuestCredit.guest_email}?`)) return;
+
+            // TODO: Implement email sending via Edge Function
+            showAlert('Top-up email feature coming soon!', 'info');
+
+            // Placeholder for future implementation
+            // This would call an Edge Function to send email with PayPal link
+        }
+
+        // Reset scanner
+        function resetScanner() {
+            currentGuestCredit = null;
+            document.getElementById('scanner-section').classList.remove('hidden');
+            document.getElementById('credit-section').classList.add('hidden');
+            document.getElementById('manualQRInput').value = '';
+        }
+
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertHtml = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            const alertArea = document.getElementById('alertArea');
+            alertArea.innerHTML = alertHtml;
+
+            setTimeout(() => {
+                alertArea.innerHTML = '';
+            }, 5000);
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadUserInfo();
+            initScanner();
+        });
+    </script>
+</body>
+</html>
