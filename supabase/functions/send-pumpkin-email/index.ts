@@ -4,6 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const RESEND_API_KEY = 're_9dedNj8P_6CT6FGZ7wftUah1bw4uDNvqV'
 const FROM_EMAIL = 'noreply@guidal.org' // Change this to your verified domain
+const ADMIN_CC_EMAIL = 'martin@guidal.org' // Admin gets CC'd on all emails
 
 serve(async (req) => {
   // Handle CORS
@@ -115,7 +116,7 @@ serve(async (req) => {
       emailSubject = emailSubject.replaceAll(key, String(value))
     })
 
-    // Send email via Resend
+    // Send email via Resend (with CC to admin)
     const resendResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -125,6 +126,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: FROM_EMAIL,
         to: [order.email],
+        cc: [ADMIN_CC_EMAIL],
         subject: emailSubject,
         html: emailBody
       })
