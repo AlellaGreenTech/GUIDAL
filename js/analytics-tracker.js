@@ -6,7 +6,7 @@
 
     // Configuration
     const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc5OTgxNzYsImV4cCI6MjA0MzU3NDE3Nn0.3v-6Ws9jBVTxPYL6sxGghKWFnGkHqGbsZvZSY-bJXOo';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
 
     // Generate or retrieve session ID
     function getSessionId() {

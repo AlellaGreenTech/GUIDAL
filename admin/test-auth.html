@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Auth</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Auth Test</h1>
+    <div id="output" style="font-family: monospace; white-space: pre-wrap;"></div>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(message) {
+            output.textContent += message + '\n';
+            console.log(message);
+        }
+
+        async function test() {
+            try {
+                log('Testing Supabase connection...\n');
+
+                const SUPABASE_URL = 'https://lmsuyhzcmgdpjynosxvp.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtc3V5aHpjbWdkcGp5bm9zeHZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2NzM5NjksImV4cCI6MjA3MzI0OTk2OX0.rRpHs_0ZLW3erdFnm2SwFTAmyQJYRMpcSlNzMBlcq4U';
+
+                log('URL: ' + SUPABASE_URL);
+                log('Key (first 20 chars): ' + SUPABASE_ANON_KEY.substring(0, 20) + '...\n');
+
+                const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                log('✓ Supabase client created\n');
+
+                // Test 1: Check session
+                log('Test 1: Checking auth session...');
+                const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+
+                if (sessionError) {
+                    log('✗ Session error: ' + sessionError.message);
+                    log('Error details: ' + JSON.stringify(sessionError, null, 2));
+                } else if (session) {
+                    log('✓ Logged in as: ' + session.user.email);
+                } else {
+                    log('✗ Not logged in (session is null)');
+                }
+                log('');
+
+                // Test 2: Try to read admin_notification_settings table
+                log('Test 2: Reading admin_notification_settings table...');
+                const { data, error } = await supabaseClient
+                    .from('admin_notification_settings')
+                    .select('*')
+                    .limit(5);
+
+                if (error) {
+                    log('✗ Database error: ' + error.message);
+                    log('Error details: ' + JSON.stringify(error, null, 2));
+                } else {
+                    log('✓ Successfully read table!');
+                    log('Records found: ' + (data?.length || 0));
+                    if (data && data.length > 0) {
+                        log('Sample data: ' + JSON.stringify(data[0], null, 2));
+                    }
+                }
+                log('');
+
+                // Test 3: Check if table exists
+                log('Test 3: Testing table existence...');
+                const { data: testData, error: testError } = await supabaseClient
+                    .from('admin_notification_settings')
+                    .select('count');
+
+                if (testError) {
+                    if (testError.message.includes('relation') && testError.message.includes('does not exist')) {
+                        log('✗ Table does not exist! You need to run the SQL schema.');
+                    } else {
+                        log('✗ Error: ' + testError.message);
+                    }
+                } else {
+                    log('✓ Table exists!');
+                }
+
+            } catch (error) {
+                log('\n✗ Unexpected error: ' + error.message);
+                log('Stack: ' + error.stack);
+            }
+        }
+
+        test();
+    </script>
+</body>
+</html>
