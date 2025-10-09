@@ -199,6 +199,19 @@
             color: #666;
         }
 
+        .email-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: #28a745;
+            margin-left: 0.5rem;
+        }
+
+        .email-indicator.no-email {
+            color: #dc3545;
+        }
+
         .action-buttons {
             display: flex;
             gap: 0.5rem;
@@ -846,23 +859,37 @@
                     `)
                     .order('created_at', { ascending: false });
 
-                // Apply filters
-                if (status !== 'all') {
-                    query = query.eq('payment_status', status);
-                }
-                if (dateFrom) {
-                    query = query.gte('created_at', dateFrom);
-                }
-                if (dateTo) {
-                    query = query.lte('created_at', dateTo + 'T23:59:59');
-                }
-
                 const { data: orders, error } = await query;
 
                 if (error) throw error;
 
+                // Fetch email logs for all orders
+                const orderIds = orders.map(o => o.id);
+                const { data: emailLogs } = await window.supabaseClient
+                    .from('pumpkin_patch_email_log')
+                    .select('order_id, template_type, sent_at, status')
+                    .in('order_id', orderIds)
+                    .eq('status', 'sent');
+
+                // Attach email logs to orders
+                orders.forEach(order => {
+                    order.email_logs = emailLogs?.filter(log => log.order_id === order.id) || [];
+                });
+
+                // Apply backend filters on the orders array
+                let filteredOrders = orders;
+                if (status !== 'all') {
+                    filteredOrders = filteredOrders.filter(order => order.payment_status === status);
+                }
+                if (dateFrom) {
+                    filteredOrders = filteredOrders.filter(order => order.created_at >= dateFrom);
+                }
+                if (dateTo) {
+                    filteredOrders = filteredOrders.filter(order => order.created_at <= dateTo + 'T23:59:59');
+                }
+
                 // Apply search filter
-                allOrders = orders.filter(order => {
+                allOrders = filteredOrders.filter(order => {
                     if (!search) return true;
                     return (
                         order.first_name.toLowerCase().includes(search) ||
@@ -906,7 +933,13 @@
                         ${new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}<br>
                         <small class="hide-mobile">${new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
                     </td>
-                    <td><strong>${order.first_name} ${order.last_name}</strong></td>
+                    <td>
+                        <strong>${order.first_name} ${order.last_name}</strong>
+                        ${order.email_logs && order.email_logs.length > 0
+                            ? `<span class="email-indicator" title="Confirmation email sent: ${new Date(order.email_logs[0].sent_at).toLocaleString()}">✉️</span>`
+                            : `<span class="email-indicator no-email" title="No confirmation email sent">✉️</span>`
+                        }
+                    </td>
                     <td class="hide-mobile">${order.email}</td>
                     <td class="hide-mobile">${order.party_date ? `
                         <strong style="color: #ff6b35;">🎃 ${new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</strong>
