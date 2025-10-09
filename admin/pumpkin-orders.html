@@ -240,13 +240,194 @@
             border-bottom: 1px solid #eee;
         }
 
-        /* Sticky action buttons column */
+        /* Sticky status and action columns */
+        th:nth-last-child(-n+2),
+        td:nth-last-child(-n+2) {
+            position: sticky;
+            background: white;
+            z-index: 10;
+        }
+
+        th:nth-last-child(2),
+        td:nth-last-child(2) {
+            right: 60px;
+            box-shadow: -2px 0 4px rgba(0,0,0,0.05);
+        }
+
         th:last-child,
         td:last-child {
-            position: sticky;
             right: 0;
-            background: white;
             box-shadow: -2px 0 4px rgba(0,0,0,0.1);
+        }
+
+        .status-cell {
+            min-width: 90px;
+            text-align: center;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .hide-mobile {
+                display: none !important;
+            }
+
+            .admin-container {
+                padding: 1rem;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .dashboard-header > div {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .filters {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .filter-group input,
+            .filter-group select {
+                width: 100%;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.8rem;
+            }
+
+            .order-number {
+                font-size: 0.75rem;
+                min-width: 60px;
+            }
+
+            .order-date {
+                font-size: 0.75rem;
+                min-width: 50px;
+            }
+
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 0.25rem 0.4rem;
+            }
+
+            .btn-dropdown {
+                padding: 0.25rem 0.4rem;
+                font-size: 1rem;
+            }
+
+            th:nth-last-child(2),
+            td:nth-last-child(2) {
+                right: 50px;
+            }
+
+            th:last-child,
+            td:last-child {
+                min-width: 50px;
+            }
+        }
+
+        /* Tablet responsive styles */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .hide-tablet {
+                display: none !important;
+            }
+
+            .admin-container {
+                padding: 1.5rem;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.6rem 0.4rem;
+            }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .admin-container {
+                padding: 0.5rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 0.75rem;
+            }
+
+            table {
+                font-size: 0.75rem;
+            }
+
+            th, td {
+                padding: 0.4rem 0.2rem;
+            }
+
+            .order-number {
+                font-size: 0.7rem;
+                min-width: 55px;
+            }
+
+            .order-date {
+                font-size: 0.7rem;
+                min-width: 45px;
+            }
+
+            .status-badge {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.3rem;
+            }
+
+            th:nth-last-child(2),
+            td:nth-last-child(2) {
+                right: 45px;
+            }
+
+            th:last-child,
+            td:last-child {
+                min-width: 45px;
+            }
+
+            .btn-dropdown {
+                padding: 0.2rem 0.35rem;
+                font-size: 0.9rem;
+            }
         }
 
         th:last-child {
@@ -472,15 +653,16 @@
             <table id="ordersTable" style="display: none;">
                 <thead>
                     <tr>
+                        <th>Order #</th>
                         <th>Date</th>
                         <th>Customer</th>
-                        <th>Email</th>
-                        <th>Party Date</th>
-                        <th>Adults</th>
-                        <th>Children</th>
-                        <th>Items</th>
+                        <th class="hide-mobile">Email</th>
+                        <th class="hide-mobile">Party Date</th>
+                        <th class="hide-tablet">Adults</th>
+                        <th class="hide-tablet">Children</th>
+                        <th class="hide-mobile">Items</th>
                         <th>Amount</th>
-                        <th>Payment</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -666,23 +848,27 @@
 
             tbody.innerHTML = orders.map(order => `
                 <tr>
-                    <td>${new Date(order.created_at).toLocaleDateString()}<br>
-                        <small>${new Date(order.created_at).toLocaleTimeString()}</small>
+                    <td class="order-number">
+                        <strong>${order.order_number}</strong>
                     </td>
-                    <td>${order.first_name} ${order.last_name}</td>
-                    <td>${order.email}</td>
-                    <td>${order.party_date ? `
+                    <td class="order-date">
+                        ${new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}<br>
+                        <small class="hide-mobile">${new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                    </td>
+                    <td><strong>${order.first_name} ${order.last_name}</strong></td>
+                    <td class="hide-mobile">${order.email}</td>
+                    <td class="hide-mobile">${order.party_date ? `
                         <strong style="color: #ff6b35;">🎃 ${new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</strong>
                     ` : '<span style="color: #999;">-</span>'}</td>
-                    <td><strong>${order.adult_count || 0}</strong></td>
-                    <td><strong>${order.child_count || 0}</strong></td>
-                    <td class="order-items">
+                    <td class="hide-tablet"><strong>${order.adult_count || 0}</strong></td>
+                    <td class="hide-tablet"><strong>${order.child_count || 0}</strong></td>
+                    <td class="order-items hide-mobile">
                         ${order.items.map(item =>
                             `${item.quantity}x ${item.item_name}`
                         ).join('<br>')}
                     </td>
                     <td><strong>€${order.total_amount}</strong></td>
-                    <td>
+                    <td class="status-cell">
                         <span class="status-badge status-${order.payment_status}">
                             ${order.payment_status}
                         </span>
