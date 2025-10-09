@@ -399,7 +399,28 @@
                     .select('*')
                     .order('created_at', { ascending: true });
 
-                if (error) throw error;
+                if (error) {
+                    // Check if table doesn't exist
+                    if (error.message.includes('relation') && error.message.includes('does not exist')) {
+                        showMessage('❌ Database tables not created yet! Please run the SQL schema first. See ADMIN-NOTIFICATION-SYSTEM.md for instructions.', 'error');
+                        document.getElementById('adminList').innerHTML = `
+                            <div class="loading" style="color: #dc3545;">
+                                <h3>⚠️ Database Setup Required</h3>
+                                <p>The notification system tables haven't been created yet.</p>
+                                <p><strong>To fix this:</strong></p>
+                                <ol style="text-align: left; margin-top: 1rem;">
+                                    <li>Go to <a href="https://supabase.com/dashboard/project/lmsuyhzcmgdpjynosxvp/sql" target="_blank" style="color: #667eea;">Supabase SQL Editor</a></li>
+                                    <li>Click "New Query"</li>
+                                    <li>Copy and paste the contents of <code>database/create-admin-notification-system.sql</code></li>
+                                    <li>Click "Run"</li>
+                                    <li>Refresh this page</li>
+                                </ol>
+                            </div>
+                        `;
+                        return;
+                    }
+                    throw error;
+                }
 
                 admins = data || [];
                 renderAdminList();
