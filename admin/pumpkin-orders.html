@@ -934,8 +934,8 @@
             tbody.innerHTML = orders.map(order => `
                 <tr>
                     <td class="status-cell">
-                        <span class="status-badge status-${order.status}">
-                            ${order.status}
+                        <span class="status-badge status-${order.payment_status}">
+                            ${order.payment_status}
                         </span>
                     </td>
                     <td class="order-date">
@@ -1830,8 +1830,8 @@
                 // Sort ascending
                 statusSortOrder = 'asc';
                 allOrders.sort((a, b) => {
-                    const statusA = statusOrder[a.status] || 999;
-                    const statusB = statusOrder[b.status] || 999;
+                    const statusA = statusOrder[a.payment_status] || 999;
+                    const statusB = statusOrder[b.payment_status] || 999;
                     return statusA - statusB;
                 });
                 document.getElementById('statusSortIcon').textContent = '↑';
@@ -1839,8 +1839,8 @@
                 // Sort descending
                 statusSortOrder = 'desc';
                 allOrders.sort((a, b) => {
-                    const statusA = statusOrder[a.status] || 999;
-                    const statusB = statusOrder[b.status] || 999;
+                    const statusA = statusOrder[a.payment_status] || 999;
+                    const statusB = statusOrder[b.payment_status] || 999;
                     return statusB - statusA;
                 });
                 document.getElementById('statusSortIcon').textContent = '↓';
