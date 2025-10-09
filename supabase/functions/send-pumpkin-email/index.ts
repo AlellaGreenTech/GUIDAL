@@ -56,15 +56,21 @@ serve(async (req) => {
     // Attach items to order object
     order.items = items
 
-    // Get email template
-    const { data: template, error: templateError } = await supabaseClient
+    // Get email template (use limit + first instead of single to avoid multiple row error)
+    const { data: templates, error: templateError } = await supabaseClient
       .from('pumpkin_patch_email_templates')
       .select('*')
       .eq('template_type', templateType)
       .eq('is_active', true)
-      .single()
+      .order('created_at', { ascending: false })
+      .limit(1)
 
     if (templateError) throw templateError
+    if (!templates || templates.length === 0) {
+      throw new Error(`No active template found for type: ${templateType}`)
+    }
+
+    const template = templates[0]
 
     // Generate QR code
     const scares = order.items.find((item: any) => item.item_name.includes('SCARE'))?.quantity || 0
