@@ -753,9 +753,21 @@
             <div style="padding: 20px;">
                 <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                     <p style="margin: 5px 0;"><strong>To:</strong> <span id="previewEmailTo"></span></p>
-                    <p style="margin: 5px 0;"><strong>Subject:</strong> <span id="previewEmailSubject"></span></p>
+                    <p style="margin: 5px 0;">
+                        <strong>Subject:</strong>
+                        <span id="previewEmailSubjectDisplay"></span>
+                        <input type="text" id="previewEmailSubjectEdit" style="display: none; width: 100%; padding: 0.5rem; border: 2px solid #ff6b35; border-radius: 4px; font-size: 1rem; margin-top: 0.5rem;">
+                    </p>
                 </div>
-                <iframe id="emailPreviewFrame" style="width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 8px; background: white;"></iframe>
+                <iframe id="emailPreviewFrame" style="width: 100%; height: 500px; border: 1px solid #ddd; border-radius: 8px; background: white;"></iframe>
+                <div id="emailEditContainer" style="display: none;">
+                    <div id="emailBodyEdit" contenteditable="true" style="width: 100%; min-height: 500px; border: 2px solid #ff6b35; border-radius: 8px; padding: 20px; background: white; overflow-y: auto;"></div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem; justify-content: flex-end;">
+                    <button id="editEmailBtn" class="btn btn-primary" onclick="toggleEmailEdit()">✏️ Edit Email</button>
+                    <button id="sendEditedEmailBtn" class="btn btn-success" style="display: none;" onclick="sendEditedEmail()">📧 Send Email</button>
+                    <button id="cancelEditBtn" class="btn" style="display: none; background: #6c757d; color: white;" onclick="cancelEmailEdit()">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1465,15 +1477,34 @@
                     emailSubject = emailSubject.replaceAll(key, value);
                 });
 
+                // Store current email data for editing
+                window.currentEmailData = {
+                    orderId: orderId,
+                    to: order.email,
+                    subject: emailSubject,
+                    body: emailBody,
+                    templateType: templateType
+                };
+
                 // Display preview
                 document.getElementById('previewEmailTo').textContent = order.email;
-                document.getElementById('previewEmailSubject').textContent = emailSubject;
+                document.getElementById('previewEmailSubjectDisplay').textContent = emailSubject;
+                document.getElementById('previewEmailSubjectEdit').value = emailSubject;
 
                 const previewFrame = document.getElementById('emailPreviewFrame');
                 const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
                 previewDoc.open();
                 previewDoc.write(emailBody);
                 previewDoc.close();
+
+                // Reset to preview mode
+                document.getElementById('emailPreviewFrame').style.display = 'block';
+                document.getElementById('emailEditContainer').style.display = 'none';
+                document.getElementById('previewEmailSubjectDisplay').style.display = 'inline';
+                document.getElementById('previewEmailSubjectEdit').style.display = 'none';
+                document.getElementById('editEmailBtn').style.display = 'inline-block';
+                document.getElementById('sendEditedEmailBtn').style.display = 'none';
+                document.getElementById('cancelEditBtn').style.display = 'none';
 
                 document.getElementById('emailPreviewModal').style.display = 'flex';
             } catch (error) {
@@ -1484,6 +1515,84 @@
 
         function closeEmailPreview() {
             document.getElementById('emailPreviewModal').style.display = 'none';
+        }
+
+        function toggleEmailEdit() {
+            // Switch to edit mode
+            document.getElementById('emailPreviewFrame').style.display = 'none';
+            document.getElementById('emailEditContainer').style.display = 'block';
+            document.getElementById('previewEmailSubjectDisplay').style.display = 'none';
+            document.getElementById('previewEmailSubjectEdit').style.display = 'block';
+            document.getElementById('editEmailBtn').style.display = 'none';
+            document.getElementById('sendEditedEmailBtn').style.display = 'inline-block';
+            document.getElementById('cancelEditBtn').style.display = 'inline-block';
+
+            // Load current body into editable div
+            document.getElementById('emailBodyEdit').innerHTML = window.currentEmailData.body;
+        }
+
+        function cancelEmailEdit() {
+            // Switch back to preview mode
+            document.getElementById('emailPreviewFrame').style.display = 'block';
+            document.getElementById('emailEditContainer').style.display = 'none';
+            document.getElementById('previewEmailSubjectDisplay').style.display = 'inline';
+            document.getElementById('previewEmailSubjectEdit').style.display = 'none';
+            document.getElementById('editEmailBtn').style.display = 'inline-block';
+            document.getElementById('sendEditedEmailBtn').style.display = 'none';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+
+            // Reset to original values
+            document.getElementById('previewEmailSubjectEdit').value = window.currentEmailData.subject;
+            document.getElementById('emailBodyEdit').innerHTML = window.currentEmailData.body;
+        }
+
+        async function sendEditedEmail() {
+            if (!window.currentEmailData) {
+                alert('Error: No email data available');
+                return;
+            }
+
+            const editedSubject = document.getElementById('previewEmailSubjectEdit').value;
+            const editedBody = document.getElementById('emailBodyEdit').innerHTML;
+
+            if (!confirm(`Send this edited email to ${window.currentEmailData.to}?`)) return;
+
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+                const functionResponse = await fetch(
+                    `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session.access_token}`
+                        },
+                        body: JSON.stringify({
+                            orderId: window.currentEmailData.orderId,
+                            templateType: window.currentEmailData.templateType,
+                            customSubject: editedSubject,
+                            customBody: editedBody
+                        })
+                    }
+                );
+
+                const result = await functionResponse.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to send email');
+                }
+
+                alert(`✅ Email sent successfully to ${window.currentEmailData.to}\n\nResend ID: ${result.resendId}`);
+
+                // Close modal and reload orders to show email indicator
+                closeEmailPreview();
+                await loadOrders();
+
+            } catch (error) {
+                console.error('Error sending email:', error);
+                alert('❌ Failed to send email: ' + error.message);
+            }
         }
 
         let currentEmailOrderId = null;
