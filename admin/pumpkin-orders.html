@@ -278,8 +278,18 @@
         th:nth-last-child(-n+2),
         td:nth-last-child(-n+2) {
             position: sticky;
-            background: white;
             z-index: 10;
+        }
+
+        /* Keep header cells above data cells */
+        th:nth-last-child(-n+2) {
+            background: #ff6b35;
+            z-index: 20;
+        }
+
+        /* Data cells need white background */
+        td:nth-last-child(-n+2) {
+            background: white;
         }
 
         th:nth-last-child(2),
