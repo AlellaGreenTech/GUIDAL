@@ -19,11 +19,14 @@ serve(async (req) => {
   }
 
   try {
-    const { orderId, templateType } = await req.json()
+    const { orderId, templateType, customSubject, customBody } = await req.json()
 
     if (!orderId || !templateType) {
       throw new Error('Missing orderId or templateType')
     }
+
+    // If custom subject and body are provided, use them directly
+    const useCustomEmail = customSubject && customBody
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -56,82 +59,91 @@ serve(async (req) => {
     // Attach items to order object
     order.items = items
 
-    // Get email template (use limit + first instead of single to avoid multiple row error)
-    const { data: templates, error: templateError } = await supabaseClient
-      .from('pumpkin_patch_email_templates')
-      .select('*')
-      .eq('template_type', templateType)
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(1)
+    let emailBody = ''
+    let emailSubject = ''
 
-    if (templateError) throw templateError
-    if (!templates || templates.length === 0) {
-      throw new Error(`No active template found for type: ${templateType}`)
-    }
+    // If using custom email, skip template fetching
+    if (useCustomEmail) {
+      emailBody = customBody
+      emailSubject = customSubject
+    } else {
+      // Get email template (use limit + first instead of single to avoid multiple row error)
+      const { data: templates, error: templateError } = await supabaseClient
+        .from('pumpkin_patch_email_templates')
+        .select('*')
+        .eq('template_type', templateType)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
 
-    const template = templates[0]
+      if (templateError) throw templateError
+      if (!templates || templates.length === 0) {
+        throw new Error(`No active template found for type: ${templateType}`)
+      }
 
-    // Generate QR code
-    const scares = order.items.find((item: any) => item.item_name.includes('SCARE'))?.quantity || 0
-    const partyDateFormatted = order.party_date
-      ? new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-      : 'Visit Pass'
+      const template = templates[0]
 
-    const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${order.adult_count || 0}|CHILDREN:${order.child_count || 0}|EVENT:${partyDateFormatted}|SCARES:${scares}|TOTAL:€${order.total_amount}`
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`
+      // Generate QR code
+      const scares = order.items.find((item: any) => item.item_name.includes('SCARE'))?.quantity || 0
+      const partyDateFormatted = order.party_date
+        ? new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        : 'Visit Pass'
 
-    // Format party date for email
-    let partyDateForEmail = 'Visit Pass (any non-party day)'
-    if (order.party_date) {
-      const date = new Date(order.party_date)
-      partyDateForEmail = date.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
+      const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${order.adult_count || 0}|CHILDREN:${order.child_count || 0}|EVENT:${partyDateFormatted}|SCARES:${scares}|TOTAL:€${order.total_amount}`
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`
+
+      // Format party date for email
+      let partyDateForEmail = 'Visit Pass (any non-party day)'
+      if (order.party_date) {
+        const date = new Date(order.party_date)
+        partyDateForEmail = date.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric'
+        })
+      }
+
+      // Format items list
+      const itemsList = order.items.map((item: any) =>
+        `${item.quantity}x ${item.item_name}`
+      ).join('<br>')
+
+      // Generate cancellation-specific data
+      const cancellationDate = order.cancelled_at
+        ? new Date(order.cancelled_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+        : new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+
+      const refundInfo = order.payment_status === 'refunded'
+        ? `Your payment of €${order.total_amount.toFixed(2)} will be refunded to your original payment method within 5-10 business days.`
+        : `No payment was processed for this order, so no refund is necessary.`
+
+      // Replace template variables
+      const emailData: Record<string, any> = {
+        '{{order_number}}': order.order_number,
+        '{{first_name}}': order.first_name,
+        '{{last_name}}': order.last_name,
+        '{{email}}': order.email,
+        '{{phone}}': order.phone || 'Not provided',
+        '{{party_date}}': partyDateForEmail,
+        '{{visit_date}}': order.visit_date || order.party_date || 'Not specified',
+        '{{adult_count}}': order.adult_count || 0,
+        '{{child_count}}': order.child_count || 0,
+        '{{items}}': itemsList,
+        '{{items_list}}': itemsList,
+        '{{total_amount}}': order.total_amount.toFixed(2),
+        '{{qr_code}}': qrCodeUrl,
+        '{{cancellation_date}}': cancellationDate,
+        '{{refund_info}}': refundInfo
+      }
+
+      emailBody = template.html_body
+      emailSubject = template.subject
+
+      Object.entries(emailData).forEach(([key, value]) => {
+        emailBody = emailBody.replaceAll(key, String(value))
+        emailSubject = emailSubject.replaceAll(key, String(value))
       })
     }
-
-    // Format items list
-    const itemsList = order.items.map((item: any) =>
-      `${item.quantity}x ${item.item_name}`
-    ).join('<br>')
-
-    // Generate cancellation-specific data
-    const cancellationDate = order.cancelled_at
-      ? new Date(order.cancelled_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-      : new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-
-    const refundInfo = order.payment_status === 'refunded'
-      ? `Your payment of €${order.total_amount.toFixed(2)} will be refunded to your original payment method within 5-10 business days.`
-      : `No payment was processed for this order, so no refund is necessary.`
-
-    // Replace template variables
-    const emailData: Record<string, any> = {
-      '{{order_number}}': order.order_number,
-      '{{first_name}}': order.first_name,
-      '{{last_name}}': order.last_name,
-      '{{email}}': order.email,
-      '{{phone}}': order.phone || 'Not provided',
-      '{{party_date}}': partyDateForEmail,
-      '{{visit_date}}': order.visit_date || order.party_date || 'Not specified',
-      '{{adult_count}}': order.adult_count || 0,
-      '{{child_count}}': order.child_count || 0,
-      '{{items}}': itemsList,
-      '{{items_list}}': itemsList,
-      '{{total_amount}}': order.total_amount.toFixed(2),
-      '{{qr_code}}': qrCodeUrl,
-      '{{cancellation_date}}': cancellationDate,
-      '{{refund_info}}': refundInfo
-    }
-
-    let emailBody = template.html_body
-    let emailSubject = template.subject
-
-    Object.entries(emailData).forEach(([key, value]) => {
-      emailBody = emailBody.replaceAll(key, String(value))
-      emailSubject = emailSubject.replaceAll(key, String(value))
-    })
 
     // Send email via Resend (with CC to admin)
     const resendResponse = await fetch('https://api.resend.com/emails', {
