@@ -905,15 +905,18 @@
                     <td class="hide-tablet"><strong>${order.child_count || 0}</strong></td>
                     <td class="order-items hide-mobile">
                         ${order.items.map(item => {
-                            // Shorten common item names
+                            // Shorten common item names - order matters!
                             let shortName = item.item_name
-                                .replace('Entrance Party Ticket', 'Party Ticket')
-                                .replace('Adult Entrance Ticket', 'Adult Ticket')
-                                .replace('Child Entrance Ticket', 'Child Ticket')
+                                .replace('Adult Entrance Party Ticket', 'Adult Party')
+                                .replace('Child Entrance Party Ticket', 'Child Party')
                                 .replace('Visit Pass (Adult or Child)', 'Visit Pass')
+                                .replace('Small Pumpkin', 'Sm Pumpkin')
+                                .replace('Medium Pumpkin', 'Med Pumpkin')
+                                .replace('Large Pumpkin', 'Lg Pumpkin')
                                 .replace('Individual SCARES (for food, activities, etc.)', 'SCARES')
-                                .replace('Individual SCARES', 'SCARES')
-                                .replace('Pumpkin', 'Pumpkin');
+                                .replace(' (5 SCARES)', '')
+                                .replace(' (10 SCARES)', '')
+                                .replace(' (15 SCARES)', '');
                             return `<span class="item-line">${item.quantity}× ${shortName}</span>`;
                         }).join('')}
                     </td>
