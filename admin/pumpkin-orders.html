@@ -153,9 +153,15 @@
             font-weight: 500;
         }
 
+        /* Order status badges */
         .status-pending {
             background: #fff3cd;
             color: #856404;
+        }
+
+        .status-confirmed {
+            background: #cfe2ff;
+            color: #084298;
         }
 
         .status-paid {
@@ -163,9 +169,24 @@
             color: #155724;
         }
 
+        .status-completed {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
         .status-cancelled {
             background: #f8d7da;
             color: #721c24;
+        }
+
+        .status-refunded {
+            background: #e2e3e5;
+            color: #41464b;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #842029;
         }
 
         .order-items {
@@ -661,7 +682,9 @@
             <table id="ordersTable" style="display: none;">
                 <thead>
                     <tr>
-                        <th>Order #</th>
+                        <th style="cursor: pointer;" onclick="sortByStatus()">
+                            Status <span id="statusSortIcon">↕️</span>
+                        </th>
                         <th>Date</th>
                         <th>Customer</th>
                         <th class="hide-mobile">Email</th>
@@ -744,6 +767,7 @@
 
     <script>
         let allOrders = [];
+        let statusSortOrder = 'none'; // 'none', 'asc', 'desc'
 
         // Load orders on page load
         document.addEventListener('DOMContentLoaded', async function() {
@@ -855,11 +879,13 @@
 
             tbody.innerHTML = orders.map(order => `
                 <tr>
-                    <td class="order-number">
-                        <strong>${order.order_number}</strong><br>
-                        <span class="status-badge status-${order.payment_status}" style="font-size: 0.75rem; margin-top: 0.25rem; display: inline-block;">
-                            ${order.payment_status}
+                    <td class="status-cell">
+                        <span class="status-badge status-${order.status}" style="display: block; margin-bottom: 0.25rem;">
+                            ${order.status}
                         </span>
+                        <small style="color: #666; font-size: 0.75rem;">
+                            ${order.payment_status}
+                        </small>
                     </td>
                     <td class="order-date">
                         ${new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}<br>
@@ -1621,6 +1647,40 @@
                 console.error('Error sending cancellation email:', error);
                 // Don't fail the cancellation if email fails
             }
+        }
+
+        // Sort by status
+        function sortByStatus() {
+            const statusOrder = {
+                'pending': 1,
+                'confirmed': 2,
+                'paid': 3,
+                'completed': 4,
+                'cancelled': 5,
+                'refunded': 6
+            };
+
+            if (statusSortOrder === 'none' || statusSortOrder === 'desc') {
+                // Sort ascending
+                statusSortOrder = 'asc';
+                allOrders.sort((a, b) => {
+                    const statusA = statusOrder[a.status] || 999;
+                    const statusB = statusOrder[b.status] || 999;
+                    return statusA - statusB;
+                });
+                document.getElementById('statusSortIcon').textContent = '↑';
+            } else {
+                // Sort descending
+                statusSortOrder = 'desc';
+                allOrders.sort((a, b) => {
+                    const statusA = statusOrder[a.status] || 999;
+                    const statusB = statusOrder[b.status] || 999;
+                    return statusB - statusA;
+                });
+                document.getElementById('statusSortIcon').textContent = '↓';
+            }
+
+            displayOrders(allOrders);
         }
     </script>
 </body>
