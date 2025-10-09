@@ -670,7 +670,6 @@
                         <th class="hide-tablet">Children</th>
                         <th class="hide-mobile">Items</th>
                         <th>Amount</th>
-                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -857,7 +856,10 @@
             tbody.innerHTML = orders.map(order => `
                 <tr>
                     <td class="order-number">
-                        <strong>${order.order_number}</strong>
+                        <strong>${order.order_number}</strong><br>
+                        <span class="status-badge status-${order.payment_status}" style="font-size: 0.75rem; margin-top: 0.25rem; display: inline-block;">
+                            ${order.payment_status}
+                        </span>
                     </td>
                     <td class="order-date">
                         ${new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}<br>
@@ -876,11 +878,6 @@
                         ).join('<br>')}
                     </td>
                     <td><strong>€${order.total_amount}</strong></td>
-                    <td class="status-cell">
-                        <span class="status-badge status-${order.payment_status}">
-                            ${order.payment_status}
-                        </span>
-                    </td>
                     <td class="action-buttons">
                         <div class="action-dropdown">
                             <button class="btn-dropdown" onclick="toggleActionMenu('${order.id}')">
