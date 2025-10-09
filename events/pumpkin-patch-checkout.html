@@ -469,7 +469,7 @@
                     ✅ Order confirmed! Click below to complete payment.
                 </div>
 
-                <a href="https://www.paypal.com/ncp/payment/4T2B69VFPFHH8" target="_blank" class="payment-button" id="payButton">
+                <a href="https://www.paypal.com/ncp/payment/4T2B69VFPFHH8" target="_blank" class="payment-button" id="payButton" data-analytics-track="payment" data-analytics-category="checkout" onclick="trackPaymentClick()">
                     💳 Pay with PayPal
                 </a>
             </div>
@@ -494,6 +494,9 @@
     <!-- Supabase Client -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-client.js"></script>
+
+    <!-- Analytics Tracker -->
+    <script src="../js/analytics-tracker.js"></script>
 
     <script>
         // Quantity change function for +/- buttons
@@ -939,8 +942,16 @@
 
                 console.log('✅ Order saved:', orderNumber);
 
+                // Track checkout event
+                if (window.GuidalAnalytics) {
+                    window.GuidalAnalytics.trackCheckout('Order Created');
+                }
+
                 // Send confirmation email
                 await sendOrderConfirmationEmail(order, orderItems, total);
+
+                // Send admin notification for order_created
+                await sendAdminNotification(order.id, 'order_created');
 
                 return true;
 
@@ -1053,6 +1064,46 @@
             } catch (error) {
                 console.error('❌ Error sending email:', error);
                 // Don't fail the order if email fails
+            }
+        }
+
+        // Send admin notification
+        async function sendAdminNotification(orderId, notificationType) {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+                // Get function URL
+                const functionUrl = `${window.supabaseClient.supabaseUrl}/functions/v1/send-admin-notification`;
+
+                const response = await fetch(functionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session?.access_token || window.supabaseClient.supabaseKey}`
+                    },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        notificationType: notificationType
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('✅ Admin notification sent:', notificationType);
+                } else {
+                    console.warn('⚠️ Admin notification failed:', result.error);
+                }
+            } catch (error) {
+                console.error('❌ Error sending admin notification:', error);
+                // Don't fail the order if notification fails
+            }
+        }
+
+        // Track payment button click
+        function trackPaymentClick() {
+            if (window.GuidalAnalytics) {
+                window.GuidalAnalytics.trackPayment('PayPal');
             }
         }
     </script>

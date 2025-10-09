@@ -295,9 +295,14 @@
                 <h1>🎃 Pumpkin Patch Orders</h1>
                 <p style="color: #666;">Manage and track all orders</p>
             </div>
-            <button class="btn btn-success" onclick="exportToCSV()">
-                📊 Export to CSV
-            </button>
+            <div style="display: flex; gap: 1rem;">
+                <a href="notification-settings.html" class="btn btn-primary" style="text-decoration: none; display: flex; align-items: center;">
+                    📧 Notification Settings
+                </a>
+                <button class="btn btn-success" onclick="exportToCSV()">
+                    📊 Export to CSV
+                </button>
+            </div>
         </div>
 
         <!-- Statistics -->
@@ -913,6 +918,9 @@
                 // Send confirmation email
                 await sendConfirmationEmail(orderId);
 
+                // Send admin notification for order_paid
+                await sendAdminNotification(orderId, 'order_paid');
+
                 alert('✅ Order marked as paid and confirmation email sent!');
                 await loadOrders();
 
@@ -1197,6 +1205,38 @@
                 closeSendEmailModal();
             }
         });
+
+        // Send admin notification
+        async function sendAdminNotification(orderId, notificationType) {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+                const functionUrl = `${window.supabaseClient.supabaseUrl}/functions/v1/send-admin-notification`;
+
+                const response = await fetch(functionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        notificationType: notificationType
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('✅ Admin notification sent:', notificationType, result.message);
+                } else {
+                    console.warn('⚠️ Admin notification failed:', result.error);
+                }
+            } catch (error) {
+                console.error('❌ Error sending admin notification:', error);
+                // Don't fail the operation if notification fails
+            }
+        }
     </script>
 </body>
 </html>

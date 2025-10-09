@@ -110,3 +110,9 @@ url = ""
 
 [functions.send-pumpkin-email]
 verify_jwt = true
+
+[functions.send-admin-notification]
+verify_jwt = false
+
+[functions.send-daily-summary]
+verify_jwt = false
