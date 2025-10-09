@@ -934,12 +934,9 @@
             tbody.innerHTML = orders.map(order => `
                 <tr>
                     <td class="status-cell">
-                        <span class="status-badge status-${order.status}" style="display: block; margin-bottom: 0.25rem;">
+                        <span class="status-badge status-${order.status}">
                             ${order.status}
                         </span>
-                        <small style="color: #666; font-size: 0.75rem;">
-                            ${order.payment_status}
-                        </small>
                     </td>
                     <td class="order-date">
                         ${new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}<br>
