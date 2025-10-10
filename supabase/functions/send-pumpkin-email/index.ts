@@ -87,7 +87,8 @@ serve(async (req) => {
       const template = templates[0]
 
       // Generate QR code - calculate adults and children from items
-      const scares = order.items.find((item: any) => item.item_name.includes('SCARE'))?.quantity || 0
+      // SCARES = total amount in euros (1 SCARE = €1)
+      const scares = Math.floor(order.total_amount) // Total money = SCARES available
       const adults = order.items
         .filter((item: any) => item.item_name.includes('Adult'))
         .reduce((sum: number, item: any) => sum + item.quantity, 0)
