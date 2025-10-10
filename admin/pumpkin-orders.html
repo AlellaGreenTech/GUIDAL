@@ -1756,14 +1756,24 @@
                 menu.style.visibility = 'hidden';
                 menu.style.display = 'block';
 
-                // Get button position and menu height
+                // Get button position and menu dimensions
                 const buttonRect = button.getBoundingClientRect();
                 const menuHeight = menu.offsetHeight;
+                const menuWidth = menu.offsetWidth;
+
+                // Calculate position - default to right-aligned with button
+                let rightPos = window.innerWidth - buttonRect.right;
+
+                // Check if menu would go off-screen to the left
+                if (buttonRect.right - menuWidth < 0) {
+                    // Align to left edge of button instead
+                    rightPos = window.innerWidth - buttonRect.left - menuWidth;
+                }
 
                 // Position menu below the button using fixed positioning
                 menu.style.position = 'fixed';
                 menu.style.top = (buttonRect.bottom + 5) + 'px';
-                menu.style.right = (window.innerWidth - buttonRect.right) + 'px';
+                menu.style.right = rightPos + 'px';
                 menu.style.left = 'auto';
                 menu.style.bottom = 'auto';
                 menu.style.zIndex = '999999';
