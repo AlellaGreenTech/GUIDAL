@@ -1419,7 +1419,7 @@
             alert('✅ CSV exported successfully!');
         }
 
-        async function previewEmail(orderId) {
+        async function previewEmail(orderId, customTemplateType = null) {
             try {
                 // Get order details
                 const { data: order, error: orderError } = await window.supabaseClient
@@ -1430,11 +1430,14 @@
 
                 if (orderError) throw orderError;
 
-                // Determine template type based on order items
-                const hasEntranceTicket = order.items.some(item =>
-                    item.item_name.includes('Adult') || item.item_name.includes('Child')
-                );
-                const templateType = hasEntranceTicket ? 'entrance_ticket' : 'visit_pass';
+                // Determine template type based on order items or use custom type
+                let templateType = customTemplateType;
+                if (!templateType) {
+                    const hasEntranceTicket = order.items.some(item =>
+                        item.item_name.includes('Adult') || item.item_name.includes('Child')
+                    );
+                    templateType = hasEntranceTicket ? 'entrance_ticket' : 'visit_pass';
+                }
 
                 // Get active template for this type
                 const { data: template, error: templateError } = await window.supabaseClient
@@ -1579,6 +1582,7 @@
 
             try {
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
+                const { data: { user } } = await window.supabaseClient.auth.getUser();
 
                 const functionResponse = await fetch(
                     `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`,
@@ -1592,7 +1596,8 @@
                             orderId: window.currentEmailData.orderId,
                             templateType: window.currentEmailData.templateType,
                             customSubject: editedSubject,
-                            customBody: editedBody
+                            customBody: editedBody,
+                            adminEmail: user?.email
                         })
                     }
                 );
@@ -1603,7 +1608,8 @@
                     throw new Error(result.error || 'Failed to send email');
                 }
 
-                alert(`✅ Email sent successfully to ${window.currentEmailData.to}\n\nResend ID: ${result.resendId}`);
+                const ccMessage = user?.email ? `\nCC sent to: ${user.email}` : '';
+                alert(`✅ Email sent successfully to ${window.currentEmailData.to}${ccMessage}\n\nResend ID: ${result.resendId}`);
 
                 // Close modal and reload orders to show email indicator
                 closeEmailPreview();
@@ -1644,47 +1650,9 @@
                 return;
             }
 
-            if (!confirm(`Send ${templateType.replace('_', ' ')} email to customer?`)) return;
-
-            try {
-                const order = allOrders.find(o => o.id === currentEmailOrderId);
-                if (!order) throw new Error('Order not found');
-
-                // Call Edge Function to send email via Resend
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
-                const { data: { user } } = await window.supabaseClient.auth.getUser();
-
-                const functionResponse = await fetch(
-                    `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${session.access_token}`
-                        },
-                        body: JSON.stringify({
-                            orderId: currentEmailOrderId,
-                            templateType: templateType,
-                            adminEmail: user?.email
-                        })
-                    }
-                );
-
-                const result = await functionResponse.json();
-
-                if (!result.success) {
-                    throw new Error(result.error || 'Failed to send email');
-                }
-
-                alert(`✅ Email sent successfully to ${order.email}\n\nResend ID: ${result.resendId}`);
-
-                // Close modal
-                closeSendEmailModal();
-
-            } catch (error) {
-                console.error('Error sending email:', error);
-                alert('❌ Failed to send email: ' + error.message);
-            }
+            // Close send modal and show preview with edit capability
+            closeSendEmailModal();
+            await previewEmail(currentEmailOrderId, templateType);
         }
 
         // Close modal when clicking outside
