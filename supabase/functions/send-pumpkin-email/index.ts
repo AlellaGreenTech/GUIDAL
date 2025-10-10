@@ -86,13 +86,20 @@ serve(async (req) => {
 
       const template = templates[0]
 
-      // Generate QR code
+      // Generate QR code - calculate adults and children from items
       const scares = order.items.find((item: any) => item.item_name.includes('SCARE'))?.quantity || 0
+      const adults = order.items
+        .filter((item: any) => item.item_name.includes('Adult'))
+        .reduce((sum: number, item: any) => sum + item.quantity, 0)
+      const children = order.items
+        .filter((item: any) => item.item_name.includes('Child'))
+        .reduce((sum: number, item: any) => sum + item.quantity, 0)
+
       const partyDateFormatted = order.party_date
         ? new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
         : 'Visit Pass'
 
-      const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${order.adult_count || 0}|CHILDREN:${order.child_count || 0}|EVENT:${partyDateFormatted}|SCARES:${scares}|TOTAL:€${order.total_amount}`
+      const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${adults}|CHILDREN:${children}|EVENT:${partyDateFormatted}|SCARES:${scares}|TOTAL:€${order.total_amount}`
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`
 
       // Format party date for email
@@ -129,8 +136,8 @@ serve(async (req) => {
         '{{phone}}': order.phone || 'Not provided',
         '{{party_date}}': partyDateForEmail,
         '{{visit_date}}': order.visit_date || order.party_date || 'Not specified',
-        '{{adult_count}}': order.adult_count || 0,
-        '{{child_count}}': order.child_count || 0,
+        '{{adult_count}}': adults,
+        '{{child_count}}': children,
         '{{items}}': itemsList,
         '{{items_list}}': itemsList,
         '{{total_amount}}': order.total_amount.toFixed(2),
