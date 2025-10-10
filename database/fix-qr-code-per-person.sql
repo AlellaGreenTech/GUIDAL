@@ -88,11 +88,10 @@ EXECUTE FUNCTION create_guest_credits_from_order();
 WITH consolidated AS (
     SELECT
         guest_email,
-        MIN(id) as keep_id,
+        (ARRAY_AGG(id ORDER BY created_at ASC))[1] as keep_id,
         MAX(guest_name) as guest_name,
         SUM(initial_credit) as total_initial,
         SUM(credit_balance) as total_balance,
-        MIN(qr_code) as qr_code,
         MAX(status) as status
     FROM guest_credits
     WHERE guest_email IS NOT NULL
@@ -106,10 +105,10 @@ SET
 FROM consolidated c
 WHERE gc.id = c.keep_id;
 
--- Delete duplicate records (keep only one per email)
+-- Delete duplicate records (keep only the first one per email)
 DELETE FROM guest_credits
 WHERE id NOT IN (
-    SELECT MIN(id)
+    SELECT (ARRAY_AGG(id ORDER BY created_at ASC))[1]
     FROM guest_credits
     WHERE guest_email IS NOT NULL
     GROUP BY guest_email
