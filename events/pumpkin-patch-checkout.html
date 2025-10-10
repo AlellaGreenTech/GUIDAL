@@ -932,22 +932,22 @@
             }
 
             try {
-                // For now, store order in localStorage until database is ready
-                // This allows testing the flow while database schema is being set up
-                const orderNumber = 'PP-' + new Date().toISOString().split('T')[0].replace(/-/g, '') + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
-
-                // Try to save to database, but don't fail if it's not ready yet
+                // Generate order number using database RPC function
+                let orderNumber;
                 try {
                     const { data: orderNumberData, error: orderNumberError } = await window.supabaseClient
                         .rpc('generate_pumpkin_order_number');
 
                     if (orderNumberError) {
-                        console.warn('Database not ready yet, using local order number');
-                    } else {
-                        orderNumber = orderNumberData;
+                        throw new Error('RPC error: ' + orderNumberError.message);
                     }
+                    orderNumber = orderNumberData;
+                    console.log('✅ Generated order number:', orderNumber);
                 } catch (dbError) {
-                    console.warn('Database not ready:', dbError.message);
+                    console.error('❌ Failed to generate order number from database:', dbError.message);
+                    // Fallback to local generation with more randomness to avoid duplicates
+                    orderNumber = 'PP-' + new Date().toISOString().split('T')[0].replace(/-/g, '') + '-' + String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+                    console.warn('⚠️ Using fallback order number:', orderNumber);
                 }
 
                 // Calculate total people count
@@ -1138,11 +1138,16 @@
                     window.GuidalAnalytics.trackCheckout('Order Created');
                 }
 
-                // Send confirmation email
-                await sendOrderConfirmationEmail(order, orderItems, total);
+                // Only send emails if order was successfully saved to database (not a temp order)
+                if (!order.id.toString().startsWith('temp-')) {
+                    // Send confirmation email
+                    await sendOrderConfirmationEmail(order, orderItems, total);
 
-                // Send admin notification for order_created
-                await sendAdminNotification(order.id, 'order_created');
+                    // Send admin notification for order_created
+                    await sendAdminNotification(order.id, 'order_created');
+                } else {
+                    console.warn('⚠️ Order has temp ID - emails will not be sent until order is in database');
+                }
 
                 return true;
 
