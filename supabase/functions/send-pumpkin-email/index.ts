@@ -4,7 +4,6 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const RESEND_API_KEY = 're_9dedNj8P_6CT6FGZ7wftUah1bw4uDNvqV'
 const FROM_EMAIL = 'noreply@guidal.org' // Change this to your verified domain
-const ADMIN_CC_EMAIL = 'martin@guidal.org' // Admin gets CC'd on all emails
 
 serve(async (req) => {
   // Handle CORS
@@ -38,6 +37,10 @@ serve(async (req) => {
         },
       }
     )
+
+    // Get the logged-in user (admin) email for CC
+    const { data: { user } } = await supabaseClient.auth.getUser()
+    const adminEmail = user?.email || null
 
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
@@ -145,20 +148,26 @@ serve(async (req) => {
       })
     }
 
-    // Send email via Resend (with CC to admin)
+    // Send email via Resend (with CC to admin if available)
+    const emailPayload: any = {
+      from: FROM_EMAIL,
+      to: [order.email],
+      subject: emailSubject,
+      html: emailBody
+    }
+
+    // Add CC to admin if admin email is available
+    if (adminEmail) {
+      emailPayload.cc = [adminEmail]
+    }
+
     const resendResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${RESEND_API_KEY}`
       },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [order.email],
-        cc: [ADMIN_CC_EMAIL],
-        subject: emailSubject,
-        html: emailBody
-      })
+      body: JSON.stringify(emailPayload)
     })
 
     const resendData = await resendResponse.json()
