@@ -473,24 +473,27 @@
 
         // Load guest by QR code
         async function loadGuestByQR(qrCode) {
-            qrCode = qrCode.trim().toUpperCase();
+            qrCode = qrCode.trim();
 
             if (!qrCode) {
                 showAlert('Please enter or scan a QR code', 'warning');
                 return;
             }
 
+            console.log('Searching for QR code:', qrCode);
+
             try {
                 const { data, error } = await window.supabaseClient
                     .from('guest_credits')
                     .select('*')
-                    .eq('qr_code', qrCode)
+                    .ilike('qr_code', qrCode)
                     .eq('status', 'active')
                     .single();
 
                 if (error) {
+                    console.error('QR lookup error:', error);
                     if (error.code === 'PGRST116') {
-                        showAlert('QR code not found or inactive', 'danger');
+                        showAlert('QR code not found or inactive. Scanned: ' + qrCode.substring(0, 30) + '...', 'danger');
                     } else {
                         showAlert('Error: ' + error.message, 'danger');
                     }
