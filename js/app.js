@@ -851,6 +851,11 @@ class GuidalApp {
             return `<button class="btn btn-primary" onclick="app.handleScienceStationBooking('${activity.id}', '${activity.title}')">Book Station</button>`
         }
 
+        // Special handling for SCARY PUMPKIN PATCH (regardless of activity type)
+        if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
+            return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+        }
+
         if (activityTypeSlug === 'school-visits' || activityTypeSlug === 'school_group') {
             console.log('🔍 School visit detected:', activity.title, 'Type:', activityTypeSlug, 'Completed:', isCompleted)
 
