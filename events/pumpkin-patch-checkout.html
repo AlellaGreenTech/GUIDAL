@@ -860,18 +860,34 @@
             // For returning customers, fetch their details if name fields are empty
             if (isReturningCustomer && (!firstName || !lastName)) {
                 try {
-                    const { data, error } = await window.supabaseClient
+                    // First try to get from previous orders
+                    const { data: orderData, error: orderError } = await window.supabaseClient
                         .from('pumpkin_patch_orders')
                         .select('first_name, last_name, phone')
                         .eq('email', email)
                         .order('created_at', { ascending: false })
                         .limit(1);
 
-                    if (!error && data && data.length > 0) {
-                        firstName = firstName || data[0].first_name;
-                        lastName = lastName || data[0].last_name;
-                        phone = phone || data[0].phone || '';
-                        console.log('✓ Using stored customer details');
+                    if (!orderError && orderData && orderData.length > 0) {
+                        firstName = firstName || orderData[0].first_name;
+                        lastName = lastName || orderData[0].last_name;
+                        phone = phone || orderData[0].phone || '';
+                        console.log('✓ Using stored customer details from orders:', firstName, lastName);
+                    } else {
+                        // If no orders, try to get from profiles
+                        const { data: profileData, error: profileError } = await window.supabaseClient
+                            .from('profiles')
+                            .select('full_name, email')
+                            .eq('email', email)
+                            .limit(1);
+
+                        if (!profileError && profileData && profileData.length > 0) {
+                            const fullName = profileData[0].full_name || '';
+                            const nameParts = fullName.split(' ');
+                            firstName = firstName || nameParts[0] || '';
+                            lastName = lastName || nameParts.slice(1).join(' ') || '';
+                            console.log('✓ Using stored customer details from profile:', firstName, lastName);
+                        }
                     }
                 } catch (err) {
                     console.error('Error fetching customer details:', err);
