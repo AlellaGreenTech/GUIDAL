@@ -126,6 +126,14 @@
             position: relative;
         }
 
+        tbody tr {
+            overflow: visible;
+        }
+
+        tbody td {
+            overflow: visible;
+        }
+
         th {
             background: #ff6b35;
             color: white;
@@ -314,6 +322,7 @@
         /* Data cells need white background */
         td:nth-last-child(-n+2) {
             background: white;
+            overflow: visible !important;
         }
 
         th:nth-last-child(2),
@@ -326,6 +335,7 @@
         td:last-child {
             right: 0;
             box-shadow: -2px 0 4px rgba(0,0,0,0.1);
+            overflow: visible !important;
         }
 
         .status-cell {
