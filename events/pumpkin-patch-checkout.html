@@ -752,7 +752,20 @@
 
                     if (messageEl) messageEl.style.display = 'block';
                     if (detailsEl) detailsEl.style.display = 'none';
-                    if (qrButtonEl) qrButtonEl.style.display = hasOrders ? 'block' : 'none'; // Only show QR button if they have orders
+
+                    // Show QR button for all known customers (will show message if no orders)
+                    if (qrButtonEl) {
+                        qrButtonEl.style.display = 'block';
+                        // Update button text based on whether they have orders
+                        if (hasOrders) {
+                            qrButtonEl.textContent = '📧 Resend my QR code with entrance ticket';
+                        } else {
+                            qrButtonEl.textContent = '📧 Send me my QR code (after first purchase)';
+                            qrButtonEl.disabled = true;
+                            qrButtonEl.style.opacity = '0.6';
+                            qrButtonEl.style.cursor = 'not-allowed';
+                        }
+                    }
                 } else {
                     // New customer - show contact fields
                     const detailsEl = document.getElementById('customerDetailsSection');
