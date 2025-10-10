@@ -691,16 +691,22 @@
 
         async function lookupCustomerByEmail(email) {
             try {
+                console.log('🔍 Looking up email:', email);
+
                 // Look up most recent order with this email
                 const { data, error } = await window.supabaseClient
                     .from('pumpkin_patch_orders')
-                    .select('id')
+                    .select('id, email, first_name, last_name')
                     .eq('email', email)
                     .order('created_at', { ascending: false })
                     .limit(1);
 
+                console.log('📊 Lookup result:', { data, error, hasData: data && data.length > 0 });
+
                 if (error) {
-                    console.error('Error looking up customer:', error);
+                    console.error('❌ Error looking up customer:', error);
+                    // On error, show contact fields to be safe
+                    document.getElementById('customerDetailsSection').style.display = 'block';
                     return;
                 }
 
@@ -717,7 +723,7 @@
                     if (detailsEl) detailsEl.style.display = 'none';
                     if (qrButtonEl) qrButtonEl.style.display = 'block';
 
-                    console.log('✓ Returning customer detected - hiding contact fields, showing QR button');
+                    console.log('✅ Returning customer detected:', data[0].first_name, data[0].last_name);
                 } else {
                     // New customer - show the contact details form
                     const detailsEl = document.getElementById('customerDetailsSection');
@@ -726,10 +732,12 @@
                     if (detailsEl) detailsEl.style.display = 'block';
                     if (qrButtonEl) qrButtonEl.style.display = 'none';
 
-                    console.log('✓ New customer detected - showing contact fields');
+                    console.log('✅ New customer - showing contact fields');
                 }
             } catch (err) {
-                console.error('Error in email lookup:', err);
+                console.error('❌ Exception in email lookup:', err);
+                // On error, show contact fields to be safe
+                document.getElementById('customerDetailsSection').style.display = 'block';
             }
         }
 
