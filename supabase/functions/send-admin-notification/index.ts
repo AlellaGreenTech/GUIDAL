@@ -33,16 +33,26 @@ serve(async (req) => {
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
       .from('pumpkin_patch_orders')
-      .select(`
-        *,
-        items:pumpkin_patch_order_items(*)
-      `)
+      .select('*')
       .eq('id', orderId)
       .single()
 
     if (orderError || !order) {
       throw new Error('Order not found: ' + orderError?.message)
     }
+
+    // Get order items separately
+    const { data: items, error: itemsError } = await supabaseClient
+      .from('pumpkin_patch_order_items')
+      .select('*')
+      .eq('order_id', orderId)
+
+    if (itemsError) {
+      throw new Error('Error fetching order items: ' + itemsError.message)
+    }
+
+    // Attach items to order
+    order.items = items || []
 
     // Get active admin notification settings based on notification type
     const settingColumn = getNotificationSettingColumn(notificationType)
