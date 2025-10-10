@@ -429,8 +429,14 @@
                     <small id="returningCustomerMessage" style="color: #28a745; display: none; margin-top: 0.5rem;" data-i18n="pumpkinPatch.checkout.welcomeBack">
                         ✓ Ah, welcome back! You can order without filling in your contact details again.
                     </small>
+                    <button type="button" id="sendQrCodeButton" onclick="requestQrCode()" style="display: none; margin-top: 0.75rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                        📧 Click here and we'll send you an email with your QR code
+                    </button>
+                    <small id="qrCodeSentMessage" style="color: #28a745; display: none; margin-top: 0.5rem;">
+                        ✓ QR code email sent! Check your inbox.
+                    </small>
                 </div>
-                <div id="customerDetailsSection">
+                <div id="customerDetailsSection" style="display: none;">
                     <div class="form-group">
                         <label for="firstName" data-i18n="pumpkinPatch.checkout.firstName">First Name *</label>
                         <input type="text" id="firstName" class="form-input" required data-i18n-placeholder data-i18n="pumpkinPatch.checkout.firstNamePlaceholder">
@@ -602,6 +608,83 @@
             }, 500);
         });
 
+        // Function to request QR code email
+        async function requestQrCode() {
+            const email = document.getElementById('email').value;
+            const button = document.getElementById('sendQrCodeButton');
+            const messageEl = document.getElementById('qrCodeSentMessage');
+
+            if (!email) {
+                alert('Please enter your email address first');
+                return;
+            }
+
+            // Disable button and show loading
+            button.disabled = true;
+            button.textContent = '📧 Sending...';
+
+            try {
+                // Look up the most recent paid order for this email
+                const { data: orders, error: orderError } = await window.supabaseClient
+                    .from('pumpkin_patch_orders')
+                    .select('id')
+                    .eq('email', email)
+                    .eq('payment_status', 'paid')
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (orderError) throw orderError;
+
+                if (!orders || orders.length === 0) {
+                    alert('No paid orders found for this email. Complete a purchase first!');
+                    button.disabled = false;
+                    button.textContent = '📧 Click here and we\'ll send you an email with your QR code';
+                    return;
+                }
+
+                // Get session for authentication
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (!session) {
+                    alert('Please log in to send emails');
+                    button.disabled = false;
+                    button.textContent = '📧 Click here and we\'ll send you an email with your QR code';
+                    return;
+                }
+
+                // Call the Edge Function to resend the entrance ticket email
+                const response = await fetch(
+                    `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session.access_token}`
+                        },
+                        body: JSON.stringify({
+                            orderId: orders[0].id,
+                            templateType: 'entrance_ticket'
+                        })
+                    }
+                );
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageEl.style.display = 'block';
+                    button.style.display = 'none';
+                } else {
+                    alert('Failed to send email: ' + (result.error || 'Unknown error'));
+                    button.disabled = false;
+                    button.textContent = '📧 Click here and we\'ll send you an email with your QR code';
+                }
+            } catch (error) {
+                console.error('Error sending QR code:', error);
+                alert('Error sending email. Please try again.');
+                button.disabled = false;
+                button.textContent = '📧 Click here and we\'ll send you an email with your QR code';
+            }
+        }
+
         async function lookupCustomerByEmail(email) {
             try {
                 // Look up most recent order with this email
@@ -621,17 +704,25 @@
                     // Found previous order - mark as returning customer
                     isReturningCustomer = true;
 
-                    // Show welcome back message and hide customer details fields
+                    // Show welcome back message, QR code button, and hide customer details fields
                     const messageEl = document.getElementById('returningCustomerMessage');
                     const detailsEl = document.getElementById('customerDetailsSection');
+                    const qrButtonEl = document.getElementById('sendQrCodeButton');
 
                     if (messageEl) messageEl.style.display = 'block';
                     if (detailsEl) detailsEl.style.display = 'none';
+                    if (qrButtonEl) qrButtonEl.style.display = 'block';
 
-                    console.log('✓ Returning customer detected - hiding contact fields');
-                    console.log('Message element:', messageEl ? 'found' : 'NOT FOUND');
-                    console.log('Details element:', detailsEl ? 'found' : 'NOT FOUND');
-                    console.log('Details display:', detailsEl ? detailsEl.style.display : 'N/A');
+                    console.log('✓ Returning customer detected - hiding contact fields, showing QR button');
+                } else {
+                    // New customer - show the contact details form
+                    const detailsEl = document.getElementById('customerDetailsSection');
+                    const qrButtonEl = document.getElementById('sendQrCodeButton');
+
+                    if (detailsEl) detailsEl.style.display = 'block';
+                    if (qrButtonEl) qrButtonEl.style.display = 'none';
+
+                    console.log('✓ New customer detected - showing contact fields');
                 }
             } catch (err) {
                 console.error('Error in email lookup:', err);
