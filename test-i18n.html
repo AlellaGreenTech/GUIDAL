@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i18n System Test - GUIDAL</title>
+    <link rel="stylesheet" href="css/i18n-switcher.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        .test-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .info-box {
+            background: #e3f2fd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            border-left: 3px solid #2196f3;
+        }
+        .warning-box {
+            background: #fff3cd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            border-left: 3px solid #ffc107;
+        }
+        .success-box {
+            background: #d4edda;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            border-left: 3px solid #28a745;
+        }
+        code {
+            background: #f1f3f5;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .language-info {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .lang-card {
+            flex: 1;
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        .lang-card.active {
+            border-color: #667eea;
+            background: #f8f9fe;
+        }
+        .header-with-switcher {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-with-switcher">
+            <div>
+                <h1>🌍 i18n System Test</h1>
+                <p style="color: #666; margin: 0;">GUIDAL Multi-Language Support</p>
+            </div>
+            <div id="language-switcher-container"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Pumpkin Patch Checkout Translations</h2>
+
+            <h3 data-i18n="pumpkinPatch.checkout.title">Book or Buy something SCARY!</h3>
+            <p data-i18n="pumpkinPatch.checkout.infoBox">Get your visit pass, party tickets, pumpkin and food SCARES here!</p>
+
+            <div class="info-box">
+                <strong data-i18n="pumpkinPatch.checkout.partyTickets">🎃 Party Tickets</strong><br>
+                <small data-i18n="pumpkinPatch.checkout.partyDates">October 25th or November 1st, 2025</small>
+            </div>
+
+            <div class="warning-box">
+                <strong data-i18n="pumpkinPatch.checkout.nonPartyVisits">🌾 Non-Party Day Visits</strong><br>
+                <small data-i18n="pumpkinPatch.checkout.nonPartyDates">Any day October 10-31 (except party days)</small>
+            </div>
+
+            <div class="success-box">
+                <strong data-i18n="pumpkinPatch.checkout.pumpkinsFood">🎃 Pumpkins & Food</strong><br>
+                <small data-i18n="pumpkinPatch.checkout.pumpkinsFoodDescription">Purchase SCARES for pumpkins and food</small>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 Form Labels</h2>
+            <p><strong data-i18n="pumpkinPatch.checkout.yourInformation">Your Information</strong></p>
+            <ul>
+                <li><span data-i18n="pumpkinPatch.checkout.email">Email (to receive tickets)</span></li>
+                <li><span data-i18n="pumpkinPatch.checkout.firstName">First Name</span></li>
+                <li><span data-i18n="pumpkinPatch.checkout.lastName">Last Name</span></li>
+                <li><span data-i18n="pumpkinPatch.checkout.phone">Phone (optional)</span></li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🎃 Product Items</h2>
+            <ul>
+                <li><span data-i18n="pumpkinPatch.checkout.adultTicket">Adult Entrance Ticket</span> - €15</li>
+                <li><span data-i18n="pumpkinPatch.checkout.childTicket">Child Entrance Ticket</span> - €10</li>
+                <li><span data-i18n="pumpkinPatch.checkout.visitPass">Visit Pass (Adult or Child)</span> - €5</li>
+                <li><span data-i18n="pumpkinPatch.checkout.smallPumpkin">Small Pumpkin</span> - 5 <span data-i18n="pumpkinPatch.checkout.scares">SCARES</span></li>
+                <li><span data-i18n="pumpkinPatch.checkout.mediumPumpkin">Medium Pumpkin</span> - 10 <span data-i18n="pumpkinPatch.checkout.scares">SCARES</span></li>
+                <li><span data-i18n="pumpkinPatch.checkout.largePumpkin">Large Pumpkin</span> - 15 <span data-i18n="pumpkinPatch.checkout.scares">SCARES</span></li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>💳 Payment & Actions</h2>
+            <p><strong data-i18n="pumpkinPatch.checkout.total">TOTAL</strong>: €50</p>
+            <button data-i18n="pumpkinPatch.checkout.continueToPayment">Continue to Payment</button>
+        </div>
+
+        <div class="test-section">
+            <h2>🔧 System Information</h2>
+            <div class="language-info">
+                <div class="lang-card" id="enCard">
+                    <div style="font-size: 2rem;">🇬🇧</div>
+                    <strong>English</strong>
+                </div>
+                <div class="lang-card" id="esCard">
+                    <div style="font-size: 2rem;">🇪🇸</div>
+                    <strong>Español</strong>
+                </div>
+                <div class="lang-card" id="caCard">
+                    <div style="font-size: 2rem;">🏴</div>
+                    <strong>Català</strong>
+                </div>
+            </div>
+            <p><strong>Current Language:</strong> <code id="currentLang">Loading...</code></p>
+            <p><strong>Browser Language:</strong> <code id="browserLang">Loading...</code></p>
+            <p><strong>Stored Language:</strong> <code id="storedLang">Loading...</code></p>
+        </div>
+
+        <div class="test-section">
+            <h2>✅ Test Instructions</h2>
+            <ol>
+                <li>The language switcher should appear in the top-right corner</li>
+                <li>Click the switcher to see available languages (English, Español, Català)</li>
+                <li>Select a different language to see all text update instantly</li>
+                <li>The selected language should be stored in localStorage</li>
+                <li>Refresh the page - your language preference should persist</li>
+                <li>All translated text should update without page reload</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- i18n System -->
+    <script src="js/i18n.js"></script>
+    <script src="js/i18n-switcher.js"></script>
+
+    <script>
+        // Wait for i18n to initialize
+        window.addEventListener('load', async () => {
+            // Ensure i18n is initialized
+            if (window.i18n) {
+                await window.i18n.init();
+                updateSystemInfo();
+
+                // Listen for language changes
+                window.addEventListener('languageChanged', () => {
+                    updateSystemInfo();
+                });
+            }
+        });
+
+        function updateSystemInfo() {
+            const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'unknown';
+            const browserLang = navigator.language || navigator.userLanguage;
+            const storedLang = localStorage.getItem('guidal_language') || 'none';
+
+            document.getElementById('currentLang').textContent = currentLang;
+            document.getElementById('browserLang').textContent = browserLang;
+            document.getElementById('storedLang').textContent = storedLang;
+
+            // Highlight active language card
+            ['en', 'es', 'ca'].forEach(lang => {
+                const card = document.getElementById(lang + 'Card');
+                if (card) {
+                    card.classList.toggle('active', lang === currentLang);
+                }
+            });
+        }
+
+        // Manual language switching buttons for testing
+        function switchToLanguage(lang) {
+            if (window.i18n) {
+                window.i18n.changeLanguage(lang);
+            }
+        }
+    </script>
+</body>
+</html>

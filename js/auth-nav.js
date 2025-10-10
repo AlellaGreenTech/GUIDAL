@@ -51,12 +51,14 @@
                     console.warn('Could not fetch profile:', profileError);
                 }
 
-                // Check if user is admin
+                // Check if user is admin or cashier
                 const isAdmin = profile && (profile.user_type === 'admin' || profile.user_type === 'staff');
+                const isCashier = profile && profile.user_type === 'cashier';
 
                 // Get paths based on current location
                 const profilePath = getProfilePath();
                 const adminPath = getAdminPath();
+                const cashierPath = getCashierPath();
 
                 // Create user menu HTML
                 loginListItem.innerHTML = `
@@ -142,6 +144,13 @@
                                 </svg>
                                 Admin
                             </a>` : ''}
+                            ${isCashier ? `
+                            <a href="${cashierPath}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/>
+                                </svg>
+                                Cashier Payments
+                            </a>` : ''}
                             <a href="#" class="logout-link">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
@@ -207,6 +216,25 @@
         }
         // If at root or in /events/, go to admin
         return 'admin/pumpkin-orders.html';
+    }
+
+    // Helper to get cashier path
+    function getCashierPath() {
+        const path = window.location.pathname;
+        // If in /pages/, go up to cashier
+        if (path.includes('/pages/')) {
+            return '../cashier/payments.html';
+        }
+        // If in /admin/, go up to cashier
+        if (path.includes('/admin/')) {
+            return '../cashier/payments.html';
+        }
+        // If in /cashier/, stay in cashier
+        if (path.includes('/cashier/')) {
+            return 'payments.html';
+        }
+        // If at root or in /events/, go to cashier
+        return 'cashier/payments.html';
     }
 
     // Handle all dropdown interactions with a single document click listener
