@@ -113,6 +113,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             overflow-x: auto;
             overflow-y: visible;
+            position: relative;
         }
 
         table {
@@ -120,6 +121,7 @@
             border-collapse: separate;
             border-spacing: 0;
             min-width: 1200px;
+            position: relative;
         }
 
         tbody {
@@ -128,10 +130,12 @@
 
         tbody tr {
             overflow: visible;
+            position: relative;
         }
 
         tbody td {
             overflow: visible;
+            position: relative;
         }
 
         th {
@@ -149,10 +153,15 @@
 
         tr {
             position: relative;
+            z-index: 1;
         }
 
         tr:hover {
             background: #f8f9fa;
+        }
+
+        tr:has(.action-menu.show) {
+            z-index: 10000;
         }
 
         /* Items column formatting */
@@ -235,14 +244,19 @@
             white-space: nowrap;
             min-width: 60px;
             justify-content: center;
-            overflow: visible;
-            position: relative;
+            overflow: visible !important;
+            position: static;
         }
 
         .action-dropdown {
             position: relative;
             display: flex;
             gap: 0.25rem;
+            z-index: 10;
+        }
+
+        .action-dropdown:has(.action-menu.show) {
+            z-index: 10001;
         }
 
         .btn-dropdown {
@@ -264,16 +278,12 @@
 
         .action-menu {
             display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
             background: white;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 9999;
+            z-index: 999999;
             min-width: 180px;
-            margin-top: 0.25rem;
         }
 
         .action-menu.show {
@@ -831,6 +841,8 @@
     <script src="../js/supabase-client.js"></script>
 
     <script>
+        console.log('🔵 Script loaded - version 2.0');
+
         let allOrders = [];
         let statusSortOrder = 'none'; // 'none', 'asc', 'desc'
 
@@ -1711,7 +1723,14 @@
 
         // Toggle action menu dropdown
         function toggleActionMenu(orderId) {
+            const button = event.target;
             const menu = document.getElementById(`menu-${orderId}`);
+
+            if (!menu) {
+                alert('Menu not found for order: ' + orderId);
+                return;
+            }
+
             const isCurrentlyOpen = menu.classList.contains('show');
 
             // Close all other menus first
@@ -1719,13 +1738,40 @@
 
             // Toggle this menu
             if (!isCurrentlyOpen) {
+                // Move menu to body to escape table stacking context
+                if (menu.parentElement !== document.body) {
+                    document.body.appendChild(menu);
+                }
+
+                // Show menu temporarily to get its height
+                menu.style.visibility = 'hidden';
+                menu.style.display = 'block';
+
+                // Get button position and menu height
+                const buttonRect = button.getBoundingClientRect();
+                const menuHeight = menu.offsetHeight;
+
+                // Position menu above the button using fixed positioning
+                menu.style.position = 'fixed';
+                menu.style.top = (buttonRect.top - menuHeight - 5) + 'px';
+                menu.style.right = (window.innerWidth - buttonRect.right) + 'px';
+                menu.style.left = 'auto';
+                menu.style.bottom = 'auto';
+                menu.style.zIndex = '999999';
+
+                // Make visible and add show class
+                menu.style.visibility = 'visible';
                 menu.classList.add('show');
+
+                alert('Menu positioned at top: ' + menu.style.top + ', right: ' + menu.style.right + ', z-index: ' + menu.style.zIndex);
             }
         }
 
         function closeAllMenus() {
             document.querySelectorAll('.action-menu').forEach(menu => {
                 menu.classList.remove('show');
+                menu.style.display = 'none';
+                menu.style.visibility = '';
             });
         }
 
