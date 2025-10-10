@@ -1753,17 +1753,15 @@
 
                 // Position menu above the button using fixed positioning
                 menu.style.position = 'fixed';
-                menu.style.top = (buttonRect.top - menuHeight - 5) + 'px';
+                menu.style.bottom = (window.innerHeight - buttonRect.top + 5) + 'px';
                 menu.style.right = (window.innerWidth - buttonRect.right) + 'px';
                 menu.style.left = 'auto';
-                menu.style.bottom = 'auto';
+                menu.style.top = 'auto';
                 menu.style.zIndex = '999999';
 
                 // Make visible and add show class
                 menu.style.visibility = 'visible';
                 menu.classList.add('show');
-
-                alert('Menu positioned at top: ' + menu.style.top + ', right: ' + menu.style.right + ', z-index: ' + menu.style.zIndex);
             }
         }
 
