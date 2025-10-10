@@ -1274,11 +1274,12 @@
             if (!confirm('Mark this order as paid and send confirmation email?')) return;
 
             try {
-                // Update payment status
+                // Update payment status and order status
                 const { error: updateError } = await window.supabaseClient
                     .from('pumpkin_patch_orders')
                     .update({
                         payment_status: 'paid',
+                        status: 'paid',
                         paid_at: new Date().toISOString()
                     })
                     .eq('id', orderId);
