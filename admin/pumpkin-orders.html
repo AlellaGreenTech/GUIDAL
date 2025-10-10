@@ -1436,6 +1436,13 @@
 
         async function previewEmail(orderId, customTemplateType = null) {
             try {
+                // Validate order ID
+                if (!orderId || orderId === 'null' || orderId === 'undefined') {
+                    throw new Error('Invalid order ID provided');
+                }
+
+                console.log('Preview email for order ID:', orderId, 'Template:', customTemplateType);
+
                 // Get order details
                 const { data: order, error: orderError } = await window.supabaseClient
                     .from('pumpkin_patch_orders')
@@ -1660,10 +1667,12 @@
         async function sendEmailFromModal() {
             const templateType = document.getElementById('sendEmailTemplateSelect').value;
 
-            if (!currentEmailOrderId) {
-                alert('Error: No order selected');
+            if (!currentEmailOrderId || currentEmailOrderId === 'null' || currentEmailOrderId === 'undefined') {
+                alert('Error: No order selected. Please close this window and try again.');
                 return;
             }
+
+            console.log('Sending email for order ID:', currentEmailOrderId, 'Template:', templateType);
 
             // Close send modal and show preview with edit capability
             closeSendEmailModal();
