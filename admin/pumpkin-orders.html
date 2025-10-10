@@ -1652,6 +1652,7 @@
 
                 // Call Edge Function to send email via Resend
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
+                const { data: { user } } = await window.supabaseClient.auth.getUser();
 
                 const functionResponse = await fetch(
                     `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`,
@@ -1663,7 +1664,8 @@
                         },
                         body: JSON.stringify({
                             orderId: currentEmailOrderId,
-                            templateType: templateType
+                            templateType: templateType,
+                            adminEmail: user?.email
                         })
                     }
                 );

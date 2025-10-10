@@ -18,11 +18,13 @@ serve(async (req) => {
   }
 
   try {
-    const { orderId, templateType, customSubject, customBody } = await req.json()
+    const { orderId, templateType, customSubject, customBody, adminEmail } = await req.json()
 
     if (!orderId || !templateType) {
       throw new Error('Missing orderId or templateType')
     }
+
+    console.log('Received adminEmail from request:', adminEmail)
 
     // If custom subject and body are provided, use them directly
     const useCustomEmail = customSubject && customBody
@@ -38,11 +40,7 @@ serve(async (req) => {
       }
     )
 
-    // Get the logged-in user (admin) email for CC
-    const { data: { user } } = await supabaseClient.auth.getUser()
-    const adminEmail = user?.email || null
-    console.log('Admin user:', user?.email)
-    console.log('Will CC to:', adminEmail)
+    console.log('Will CC to admin:', adminEmail || 'None')
 
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
