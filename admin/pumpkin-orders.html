@@ -953,8 +953,8 @@
                     <td class="hide-mobile">${order.party_date ? `
                         <strong style="color: #ff6b35;">🎃 ${new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</strong>
                     ` : '<span style="color: #999;">-</span>'}</td>
-                    <td class="hide-tablet"><strong>${order.adult_count || 0}</strong></td>
-                    <td class="hide-tablet"><strong>${order.child_count || 0}</strong></td>
+                    <td class="hide-tablet"><strong>${order.items.filter(item => item.item_name.includes('Adult')).reduce((sum, item) => sum + item.quantity, 0)}</strong></td>
+                    <td class="hide-tablet"><strong>${order.items.filter(item => item.item_name.includes('Child')).reduce((sum, item) => sum + item.quantity, 0)}</strong></td>
                     <td class="order-items hide-mobile">
                         ${order.items.map(item => {
                             // Shorten common item names - order matters!
