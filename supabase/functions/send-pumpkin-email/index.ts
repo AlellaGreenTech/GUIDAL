@@ -41,6 +41,8 @@ serve(async (req) => {
     // Get the logged-in user (admin) email for CC
     const { data: { user } } = await supabaseClient.auth.getUser()
     const adminEmail = user?.email || null
+    console.log('Admin user:', user?.email)
+    console.log('Will CC to:', adminEmail)
 
     // Get order details
     const { data: order, error: orderError } = await supabaseClient
@@ -159,7 +161,12 @@ serve(async (req) => {
     // Add CC to admin if admin email is available
     if (adminEmail) {
       emailPayload.cc = [adminEmail]
+      console.log('Adding CC to:', adminEmail)
+    } else {
+      console.log('No admin email found, skipping CC')
     }
+
+    console.log('Email payload:', JSON.stringify(emailPayload, null, 2))
 
     const resendResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
