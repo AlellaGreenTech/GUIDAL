@@ -1751,12 +1751,12 @@
                 const buttonRect = button.getBoundingClientRect();
                 const menuHeight = menu.offsetHeight;
 
-                // Position menu above the button using fixed positioning
+                // Position menu below the button using fixed positioning
                 menu.style.position = 'fixed';
-                menu.style.bottom = (window.innerHeight - buttonRect.top + 5) + 'px';
+                menu.style.top = (buttonRect.bottom + 5) + 'px';
                 menu.style.right = (window.innerWidth - buttonRect.right) + 'px';
                 menu.style.left = 'auto';
-                menu.style.top = 'auto';
+                menu.style.bottom = 'auto';
                 menu.style.zIndex = '999999';
 
                 // Make visible and add show class
