@@ -753,17 +753,17 @@
                     if (messageEl) messageEl.style.display = 'block';
                     if (detailsEl) detailsEl.style.display = 'none';
 
-                    // Show QR button for all known customers (will show message if no orders)
+                    // Only show QR button if they have completed orders (not for first-time buyers)
                     if (qrButtonEl) {
-                        qrButtonEl.style.display = 'block';
-                        // Update button text based on whether they have orders
                         if (hasOrders) {
+                            qrButtonEl.style.display = 'block';
                             qrButtonEl.textContent = '📧 Resend my QR code with entrance ticket';
+                            qrButtonEl.disabled = false;
+                            qrButtonEl.style.opacity = '1';
+                            qrButtonEl.style.cursor = 'pointer';
                         } else {
-                            qrButtonEl.textContent = '📧 Send me my QR code (after first purchase)';
-                            qrButtonEl.disabled = true;
-                            qrButtonEl.style.opacity = '0.6';
-                            qrButtonEl.style.cursor = 'not-allowed';
+                            // Registered user with no orders - hide button (they'll get QR on first purchase)
+                            qrButtonEl.style.display = 'none';
                         }
                     }
                 } else {
