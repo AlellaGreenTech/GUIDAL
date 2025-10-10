@@ -410,6 +410,16 @@
                 </div>
             </div>
 
+            <!-- GET SCARES Button - Top-up Credits -->
+            <div style="text-align: center; margin: 2rem 0;">
+                <button type="button" class="payment-button" onclick="openScaresTopUp()" style="background: linear-gradient(135deg, #ff6b35, #ff8c42); font-size: 1.2rem; padding: 1rem 3rem; box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3); max-width: 400px;">
+                    💰 GET SCARES
+                </button>
+                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;" data-i18n="pumpkinPatch.checkout.getScaresDescription">
+                    Top up your credit balance for food, drinks & activities
+                </p>
+            </div>
+
             <!-- Customer Information Form -->
             <div class="customer-info-section">
                 <h3 style="margin-bottom: 1rem; color: #333;" data-i18n="pumpkinPatch.checkout.yourInformation">📧 Your Information</h3>
@@ -507,6 +517,36 @@
     <script src="../js/i18n-switcher.js"></script>
 
     <script>
+        // Open SCARES top-up - scroll to SCARES accordion and expand it
+        function openScaresTopUp() {
+            // Open the pumpkins accordion if not already open
+            const accordion = document.getElementById('pumpkinsAccordion');
+            const content = document.getElementById('pumpkinsContent');
+            const header = accordion.querySelector('.accordion-header');
+            const icon = header.querySelector('.accordion-icon');
+
+            if (!content.classList.contains('open')) {
+                content.classList.add('open');
+                header.classList.add('active');
+                icon.classList.add('open');
+            }
+
+            // Scroll to the accordion
+            accordion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Focus on the SCARES input after a short delay
+            setTimeout(() => {
+                const scaresInput = document.getElementById('scares');
+                scaresInput.focus();
+
+                // Optionally add 10 SCARES as a starting point
+                if (parseInt(scaresInput.value) === 0) {
+                    scaresInput.value = 10;
+                    calculateTotal();
+                }
+            }, 500);
+        }
+
         // Quantity change function for +/- buttons
         function changeQuantity(inputId, delta) {
             const input = document.getElementById(inputId);
