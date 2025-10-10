@@ -117,8 +117,13 @@
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             min-width: 1200px;
+        }
+
+        tbody {
+            position: relative;
         }
 
         th {
@@ -132,6 +137,10 @@
         td {
             padding: 1rem;
             border-bottom: 1px solid #eee;
+        }
+
+        tr {
+            position: relative;
         }
 
         tr:hover {
@@ -218,6 +227,8 @@
             white-space: nowrap;
             min-width: 60px;
             justify-content: center;
+            overflow: visible;
+            position: relative;
         }
 
         .action-dropdown {
