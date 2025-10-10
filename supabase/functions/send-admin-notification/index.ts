@@ -187,10 +187,10 @@ function getNotificationSettingColumn(notificationType: string): string {
 
 function generateNotificationEmail(order: any, notificationType: string): { subject: string, htmlBody: string } {
   const orderUrl = `https://guidal.org/admin/pumpkin-orders.html`
-  const orderTotal = order.total_amount?.toFixed(2) || '0.00'
+  const orderTotal = order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00'
 
   const itemsList = order.items.map((item: any) =>
-    `<li>${item.quantity}x ${item.item_name} - €${item.price_per_item.toFixed(2)}</li>`
+    `<li>${item.quantity}x ${item.item_name} - €${item.price_per_item ? Number(item.price_per_item).toFixed(2) : '0.00'}</li>`
   ).join('')
 
   const baseStyles = `
