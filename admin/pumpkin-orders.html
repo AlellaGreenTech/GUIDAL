@@ -140,14 +140,14 @@
 
         /* Items column formatting */
         .order-items {
-            max-width: 180px;
-            font-size: 0.75rem;
-            line-height: 1.4;
-            white-space: normal;
+            max-width: 120px;
+            min-width: 100px;
+            font-size: 0.7rem;
+            line-height: 1.3;
+            overflow: hidden;
         }
 
-        .order-items .item-line {
-            display: block;
+        .order-items div {
             margin-bottom: 0.15rem;
         }
 
@@ -959,17 +959,17 @@
                         ${order.items.map(item => {
                             // Shorten common item names - order matters!
                             let shortName = item.item_name
-                                .replace('Adult Entrance Party Ticket', 'Adult Party')
-                                .replace('Child Entrance Party Ticket', 'Child Party')
-                                .replace('Visit Pass (Adult or Child)', 'Visit Pass')
-                                .replace('Small Pumpkin', 'Sm Pumpkin')
-                                .replace('Medium Pumpkin', 'Med Pumpkin')
-                                .replace('Large Pumpkin', 'Lg Pumpkin')
                                 .replace('Individual SCARES (for food, activities, etc.)', 'SCARES')
+                                .replace('Adult Entrance Party Ticket', 'Adult')
+                                .replace('Child Entrance Party Ticket', 'Child')
+                                .replace('Visit Pass (Adult or Child)', 'Pass')
+                                .replace('Small Pumpkin', 'Sm Pmpkn')
+                                .replace('Medium Pumpkin', 'Md Pmpkn')
+                                .replace('Large Pumpkin', 'Lg Pmpkn')
                                 .replace(' (5 SCARES)', '')
                                 .replace(' (10 SCARES)', '')
                                 .replace(' (15 SCARES)', '');
-                            return `<span class="item-line">${item.quantity}× ${shortName}</span>`;
+                            return `<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.quantity}× ${shortName}</div>`;
                         }).join('')}
                     </td>
                     <td><strong>€${order.total_amount}</strong></td>
