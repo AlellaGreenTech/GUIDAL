@@ -483,20 +483,43 @@
             console.log('Searching for QR code:', qrCode);
 
             try {
-                const { data, error } = await window.supabaseClient
+                let data, error;
+
+                // First try exact match (for full QR codes)
+                const result1 = await window.supabaseClient
                     .from('guest_credits')
                     .select('*')
                     .ilike('qr_code', qrCode)
                     .eq('status', 'active')
-                    .single();
+                    .maybeSingle();
 
-                if (error) {
-                    console.error('QR lookup error:', error);
-                    if (error.code === 'PGRST116') {
-                        showAlert('QR code not found or inactive. Scanned: ' + qrCode.substring(0, 30) + '...', 'danger');
+                if (result1.data) {
+                    data = result1.data;
+                } else if (result1.error && result1.error.code !== 'PGRST116') {
+                    throw result1.error;
+                } else {
+                    // If not found, try searching by order number (for partial scans)
+                    console.log('Exact match not found, trying order number search...');
+                    const result2 = await window.supabaseClient
+                        .from('guest_credits')
+                        .select('*')
+                        .eq('order_number', qrCode)
+                        .eq('status', 'active')
+                        .maybeSingle();
+
+                    if (result2.data) {
+                        data = result2.data;
+                    } else if (result2.error && result2.error.code !== 'PGRST116') {
+                        throw result2.error;
                     } else {
-                        showAlert('Error: ' + error.message, 'danger');
+                        console.error('QR not found in database');
+                        showAlert('QR code not found or inactive. Scanned: ' + qrCode.substring(0, 50), 'danger');
+                        return;
                     }
+                }
+
+                if (!data) {
+                    showAlert('QR code not found or inactive', 'danger');
                     return;
                 }
 
