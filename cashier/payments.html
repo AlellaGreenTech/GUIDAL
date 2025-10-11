@@ -323,19 +323,37 @@
                 <h3 style="margin-bottom: 1rem; color: #333;">Process Payment</h3>
 
                 <div class="form-group">
-                    <label>Quick Items</label>
+                    <label>Quick Items - Tap to Add to Cart</label>
                     <div class="quick-amounts">
-                        <button class="quick-btn" onclick="setItem('Adult Entrance', 15)">🎟️ Adult<br>€15</button>
-                        <button class="quick-btn" onclick="setItem('Child Entrance', 10)">🎟️ Child<br>€10</button>
-                        <button class="quick-btn" onclick="setItem('Pumpkin Small', 5)">🎃 Small<br>€5</button>
-                        <button class="quick-btn" onclick="setItem('Pumpkin Large', 7)">🎃 Large<br>€7</button>
-                        <button class="quick-btn" onclick="setItem('Pizza Slice', 2.5)">🍕 Slice<br>€2.50</button>
-                        <button class="quick-btn" onclick="setItem('Pizza', 8)">🍕 Pizza<br>€8</button>
-                        <button class="quick-btn" onclick="setItem('Hot Dog', 4)">🌭 Hot Dog<br>€4</button>
-                        <button class="quick-btn" onclick="setItem('Hamburger', 5)">🍔 Burger<br>€5</button>
-                        <button class="quick-btn" onclick="setItem('Paella', 7)">🥘 Paella<br>€7</button>
-                        <button class="quick-btn" onclick="setItem('Drinks', 2.5)">🥤 Drinks<br>€2.50</button>
+                        <button class="quick-btn" onclick="quickPay('Adult Entrance', 15)">🎟️ Adult<br>€15</button>
+                        <button class="quick-btn" onclick="quickPay('Child Entrance', 10)">🎟️ Child<br>€10</button>
+                        <button class="quick-btn" onclick="quickPay('Pumpkin Small', 5)">🎃 Small<br>€5</button>
+                        <button class="quick-btn" onclick="quickPay('Pumpkin Large', 7)">🎃 Large<br>€7</button>
+                        <button class="quick-btn" onclick="quickPay('Pizza Slice', 2.5)">🍕 Slice<br>€2.50</button>
+                        <button class="quick-btn" onclick="quickPay('Pizza', 8)">🍕 Pizza<br>€8</button>
+                        <button class="quick-btn" onclick="quickPay('Hot Dog', 4)">🌭 Hot Dog<br>€4</button>
+                        <button class="quick-btn" onclick="quickPay('Hamburger', 5)">🍔 Burger<br>€5</button>
+                        <button class="quick-btn" onclick="quickPay('Paella', 7)">🥘 Paella<br>€7</button>
+                        <button class="quick-btn" onclick="quickPay('Drinks', 2.5)">🥤 Drinks<br>€2.50</button>
                     </div>
+                </div>
+
+                <!-- Cart Display -->
+                <div id="cartSection" style="display: none; margin-bottom: 1.5rem;">
+                    <h4 style="color: #333; margin-bottom: 0.5rem;">Cart</h4>
+                    <div id="cartItems" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <!-- Cart items will be displayed here -->
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 1rem;">
+                        <span>Total:</span>
+                        <span id="cartTotal">€0.00</span>
+                    </div>
+                    <button class="btn btn-success" onclick="processCartPayment()" style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                        ✅ Process Cart Payment
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearCart()" style="width: 100%; margin-top: 0.5rem;">
+                        🗑️ Clear Cart
+                    </button>
                 </div>
 
                 <div class="form-group">
@@ -416,6 +434,7 @@
         let html5QrCode;
         let currentGuestCredit = null;
         let isScanning = false;
+        let cart = []; // Shopping cart for quick payments
 
         // Load user info
         async function loadUserInfo() {
@@ -598,6 +617,140 @@
         function setItem(description, amount) {
             document.getElementById('paymentAmount').value = amount;
             document.getElementById('paymentDescription').value = description;
+        }
+
+        // Quick pay - add to cart
+        function quickPay(description, amount) {
+            cart.push({ description, amount, quantity: 1 });
+            updateCartDisplay();
+            showAlert(`Added ${description} to cart`, 'success');
+        }
+
+        // Update cart display
+        function updateCartDisplay() {
+            const cartSection = document.getElementById('cartSection');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+
+            if (cart.length === 0) {
+                cartSection.style.display = 'none';
+                return;
+            }
+
+            cartSection.style.display = 'block';
+
+            // Group items by description
+            const grouped = cart.reduce((acc, item) => {
+                const existing = acc.find(i => i.description === item.description);
+                if (existing) {
+                    existing.quantity++;
+                    existing.total = existing.quantity * existing.amount;
+                } else {
+                    acc.push({
+                        description: item.description,
+                        amount: item.amount,
+                        quantity: 1,
+                        total: item.amount
+                    });
+                }
+                return acc;
+            }, []);
+
+            // Display cart items
+            cartItems.innerHTML = grouped.map((item, index) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #dee2e6;">
+                    <div>
+                        <strong>${item.description}</strong><br>
+                        <small style="color: #666;">€${item.amount.toFixed(2)} × ${item.quantity}</small>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <strong>€${item.total.toFixed(2)}</strong>
+                        <button onclick="removeFromCart('${item.description}')" style="background: #dc3545; color: white; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; cursor: pointer;">✕</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Calculate total
+            const total = cart.reduce((sum, item) => sum + item.amount, 0);
+            cartTotal.textContent = '€' + total.toFixed(2);
+        }
+
+        // Remove from cart
+        function removeFromCart(description) {
+            const index = cart.findIndex(item => item.description === description);
+            if (index !== -1) {
+                cart.splice(index, 1);
+                updateCartDisplay();
+                showAlert(`Removed ${description} from cart`, 'success');
+            }
+        }
+
+        // Clear cart
+        function clearCart() {
+            cart = [];
+            updateCartDisplay();
+            showAlert('Cart cleared', 'success');
+        }
+
+        // Process cart payment
+        async function processCartPayment() {
+            if (cart.length === 0) {
+                showAlert('Cart is empty', 'warning');
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + item.amount, 0);
+
+            if (total > currentGuestCredit.credit_balance) {
+                showAlert(`Insufficient credit! Available: €${currentGuestCredit.credit_balance.toFixed(2)}`, 'danger');
+                return;
+            }
+
+            // Group items for description
+            const grouped = cart.reduce((acc, item) => {
+                const existing = acc.find(i => i.description === item.description);
+                if (existing) {
+                    existing.quantity++;
+                } else {
+                    acc.push({ description: item.description, quantity: 1 });
+                }
+                return acc;
+            }, []);
+
+            const description = grouped.map(item =>
+                item.quantity > 1 ? `${item.quantity}x ${item.description}` : item.description
+            ).join(', ');
+
+            try {
+                const { data, error } = await window.supabaseClient.rpc('deduct_credit', {
+                    p_qr_code: currentGuestCredit.qr_code,
+                    p_amount: total,
+                    p_description: description,
+                    p_location: null,
+                    p_metadata: { items: cart }
+                });
+
+                if (error) throw error;
+
+                if (data.success) {
+                    showAlert(`Payment processed! New balance: €${data.new_balance.toFixed(2)}`, 'success');
+
+                    // Update current balance
+                    currentGuestCredit.credit_balance = data.new_balance;
+                    displayGuestCredit();
+
+                    // Clear cart
+                    clearCart();
+
+                    // Reload transaction history
+                    loadTransactionHistory();
+                } else {
+                    showAlert('Payment failed: ' + (data.error || 'Unknown error'), 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error processing payment: ' + error.message, 'danger');
+            }
         }
 
         // Process payment
