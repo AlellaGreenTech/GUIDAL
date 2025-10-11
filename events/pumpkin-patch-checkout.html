@@ -290,6 +290,15 @@
     </style>
 </head>
 <body>
+    <!-- Debug Console for Mobile -->
+    <div id="mobileDebugConsole" style="position: fixed; bottom: 0; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.9); color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; z-index: 999999; display: none; border-top: 2px solid #0f0;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <strong>🐛 Debug Console</strong>
+            <button onclick="document.getElementById('mobileDebugConsole').style.display='none'" style="background: #f00; color: white; border: none; padding: 2px 8px; cursor: pointer;">✕</button>
+        </div>
+        <div id="mobileDebugOutput"></div>
+    </div>
+
     <header>
         <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
             <div>
@@ -841,6 +850,43 @@
                 document.getElementById('paypalSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
+
+        // Mobile Debug Console Setup
+        (function() {
+            const mobileDebugConsole = document.getElementById('mobileDebugConsole');
+            const mobileDebugOutput = document.getElementById('mobileDebugOutput');
+
+            window.addDebugLog = function(type, ...args) {
+                const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ');
+                const time = new Date().toLocaleTimeString();
+                const color = type === 'error' ? '#f00' : type === 'warn' ? '#ff0' : '#0f0';
+                mobileDebugOutput.innerHTML += `<div style="color: ${color}; margin: 2px 0; word-break: break-all;">[${time}] ${type.toUpperCase()}: ${msg}</div>`;
+                mobileDebugConsole.style.display = 'block';
+                mobileDebugOutput.scrollTop = mobileDebugOutput.scrollHeight;
+            };
+
+            // Override console methods
+            const originalLog = console.log;
+            const originalError = console.error;
+            const originalWarn = console.warn;
+
+            console.log = function(...args) {
+                originalLog.apply(console, args);
+                addDebugLog('log', ...args);
+            };
+
+            console.error = function(...args) {
+                originalError.apply(console, args);
+                addDebugLog('error', ...args);
+            };
+
+            console.warn = function(...args) {
+                originalWarn.apply(console, args);
+                addDebugLog('warn', ...args);
+            };
+
+            console.log('🔵 Mobile Debug Console Active');
+        })();
 
         // Validate and save order to database before payment
         async function saveOrderToDatabase() {
