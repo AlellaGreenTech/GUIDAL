@@ -521,53 +521,14 @@
                         <!-- Drinks -->
                         <div class="item-row">
                             <div class="item-label">
-                                <span>🍷 Glass of Wine</span><br>
-                                <small style="color: #999;">3 SCARES</small>
+                                <span>🥤 Drinks</span><br>
+                                <small style="color: #999;">2.5 SCARES</small>
                             </div>
-                            <div class="item-price">€3 x</div>
+                            <div class="item-price">€2.50 x</div>
                             <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('wine', -1)">−</button>
-                                <input type="number" id="wine" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('wine', 1)">+</button>
-                            </div>
-                        </div>
-
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span>🍺 Beer</span><br>
-                                <small style="color: #999;">3 SCARES</small>
-                            </div>
-                            <div class="item-price">€3 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('beer', -1)">−</button>
-                                <input type="number" id="beer" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('beer', 1)">+</button>
-                            </div>
-                        </div>
-
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span>🥤 Soft Drink</span><br>
-                                <small style="color: #999;">2 SCARES</small>
-                            </div>
-                            <div class="item-price">€2 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('softDrink', -1)">−</button>
-                                <input type="number" id="softDrink" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('softDrink', 1)">+</button>
-                            </div>
-                        </div>
-
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span>🧃 Juice</span><br>
-                                <small style="color: #999;">4 SCARES</small>
-                            </div>
-                            <div class="item-price">€4 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('juice', -1)">−</button>
-                                <input type="number" id="juice" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('juice', 1)">+</button>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('drinks', -1)">−</button>
+                                <input type="number" id="drinks" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('drinks', 1)">+</button>
                             </div>
                         </div>
 
@@ -732,10 +693,7 @@
                 hotDog: parseInt(document.getElementById('hotDog').value) || 0,
                 burger: parseInt(document.getElementById('burger').value) || 0,
                 paella: parseInt(document.getElementById('paella').value) || 0,
-                wine: parseInt(document.getElementById('wine').value) || 0,
-                beer: parseInt(document.getElementById('beer').value) || 0,
-                softDrink: parseInt(document.getElementById('softDrink').value) || 0,
-                juice: parseInt(document.getElementById('juice').value) || 0,
+                drinks: parseInt(document.getElementById('drinks').value) || 0,
                 chips: parseInt(document.getElementById('chips').value) || 0
             };
 
@@ -745,8 +703,7 @@
                          (cartItems.scares * 1) +
                          (cartItems.pizzaSlice * 3) + (cartItems.wholePizza * 8) + (cartItems.hotDog * 4) +
                          (cartItems.burger * 5) + (cartItems.paella * 5) +
-                         (cartItems.wine * 3) + (cartItems.beer * 3) + (cartItems.softDrink * 2) +
-                         (cartItems.juice * 4) + (cartItems.chips * 5);
+                         (cartItems.drinks * 2.5) + (cartItems.chips * 5);
 
             try {
                 if (abandonedBookingId) {
@@ -833,7 +790,7 @@
             ['firstName', 'lastName', 'phone', 'visit', 'adults', 'children',
              'smallPumpkin', 'mediumPumpkin', 'scares',
              'pizzaSlice', 'wholePizza', 'hotDog', 'burger', 'paella',
-             'wine', 'beer', 'softDrink', 'juice', 'chips'].forEach(id => {
+             'drinks', 'chips'].forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
                     element.addEventListener('input', trackActivity);
@@ -1084,10 +1041,7 @@
             const hotDog = parseInt(document.getElementById('hotDog').value) || 0;
             const burger = parseInt(document.getElementById('burger').value) || 0;
             const paella = parseInt(document.getElementById('paella').value) || 0;
-            const wine = parseInt(document.getElementById('wine').value) || 0;
-            const beer = parseInt(document.getElementById('beer').value) || 0;
-            const softDrink = parseInt(document.getElementById('softDrink').value) || 0;
-            const juice = parseInt(document.getElementById('juice').value) || 0;
+            const drinks = parseInt(document.getElementById('drinks').value) || 0;
             const chips = parseInt(document.getElementById('chips').value) || 0;
 
             // Calculate total
@@ -1095,15 +1049,15 @@
                          (smallPumpkin * 5) + (mediumPumpkin * 7) +
                          (scares * 1) +
                          (pizzaSlice * 3) + (wholePizza * 8) + (hotDog * 4) + (burger * 5) + (paella * 5) +
-                         (wine * 3) + (beer * 3) + (softDrink * 2) + (juice * 4) + (chips * 5);
+                         (drinks * 2.5) + (chips * 5);
 
-            document.getElementById('total').textContent = '€' + total;
+            document.getElementById('total').textContent = '€' + total.toFixed(2);
 
             // Update accordion badges
             const partyCount = adults + children;
             const visitCount = visit;
             const pumpkinsCount = smallPumpkin + mediumPumpkin + scares;
-            const foodCount = pizzaSlice + wholePizza + hotDog + burger + paella + wine + beer + softDrink + juice + chips;
+            const foodCount = pizzaSlice + wholePizza + hotDog + burger + paella + drinks + chips;
 
             document.getElementById('partyBadge').textContent = partyCount;
             document.getElementById('visitBadge').textContent = visitCount;
@@ -1284,10 +1238,7 @@
             const hotDog = parseInt(document.getElementById('hotDog').value) || 0;
             const burger = parseInt(document.getElementById('burger').value) || 0;
             const paella = parseInt(document.getElementById('paella').value) || 0;
-            const wine = parseInt(document.getElementById('wine').value) || 0;
-            const beer = parseInt(document.getElementById('beer').value) || 0;
-            const softDrink = parseInt(document.getElementById('softDrink').value) || 0;
-            const juice = parseInt(document.getElementById('juice').value) || 0;
+            const drinks = parseInt(document.getElementById('drinks').value) || 0;
             const chips = parseInt(document.getElementById('chips').value) || 0;
 
             // Calculate total
@@ -1295,7 +1246,7 @@
                          (smallPumpkin * 5) + (mediumPumpkin * 7) +
                          (scares * 1) +
                          (pizzaSlice * 3) + (wholePizza * 8) + (hotDog * 4) + (burger * 5) + (paella * 5) +
-                         (wine * 3) + (beer * 3) + (softDrink * 2) + (juice * 4) + (chips * 5);
+                         (drinks * 2.5) + (chips * 5);
 
             // Validate that at least one item is selected
             if (total === 0) {
@@ -1547,53 +1498,14 @@
                     });
                 }
 
-                if (wine > 0) {
+                if (drinks > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🍷 Glass of Wine (3 SCARES)',
+                        item_name: '🥤 Drinks (2.5 SCARES)',
                         item_type: 'drink',
-                        quantity: wine,
-                        unit_price: 3,
-                        total_price: wine * 3,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                if (beer > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: '🍺 Beer (3 SCARES)',
-                        item_type: 'drink',
-                        quantity: beer,
-                        unit_price: 3,
-                        total_price: beer * 3,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                if (softDrink > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: '🥤 Soft Drink (2 SCARES)',
-                        item_type: 'drink',
-                        quantity: softDrink,
-                        unit_price: 2,
-                        total_price: softDrink * 2,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                if (juice > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: '🧃 Juice (4 SCARES)',
-                        item_type: 'drink',
-                        quantity: juice,
-                        unit_price: 4,
-                        total_price: juice * 4,
+                        quantity: drinks,
+                        unit_price: 2.5,
+                        total_price: drinks * 2.5,
                         adult_count: 0,
                         child_count: 0
                     });
