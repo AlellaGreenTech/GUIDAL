@@ -566,6 +566,129 @@
         // DEBUG FLAG - Set to true to enable detailed logging
         const DEBUG_MODE = false;
 
+        // Abandoned booking tracking
+        let abandonedBookingId = sessionStorage.getItem('abandoned_booking_id');
+        let lastActivityTimeout;
+
+        // Track abandoned booking when email is entered
+        async function trackAbandonedBooking() {
+            const email = document.getElementById('email').value.trim();
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                return; // Invalid email, don't track
+            }
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+
+            // Get cart items
+            const cartItems = {
+                visit: parseInt(document.getElementById('visit').value) || 0,
+                adults: parseInt(document.getElementById('adults').value) || 0,
+                children: parseInt(document.getElementById('children').value) || 0,
+                smallPumpkin: parseInt(document.getElementById('smallPumpkin').value) || 0,
+                mediumPumpkin: parseInt(document.getElementById('mediumPumpkin').value) || 0,
+                largePumpkin: parseInt(document.getElementById('largePumpkin').value) || 0,
+                scares: parseInt(document.getElementById('scares').value) || 0
+            };
+
+            // Calculate total
+            const total = (cartItems.visit * 5) + (cartItems.adults * 15) + (cartItems.children * 10) +
+                         (cartItems.smallPumpkin * 5) + (cartItems.mediumPumpkin * 10) +
+                         (cartItems.largePumpkin * 15) + (cartItems.scares * 1);
+
+            try {
+                if (abandonedBookingId) {
+                    // Update existing abandoned booking
+                    await window.supabaseClient
+                        .from('abandoned_bookings')
+                        .update({
+                            first_name: firstName || null,
+                            last_name: lastName || null,
+                            phone: phone || null,
+                            cart_items: cartItems,
+                            cart_total: total,
+                            last_activity_at: new Date().toISOString(),
+                            user_agent: navigator.userAgent
+                        })
+                        .eq('id', abandonedBookingId);
+
+                    if (DEBUG_MODE) console.log('Updated abandoned booking:', abandonedBookingId);
+                } else {
+                    // Create new abandoned booking record
+                    const { data, error } = await window.supabaseClient
+                        .from('abandoned_bookings')
+                        .insert({
+                            email: email,
+                            first_name: firstName || null,
+                            last_name: lastName || null,
+                            phone: phone || null,
+                            cart_items: cartItems,
+                            cart_total: total,
+                            status: 'abandoned',
+                            user_agent: navigator.userAgent,
+                            session_id: sessionStorage.getItem('session_id') || crypto.randomUUID()
+                        })
+                        .select()
+                        .single();
+
+                    if (!error && data) {
+                        abandonedBookingId = data.id;
+                        sessionStorage.setItem('abandoned_booking_id', abandonedBookingId);
+                        if (DEBUG_MODE) console.log('Created abandoned booking:', abandonedBookingId);
+                    }
+                }
+            } catch (error) {
+                if (DEBUG_MODE) console.error('Error tracking abandoned booking:', error);
+            }
+        }
+
+        // Track activity - debounced
+        function trackActivity() {
+            clearTimeout(lastActivityTimeout);
+            lastActivityTimeout = setTimeout(() => {
+                trackAbandonedBooking();
+            }, 2000); // Update 2 seconds after last activity
+        }
+
+        // Mark abandoned booking as completed when order is saved
+        async function markBookingCompleted() {
+            if (!abandonedBookingId) return;
+
+            try {
+                await window.supabaseClient
+                    .from('abandoned_bookings')
+                    .update({
+                        status: 'completed',
+                        completed_at: new Date().toISOString()
+                    })
+                    .eq('id', abandonedBookingId);
+
+                sessionStorage.removeItem('abandoned_booking_id');
+                abandonedBookingId = null;
+
+                if (DEBUG_MODE) console.log('Marked booking as completed');
+            } catch (error) {
+                if (DEBUG_MODE) console.error('Error marking booking completed:', error);
+            }
+        }
+
+        // Add event listeners to track activity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Track on email input
+            document.getElementById('email').addEventListener('input', trackActivity);
+
+            // Track on any form field change
+            ['firstName', 'lastName', 'phone', 'visit', 'adults', 'children',
+             'smallPumpkin', 'mediumPumpkin', 'largePumpkin', 'scares'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', trackActivity);
+                    element.addEventListener('change', trackActivity);
+                }
+            });
+        });
+
         // Open SCARES top-up - scroll to SCARES accordion and expand it
         function openScaresTopUp() {
             // Open the pumpkins accordion if not already open
@@ -1217,6 +1340,9 @@
                 }));
 
                 console.log('✅ Order saved:', orderNumber);
+
+                // Mark abandoned booking as completed
+                await markBookingCompleted();
 
                 // Track checkout event
                 if (window.GuidalAnalytics) {
