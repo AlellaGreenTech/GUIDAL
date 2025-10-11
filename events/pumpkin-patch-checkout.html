@@ -563,6 +563,9 @@
     <script src="../js/i18n-switcher.js"></script>
 
     <script>
+        // DEBUG FLAG - Set to true to enable detailed logging
+        const DEBUG_MODE = false;
+
         // Open SCARES top-up - scroll to SCARES accordion and expand it
         function openScaresTopUp() {
             // Open the pumpkins accordion if not already open
@@ -853,6 +856,8 @@
 
         // Mobile Debug Console Setup
         (function() {
+            if (!DEBUG_MODE) return; // Skip if debug mode is disabled
+
             const mobileDebugConsole = document.getElementById('mobileDebugConsole');
             const mobileDebugOutput = document.getElementById('mobileDebugOutput');
 
@@ -1356,6 +1361,15 @@
                 // Get function URL
                 const functionUrl = `${window.supabaseClient.supabaseUrl}/functions/v1/send-admin-notification`;
 
+                if (DEBUG_MODE) {
+                    console.log('🔔 Sending admin notification:', {
+                        orderId,
+                        notificationType,
+                        hasSession: !!session,
+                        functionUrl
+                    });
+                }
+
                 const response = await fetch(functionUrl, {
                     method: 'POST',
                     headers: {
@@ -1370,13 +1384,26 @@
 
                 const result = await response.json();
 
+                if (DEBUG_MODE) {
+                    console.log('📧 Admin notification response:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        result
+                    });
+                }
+
                 if (result.success) {
-                    console.log('✅ Admin notification sent:', notificationType);
+                    if (DEBUG_MODE) console.log('✅ Admin notification sent:', notificationType);
                 } else {
-                    console.warn('⚠️ Admin notification failed:', result.error);
+                    console.error('⚠️ Admin notification failed:', result);
+                    // Log the full error for debugging
+                    if (result.error) {
+                        console.error('Error details:', result.error);
+                    }
                 }
             } catch (error) {
                 console.error('❌ Error sending admin notification:', error);
+                console.error('Error stack:', error.stack);
                 // Don't fail the order if notification fails
             }
         }
