@@ -722,21 +722,34 @@
             ).join(', ');
 
             try {
+                console.log('Processing cart payment:', {
+                    qr_code: currentGuestCredit.qr_code,
+                    amount: total,
+                    description: description,
+                    cart: cart
+                });
+
                 const { data, error } = await window.supabaseClient.rpc('deduct_credit', {
                     p_qr_code: currentGuestCredit.qr_code,
                     p_amount: total,
                     p_description: description,
-                    p_location: null,
-                    p_metadata: { items: cart }
+                    p_cashier_id: null, // Anonymous cashier for now
+                    p_location: null
                 });
 
-                if (error) throw error;
+                console.log('RPC result:', { data, error });
+
+                if (error) {
+                    console.error('RPC error details:', error);
+                    throw error;
+                }
 
                 if (data.success) {
-                    showAlert(`Payment processed! New balance: €${data.new_balance.toFixed(2)}`, 'success');
+                    const newBalance = parseFloat(data.balance_after);
+                    showAlert(`Payment processed! New balance: €${newBalance.toFixed(2)}`, 'success');
 
                     // Update current balance
-                    currentGuestCredit.credit_balance = data.new_balance;
+                    currentGuestCredit.credit_balance = newBalance;
                     displayGuestCredit();
 
                     // Clear cart
@@ -775,21 +788,34 @@
             }
 
             try {
+                console.log('Processing manual payment:', {
+                    qr_code: currentGuestCredit.qr_code,
+                    amount: amount,
+                    description: description,
+                    location: location
+                });
+
                 const { data, error } = await window.supabaseClient.rpc('deduct_credit', {
                     p_qr_code: currentGuestCredit.qr_code,
                     p_amount: amount,
                     p_description: description,
-                    p_location: location || null,
-                    p_metadata: {}
+                    p_cashier_id: null, // Anonymous cashier for now
+                    p_location: location || null
                 });
 
-                if (error) throw error;
+                console.log('RPC result:', { data, error });
+
+                if (error) {
+                    console.error('RPC error details:', error);
+                    throw error;
+                }
 
                 if (data.success) {
-                    showAlert(`Payment processed! New balance: €${data.new_balance.toFixed(2)}`, 'success');
+                    const newBalance = parseFloat(data.balance_after);
+                    showAlert(`Payment processed! New balance: €${newBalance.toFixed(2)}`, 'success');
 
                     // Update current balance
-                    currentGuestCredit.credit_balance = data.new_balance;
+                    currentGuestCredit.credit_balance = newBalance;
                     displayGuestCredit();
 
                     // Clear form
@@ -865,9 +891,11 @@
             const alertArea = document.getElementById('alertArea');
             alertArea.innerHTML = alertHtml;
 
+            // Keep error messages on screen longer (10 seconds for errors, 5 for others)
+            const duration = type === 'danger' ? 10000 : 5000;
             setTimeout(() => {
                 alertArea.innerHTML = '';
-            }, 5000);
+            }, duration);
         }
 
         // Initialize
