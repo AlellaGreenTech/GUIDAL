@@ -387,7 +387,7 @@
             <div class="accordion" id="pumpkinsAccordion">
                 <div class="accordion-header" onclick="toggleAccordion('pumpkins')">
                     <div class="accordion-title">
-                        <span data-i18n="pumpkinPatch.checkout.pumpkinsFood">🎃 Pumpkins & Food</span>
+                        <span data-i18n="pumpkinPatch.checkout.pumpkinsFood">🎃 Pumpkins</span>
                         <span class="accordion-badge" id="pumpkinsBadge">0</span>
                     </div>
                     <span class="accordion-icon" id="pumpkinsIcon">▼</span>
@@ -395,7 +395,7 @@
                 <div class="accordion-content" id="pumpkinsContent">
                     <div class="accordion-body">
                         <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
-                            <strong data-i18n="pumpkinPatch.checkout.pumpkinsFoodDescription">Purchase SCARES for pumpkins and food</strong>
+                            <strong>EUR 4/kg OR:</strong>
                         </p>
                         <div class="item-row">
                             <div class="item-label">
@@ -411,26 +411,14 @@
                         </div>
                         <div class="item-row">
                             <div class="item-label">
-                                <span data-i18n="pumpkinPatch.checkout.mediumPumpkin">🎃 Medium Pumpkin</span><br>
-                                <small style="color: #999;">10 <span data-i18n="pumpkinPatch.checkout.scares">SCARES</span></small>
+                                <span data-i18n="pumpkinPatch.checkout.mediumPumpkin">🎃 Larger Pumpkin</span><br>
+                                <small style="color: #999;">7 <span data-i18n="pumpkinPatch.checkout.scares">SCARES</span></small>
                             </div>
-                            <div class="item-price">€10 x</div>
+                            <div class="item-price">€7 x</div>
                             <div class="quantity-control">
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('mediumPumpkin', -1)">−</button>
                                 <input type="number" id="mediumPumpkin" class="item-input" min="0" value="0" readonly>
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('mediumPumpkin', 1)">+</button>
-                            </div>
-                        </div>
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span data-i18n="pumpkinPatch.checkout.largePumpkin">🎃 Large Pumpkin</span><br>
-                                <small style="color: #999;">15 <span data-i18n="pumpkinPatch.checkout.scares">SCARES</span></small>
-                            </div>
-                            <div class="item-price">€15 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('largePumpkin', -1)">−</button>
-                                <input type="number" id="largePumpkin" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('largePumpkin', 1)">+</button>
                             </div>
                         </div>
                         <div class="item-row" style="border-bottom: none;">
@@ -443,6 +431,156 @@
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('scares', -1)">−</button>
                                 <input type="number" id="scares" class="item-input" min="0" value="0" readonly>
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('scares', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Food Accordion -->
+            <div class="accordion" id="foodAccordion">
+                <div class="accordion-header" onclick="toggleAccordion('food')">
+                    <div class="accordion-title">
+                        <span data-i18n="pumpkinPatch.checkout.food">🍕 Food & Drinks</span>
+                        <span class="accordion-badge" id="foodBadge">0</span>
+                    </div>
+                    <span class="accordion-icon" id="foodIcon">▼</span>
+                </div>
+                <div class="accordion-content" id="foodContent">
+                    <div class="accordion-body">
+                        <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
+                            <strong>Pre-order food and drinks (paid in EUR)</strong>
+                        </p>
+
+                        <!-- Food Items -->
+                        <div class="item-row">
+                            <div class="item-label">
+                                <span>🍕 Pizza Slice</span><br>
+                                <small style="color: #999;">30 SCARES</small>
+                            </div>
+                            <div class="item-price">€3 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('pizzaSlice', -1)">−</button>
+                                <input type="number" id="pizzaSlice" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('pizzaSlice', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="item-row">
+                            <div class="item-label">
+                                <span>🍕 Whole Pizza</span><br>
+                                <small style="color: #999;">80 SCARES</small>
+                            </div>
+                            <div class="item-price">€8 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('wholePizza', -1)">−</button>
+                                <input type="number" id="wholePizza" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('wholePizza', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="item-row">
+                            <div class="item-label">
+                                <span>🌭 Hot Dog</span><br>
+                                <small style="color: #999;">40 SCARES</small>
+                            </div>
+                            <div class="item-price">€4 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('hotDog', -1)">−</button>
+                                <input type="number" id="hotDog" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('hotDog', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="item-row">
+                            <div class="item-label">
+                                <span>🍔 Burger</span><br>
+                                <small style="color: #999;">50 SCARES</small>
+                            </div>
+                            <div class="item-price">€5 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('burger', -1)">−</button>
+                                <input type="number" id="burger" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('burger', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="item-row">
+                            <div class="item-label">
+                                <span>🥘 Paella Plate</span><br>
+                                <small style="color: #999;">50 SCARES</small>
+                            </div>
+                            <div class="item-price">€5 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('paella', -1)">−</button>
+                                <input type="number" id="paella" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('paella', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Drinks -->
+                        <div class="item-row">
+                            <div class="item-label">
+                                <span>🍷 Glass of Wine</span><br>
+                                <small style="color: #999;">30 SCARES</small>
+                            </div>
+                            <div class="item-price">€3 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('wine', -1)">−</button>
+                                <input type="number" id="wine" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('wine', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="item-row">
+                            <div class="item-label">
+                                <span>🍺 Beer</span><br>
+                                <small style="color: #999;">30 SCARES</small>
+                            </div>
+                            <div class="item-price">€3 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('beer', -1)">−</button>
+                                <input type="number" id="beer" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('beer', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="item-row">
+                            <div class="item-label">
+                                <span>🥤 Soft Drink</span><br>
+                                <small style="color: #999;">20 SCARES</small>
+                            </div>
+                            <div class="item-price">€2 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('softDrink', -1)">−</button>
+                                <input type="number" id="softDrink" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('softDrink', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="item-row">
+                            <div class="item-label">
+                                <span>🧃 Juice</span><br>
+                                <small style="color: #999;">40 SCARES</small>
+                            </div>
+                            <div class="item-price">€4 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('juice', -1)">−</button>
+                                <input type="number" id="juice" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('juice', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="item-row" style="border-bottom: none;">
+                            <div class="item-label">
+                                <span>🍟 Chips Plate</span><br>
+                                <small style="color: #999;">50 SCARES</small>
+                            </div>
+                            <div class="item-price">€5 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('chips', -1)">−</button>
+                                <input type="number" id="chips" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('chips', 1)">+</button>
                             </div>
                         </div>
                     </div>
@@ -588,14 +726,27 @@
                 children: parseInt(document.getElementById('children').value) || 0,
                 smallPumpkin: parseInt(document.getElementById('smallPumpkin').value) || 0,
                 mediumPumpkin: parseInt(document.getElementById('mediumPumpkin').value) || 0,
-                largePumpkin: parseInt(document.getElementById('largePumpkin').value) || 0,
-                scares: parseInt(document.getElementById('scares').value) || 0
+                scares: parseInt(document.getElementById('scares').value) || 0,
+                pizzaSlice: parseInt(document.getElementById('pizzaSlice').value) || 0,
+                wholePizza: parseInt(document.getElementById('wholePizza').value) || 0,
+                hotDog: parseInt(document.getElementById('hotDog').value) || 0,
+                burger: parseInt(document.getElementById('burger').value) || 0,
+                paella: parseInt(document.getElementById('paella').value) || 0,
+                wine: parseInt(document.getElementById('wine').value) || 0,
+                beer: parseInt(document.getElementById('beer').value) || 0,
+                softDrink: parseInt(document.getElementById('softDrink').value) || 0,
+                juice: parseInt(document.getElementById('juice').value) || 0,
+                chips: parseInt(document.getElementById('chips').value) || 0
             };
 
             // Calculate total
             const total = (cartItems.visit * 5) + (cartItems.adults * 15) + (cartItems.children * 10) +
-                         (cartItems.smallPumpkin * 5) + (cartItems.mediumPumpkin * 10) +
-                         (cartItems.largePumpkin * 15) + (cartItems.scares * 1);
+                         (cartItems.smallPumpkin * 5) + (cartItems.mediumPumpkin * 7) +
+                         (cartItems.scares * 1) +
+                         (cartItems.pizzaSlice * 3) + (cartItems.wholePizza * 8) + (cartItems.hotDog * 4) +
+                         (cartItems.burger * 5) + (cartItems.paella * 5) +
+                         (cartItems.wine * 3) + (cartItems.beer * 3) + (cartItems.softDrink * 2) +
+                         (cartItems.juice * 4) + (cartItems.chips * 5);
 
             try {
                 if (abandonedBookingId) {
@@ -680,7 +831,9 @@
 
             // Track on any form field change
             ['firstName', 'lastName', 'phone', 'visit', 'adults', 'children',
-             'smallPumpkin', 'mediumPumpkin', 'largePumpkin', 'scares'].forEach(id => {
+             'smallPumpkin', 'mediumPumpkin', 'scares',
+             'pizzaSlice', 'wholePizza', 'hotDog', 'burger', 'paella',
+             'wine', 'beer', 'softDrink', 'juice', 'chips'].forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
                     element.addEventListener('input', trackActivity);
@@ -923,29 +1076,45 @@
             const children = parseInt(document.getElementById('children').value) || 0;
             const smallPumpkin = parseInt(document.getElementById('smallPumpkin').value) || 0;
             const mediumPumpkin = parseInt(document.getElementById('mediumPumpkin').value) || 0;
-            const largePumpkin = parseInt(document.getElementById('largePumpkin').value) || 0;
             const scares = parseInt(document.getElementById('scares').value) || 0;
+
+            // Food items
+            const pizzaSlice = parseInt(document.getElementById('pizzaSlice').value) || 0;
+            const wholePizza = parseInt(document.getElementById('wholePizza').value) || 0;
+            const hotDog = parseInt(document.getElementById('hotDog').value) || 0;
+            const burger = parseInt(document.getElementById('burger').value) || 0;
+            const paella = parseInt(document.getElementById('paella').value) || 0;
+            const wine = parseInt(document.getElementById('wine').value) || 0;
+            const beer = parseInt(document.getElementById('beer').value) || 0;
+            const softDrink = parseInt(document.getElementById('softDrink').value) || 0;
+            const juice = parseInt(document.getElementById('juice').value) || 0;
+            const chips = parseInt(document.getElementById('chips').value) || 0;
 
             // Calculate total
             const total = (visit * 5) + (adults * 15) + (children * 10) +
-                         (smallPumpkin * 5) + (mediumPumpkin * 10) + (largePumpkin * 15) +
-                         (scares * 1);
+                         (smallPumpkin * 5) + (mediumPumpkin * 7) +
+                         (scares * 1) +
+                         (pizzaSlice * 3) + (wholePizza * 8) + (hotDog * 4) + (burger * 5) + (paella * 5) +
+                         (wine * 3) + (beer * 3) + (softDrink * 2) + (juice * 4) + (chips * 5);
 
             document.getElementById('total').textContent = '€' + total;
 
             // Update accordion badges
             const partyCount = adults + children;
             const visitCount = visit;
-            const pumpkinsCount = smallPumpkin + mediumPumpkin + largePumpkin + scares;
+            const pumpkinsCount = smallPumpkin + mediumPumpkin + scares;
+            const foodCount = pizzaSlice + wholePizza + hotDog + burger + paella + wine + beer + softDrink + juice + chips;
 
             document.getElementById('partyBadge').textContent = partyCount;
             document.getElementById('visitBadge').textContent = visitCount;
             document.getElementById('pumpkinsBadge').textContent = pumpkinsCount;
+            document.getElementById('foodBadge').textContent = foodCount;
 
             // Highlight accordions with items
             document.getElementById('partyAccordion').classList.toggle('has-items', partyCount > 0);
             document.getElementById('visitAccordion').classList.toggle('has-items', visitCount > 0);
             document.getElementById('pumpkinsAccordion').classList.toggle('has-items', pumpkinsCount > 0);
+            document.getElementById('foodAccordion').classList.toggle('has-items', foodCount > 0);
 
             // Show/hide party date selector
             const hasPartyTickets = adults > 0 || children > 0;
@@ -1080,7 +1249,6 @@
             const children = parseInt(document.getElementById('children').value) || 0;
             const smallPumpkin = parseInt(document.getElementById('smallPumpkin').value) || 0;
             const mediumPumpkin = parseInt(document.getElementById('mediumPumpkin').value) || 0;
-            const largePumpkin = parseInt(document.getElementById('largePumpkin').value) || 0;
             const scares = parseInt(document.getElementById('scares').value) || 0;
 
             // Validate party date if party tickets selected
@@ -1110,10 +1278,24 @@
                 return false;
             }
 
+            // Get food items
+            const pizzaSlice = parseInt(document.getElementById('pizzaSlice').value) || 0;
+            const wholePizza = parseInt(document.getElementById('wholePizza').value) || 0;
+            const hotDog = parseInt(document.getElementById('hotDog').value) || 0;
+            const burger = parseInt(document.getElementById('burger').value) || 0;
+            const paella = parseInt(document.getElementById('paella').value) || 0;
+            const wine = parseInt(document.getElementById('wine').value) || 0;
+            const beer = parseInt(document.getElementById('beer').value) || 0;
+            const softDrink = parseInt(document.getElementById('softDrink').value) || 0;
+            const juice = parseInt(document.getElementById('juice').value) || 0;
+            const chips = parseInt(document.getElementById('chips').value) || 0;
+
             // Calculate total
             const total = (visit * 5) + (adults * 15) + (children * 10) +
-                         (smallPumpkin * 5) + (mediumPumpkin * 10) + (largePumpkin * 15) +
-                         (scares * 1);
+                         (smallPumpkin * 5) + (mediumPumpkin * 7) +
+                         (scares * 1) +
+                         (pizzaSlice * 3) + (wholePizza * 8) + (hotDog * 4) + (burger * 5) + (paella * 5) +
+                         (wine * 3) + (beer * 3) + (softDrink * 2) + (juice * 4) + (chips * 5);
 
             // Validate that at least one item is selected
             if (total === 0) {
@@ -1276,24 +1458,11 @@
                 if (mediumPumpkin > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: 'Medium Pumpkin (10 SCARES)',
+                        item_name: 'Larger Pumpkin (7 SCARES)',
                         item_type: 'pumpkin',
                         quantity: mediumPumpkin,
-                        unit_price: 10,
-                        total_price: mediumPumpkin * 10,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                if (largePumpkin > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: 'Large Pumpkin (15 SCARES)',
-                        item_type: 'pumpkin',
-                        quantity: largePumpkin,
-                        unit_price: 15,
-                        total_price: largePumpkin * 15,
+                        unit_price: 7,
+                        total_price: mediumPumpkin * 7,
                         adult_count: 0,
                         child_count: 0
                     });
@@ -1307,6 +1476,137 @@
                         quantity: scares,
                         unit_price: 1,
                         total_price: scares * 1,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                // Food items
+                if (pizzaSlice > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: '🍕 Pizza Slice (30 SCARES)',
+                        item_type: 'food',
+                        quantity: pizzaSlice,
+                        unit_price: 3,
+                        total_price: pizzaSlice * 3,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (wholePizza > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: '🍕 Whole Pizza (80 SCARES)',
+                        item_type: 'food',
+                        quantity: wholePizza,
+                        unit_price: 8,
+                        total_price: wholePizza * 8,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (hotDog > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: '🌭 Hot Dog (40 SCARES)',
+                        item_type: 'food',
+                        quantity: hotDog,
+                        unit_price: 4,
+                        total_price: hotDog * 4,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (burger > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: '🍔 Burger (50 SCARES)',
+                        item_type: 'food',
+                        quantity: burger,
+                        unit_price: 5,
+                        total_price: burger * 5,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (paella > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: '🥘 Paella Plate (50 SCARES)',
+                        item_type: 'food',
+                        quantity: paella,
+                        unit_price: 5,
+                        total_price: paella * 5,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (wine > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: '🍷 Glass of Wine (30 SCARES)',
+                        item_type: 'drink',
+                        quantity: wine,
+                        unit_price: 3,
+                        total_price: wine * 3,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (beer > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: '🍺 Beer (30 SCARES)',
+                        item_type: 'drink',
+                        quantity: beer,
+                        unit_price: 3,
+                        total_price: beer * 3,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (softDrink > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: '🥤 Soft Drink (20 SCARES)',
+                        item_type: 'drink',
+                        quantity: softDrink,
+                        unit_price: 2,
+                        total_price: softDrink * 2,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (juice > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: '🧃 Juice (40 SCARES)',
+                        item_type: 'drink',
+                        quantity: juice,
+                        unit_price: 4,
+                        total_price: juice * 4,
+                        adult_count: 0,
+                        child_count: 0
+                    });
+                }
+
+                if (chips > 0) {
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: '🍟 Chips Plate (50 SCARES)',
+                        item_type: 'food',
+                        quantity: chips,
+                        unit_price: 5,
+                        total_price: chips * 5,
                         adult_count: 0,
                         child_count: 0
                     });
