@@ -456,9 +456,9 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🍕 Pizza Slice</span><br>
-                                <small style="color: #999;">3 SCARES</small>
+                                <small style="color: #999;">2.5 SCARES</small>
                             </div>
-                            <div class="item-price">€3 x</div>
+                            <div class="item-price">€2.50 x</div>
                             <div class="quantity-control">
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('pizzaSlice', -1)">−</button>
                                 <input type="number" id="pizzaSlice" class="item-input" min="0" value="0" readonly>
@@ -508,9 +508,9 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🥘 Paella Plate</span><br>
-                                <small style="color: #999;">5 SCARES</small>
+                                <small style="color: #999;">7 SCARES</small>
                             </div>
-                            <div class="item-price">€5 x</div>
+                            <div class="item-price">€7 x</div>
                             <div class="quantity-control">
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('paella', -1)">−</button>
                                 <input type="number" id="paella" class="item-input" min="0" value="0" readonly>
@@ -1048,7 +1048,7 @@
             const total = (visit * 5) + (adults * 15) + (children * 10) +
                          (smallPumpkin * 5) + (mediumPumpkin * 7) +
                          (scares * 1) +
-                         (pizzaSlice * 3) + (wholePizza * 8) + (hotDog * 4) + (burger * 5) + (paella * 5) +
+                         (pizzaSlice * 2.5) + (wholePizza * 8) + (hotDog * 4) + (burger * 5) + (paella * 7) +
                          (drinks * 2.5) + (chips * 5);
 
             document.getElementById('total').textContent = '€' + total.toFixed(2);
@@ -1245,7 +1245,7 @@
             const total = (visit * 5) + (adults * 15) + (children * 10) +
                          (smallPumpkin * 5) + (mediumPumpkin * 7) +
                          (scares * 1) +
-                         (pizzaSlice * 3) + (wholePizza * 8) + (hotDog * 4) + (burger * 5) + (paella * 5) +
+                         (pizzaSlice * 2.5) + (wholePizza * 8) + (hotDog * 4) + (burger * 5) + (paella * 7) +
                          (drinks * 2.5) + (chips * 5);
 
             // Validate that at least one item is selected
@@ -1436,11 +1436,11 @@
                 if (pizzaSlice > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🍕 Pizza Slice (3 SCARES)',
+                        item_name: '🍕 Pizza Slice (2.5 SCARES)',
                         item_type: 'food',
                         quantity: pizzaSlice,
-                        unit_price: 3,
-                        total_price: pizzaSlice * 3,
+                        unit_price: 2.5,
+                        total_price: pizzaSlice * 2.5,
                         adult_count: 0,
                         child_count: 0
                     });
@@ -1488,11 +1488,11 @@
                 if (paella > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🥘 Paella Plate (5 SCARES)',
+                        item_name: '🥘 Paella Plate (7 SCARES)',
                         item_type: 'food',
                         quantity: paella,
-                        unit_price: 5,
-                        total_price: paella * 5,
+                        unit_price: 7,
+                        total_price: paella * 7,
                         adult_count: 0,
                         child_count: 0
                     });
