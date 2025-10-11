@@ -1042,7 +1042,24 @@
 
                     if (orderError) {
                         console.error('❌ Database insert failed:', orderError);
-                        alert('⚠️ Connection Error\n\nYour order could not be saved. This might be due to:\n- Poor network connection\n- Ad blockers or privacy settings\n- VPN or proxy issues\n\nError: ' + orderError.message + '\n\nPlease try again or contact support.');
+
+                        // Show prominent error banner
+                        const errorBanner = document.createElement('div');
+                        errorBanner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: #dc3545; color: white; padding: 20px; text-align: center; font-size: 18px; font-weight: bold; z-index: 999999; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
+                        errorBanner.innerHTML = `
+                            <div style="max-width: 800px; margin: 0 auto;">
+                                ⚠️ BOOKING FAILED - ORDER NOT SAVED<br>
+                                <span style="font-size: 14px; font-weight: normal; margin-top: 10px; display: block;">
+                                    Your order was NOT saved. DO NOT proceed with payment.<br>
+                                    Please contact support at mwpicard@gmail.com or try again later.<br>
+                                    Error: ${orderError.message}
+                                </span>
+                            </div>
+                        `;
+                        document.body.insertBefore(errorBanner, document.body.firstChild);
+                        window.scrollTo(0, 0);
+
+                        alert('⚠️ BOOKING FAILED - Order NOT Saved\n\nYour order could NOT be saved to our system.\n\nPlease DO NOT proceed with payment.\n\nError: ' + orderError.message + '\n\nContact: mwpicard@gmail.com');
                         return false;
                     } else {
                         order = orderData;
@@ -1050,18 +1067,25 @@
                     }
                 } catch (dbError) {
                     console.error('❌ Database not available:', dbError);
-                    alert('⚠️ Connection Error\n\nCannot connect to database. Please check your internet connection and try again.\n\nError: ' + dbError.message);
+
+                    // Show prominent error banner
+                    const errorBanner = document.createElement('div');
+                    errorBanner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: #dc3545; color: white; padding: 20px; text-align: center; font-size: 18px; font-weight: bold; z-index: 999999; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
+                    errorBanner.innerHTML = `
+                        <div style="max-width: 800px; margin: 0 auto;">
+                            ⚠️ BOOKING SYSTEM ERROR<br>
+                            <span style="font-size: 14px; font-weight: normal; margin-top: 10px; display: block;">
+                                Cannot connect to booking database. DO NOT proceed with payment.<br>
+                                Please contact support at mwpicard@gmail.com<br>
+                                Error: ${dbError.message}
+                            </span>
+                        </div>
+                    `;
+                    document.body.insertBefore(errorBanner, document.body.firstChild);
+                    window.scrollTo(0, 0);
+
+                    alert('⚠️ BOOKING FAILED\n\nCannot connect to database.\n\nDO NOT proceed with payment.\n\nError: ' + dbError.message + '\n\nContact: mwpicard@gmail.com');
                     return false;
-                    // Create a temporary order object
-                    order = {
-                        id: 'temp-' + Date.now(),
-                        order_number: orderNumber,
-                        first_name: firstName,
-                        last_name: lastName,
-                        email: email,
-                        phone: phone,
-                        total_amount: total
-                    };
                 }
 
                 // Create order items
