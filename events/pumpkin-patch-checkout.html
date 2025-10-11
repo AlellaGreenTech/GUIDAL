@@ -995,23 +995,17 @@
                         .single();
 
                     if (orderError) {
-                        console.warn('Database insert failed:', orderError.message);
-                        // Create a temporary order object for localStorage
-                        order = {
-                            id: 'temp-' + Date.now(),
-                            order_number: orderNumber,
-                            first_name: firstName,
-                            last_name: lastName,
-                            email: email,
-                            phone: phone,
-                            total_amount: total
-                        };
+                        console.error('❌ Database insert failed:', orderError);
+                        alert('⚠️ Connection Error\n\nYour order could not be saved. This might be due to:\n- Poor network connection\n- Ad blockers or privacy settings\n- VPN or proxy issues\n\nError: ' + orderError.message + '\n\nPlease try again or contact support.');
+                        return false;
                     } else {
                         order = orderData;
                         console.log('✅ Order created in database:', order);
                     }
                 } catch (dbError) {
-                    console.warn('Database not available:', dbError.message);
+                    console.error('❌ Database not available:', dbError);
+                    alert('⚠️ Connection Error\n\nCannot connect to database. Please check your internet connection and try again.\n\nError: ' + dbError.message);
+                    return false;
                     // Create a temporary order object
                     order = {
                         id: 'temp-' + Date.now(),
@@ -1248,33 +1242,38 @@
                     </html>
                 `;
 
-                // Log email to database for record keeping
+                // Send email via Edge Function
                 try {
-                    await window.supabaseClient
-                        .from('email_logs')
-                        .insert({
-                            order_id: order.id,
-                            recipient_email: order.email,
-                            email_type: 'order_confirmation',
-                            subject: `Order Confirmation - ${order.order_number}`,
-                            html_content: emailHTML,
-                            status: 'pending'
-                        });
+                    const { data: { session } } = await window.supabaseClient.auth.getSession();
+                    const functionUrl = `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`;
 
-                    console.log('📧 Email logged to database');
-                } catch (logError) {
-                    console.warn('Could not log email:', logError.message);
+                    const response = await fetch(functionUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session?.access_token || window.supabaseClient.supabaseKey}`
+                        },
+                        body: JSON.stringify({
+                            orderId: order.id,
+                            templateType: 'order_confirmation',
+                            customSubject: `Order Confirmation - ${order.order_number}`,
+                            customBody: emailHTML
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        console.log('✅ Confirmation email sent to:', order.email);
+                    } else {
+                        console.warn('⚠️ Failed to send confirmation email:', result.error);
+                    }
+                } catch (emailError) {
+                    console.error('❌ Error sending confirmation email:', emailError);
                 }
 
-                // Display email in console for now (until email service is configured)
-                console.log('📧 Confirmation email would be sent to:', order.email);
-                console.log('Subject:', `Order Confirmation - ${order.order_number}`);
-
-                // TODO: Integrate with actual email service (Resend, SendGrid, etc.)
-                // For now, emails are logged to database and can be sent via admin dashboard
-
             } catch (error) {
-                console.error('❌ Error sending email:', error);
+                console.error('❌ Error in sendOrderConfirmationEmail:', error);
                 // Don't fail the order if email fails
             }
         }
