@@ -441,7 +441,7 @@
             <div class="accordion" id="foodAccordion">
                 <div class="accordion-header" onclick="toggleAccordion('food')">
                     <div class="accordion-title">
-                        <span data-i18n="pumpkinPatch.checkout.food">🍕 Food & Drinks</span>
+                        <span>🍕 Food & Drinks</span>
                         <span class="accordion-badge" id="foodBadge">0</span>
                     </div>
                     <span class="accordion-icon" id="foodIcon">▼</span>
@@ -456,7 +456,7 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🍕 Pizza Slice</span><br>
-                                <small style="color: #999;">30 SCARES</small>
+                                <small style="color: #999;">3 SCARES</small>
                             </div>
                             <div class="item-price">€3 x</div>
                             <div class="quantity-control">
@@ -469,7 +469,7 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🍕 Whole Pizza</span><br>
-                                <small style="color: #999;">80 SCARES</small>
+                                <small style="color: #999;">8 SCARES</small>
                             </div>
                             <div class="item-price">€8 x</div>
                             <div class="quantity-control">
@@ -482,7 +482,7 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🌭 Hot Dog</span><br>
-                                <small style="color: #999;">40 SCARES</small>
+                                <small style="color: #999;">4 SCARES</small>
                             </div>
                             <div class="item-price">€4 x</div>
                             <div class="quantity-control">
@@ -495,7 +495,7 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🍔 Burger</span><br>
-                                <small style="color: #999;">50 SCARES</small>
+                                <small style="color: #999;">5 SCARES</small>
                             </div>
                             <div class="item-price">€5 x</div>
                             <div class="quantity-control">
@@ -508,7 +508,7 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🥘 Paella Plate</span><br>
-                                <small style="color: #999;">50 SCARES</small>
+                                <small style="color: #999;">5 SCARES</small>
                             </div>
                             <div class="item-price">€5 x</div>
                             <div class="quantity-control">
@@ -522,7 +522,7 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🍷 Glass of Wine</span><br>
-                                <small style="color: #999;">30 SCARES</small>
+                                <small style="color: #999;">3 SCARES</small>
                             </div>
                             <div class="item-price">€3 x</div>
                             <div class="quantity-control">
@@ -535,7 +535,7 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🍺 Beer</span><br>
-                                <small style="color: #999;">30 SCARES</small>
+                                <small style="color: #999;">3 SCARES</small>
                             </div>
                             <div class="item-price">€3 x</div>
                             <div class="quantity-control">
@@ -548,7 +548,7 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🥤 Soft Drink</span><br>
-                                <small style="color: #999;">20 SCARES</small>
+                                <small style="color: #999;">2 SCARES</small>
                             </div>
                             <div class="item-price">€2 x</div>
                             <div class="quantity-control">
@@ -561,7 +561,7 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span>🧃 Juice</span><br>
-                                <small style="color: #999;">40 SCARES</small>
+                                <small style="color: #999;">4 SCARES</small>
                             </div>
                             <div class="item-price">€4 x</div>
                             <div class="quantity-control">
@@ -574,7 +574,7 @@
                         <div class="item-row" style="border-bottom: none;">
                             <div class="item-label">
                                 <span>🍟 Chips Plate</span><br>
-                                <small style="color: #999;">50 SCARES</small>
+                                <small style="color: #999;">5 SCARES</small>
                             </div>
                             <div class="item-price">€5 x</div>
                             <div class="quantity-control">
@@ -1485,7 +1485,7 @@
                 if (pizzaSlice > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🍕 Pizza Slice (30 SCARES)',
+                        item_name: '🍕 Pizza Slice (3 SCARES)',
                         item_type: 'food',
                         quantity: pizzaSlice,
                         unit_price: 3,
@@ -1498,7 +1498,7 @@
                 if (wholePizza > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🍕 Whole Pizza (80 SCARES)',
+                        item_name: '🍕 Whole Pizza (8 SCARES)',
                         item_type: 'food',
                         quantity: wholePizza,
                         unit_price: 8,
@@ -1511,7 +1511,7 @@
                 if (hotDog > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🌭 Hot Dog (40 SCARES)',
+                        item_name: '🌭 Hot Dog (4 SCARES)',
                         item_type: 'food',
                         quantity: hotDog,
                         unit_price: 4,
@@ -1524,7 +1524,7 @@
                 if (burger > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🍔 Burger (50 SCARES)',
+                        item_name: '🍔 Burger (5 SCARES)',
                         item_type: 'food',
                         quantity: burger,
                         unit_price: 5,
@@ -1537,7 +1537,7 @@
                 if (paella > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🥘 Paella Plate (50 SCARES)',
+                        item_name: '🥘 Paella Plate (5 SCARES)',
                         item_type: 'food',
                         quantity: paella,
                         unit_price: 5,
@@ -1550,7 +1550,7 @@
                 if (wine > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🍷 Glass of Wine (30 SCARES)',
+                        item_name: '🍷 Glass of Wine (3 SCARES)',
                         item_type: 'drink',
                         quantity: wine,
                         unit_price: 3,
@@ -1563,7 +1563,7 @@
                 if (beer > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🍺 Beer (30 SCARES)',
+                        item_name: '🍺 Beer (3 SCARES)',
                         item_type: 'drink',
                         quantity: beer,
                         unit_price: 3,
@@ -1576,7 +1576,7 @@
                 if (softDrink > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🥤 Soft Drink (20 SCARES)',
+                        item_name: '🥤 Soft Drink (2 SCARES)',
                         item_type: 'drink',
                         quantity: softDrink,
                         unit_price: 2,
@@ -1589,7 +1589,7 @@
                 if (juice > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🧃 Juice (40 SCARES)',
+                        item_name: '🧃 Juice (4 SCARES)',
                         item_type: 'drink',
                         quantity: juice,
                         unit_price: 4,
@@ -1602,7 +1602,7 @@
                 if (chips > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: '🍟 Chips Plate (50 SCARES)',
+                        item_name: '🍟 Chips Plate (5 SCARES)',
                         item_type: 'food',
                         quantity: chips,
                         unit_price: 5,

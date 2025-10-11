@@ -160,25 +160,41 @@
 
         .quick-amounts {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
 
         .quick-btn {
-            padding: 1rem;
+            padding: 0.75rem 0.5rem;
             border: 2px solid #667eea;
             background: white;
             color: #667eea;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.3;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .quick-btn:active {
             background: #667eea;
             color: white;
+        }
+
+        @media (max-width: 480px) {
+            .quick-amounts {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .quick-btn {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.25rem;
+            }
         }
 
         .alert {
@@ -307,14 +323,20 @@
                 <h3 style="margin-bottom: 1rem; color: #333;">Process Payment</h3>
 
                 <div class="form-group">
-                    <label>Quick Amounts</label>
+                    <label>Quick Items</label>
                     <div class="quick-amounts">
-                        <button class="quick-btn" onclick="setAmount(1)">€1</button>
-                        <button class="quick-btn" onclick="setAmount(2)">€2</button>
-                        <button class="quick-btn" onclick="setAmount(5)">€5</button>
-                        <button class="quick-btn" onclick="setAmount(10)">€10</button>
-                        <button class="quick-btn" onclick="setAmount(15)">€15</button>
-                        <button class="quick-btn" onclick="setAmount(20)">€20</button>
+                        <button class="quick-btn" onclick="setItem('Adult Entrance', 15)">🎟️ Adult<br>€15</button>
+                        <button class="quick-btn" onclick="setItem('Child Entrance', 10)">🎟️ Child<br>€10</button>
+                        <button class="quick-btn" onclick="setItem('Pumpkin Small', 5)">🎃 Small<br>€5</button>
+                        <button class="quick-btn" onclick="setItem('Pumpkin Large', 7)">🎃 Large<br>€7</button>
+                        <button class="quick-btn" onclick="setItem('Beer', 3)">🍺 Beer<br>€3</button>
+                        <button class="quick-btn" onclick="setItem('Soft Drink', 2)">🥤 Soft<br>€2</button>
+                        <button class="quick-btn" onclick="setItem('Wine', 3)">🍷 Wine<br>€3</button>
+                        <button class="quick-btn" onclick="setItem('Pizza Slice', 3)">🍕 Slice<br>€3</button>
+                        <button class="quick-btn" onclick="setItem('Pizza', 8)">🍕 Pizza<br>€8</button>
+                        <button class="quick-btn" onclick="setItem('Hot Dog', 4)">🌭 Hot Dog<br>€4</button>
+                        <button class="quick-btn" onclick="setItem('Hamburger', 5)">🍔 Burger<br>€5</button>
+                        <button class="quick-btn" onclick="setItem('Paella', 5)">🥘 Paella<br>€5</button>
                     </div>
                 </div>
 
@@ -327,13 +349,26 @@
                     <label for="paymentDescription">Description</label>
                     <select id="paymentDescription">
                         <option value="">Select item...</option>
-                        <option value="Small Pumpkin">Small Pumpkin - €5</option>
-                        <option value="Medium Pumpkin">Medium Pumpkin - €10</option>
-                        <option value="Large Pumpkin">Large Pumpkin - €15</option>
-                        <option value="Hot Dog">Hot Dog - €2</option>
-                        <option value="Soft Drink">Soft Drink - €1</option>
-                        <option value="Candy">Candy - €1</option>
-                        <option value="Face Paint">Face Paint - €3</option>
+                        <optgroup label="Entrance">
+                            <option value="Adult Entrance">Adult Entrance - €15</option>
+                            <option value="Child Entrance">Child Entrance - €10</option>
+                        </optgroup>
+                        <optgroup label="Pumpkins">
+                            <option value="Pumpkin Small">Pumpkin Small - €5</option>
+                            <option value="Pumpkin Large">Pumpkin Large - €7</option>
+                        </optgroup>
+                        <optgroup label="Food">
+                            <option value="Pizza Slice">Pizza Slice - €3</option>
+                            <option value="Pizza">Whole Pizza - €8</option>
+                            <option value="Hot Dog">Hot Dog - €4</option>
+                            <option value="Hamburger">Hamburger - €5</option>
+                            <option value="Paella">Paella - €5</option>
+                        </optgroup>
+                        <optgroup label="Drinks">
+                            <option value="Beer">Beer - €3</option>
+                            <option value="Wine">Wine - €3</option>
+                            <option value="Soft Drink">Soft Drink - €2</option>
+                        </optgroup>
                         <option value="Other">Other</option>
                     </select>
                 </div>
@@ -564,8 +599,9 @@
         }
 
         // Set quick amount
-        function setAmount(amount) {
+        function setItem(description, amount) {
             document.getElementById('paymentAmount').value = amount;
+            document.getElementById('paymentDescription').value = description;
         }
 
         // Process payment
