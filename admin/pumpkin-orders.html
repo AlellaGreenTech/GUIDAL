@@ -821,7 +821,7 @@
                 <select id="sendEmailTemplateSelect" style="width: 100%; padding: 0.75rem; border: 2px solid #ff6b35; border-radius: 4px; font-size: 1rem; margin-bottom: 1.5rem;">
                     <option value="entrance_ticket">🎃 Party Entrance Ticket</option>
                     <option value="visit_pass">🎟️ Visit Pass Confirmation</option>
-                    <option value="scares_purchase">💀 SCARES Purchase</option>
+                    <option value="greens_purchase">💚 GREENS Purchase</option>
                 </select>
                 <button class="btn btn-primary" onclick="sendEmailFromModal()" style="width: 100%; padding: 0.75rem; font-size: 1rem;">
                     📧 Send Email
@@ -999,16 +999,16 @@
                         ${order.items.map(item => {
                             // Shorten common item names - order matters!
                             let shortName = item.item_name
-                                .replace('Individual SCARES (for food, activities, etc.)', 'SCARES')
+                                .replace('Individual GREENS (for food, activities, etc.)', 'GREENS')
                                 .replace('Adult Entrance Party Ticket', 'Adult')
                                 .replace('Child Entrance Party Ticket', 'Child')
                                 .replace('Visit Pass (Adult or Child)', 'Pass')
                                 .replace('Small Pumpkin', 'Sm Pmpkn')
                                 .replace('Medium Pumpkin', 'Md Pmpkn')
                                 .replace('Large Pumpkin', 'Lg Pmpkn')
-                                .replace(' (5 SCARES)', '')
-                                .replace(' (10 SCARES)', '')
-                                .replace(' (15 SCARES)', '');
+                                .replace(' (5 GREENS)', '')
+                                .replace(' (10 GREENS)', '')
+                                .replace(' (15 GREENS)', '');
                             return `<div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.quantity}× ${shortName}</div>`;
                         }).join('')}
                     </td>
@@ -1229,12 +1229,12 @@
                 if (templateError) throw new Error('Template not found: ' + templateError.message);
 
                 // Generate QR code
-                const scares = order.items.find(item => item.item_name.includes('SCARE'))?.quantity || 0;
+                const greens = order.items.find(item => item.item_name.includes('GREEN'))?.quantity || 0;
                 const partyDateFormatted = order.party_date ?
                     new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) :
                     'Visit Pass';
 
-                const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${order.adult_count || 0}|CHILDREN:${order.child_count || 0}|EVENT:${partyDateFormatted}|SCARES:${scares}|TOTAL:€${order.total_amount}`;
+                const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${order.adult_count || 0}|CHILDREN:${order.child_count || 0}|EVENT:${partyDateFormatted}|GREENS:${greens}|TOTAL:€${order.total_amount}`;
                 const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`;
 
                 // Format data for template
@@ -1478,12 +1478,12 @@
                 }
 
                 // Generate QR code data
-                const scares = order.items.find(item => item.item_name.includes('SCARE'))?.quantity || 0;
+                const greens = order.items.find(item => item.item_name.includes('GREEN'))?.quantity || 0;
                 const partyDateFormatted = order.party_date ?
                     new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) :
                     'Visit Pass';
 
-                const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${order.adult_count || 0}|CHILDREN:${order.child_count || 0}|EVENT:${partyDateFormatted}|SCARES:${scares}|TOTAL:€${order.total_amount}`;
+                const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${order.adult_count || 0}|CHILDREN:${order.child_count || 0}|EVENT:${partyDateFormatted}|GREENS:${greens}|TOTAL:€${order.total_amount}`;
                 const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`;
 
                 // Format party date for email
