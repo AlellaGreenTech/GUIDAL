@@ -103,6 +103,34 @@
     <!-- i18n -->
     <script src="js/i18n.js"></script>
 
+    <!-- Language Switcher Script -->
+    <script>
+        // Global function for language switching
+        async function switchLanguage(langCode) {
+            await window.i18n.changeLanguage(langCode);
+            updateLanguageButtons();
+        }
+
+        // Update active state of language buttons
+        function updateLanguageButtons() {
+            const currentLang = window.i18n.getCurrentLanguage();
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                const btnLang = btn.getAttribute('data-lang');
+                if (btnLang === currentLang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize language buttons when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            // Wait a bit for i18n to initialize
+            setTimeout(updateLanguageButtons, 100);
+        });
+    </script>
+
     <!-- Auth Navigation -->
     <script src="js/auth-nav.js"></script>
 
