@@ -224,6 +224,93 @@
             color: #0c5460;
         }
 
+        /* Success Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+
+        .modal-balance {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin: 1rem 0;
+        }
+
+        .modal-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .modal-button:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
         .hidden {
             display: none !important;
         }
@@ -422,6 +509,17 @@
 
         <!-- Alert Area -->
         <div id="alertArea"></div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">✅</div>
+            <div class="modal-title">Client's Account Successfully Debited!</div>
+            <div class="modal-label">New Balance:</div>
+            <div class="modal-balance" id="modalBalance">€0.00</div>
+            <button class="modal-button" onclick="closeSuccessModal()">OK</button>
+        </div>
     </div>
 
     <!-- Supabase -->
@@ -747,11 +845,16 @@
 
                 if (data.success) {
                     const newBalance = parseFloat(data.balance_after);
-                    showAlert(`Payment processed! New balance: €${newBalance.toFixed(2)}`, 'success');
 
                     // Update current balance
                     currentGuestCredit.credit_balance = newBalance;
                     displayGuestCredit();
+
+                    // Show success modal
+                    showSuccessModal(newBalance);
+
+                    // Send balance update email
+                    await sendBalanceUpdateEmail(currentGuestCredit, total);
 
                     // Clear cart
                     clearCart();
@@ -813,11 +916,16 @@
 
                 if (data.success) {
                     const newBalance = parseFloat(data.balance_after);
-                    showAlert(`Payment processed! New balance: €${newBalance.toFixed(2)}`, 'success');
 
                     // Update current balance
                     currentGuestCredit.credit_balance = newBalance;
                     displayGuestCredit();
+
+                    // Show success modal
+                    showSuccessModal(newBalance);
+
+                    // Send balance update email
+                    await sendBalanceUpdateEmail(currentGuestCredit, amount);
 
                     // Clear form
                     document.getElementById('paymentAmount').value = '';
@@ -880,6 +988,111 @@
             document.getElementById('scanner-section').classList.remove('hidden');
             document.getElementById('credit-section').classList.add('hidden');
             document.getElementById('manualQRInput').value = '';
+        }
+
+        // Show success modal with balance
+        function showSuccessModal(newBalance) {
+            document.getElementById('modalBalance').textContent = '€' + newBalance.toFixed(2);
+            document.getElementById('successModal').classList.add('show');
+
+            // Scroll to top to ensure modal is visible
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Close success modal
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+
+        // Send balance update email to client
+        async function sendBalanceUpdateEmail(guestCredit, transactionAmount) {
+            try {
+                console.log('Sending balance update email to:', guestCredit.guest_email);
+
+                // Generate QR code URL (using existing QR data from guest credit)
+                const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(guestCredit.qr_code)}`;
+
+                const emailHTML = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                            .header { background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 30px; text-align: center; border-radius: 8px; }
+                            .content { background: white; padding: 30px; border: 1px solid #eee; }
+                            .balance-box { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+                            .balance { font-size: 2.5rem; font-weight: bold; color: #28a745; }
+                            .qr-code { text-align: center; margin: 20px 0; }
+                            .footer { text-align: center; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="header">
+                                <h1>✅ Payment Successful</h1>
+                                <p>SCARY PUMPKIN PATCH</p>
+                            </div>
+
+                            <div class="content">
+                                <h2>Hi ${guestCredit.guest_name}!</h2>
+                                <p>A payment of <strong>€${transactionAmount.toFixed(2)}</strong> has been processed from your account.</p>
+
+                                <div class="balance-box">
+                                    <p style="margin: 0; color: #666;">Your New Balance</p>
+                                    <div class="balance">€${guestCredit.credit_balance.toFixed(2)}</div>
+                                </div>
+
+                                <p>Your QR code remains the same. Show this at any station to make purchases:</p>
+
+                                <div class="qr-code">
+                                    <img src="${qrCodeUrl}" alt="Your QR Code" style="max-width: 300px; border: 2px solid #ddd; border-radius: 8px;">
+                                </div>
+
+                                <p><strong>Order Number:</strong> ${guestCredit.order_number}</p>
+
+                                <p>Thank you for visiting GUIDAL at Alella Green Tech!</p>
+                            </div>
+
+                            <div class="footer">
+                                <p>Alella Green Tech Foundation</p>
+                                <p>GUIDAL at Alella Green Tech</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                // Send email via Edge Function
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                const functionUrl = `${window.supabaseClient.supabaseUrl}/functions/v1/send-pumpkin-email`;
+
+                const response = await fetch(functionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session?.access_token || window.supabaseClient.supabaseKey}`
+                    },
+                    body: JSON.stringify({
+                        orderId: guestCredit.order_id,
+                        templateType: 'balance_update',
+                        customSubject: `Payment Confirmed - Balance Update`,
+                        customBody: emailHTML
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('✅ Balance update email sent to:', guestCredit.guest_email);
+                } else {
+                    console.warn('⚠️ Failed to send balance update email:', result.error);
+                }
+
+            } catch (error) {
+                console.error('❌ Error sending balance update email:', error);
+                // Don't fail the payment if email fails
+            }
         }
 
         // Show alert
