@@ -479,6 +479,11 @@
                 return;
             }
 
+            // Calculate conversion rate: paid bookings / total sessions
+            const conversionRate = data.sessions_today > 0
+                ? ((data.paid_bookings_today / data.sessions_today) * 100).toFixed(2)
+                : 0;
+
             const container = document.getElementById('realtimeStats');
             container.innerHTML = `
                 <div class="stat-card">
@@ -497,12 +502,12 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="icon">📄</div>
-                    <div class="label">Page Views Today</div>
-                    <div class="value">${data.pageviews_today || 0}</div>
-                    <div class="metric-comparison">
-                        <span>Last hour: ${data.pageviews_last_hour || 0}</span>
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                    <div class="icon">🎯</div>
+                    <div class="label" style="color: rgba(255,255,255,0.9);">Conversion Rate</div>
+                    <div class="value" style="color: white;">${conversionRate}%</div>
+                    <div class="metric-comparison" style="color: rgba(255,255,255,0.8);">
+                        <span>${data.paid_bookings_today || 0} paid / ${data.sessions_today || 0} sessions</span>
                     </div>
                 </div>
 
@@ -613,7 +618,7 @@
             }
 
             charts.funnel = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: ['Landed', 'Entered Email', 'Proceeded', 'Completed', 'Paid'],
                     datasets: [{
@@ -625,13 +630,15 @@
                             data.completed_booking,
                             data.paid_orders
                         ],
-                        backgroundColor: [
-                            'rgba(102, 126, 234, 0.8)',
-                            'rgba(102, 126, 234, 0.7)',
-                            'rgba(102, 126, 234, 0.6)',
-                            'rgba(102, 126, 234, 0.5)',
-                            'rgba(16, 185, 129, 0.8)'
-                        ]
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
                     }]
                 },
                 options: {
@@ -678,16 +685,21 @@
             }
 
             charts.device = new Chart(ctx, {
-                type: 'doughnut',
+                type: 'line',
                 data: {
                     labels: Object.keys(deviceCounts),
                     datasets: [{
+                        label: 'Sessions',
                         data: Object.values(deviceCounts),
-                        backgroundColor: [
-                            '#667eea',
-                            '#764ba2',
-                            '#f093fb'
-                        ]
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
                     }]
                 },
                 options: {
@@ -695,7 +707,12 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
                         }
                     }
                 }
@@ -729,18 +746,21 @@
             }
 
             charts.browser = new Chart(ctx, {
-                type: 'doughnut',
+                type: 'line',
                 data: {
                     labels: Object.keys(browserCounts),
                     datasets: [{
+                        label: 'Sessions',
                         data: Object.values(browserCounts),
-                        backgroundColor: [
-                            '#667eea',
-                            '#764ba2',
-                            '#f093fb',
-                            '#4facfe',
-                            '#00f2fe'
-                        ]
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#764ba2',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
                     }]
                 },
                 options: {
@@ -748,7 +768,12 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
                         }
                     }
                 }
