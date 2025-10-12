@@ -87,8 +87,8 @@ serve(async (req) => {
       const template = templates[0]
 
       // Generate QR code - calculate adults and children from items
-      // SCARES = total amount in euros (1 SCARE = €1)
-      const scares = Math.floor(order.total_amount) // Total money = SCARES available
+      // GREENS = total amount in euros (1 GREEN = €1)
+      const greens = Math.floor(order.total_amount) // Total money = GREENS available
       const adults = order.items
         .filter((item: any) => item.item_name.includes('Adult'))
         .reduce((sum: number, item: any) => sum + item.quantity, 0)
@@ -100,7 +100,7 @@ serve(async (req) => {
         ? new Date(order.party_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
         : 'Visit Pass'
 
-      const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${adults}|CHILDREN:${children}|EVENT:${partyDateFormatted}|SCARES:${scares}|TOTAL:€${order.total_amount}`
+      const qrData = `ORDER:${order.order_number}|NAME:${order.first_name} ${order.last_name}|ADULTS:${adults}|CHILDREN:${children}|EVENT:${partyDateFormatted}|GREENS:${greens}|TOTAL:€${order.total_amount}`
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`
 
       // Format party date for email
