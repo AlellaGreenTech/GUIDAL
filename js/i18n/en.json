@@ -81,5 +81,23 @@
       "contactUs": "If you have any questions, please contact us",
       "bestRegards": "Best regards"
     }
+  },
+  "landingPage": {
+    "foundationPresents": "The International Green Tech Foundation Presents",
+    "subtitle": "Your GUIDe to ALl activities at",
+    "welcomeTitle": "Welcome to Alella Green Tech!",
+    "welcomeText": "We're thrilled to host you at our living laboratory at Can Picard Farm. Explore hands-on learning experiences in green technology, permaculture, and sustainable practices. Get ready for a day of discovery!",
+    "viewActivitiesBtn": "View Activities & Events",
+    "footer": "Alella Green Tech. Sustainable learning for a better future.",
+    "nav": {
+      "directions": "Directions",
+      "activities": "Activities",
+      "bookPumpkin": "🎃 Book Pumpkin Patch",
+      "kits": "Kits",
+      "planVisit": "Plan Visit",
+      "followShare": "Follow & Share",
+      "blog": "Blog",
+      "login": "Login/Register"
+    }
   }
 }

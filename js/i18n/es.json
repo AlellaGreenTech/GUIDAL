@@ -81,5 +81,23 @@
       "contactUs": "Si tienes alguna pregunta, contáctanos",
       "bestRegards": "Saludos cordiales"
     }
+  },
+  "landingPage": {
+    "foundationPresents": "La Fundación Internacional Green Tech Presenta",
+    "subtitle": "Tu GUÍa para TODas las actividades en",
+    "welcomeTitle": "¡Bienvenido a Alella Green Tech!",
+    "welcomeText": "Estamos encantados de recibirte en nuestro laboratorio viviente en Can Picard Farm. Explora experiencias de aprendizaje práctico en tecnología verde, permacultura y prácticas sostenibles. ¡Prepárate para un día de descubrimiento!",
+    "viewActivitiesBtn": "Ver Actividades y Eventos",
+    "footer": "Alella Green Tech. Aprendizaje sostenible para un futuro mejor.",
+    "nav": {
+      "directions": "Direcciones",
+      "activities": "Actividades",
+      "bookPumpkin": "🎃 Reservar Calabazas",
+      "kits": "Kits",
+      "planVisit": "Planificar Visita",
+      "followShare": "Seguir y Compartir",
+      "blog": "Blog",
+      "login": "Iniciar Sesión/Registrarse"
+    }
   }
 }

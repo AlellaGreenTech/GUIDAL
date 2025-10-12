@@ -6,19 +6,51 @@
     <title>GUIDAL - Guide to All at Alella Green Tech</title>
     <!-- GitHub Pages deployment trigger -->
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .language-switcher {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-left: auto;
+        }
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .lang-btn.active {
+            background: #28a745;
+            border-color: #28a745;
+        }
+        @media (max-width: 768px) {
+            .language-switcher {
+                margin-left: 0;
+                justify-content: center;
+                padding: 1rem 0;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="container">
-            <p class="foundation-presents">The International Green Tech Foundation Presents</p>
-            <h1>GUIDAL</h1>
-            <p class="subtitle">Your <span style="color: #28a745; font-weight: 600;">GUID</span>e to <span style="color: #28a745; font-weight: 600;">AL</span>l activities at <a href="https://alellagreentech.org" target="_blank" class="agt-link">Alella Green Tech</a></p>
+            <p class="foundation-presents" data-i18n="landingPage.foundationPresents">The International Green Tech Foundation Presents</p>
+            <h1 translate="no">GUIDAL</h1>
+            <p class="subtitle"><span data-i18n="landingPage.subtitle">Your GUIDe to ALl activities at</span> <a href="https://alellagreentech.org" target="_blank" class="agt-link" translate="no">Alella Green Tech</a></p>
         </div>
     </header>
     
     <nav class="main-nav">
         <div class="container" style="display: flex; align-items: center; gap: 2rem;">
-            <a href="index.html" style="text-decoration: none; display: flex; flex-direction: column; padding: 0.75rem 0;">
+            <a href="index.html" style="text-decoration: none; display: flex; flex-direction: column; padding: 0.75rem 0;" translate="no">
                 <span style="font-size: 1.5rem; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); line-height: 1;">GUIDAL</span>
                 <span style="font-size: 0.7rem; color: white; opacity: 0.85; margin-top: 0.15rem;">at Alella Green Tech</span>
             </a>
@@ -28,26 +60,31 @@
                 <span class="hamburger-line"></span>
             </button>
             <ul class="nav-menu" style="flex: 1;">
-                <li><a href="pages/directions.html">Directions</a></li>
-                <li><a href="pages/activities.html">Activities</a></li>
-                <li><a href="events/pumpkin-patch-checkout.html">🎃 Book Pumpkin Patch</a></li>
-                <li><a href="pages/kits.html">Kits</a></li>
-                <li><a href="pages/visit-planning.html">Plan Visit</a></li>
-                <li><a href="pages/follow-post.html">Follow & Share</a></li>
-                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
-                <li><a href="pages/auth/login.html" class="login-btn">Login/Register</a></li>
+                <li><a href="pages/directions.html" data-i18n="landingPage.nav.directions">Directions</a></li>
+                <li><a href="pages/activities.html" data-i18n="landingPage.nav.activities">Activities</a></li>
+                <li><a href="events/pumpkin-patch-checkout.html" data-i18n="landingPage.nav.bookPumpkin">🎃 Book Pumpkin Patch</a></li>
+                <li><a href="pages/kits.html" data-i18n="landingPage.nav.kits">Kits</a></li>
+                <li><a href="pages/visit-planning.html" data-i18n="landingPage.nav.planVisit">Plan Visit</a></li>
+                <li><a href="pages/follow-post.html" data-i18n="landingPage.nav.followShare">Follow & Share</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank" data-i18n="landingPage.nav.blog">Blog</a></li>
+                <li><a href="pages/auth/login.html" class="login-btn" data-i18n="landingPage.nav.login">Login/Register</a></li>
+                <li class="language-switcher">
+                    <button onclick="switchLanguage('en')" class="lang-btn" data-lang="en">EN</button>
+                    <button onclick="switchLanguage('es')" class="lang-btn" data-lang="es">ES</button>
+                    <button onclick="switchLanguage('ca')" class="lang-btn" data-lang="ca">CA</button>
+                </li>
             </ul>
         </div>
     </nav>
     
     <main class="container">
         <section class="welcome-section" style="max-width: 800px; margin: 3rem auto; padding: 0 1rem; text-align: center;">
-            <h2 style="font-size: 2rem; color: #2e7d32; margin-bottom: 1rem;">Welcome to Alella Green Tech!</h2>
-            <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem; color: #333;">
+            <h2 style="font-size: 2rem; color: #2e7d32; margin-bottom: 1rem;" data-i18n="landingPage.welcomeTitle">Welcome to Alella Green Tech!</h2>
+            <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem; color: #333;" data-i18n="landingPage.welcomeText">
                 We're thrilled to host you at our living laboratory at Can Picard Farm. Explore hands-on learning experiences
                 in green technology, permaculture, and sustainable practices. Get ready for a day of discovery!
             </p>
-            <a href="pages/activities.html" class="btn" style="display: inline-block; background: #28a745; color: white; padding: 1rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: all 0.3s ease;">
+            <a href="pages/activities.html" class="btn" style="display: inline-block; background: #28a745; color: white; padding: 1rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: all 0.3s ease;" data-i18n="landingPage.viewActivitiesBtn">
                 View Activities & Events
             </a>
         </section>
@@ -55,13 +92,16 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2024 Alella Green Tech. Sustainable learning for a better future.</p>
+            <p>&copy; 2024 <span data-i18n="landingPage.footer">Alella Green Tech. Sustainable learning for a better future.</span></p>
         </div>
     </footer>
 
     <!-- Supabase Client -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
+
+    <!-- i18n -->
+    <script src="js/i18n.js"></script>
 
     <!-- Auth Navigation -->
     <script src="js/auth-nav.js"></script>
