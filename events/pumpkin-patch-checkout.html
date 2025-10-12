@@ -1610,7 +1610,7 @@
                             <div class="content">
                                 <h2>Thank you for your order!</h2>
                                 <p>Hi ${order.first_name},</p>
-                                <p>We've received your order for the SCARY PUMPKIN PATCH event. Here are your order details:</p>
+                                <p>We've received your order for the SCARY PUMPKIN PATCH visit! Your details are below. Confirm your visit by clicking on the payment button - you can pay with credit card or PayPal. Then, click on the WhatsApp link to chat with us to arrange the best time.</p>
 
                                 <div class="order-details">
                                     <p><strong>Order Number:</strong> ${order.order_number}</p>
@@ -1634,13 +1634,17 @@
 
                                 <h3>Next Steps:</h3>
                                 <ol>
-                                    <li><strong>Complete Payment:</strong> Click the PayPal button to complete your payment</li>
-                                    <li><strong>Contact us on WhatsApp:</strong> After payment, join our WhatsApp groups to coordinate your visit</li>
+                                    <li><strong>Complete Payment:</strong> Click the PayPal button below to complete your payment with credit card or PayPal</li>
+                                    <li><strong>Contact us on WhatsApp:</strong> After payment, click the WhatsApp link to coordinate your visit time</li>
                                 </ol>
 
                                 <div style="text-align: center; margin: 30px 0;">
+                                    <a href="https://www.paypal.com/paypalme/guidalalella/${total.toFixed(2)}EUR"
+                                       style="display: inline-block; background: #0070ba; color: white; padding: 15px 40px; text-decoration: none; border-radius: 4px; margin: 10px 5px; font-weight: bold; font-size: 16px;">
+                                        💳 Pay €${total.toFixed(2)} with PayPal
+                                    </a>
+                                    <br>
                                     <a href="https://chat.whatsapp.com/HnWhcfwNLenGKXMFOR6JUG" class="button">💬 Request Visit Time</a>
-                                    <a href="https://chat.whatsapp.com/GYQmIVwu3fID0VcW4QmUM2" class="button">💬 Join Party Group</a>
                                 </div>
 
                                 <p>If you have any questions, please don't hesitate to contact us!</p>
@@ -1669,7 +1673,7 @@
                         body: JSON.stringify({
                             orderId: order.id,
                             templateType: 'order_confirmation',
-                            customSubject: `Order Confirmation - ${order.order_number}`,
+                            customSubject: `Pumpkin Patch Visit. Action Required to Confirm your visit!`,
                             customBody: emailHTML
                         })
                     });
