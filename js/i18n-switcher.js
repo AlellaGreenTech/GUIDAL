@@ -112,12 +112,20 @@
 
         // Initialize the switcher in a container
         init(containerId = 'language-switcher-container') {
-            const container = document.getElementById(containerId);
+            // Try multiple container IDs (header first, then nav)
+            const containerIds = ['header-language-switcher', containerId];
+            let container = null;
+
+            for (const id of containerIds) {
+                container = document.getElementById(id);
+                if (container) break;
+            }
+
             if (container) {
                 const switcher = this.createSwitcher();
                 container.appendChild(switcher);
             } else {
-                console.warn(`Language switcher container #${containerId} not found`);
+                console.warn(`Language switcher container not found. Tried: ${containerIds.join(', ')}`);
             }
 
             // Listen for language change events
