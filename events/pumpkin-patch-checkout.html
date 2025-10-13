@@ -294,6 +294,11 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
         }
+        /* Top up GREENS main button hover */
+        button[onclick="toggleAccordion('food')"]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -325,6 +330,16 @@
 
             <div class="info-box" data-i18n="pumpkinPatch.checkout.infoBox">
                 Get your visit pass, party tickets, pumpkin and food GREENS here!
+            </div>
+
+            <!-- Top up GREENS Button -->
+            <div style="text-align: center; margin: 2rem 0;">
+                <button type="button" onclick="toggleAccordion('food')" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; font-size: 1.3rem; font-weight: 700; padding: 1.25rem 3rem; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4); transition: all 0.3s ease; display: inline-block;">
+                    💰 Top up GREENS
+                </button>
+                <p style="color: #666; font-size: 0.95rem; margin-top: 0.75rem;">
+                    Buy GREENS credit for food, drinks & activities at the farm
+                </p>
             </div>
 
             <!-- Party Tickets Accordion -->
