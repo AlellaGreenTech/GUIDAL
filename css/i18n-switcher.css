@@ -10,8 +10,15 @@ li .language-switcher {
     margin-left: 0;
 }
 
-/* Ensure container li displays inline */
+/* Ensure container li displays inline and aligns properly in flex nav */
 #language-switcher-container {
+    display: flex;
+    align-items: center;
+    list-style: none;
+}
+
+/* Make sure parent li doesn't break the layout */
+.nav-menu li#language-switcher-container {
     display: flex;
     align-items: center;
 }
