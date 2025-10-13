@@ -287,6 +287,13 @@
         .accordion-body {
             padding: 1rem 1.5rem;
         }
+        /* Quick GREENS buttons hover effect */
+        button[onclick^="setGreensAmount"]:hover {
+            background: #28a745 !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -430,18 +437,6 @@
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('mediumPumpkin', 1)">+</button>
                             </div>
                         </div>
-                        <div class="item-row" style="border-bottom: none;">
-                            <div class="item-label">
-                                <span data-i18n="pumpkinPatch.checkout.individualGreens">💰 Individual GREENS</span><br>
-                                <small style="color: #999;" data-i18n="pumpkinPatch.checkout.individualGreensDesc">For food, activities, etc.</small>
-                            </div>
-                            <div class="item-price">€1 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('scares', -1)">−</button>
-                                <input type="number" id="scares" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('scares', 1)">+</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -458,113 +453,53 @@
                 <div class="accordion-content" id="foodContent">
                     <div class="accordion-body">
                         <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
-                            <strong>Pre-order food and drinks (paid in EUR)</strong>
+                            <strong>Top up your GREENS credit to use at the farm</strong><br>
+                            <small>Use GREENS to buy food, drinks, and activities. A cashier will debit your QR code when you make purchases.</small>
                         </p>
 
-                        <!-- Food Items -->
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span>🍕 Pizza Slice</span><br>
-                                <small style="color: #999;">2.5 GREENS</small>
-                            </div>
-                            <div class="item-price">€2.50 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('pizzaSlice', -1)">−</button>
-                                <input type="number" id="pizzaSlice" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('pizzaSlice', 1)">+</button>
-                            </div>
+                        <!-- View Prices Button -->
+                        <div style="text-align: center; margin-bottom: 1.5rem;">
+                            <a href="../pages/food-menu.html" target="_blank" class="btn" style="display: inline-block; background: #17a2b8; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                                📋 View Food & Activity Prices
+                            </a>
                         </div>
 
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span>🍕 Whole Pizza</span><br>
-                                <small style="color: #999;">8 GREENS</small>
-                            </div>
-                            <div class="item-price">€8 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('wholePizza', -1)">−</button>
-                                <input type="number" id="wholePizza" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('wholePizza', 1)">+</button>
-                            </div>
-                        </div>
+                        <!-- Buy GREENS Section -->
+                        <div style="background: #f0f9f4; padding: 1.5rem; border-radius: 8px; border: 2px solid #28a745;">
+                            <h4 style="margin: 0 0 1rem 0; color: #28a745; font-size: 1.1rem;">💰 Buy GREENS Credit</h4>
 
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span>🌭 Hot Dog</span><br>
-                                <small style="color: #999;">4 GREENS</small>
+                            <!-- Quick Amount Buttons -->
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; justify-content: center;">
+                                <button type="button" onclick="setGreensAmount(10)" style="flex: 1; min-width: 80px; padding: 0.75rem; background: white; border: 2px solid #28a745; color: #28a745; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                    10 GREENS<br><small style="font-weight: normal;">€10</small>
+                                </button>
+                                <button type="button" onclick="setGreensAmount(15)" style="flex: 1; min-width: 80px; padding: 0.75rem; background: white; border: 2px solid #28a745; color: #28a745; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                    15 GREENS<br><small style="font-weight: normal;">€15</small>
+                                </button>
+                                <button type="button" onclick="setGreensAmount(20)" style="flex: 1; min-width: 80px; padding: 0.75rem; background: white; border: 2px solid #28a745; color: #28a745; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                                    20 GREENS<br><small style="font-weight: normal;">€20</small>
+                                </button>
                             </div>
-                            <div class="item-price">€4 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('hotDog', -1)">−</button>
-                                <input type="number" id="hotDog" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('hotDog', 1)">+</button>
-                            </div>
-                        </div>
 
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span>🍔 Burger</span><br>
-                                <small style="color: #999;">5 GREENS</small>
-                            </div>
-                            <div class="item-price">€5 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('burger', -1)">−</button>
-                                <input type="number" id="burger" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('burger', 1)">+</button>
-                            </div>
-                        </div>
-
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span>🥘 Paella Plate</span><br>
-                                <small style="color: #999;">7 GREENS</small>
-                            </div>
-                            <div class="item-price">€7 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('paella', -1)">−</button>
-                                <input type="number" id="paella" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('paella', 1)">+</button>
-                            </div>
-                        </div>
-
-                        <!-- Drinks -->
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span>🥤 Drinks</span><br>
-                                <small style="color: #999;">2.5 GREENS</small>
-                            </div>
-                            <div class="item-price">€2.50 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('drinks', -1)">−</button>
-                                <input type="number" id="drinks" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('drinks', 1)">+</button>
-                            </div>
-                        </div>
-
-                        <div class="item-row" style="border-bottom: none;">
-                            <div class="item-label">
-                                <span>🍟 Chips Plate</span><br>
-                                <small style="color: #999;">5 GREENS</small>
-                            </div>
-                            <div class="item-price">€5 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('chips', -1)">−</button>
-                                <input type="number" id="chips" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('chips', 1)">+</button>
+                            <!-- Custom Amount -->
+                            <div style="margin-top: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Or enter custom amount:</label>
+                                <div class="item-row" style="border: none; padding: 0;">
+                                    <div class="item-label">
+                                        <span data-i18n="pumpkinPatch.checkout.individualGreens">💰 GREENS</span><br>
+                                        <small style="color: #999;">€1 = 1 GREEN</small>
+                                    </div>
+                                    <div class="item-price">€1 x</div>
+                                    <div class="quantity-control">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('scares', -1)">−</button>
+                                        <input type="number" id="scares" class="item-input" min="0" value="0" readonly>
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity('scares', 1)">+</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- GET GREENS Button - Top-up Credits -->
-            <div style="text-align: center; margin: 2rem 0;">
-                <button type="button" class="payment-button" onclick="openGreensTopUp()" style="background: linear-gradient(135deg, #28a745, #20c997); font-size: 1.2rem; padding: 1rem 3rem; box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3); max-width: 400px;">
-                    💰 GET GREENS
-                </button>
-                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
-                    Top up your credit balance for food, drinks & activities
-                </p>
             </div>
 
             <!-- Customer Information Form -->
@@ -845,6 +780,19 @@
             const newValue = Math.max(0, currentValue + delta);
             input.value = newValue;
             calculateTotal();
+        }
+
+        // Quick GREENS amount setter
+        function setGreensAmount(amount) {
+            const input = document.getElementById('scares');
+            input.value = amount;
+            calculateTotal();
+
+            // Open food accordion if not already open
+            const foodContent = document.getElementById('foodContent');
+            if (!foodContent.classList.contains('open')) {
+                toggleAccordion('food');
+            }
         }
 
         // Accordion toggle function
