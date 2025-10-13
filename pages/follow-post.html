@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Follow & Share - GUIDAL</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/i18n-switcher.css">
     <style>
         .follow-header {
             background: linear-gradient(rgba(255, 152, 0, 0.7), rgba(245, 124, 0, 0.7)), url('../images/follow-share-banner.png');
@@ -284,11 +285,7 @@
                 <li><a href="follow-post.html" class="active">Follow & Share</a></li>
                 <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
                 <li><a href="auth/login.html" class="login-btn">Login/Register</a></li>
-                <li class="language-switcher">
-                    <button onclick="switchLanguage('en')" class="lang-btn" data-lang="en">EN</button>
-                    <button onclick="switchLanguage('es')" class="lang-btn" data-lang="es">ES</button>
-                    <button onclick="switchLanguage('ca')" class="lang-btn" data-lang="ca">CA</button>
-                </li>
+                <li id="language-switcher-container"></li>
             </ul>
         </div>
     </nav>
@@ -479,71 +476,11 @@
         });
     </script>
 
-    <!-- Language Switcher Styles -->
-    <style>
-        .language-switcher {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-        .lang-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .lang-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        .lang-btn.active {
-            background: #28a745;
-            border-color: #28a745;
-        }
-        @media (max-width: 768px) {
-            .language-switcher {
-                margin-left: 0;
-                justify-content: center;
-                padding: 1rem 0;
-            }
-        }
-    </style>
-
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-client.js"></script>
 
     <!-- i18n -->
     <script src="../js/i18n.js"></script>
-
-    <!-- Language Switcher Script -->
-    <script>
-        // Global function for language switching
-        async function switchLanguage(langCode) {
-            await window.i18n.changeLanguage(langCode);
-            updateLanguageButtons();
-        }
-
-        // Update active state of language buttons
-        function updateLanguageButtons() {
-            const currentLang = window.i18n.getCurrentLanguage();
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                const btnLang = btn.getAttribute('data-lang');
-                if (btnLang === currentLang) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-        }
-
-        // Initialize language buttons when page loads
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(updateLanguageButtons, 100);
-        });
-    </script>
+    <script src="../js/i18n-switcher.js"></script>
 </body>
 </html>

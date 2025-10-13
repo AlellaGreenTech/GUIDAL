@@ -44,7 +44,12 @@
             }
 
             try {
-                const response = await fetch(`/js/i18n/${langCode}.json`);
+                // Determine the correct path based on current location
+                const path = window.location.pathname;
+                const isSubpage = path.includes('/pages/') || path.includes('/events/');
+                const basePath = isSubpage ? '../js/i18n' : 'js/i18n';
+
+                const response = await fetch(`${basePath}/${langCode}.json`);
                 if (!response.ok) {
                     throw new Error(`Failed to load language: ${langCode}`);
                 }
