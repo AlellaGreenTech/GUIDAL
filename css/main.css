@@ -110,9 +110,10 @@ header .subtitle {
     list-style: none;
     display: flex;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     margin: 0;
     padding: 0;
+    align-items: center;
 }
 
 .nav-menu li {
