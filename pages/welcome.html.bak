@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Alella Green Tech</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        .welcome-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .about-btn {
+            background: #2196f3;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .about-btn:hover {
+            background: #1976d2;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .welcome-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="main-nav">
+        <div class="container" style="display: flex; align-items: center; gap: 2rem;">
+            <a href="../index.html" style="text-decoration: none; display: flex; flex-direction: column; padding: 0.75rem 0;">
+                <span style="font-size: 1.5rem; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); line-height: 1;">GUIDAL</span>
+                <span style="font-size: 0.7rem; color: white; opacity: 0.85; margin-top: 0.15rem;">at Alella Green Tech</span>
+            </a>
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu" style="flex: 1;">
+                <li><a href="directions.html">Directions</a></li>
+                <li><a href="activities.html">Activities</a></li>
+                <li><a href="kits.html">Kits</a></li>
+                <li><a href="visit-planning.html">Plan Visit</a></li>
+                <li><a href="follow-post.html">Follow & Share</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="auth/login.html" class="login-btn">Login/Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container welcome-page">
+        <section id="welcome-hero" class="welcome-hero">
+            <div class="welcome-image">
+                <img src="../images/welcome-hero-new.png" alt="Students learning hands-on at Alella Green Tech farm" class="hero-image">
+            </div>
+        </section>
+
+        <section id="location" class="location-section">
+            <div class="welcome-actions">
+                <a href="about.html" class="btn about-btn">
+                    ℹ️ About Us
+                </a>
+                <a href="https://maps.app.goo.gl/EHQnazxcwPDvXBz48" target="_blank" class="btn map-btn">
+                    📍 View Location on Google Maps
+                </a>
+            </div>
+        </section>
+
+        <section id="welcome-message" class="welcome-message">
+            <div class="welcome-content">
+                <h2>Welcome to Alella Green Tech!</h2>
+                <p>We are thrilled to host you at our living laboratory at Can Picard Farm, where young minds like yours can see science in action and explore the exciting world of green technology and permaculture. As a branch of the International Green Tech Foundation, our mission is to inspire the next generation of green-minded scientists and engineers through hands-on learning experiences and real-world applications.</p>
+
+                <p>This app serves as your comprehensive guide to our sustainable technology demonstrations, innovative projects, and personalized learning stations, designed to enhance your understanding of environmental science, ecology, and sustainable practices.</p>
+
+                <p>Get ready for a day of discovery, from robotics farming and smart irrigation to wattle and daub construction and the erosion challenge, where you'll engage directly with nature and technology to build a greener future!</p>
+
+                <div class="action-links">
+                    <a href="auth/register.html" class="btn register-btn">Register to Get Started</a>
+                    <a href="../index.html#activities" class="btn activities-btn">View Activities</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alella Green Tech - The International Green Tech Foundation. All rights reserved.</p>
+            <p>Sustainable learning at Can Picard Farm, Alella</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu functionality
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (mobileMenuToggle && navMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    mobileMenuToggle.classList.toggle('active');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.main-nav')) {
+                        navMenu.classList.remove('active');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

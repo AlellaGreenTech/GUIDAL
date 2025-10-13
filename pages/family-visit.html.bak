@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plan Your Visit - GUIDAL</title>
+    <title>Family Visit - GUIDAL</title>
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../css/i18n-switcher.css?v=2">
     <style>
         .visit-header {
             background: linear-gradient(rgba(33, 150, 243, 0.7), rgba(21, 101, 192, 0.7)), url('../images/school-visit-bg.png');
@@ -558,87 +557,27 @@
             <ul class="nav-menu" style="flex: 1;">
                 <li><a href="directions.html">Directions</a></li>
                 <li><a href="activities.html">Activities</a></li>
-                <li><a href="../events/pumpkin-patch-checkout.html">🎃 Book Pumpkin Patch</a></li>
                 <li><a href="kits.html">Kits</a></li>
-                <li><a href="visit-planning.html" class="active">Plan Visit</a></li>
-                <li style="margin-left: auto;" id="language-switcher-container"></li>
-                <li><a href="auth/login.html" class="login-btn" style="background: #28a745; color: white; padding: 0.5rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">START</a></li>
+                <li><a href="visit-planning.html">Plan Visit</a></li>
+                <li><a href="follow-post.html">Follow & Share</a></li>
+                <li><a href="https://alellagreentech.com/testimonials/" target="_blank">Blog</a></li>
+                <li><a href="auth/login.html" class="login-btn">Login/Register</a></li>
             </ul>
         </div>
     </nav>
 
     <div class="visit-header">
         <div class="container">
-            <h1>🎓 Plan Your Group's Visit</h1>
-            <p class="visit-subtitle">Plan the perfect learning experience for you, your family or your students</p>
+            <h1>👨‍👩‍👧‍👦 Plan Your Family Visit</h1>
+            <p class="visit-subtitle">Fun & educational family activities at our sustainable farm</p>
         </div>
     </div>
 
     <main class="container">
         <div class="form-container">
             <form id="visitPlanningForm">
-                <!-- Visit Type Selection -->
-                <div class="accordion-section visit-type-accordion">
-                    <button type="button" class="accordion-header active">
-                        <span>🎯 What type of visit do you plan?</span>
-                        <span class="accordion-icon">▼</span>
-                    </button>
-                    <div class="accordion-content active">
-                        <div class="accordion-inner">
-                            <p>Please select the type of educational experience you're planning:</p>
-
-                            <div class="visit-type-options">
-                        <label class="visit-type-option active">
-                            <input type="radio" name="visitType" value="school_day_trip" checked>
-                            <div class="option-content">
-                                <h4>🏫 School Day Field Trip</h4>
-                                <p>Traditional one-day educational visit (10am-3:30pm)</p>
-                            </div>
-                        </label>
-
-                        <label class="visit-type-option">
-                            <input type="radio" name="visitType" value="school_overnight">
-                            <div class="option-content">
-                                <h4>🏕️ School Overnight Field Trip</h4>
-                                <p>Multi-day immersive experience with accommodation</p>
-                            </div>
-                        </label>
-
-                        <label class="visit-type-option">
-                            <input type="radio" name="visitType" value="family_visit">
-                            <div class="option-content">
-                                <h4>👨‍👩‍👧‍👦 Family Visit</h4>
-                                <p>Fun & educational family activities</p>
-                            </div>
-                        </label>
-
-                        <label class="visit-type-option disabled">
-                            <input type="radio" name="visitType" value="individual_workshops" disabled>
-                            <div class="option-content">
-                                <h4>🔬 Individual Workshops</h4>
-                                <p>Single workshop sessions (Coming Soon)</p>
-                            </div>
-                        </label>
-
-                        <label class="visit-type-option disabled">
-                            <input type="radio" name="visitType" value="event" disabled>
-                            <div class="option-content">
-                                <h4>🌱 Special Event</h4>
-                                <p>Community events and celebrations (Coming Soon)</p>
-                            </div>
-                        </label>
-
-                        <label class="visit-type-option disabled">
-                            <input type="radio" name="visitType" value="special_lunch" disabled>
-                            <div class="option-content">
-                                <h4>🍽️ Special Lunch Experience</h4>
-                                <p>Culinary education with meal preparation (Coming Soon)</p>
-                            </div>
-                        </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Hidden input to set visit type as family visit -->
+                <input type="hidden" name="visitType" value="family_visit">
 
                 <!-- Day Trip Schedule (shown by default since day trip is selected) -->
                 <div id="dayTripSchedule" class="agenda-info" style="display: block;">
@@ -1488,15 +1427,15 @@
 
                         // Build the visit data object
                         const visitData = {
-                            // Visit type and basic info
-                            visit_type: formData.get('visitType') || 'school_day_trip',
+                            // Visit type - always family_visit for this form
+                            visit_type: 'family_visit',
 
                             // Contact information
                             contact_email: formData.get('leadTeacherEmail'),
                             lead_teacher_contact: formData.get('leadTeacherName'),
 
-                            // School information
-                            school_name: formData.get('schoolName'),
+                            // School information (may be blank for family visits)
+                            school_name: formData.get('schoolName') || 'Family Visit',
                             country_of_origin: formData.get('country'),
                             city: formData.get('city'),
 
@@ -1520,7 +1459,7 @@
                             additional_comments: formData.get('additionalComments') || null,
 
                             // Overnight-specific fields
-                            number_of_nights: formData.get('visitType') === 'school_overnight' ? parseInt(formData.get('numberOfNights') || formData.get('customNights') || 0) : 0,
+                            number_of_nights: parseInt(formData.get('numberOfNights') || formData.get('customNights') || 0),
                             arrival_date_time: formData.get('arrivalDateTime') || null,
                             departure_date_time: formData.get('departureDateTime') || null,
                             accommodation_selection: formData.get('accommodationSelection') || null,
@@ -1531,7 +1470,7 @@
                             status: 'pending'
                         };
 
-                        console.log('📝 Submitting visit request:', visitData);
+                        console.log('📝 Submitting family visit request:', visitData);
 
                         // Wait for Supabase client to be ready
                         if (!window.supabaseClient) {
@@ -1549,10 +1488,10 @@
                             throw new Error(error.message || 'Failed to submit visit request');
                         }
 
-                        console.log('✅ Visit request submitted successfully:', data);
+                        console.log('✅ Family visit request submitted successfully:', data);
 
                         // Show success message
-                        alert('✅ Thank you! Your visit request has been submitted successfully. We will contact you soon at ' + visitData.contact_email);
+                        alert('✅ Thank you! Your family visit request has been submitted successfully. We will contact you soon at ' + visitData.contact_email);
 
                         // Reset form
                         form.reset();
@@ -1570,12 +1509,5 @@
             }
         });
     </script>
-
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="../js/supabase-client.js"></script>
-
-    <!-- i18n -->
-    <script src="../js/i18n.js"></script>
-    <script src="../js/i18n-switcher.js"></script>
 </body>
 </html>
