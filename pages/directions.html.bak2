@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Directions - GUIDAL</title>
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/i18n-switcher.css?v=3">
+    <link rel="stylesheet" href="../css/i18n-switcher.css?v=2">
     <style>
         .directions-container {
             max-width: 900px;

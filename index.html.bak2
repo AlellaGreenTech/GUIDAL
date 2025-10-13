@@ -6,7 +6,7 @@
     <title>GUIDAL - Guide to All at Alella Green Tech</title>
     <!-- GitHub Pages deployment trigger -->
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="css/i18n-switcher.css?v=3">
+    <link rel="stylesheet" href="css/i18n-switcher.css?v=2">
 </head>
 <body>
     <header>

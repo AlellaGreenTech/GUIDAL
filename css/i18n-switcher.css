@@ -10,6 +10,12 @@ li .language-switcher {
     margin-left: 0;
 }
 
+/* Ensure container li displays inline */
+#language-switcher-container {
+    display: flex;
+    align-items: center;
+}
+
 .lang-dropdown-btn {
     display: flex;
     align-items: center;

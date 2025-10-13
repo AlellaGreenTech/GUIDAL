@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plan Your Visit - GUIDAL</title>
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../css/i18n-switcher.css?v=3">
+    <link rel="stylesheet" href="../css/i18n-switcher.css?v=2">
     <style>
         .visit-header {
             background: linear-gradient(rgba(33, 150, 243, 0.7), rgba(21, 101, 192, 0.7)), url('../images/school-visit-bg.png');

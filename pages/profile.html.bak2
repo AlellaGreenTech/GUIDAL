@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - GUIDAL</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid white;
+            margin: 0 auto 1rem;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .tab-content {
+            padding: 2rem;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section h3 {
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-green);
+            padding-bottom: 0.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--light-green);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-green);
+        }
+
+        .registrations-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .registration-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .registration-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            margin-right: 1rem;
+            background: var(--light-green);
+            flex-shrink: 0;
+        }
+
+        .registration-details {
+            flex: 1;
+        }
+
+        .registration-title {
+            font-weight: bold;
+            color: var(--primary-green);
+            margin-bottom: 0.25rem;
+        }
+
+        .registration-meta {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-registered { background: #e3f2fd; color: #1976d2; }
+        .status-confirmed { background: #e8f5e8; color: #2e7d32; }
+        .status-cancelled { background: #ffebee; color: #c62828; }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-green);
+            background: var(--light-green);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary-green);
+            background: var(--accent-green);
+        }
+
+        .notifications-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-left: 4px solid var(--primary-green);
+            background: white;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .notification-item.unread {
+            background: #f8f9ff;
+            border-left-color: var(--secondary-green);
+        }
+
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-meta {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="main-nav">
+        <div class="container">
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#activities">Activities</a></li>
+                <li><a href="#" id="authLink">Profile</a></li>
+                <li><a href="#" id="logoutBtn" style="display:none;">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div id="loginRequired" class="error-message" style="display: none; text-align: center; margin: 2rem 0;">
+            <h3>🔒 Login Required</h3>
+            <p>Please <a href="auth/login.html">login</a> to view your profile.</p>
+        </div>
+
+        <div id="profileContainer" class="profile-container" style="display: none;">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">
+                    👤
+                </div>
+                <h2 id="profileName">Loading...</h2>
+                <p id="profileEmail"></p>
+                <p id="profileSchool"></p>
+            </div>
+
+            <div class="profile-tabs">
+                <button class="tab-button active" data-tab="overview">Overview</button>
+                <button class="tab-button" data-tab="edit">Edit Profile</button>
+                <button class="tab-button" data-tab="registrations">My Activities</button>
+                <button class="tab-button" data-tab="notifications">Notifications</button>
+                <button class="tab-button" data-tab="admin" id="adminTab" style="display: none; color: #dc3545;">🛡️ Admin</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Overview Tab -->
+                <div class="tab-panel active" id="overview">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalRegistrations">0</div>
+                            <div>Activities Registered</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="creditsBalance">0</div>
+                            <div>GREENs Credits</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="memberSince">-</div>
+                            <div>Member Since</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Account Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>User Type:</label>
+                                <p id="userType">-</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone:</label>
+                                <p id="phone">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Profile Tab -->
+                <div class="tab-panel" id="edit">
+                    <form id="profileForm">
+                        <div class="form-section">
+                            <h3>Profile Picture</h3>
+                            <div class="upload-area" id="avatarUpload">
+                                <p>📷 Click or drag to upload profile picture</p>
+                                <input type="file" id="avatarFile" accept="image/*" style="display: none;">
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Personal Information</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editFullName">Full Name</label>
+                                    <input type="text" id="editFullName" name="fullName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editPhone">Phone</label>
+                                    <input type="tel" id="editPhone" name="phone">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="editEmergencyContact">Emergency Contact</label>
+                                <input type="text" id="editEmergencyContact" name="emergencyContact"
+                                       placeholder="Name and phone number">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="editDietaryRestrictions">Dietary Restrictions</label>
+                                <textarea id="editDietaryRestrictions" name="dietaryRestrictions" rows="3"
+                                          placeholder="Any allergies or dietary requirements..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>School Information</h3>
+                            <div class="form-group">
+                                <label for="editSchool">School</label>
+                                <select id="editSchool" name="schoolId">
+                                    <option value="">Select your school...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+
+                <!-- My Activities Tab -->
+                <div class="tab-panel" id="registrations">
+                    <h3>My Registered Activities</h3>
+                    <div class="registrations-list" id="registrationsList">
+                        <p>Loading your activities...</p>
+                    </div>
+                </div>
+
+                <!-- Notifications Tab -->
+                <div class="tab-panel" id="notifications">
+                    <h3>My Notifications</h3>
+                    <div class="notifications-list" id="notificationsList">
+                        <p>Loading notifications...</p>
+                    </div>
+                </div>
+
+                <!-- Admin Tab Panel -->
+                <div class="tab-panel" id="admin">
+                    <h3>🛡️ Admin Dashboard</h3>
+                    <div class="admin-quick-actions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                        <a href="admin/dashboard.html" class="admin-card" style="display: block; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; text-decoration: none; color: #333; border: 2px solid #dee2e6; transition: all 0.2s ease;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #495057;">Dashboard</h4>
+                            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Manage users, activities, and schools</p>
+                        </a>
+                        <a href="../admin/booking-config.html" class="admin-card" style="display: block; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; text-decoration: none; color: #333; border: 2px solid #dee2e6; transition: all 0.2s ease;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #495057;">Booking Config</h4>
+                            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Configure booking settings and restrictions</p>
+                        </a>
+                        <a href="../admin/pumpkin-orders.html" class="admin-card" style="display: block; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; text-decoration: none; color: #333; border: 2px solid #dee2e6; transition: all 0.2s ease;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎃</div>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #495057;">Pumpkin Patch Orders</h4>
+                            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">View and manage Halloween event orders</p>
+                        </a>
+                        <a href="../admin/email-templates.html" class="admin-card" style="display: block; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; text-decoration: none; color: #333; border: 2px solid #dee2e6; transition: all 0.2s ease;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📧</div>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #495057;">Email Templates</h4>
+                            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Manage confirmation email templates</p>
+                        </a>
+                    </div>
+                    <style>
+                        .admin-card:hover {
+                            border-color: #28a745 !important;
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                        }
+                    </style>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 GUIDAL - The International Green Tech Foundation. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        class ProfileManager {
+            constructor() {
+                this.currentUser = null;
+                this.currentTab = 'overview';
+
+                this.init();
+            }
+
+            async init() {
+                await this.checkAuth();
+                this.setupEventListeners();
+                this.setupTabNavigation();
+                await this.loadSchools();
+            }
+
+            async checkAuth() {
+                try {
+                    this.currentUser = await GuidalDB.getCurrentUser();
+
+                    if (!this.currentUser) {
+                        document.getElementById('loginRequired').style.display = 'block';
+                        return;
+                    }
+
+                    document.getElementById('profileContainer').style.display = 'block';
+                    document.getElementById('logoutBtn').style.display = 'block';
+
+                    await this.loadProfile();
+                    await this.loadUserStats();
+                    await this.loadRegistrations();
+                    await this.loadNotifications();
+                } catch (error) {
+                    console.error('Auth check failed:', error);
+                    document.getElementById('loginRequired').style.display = 'block';
+                }
+            }
+
+            async loadProfile() {
+                if (!this.currentUser) return;
+
+                try {
+                    const profile = await GuidalDB.getProfile(this.currentUser.id);
+
+                    document.getElementById('profileName').textContent = profile.full_name || 'Unknown User';
+                    document.getElementById('profileEmail').textContent = profile.email;
+                    document.getElementById('profileSchool').textContent = profile.school?.name || 'No school selected';
+                    document.getElementById('userType').textContent = profile.role || 'user';
+                    document.getElementById('phone').textContent = profile.phone || 'Not provided';
+
+                    // Show admin tab if user is admin
+                    if (profile.email === 'martin@guidal.be' || profile.role === 'admin') {
+                        document.getElementById('adminTab').style.display = 'block';
+                    }
+
+                    // Member since
+                    const memberSince = new Date(profile.created_at).getFullYear();
+                    document.getElementById('memberSince').textContent = memberSince;
+
+                    // Credits
+                    document.getElementById('creditsBalance').textContent = profile.credits || 0;
+
+                    // Load avatar
+                    if (profile.avatar_url) {
+                        const avatarEl = document.getElementById('profileAvatar');
+                        avatarEl.innerHTML = `<img src="${profile.avatar_url}" alt="Profile">`;
+                    }
+
+                    // Populate edit form
+                    document.getElementById('editFullName').value = profile.full_name || '';
+                    document.getElementById('editPhone').value = profile.phone || '';
+                    document.getElementById('editEmergencyContact').value = profile.emergency_contact || '';
+                    document.getElementById('editDietaryRestrictions').value = profile.dietary_restrictions || '';
+                    document.getElementById('editSchool').value = profile.school_id || '';
+
+                } catch (error) {
+                    console.error('Failed to load profile:', error);
+                }
+            }
+
+            async loadUserStats() {
+                if (!this.currentUser) return;
+
+                try {
+                    const registrations = await GuidalDB.getMyRegistrations(this.currentUser.id);
+                    document.getElementById('totalRegistrations').textContent = registrations.length;
+                } catch (error) {
+                    console.error('Failed to load user stats:', error);
+                }
+            }
+
+            async loadRegistrations() {
+                if (!this.currentUser) return;
+
+                try {
+                    const registrations = await GuidalDB.getMyRegistrations(this.currentUser.id);
+                    const container = document.getElementById('registrationsList');
+
+                    if (registrations.length === 0) {
+                        container.innerHTML = '<p>You haven\'t registered for any activities yet.</p>';
+                        return;
+                    }
+
+                    container.innerHTML = registrations.map(reg => `
+                        <div class="registration-item">
+                            <div class="registration-image" style="background-image: url('${reg.activity.featured_image || ''}')"></div>
+                            <div class="registration-details">
+                                <div class="registration-title">${reg.activity.title}</div>
+                                <div class="registration-meta">
+                                    📅 ${new Date(reg.activity.date_time).toLocaleDateString()}
+                                    📍 ${reg.activity.location}
+                                    <span class="status-badge status-${reg.status}">${reg.status}</span>
+                                </div>
+                            </div>
+                            ${reg.status === 'registered' ?
+                                `<button class="btn btn-secondary" onclick="profileManager.cancelRegistration('${reg.id}', '${reg.activity_id}')">Cancel</button>` :
+                                ''
+                            }
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Failed to load registrations:', error);
+                }
+            }
+
+            async loadNotifications() {
+                if (!this.currentUser) return;
+
+                try {
+                    const notifications = await GuidalDB.getNotifications(this.currentUser.id);
+                    const container = document.getElementById('notificationsList');
+
+                    if (notifications.length === 0) {
+                        container.innerHTML = '<p>No notifications yet.</p>';
+                        return;
+                    }
+
+                    container.innerHTML = notifications.map(notif => `
+                        <div class="notification-item ${!notif.is_read ? 'unread' : ''}"
+                             onclick="profileManager.markNotificationRead('${notif.id}')">
+                            <div class="notification-title">${notif.title}</div>
+                            <div>${notif.message}</div>
+                            <div class="notification-meta">
+                                ${new Date(notif.created_at).toLocaleDateString()}
+                                ${!notif.is_read ? '• Unread' : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Failed to load notifications:', error);
+                }
+            }
+
+            async loadSchools() {
+                try {
+                    const schools = await GuidalDB.getSchools();
+                    const select = document.getElementById('editSchool');
+
+                    schools.forEach(school => {
+                        const option = document.createElement('option');
+                        option.value = school.id;
+                        option.textContent = school.name;
+                        select.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Failed to load schools:', error);
+                }
+            }
+
+            setupTabNavigation() {
+                const tabButtons = document.querySelectorAll('.tab-button');
+                const tabPanels = document.querySelectorAll('.tab-panel');
+
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const tabName = button.dataset.tab;
+
+                        // Update active tab button
+                        tabButtons.forEach(b => b.classList.remove('active'));
+                        button.classList.add('active');
+
+                        // Update active panel
+                        tabPanels.forEach(p => p.classList.remove('active'));
+                        document.getElementById(tabName).classList.add('active');
+
+                        this.currentTab = tabName;
+                    });
+                });
+            }
+
+            setupEventListeners() {
+                // Profile form submission
+                document.getElementById('profileForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveProfile();
+                });
+
+                // Avatar upload
+                const uploadArea = document.getElementById('avatarUpload');
+                const fileInput = document.getElementById('avatarFile');
+
+                uploadArea.addEventListener('click', () => fileInput.click());
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.classList.remove('dragover');
+                });
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.handleAvatarUpload(files[0]);
+                    }
+                });
+
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        this.handleAvatarUpload(e.target.files[0]);
+                    }
+                });
+
+                // Logout
+                document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.logout();
+                });
+
+                // Auth state changes
+                GuidalDB.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_OUT') {
+                        window.location.href = '../index.html';
+                    }
+                });
+            }
+
+            async saveProfile() {
+                if (!this.currentUser) return;
+
+                try {
+                    const formData = new FormData(document.getElementById('profileForm'));
+                    const profileData = {
+                        full_name: formData.get('fullName'),
+                        phone: formData.get('phone'),
+                        emergency_contact: formData.get('emergencyContact'),
+                        dietary_restrictions: formData.get('dietaryRestrictions'),
+                        school_id: formData.get('schoolId') || null
+                    };
+
+                    await GuidalDB.updateProfile(this.currentUser.id, profileData);
+
+                    // Show success message
+                    this.showNotification('Profile updated successfully!', 'success');
+
+                    // Reload profile data
+                    await this.loadProfile();
+                } catch (error) {
+                    console.error('Profile save failed:', error);
+                    const message = GuidalDB.handleError(error, 'Profile Update');
+                    this.showNotification(message, 'error');
+                }
+            }
+
+            async handleAvatarUpload(file) {
+                if (!this.currentUser) return;
+
+                try {
+                    // Validate file
+                    if (!file.type.startsWith('image/')) {
+                        this.showNotification('Please select an image file.', 'error');
+                        return;
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                        this.showNotification('File size must be less than 5MB.', 'error');
+                        return;
+                    }
+
+                    // Upload file
+                    const fileName = `${this.currentUser.id}-${Date.now()}.${file.name.split('.').pop()}`;
+                    const filePath = `avatars/${fileName}`;
+
+                    await GuidalDB.uploadFile('avatars', filePath, file);
+                    const avatarUrl = await GuidalDB.getPublicUrl('avatars', filePath);
+
+                    // Update profile
+                    await GuidalDB.updateProfile(this.currentUser.id, {
+                        avatar_url: avatarUrl
+                    });
+
+                    // Update UI
+                    const avatarEl = document.getElementById('profileAvatar');
+                    avatarEl.innerHTML = `<img src="${avatarUrl}" alt="Profile">`;
+
+                    this.showNotification('Profile picture updated!', 'success');
+                } catch (error) {
+                    console.error('Avatar upload failed:', error);
+                    const message = GuidalDB.handleError(error, 'Avatar Upload');
+                    this.showNotification(message, 'error');
+                }
+            }
+
+            async cancelRegistration(registrationId, activityId) {
+                if (!confirm('Are you sure you want to cancel this registration?')) return;
+
+                try {
+                    await GuidalDB.cancelRegistration(registrationId, activityId);
+                    this.showNotification('Registration cancelled successfully.', 'success');
+                    await this.loadRegistrations();
+                    await this.loadUserStats();
+                } catch (error) {
+                    console.error('Cancel registration failed:', error);
+                    const message = GuidalDB.handleError(error, 'Cancel Registration');
+                    this.showNotification(message, 'error');
+                }
+            }
+
+            async markNotificationRead(notificationId) {
+                try {
+                    await GuidalDB.markNotificationRead(notificationId);
+                    await this.loadNotifications();
+                } catch (error) {
+                    console.error('Mark notification read failed:', error);
+                }
+            }
+
+            async logout() {
+                try {
+                    await GuidalDB.signOut();
+                    window.location.href = '../index.html';
+                } catch (error) {
+                    console.error('Logout failed:', error);
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        ${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'} ${message}
+                    </div>
+                `;
+
+                // Add styles
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
+                    color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460'};
+                    padding: 1rem;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    z-index: 1000;
+                    max-width: 400px;
+                `;
+
+                document.body.appendChild(notification);
+
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    notification.remove();
+                }, 5000);
+            }
+        }
+
+        // Initialize profile manager
+        let profileManager;
+        document.addEventListener('DOMContentLoaded', () => {
+            profileManager = new ProfileManager();
+        });
+    </script>
+</body>
+</html>
