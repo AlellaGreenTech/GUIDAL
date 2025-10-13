@@ -3,7 +3,11 @@
 .language-switcher {
     position: relative;
     display: inline-block;
-    margin-left: auto;
+}
+
+/* When inside a nav list item, remove margin */
+li .language-switcher {
+    margin-left: 0;
 }
 
 .lang-dropdown-btn {
