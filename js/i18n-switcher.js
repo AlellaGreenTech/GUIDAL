@@ -112,20 +112,13 @@
 
         // Initialize the switcher in a container
         init(containerId = 'language-switcher-container') {
-            // Try multiple container IDs (header first, then nav)
-            const containerIds = ['header-language-switcher', containerId];
-            let container = null;
-
-            for (const id of containerIds) {
-                container = document.getElementById(id);
-                if (container) break;
-            }
+            const container = document.getElementById(containerId);
 
             if (container) {
                 const switcher = this.createSwitcher();
                 container.appendChild(switcher);
             } else {
-                console.warn(`Language switcher container not found. Tried: ${containerIds.join(', ')}`);
+                console.warn(`Language switcher container #${containerId} not found`);
             }
 
             // Listen for language change events
@@ -174,15 +167,12 @@
     // Auto-initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-            // Try auto-inject, or look for container
-            if (!window.languageSwitcher.autoInject()) {
-                window.languageSwitcher.init();
-            }
+            // Only use the designated container, don't auto-inject
+            window.languageSwitcher.init();
         });
     } else {
-        if (!window.languageSwitcher.autoInject()) {
-            window.languageSwitcher.init();
-        }
+        // Only use the designated container, don't auto-inject
+        window.languageSwitcher.init();
     }
 
 })();
