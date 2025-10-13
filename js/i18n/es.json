@@ -100,5 +100,11 @@
       "login": "Iniciar Sesión/Registrarse",
       "start": "EMPEZAR"
     }
+  },
+  "activitiesPage": {
+    "heading": "¿Qué te trae a Alella Green Tech?",
+    "searchPlaceholder": "Buscar...",
+    "upcoming": "📅 Próximas",
+    "past": "📚 Pasadas"
   }
 }

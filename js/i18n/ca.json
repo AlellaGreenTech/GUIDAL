@@ -100,5 +100,11 @@
       "login": "Iniciar Sessió/Registrar-se",
       "start": "COMENÇAR"
     }
+  },
+  "activitiesPage": {
+    "heading": "Què et porta a Alella Green Tech?",
+    "searchPlaceholder": "Cercar...",
+    "upcoming": "📅 Properes",
+    "past": "📚 Passades"
   }
 }
