@@ -425,9 +425,9 @@
             <div class="cart-total">
                 Total: <span id="totalGreens">0</span> GREENS
             </div>
-            <button class="buy-greens-btn" onclick="buyGreens()">
-                💰 Buy GREENS
-            </button>
+            <a href="../events/pumpkin-patch-checkout.html" class="buy-greens-btn" onclick="returnToCheckout(event)">
+                ← Back to Checkout
+            </a>
         </div>
     </main>
 
@@ -477,9 +477,25 @@
         // Cart state
         const cart = {};
 
+        // Checkout state preservation
+        let checkoutState = {};
+
         // Initialize cart with all items at 0
         Object.keys(itemPrices).forEach(itemId => {
             cart[itemId] = 0;
+        });
+
+        // On page load, check if we came from checkout and preserve state
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Preserve checkout state from URL parameters
+            checkoutState = {
+                adults: urlParams.get('adults') || '0',
+                children: urlParams.get('children') || '0',
+                visit: urlParams.get('visit') || '0',
+                existingGreens: urlParams.get('existingGreens') || '0'
+            };
         });
 
         function changeQuantity(itemId, delta) {
@@ -514,12 +530,31 @@
             }
         }
 
-        function buyGreens() {
-            const total = calculateTotal();
-            if (total > 0) {
-                // Redirect to checkout with the amount pre-filled
-                window.location.href = `../events/pumpkin-patch-checkout.html?greens=${total}`;
+        function returnToCheckout(event) {
+            event.preventDefault();
+
+            const menuGreens = calculateTotal();
+            const existingGreens = parseFloat(checkoutState.existingGreens) || 0;
+            const totalGreens = menuGreens + existingGreens;
+
+            // Build URL with all preserved state plus new menu GREENS
+            let url = '../events/pumpkin-patch-checkout.html';
+            const params = new URLSearchParams();
+
+            // Preserve party and visit quantities
+            if (checkoutState.adults !== '0') params.set('adults', checkoutState.adults);
+            if (checkoutState.children !== '0') params.set('children', checkoutState.children);
+            if (checkoutState.visit !== '0') params.set('visit', checkoutState.visit);
+
+            // Add total GREENS (existing + menu)
+            if (totalGreens > 0) params.set('greens', totalGreens.toFixed(1));
+
+            const queryString = params.toString();
+            if (queryString) {
+                url += '?' + queryString;
             }
+
+            window.location.href = url;
         }
     </script>
 

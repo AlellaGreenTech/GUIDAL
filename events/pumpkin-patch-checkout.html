@@ -509,7 +509,7 @@
 
                 <!-- View Prices Button -->
                 <div style="text-align: center; margin-bottom: 1.5rem;">
-                    <a href="../pages/food-menu.html" target="_blank" class="btn" style="display: inline-block; background: #17a2b8; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                    <a href="#" onclick="goToFoodMenu(event)" class="btn" style="display: inline-block; background: #17a2b8; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
                         📋 View Food & Activity Prices
                     </a>
                 </div>
@@ -764,8 +764,22 @@
             const urlParams = new URLSearchParams(window.location.search);
             const openAccordion = urlParams.get('open');
             const greensAmount = urlParams.get('greens');
+            const adultsParam = urlParams.get('adults');
+            const childrenParam = urlParams.get('children');
+            const visitParam = urlParams.get('visit');
 
-            // Pre-fill GREENS amount if provided
+            // Pre-fill quantities from URL parameters (coming back from menu)
+            if (adultsParam) {
+                document.getElementById('adults').value = adultsParam;
+            }
+            if (childrenParam) {
+                document.getElementById('children').value = childrenParam;
+            }
+            if (visitParam) {
+                document.getElementById('visit').value = visitParam;
+            }
+
+            // Pre-fill GREENS amount if provided (this is the TOTAL from menu + existing)
             if (greensAmount) {
                 const greensInput = document.getElementById('scares');
                 greensInput.value = Math.ceil(parseFloat(greensAmount));
@@ -788,6 +802,11 @@
                     toggleAccordion('party');
                     document.getElementById('partyAccordion').scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 500);
+            }
+
+            // Recalculate total if any quantities were restored
+            if (adultsParam || childrenParam || visitParam || greensAmount) {
+                calculateTotal();
             }
 
             // Track on email input
@@ -874,6 +893,32 @@
             const input = document.getElementById('scares');
             input.value = amount;
             calculateTotal();
+        }
+
+        // Navigate to food menu with current checkout state
+        function goToFoodMenu(event) {
+            event.preventDefault();
+
+            const adults = document.getElementById('adults').value;
+            const children = document.getElementById('children').value;
+            const visit = document.getElementById('visit').value;
+            const existingGreens = document.getElementById('scares').value;
+
+            // Build URL with current checkout state
+            let url = '../pages/food-menu.html';
+            const params = new URLSearchParams();
+
+            if (adults !== '0') params.set('adults', adults);
+            if (children !== '0') params.set('children', children);
+            if (visit !== '0') params.set('visit', visit);
+            if (existingGreens !== '0') params.set('existingGreens', existingGreens);
+
+            const queryString = params.toString();
+            if (queryString) {
+                url += '?' + queryString;
+            }
+
+            window.location.href = url;
         }
 
         // Accordion toggle function
