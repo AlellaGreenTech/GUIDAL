@@ -741,6 +741,24 @@
 
         // Add event listeners to track activity
         document.addEventListener('DOMContentLoaded', function() {
+            // Check URL parameter and open appropriate accordion
+            const urlParams = new URLSearchParams(window.location.search);
+            const openAccordion = urlParams.get('open');
+
+            if (openAccordion === 'visit') {
+                // Open visit accordion for "Pick Your Own Pumpkins"
+                setTimeout(() => {
+                    toggleAccordion('visit');
+                    document.getElementById('visitAccordion').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 500);
+            } else if (openAccordion === 'party') {
+                // Open party accordion for party events
+                setTimeout(() => {
+                    toggleAccordion('party');
+                    document.getElementById('partyAccordion').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 500);
+            }
+
             // Track on email input
             document.getElementById('email').addEventListener('input', trackActivity);
 
