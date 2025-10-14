@@ -352,9 +352,21 @@
                 </div>
                 <div class="accordion-content" id="partyContent">
                     <div class="accordion-body">
-                        <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
-                            <strong data-i18n="pumpkinPatch.checkout.partyDates">October 25th or November 1st, 2025</strong>
-                        </p>
+                        <!-- Party Date Selection -->
+                        <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                            <label for="partyDate" style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">
+                                📅 Select Party Date *
+                            </label>
+                            <select id="partyDate" required style="width: 100%; padding: 0.75rem; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem; background: white; cursor: pointer;">
+                                <option value="">-- Choose a date --</option>
+                                <option value="2025-10-25">🎃 October 25th, 2025 (Maxi-Party)</option>
+                                <option value="2025-11-01">🎃 November 1st, 2025 (Mini-Party)</option>
+                            </select>
+                            <small style="color: #856404; display: block; margin-top: 0.5rem;">
+                                ⚠️ Please select your party date before proceeding
+                            </small>
+                        </div>
+
                         <div class="item-row">
                             <div>
                                 <div class="item-label" data-i18n="pumpkinPatch.checkout.adultTicket">👨 Adult Entrance Ticket</div>
@@ -764,7 +776,7 @@
 
             // Track on any form field change
             ['firstName', 'lastName', 'phone', 'visit', 'adults', 'children',
-             'smallPumpkin', 'mediumPumpkin', 'scares',
+             'smallPumpkin', 'mediumPumpkin', 'scares', 'partyDate', 'visitDate',
              'pizzaSlice', 'wholePizza', 'hotDog', 'burger', 'paella',
              'drinks', 'chips'].forEach(id => {
                 const element = document.getElementById(id);
