@@ -406,9 +406,17 @@
                 </div>
                 <div class="accordion-content" id="visitContent">
                     <div class="accordion-body">
-                        <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
-                            <strong data-i18n="pumpkinPatch.checkout.nonPartyDates">Any day October 10-31 (except party days)</strong>
-                        </p>
+                        <!-- Visit Date Selection -->
+                        <div style="background: #d4edda; border: 2px solid #28a745; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                            <label for="visitDate" style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">
+                                📅 Select Visit Date *
+                            </label>
+                            <input type="date" id="visitDate" required style="width: 100%; padding: 0.75rem; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem; background: white; cursor: pointer;" min="2025-10-10" max="2025-10-31">
+                            <small style="color: #155724; display: block; margin-top: 0.5rem;">
+                                ℹ️ Choose any date October 10-31 (except October 25 & November 1 - Party Days)
+                            </small>
+                        </div>
+
                         <div class="item-row">
                             <div>
                                 <div class="item-label" data-i18n="pumpkinPatch.checkout.visitPass">👨👶 Visit Pass (Adult or Child)</div>
@@ -552,29 +560,6 @@
                         <input type="tel" id="phone" class="form-input" data-i18n-placeholder data-i18n="pumpkinPatch.checkout.phonePlaceholder">
                     </div>
                 </div>
-            </div>
-
-            <!-- Party Date Selection (shown only when party tickets selected) -->
-            <div id="partyDateSection" style="display: none; background: #fff3cd; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #ff6b35;">
-                <h3 style="margin-top: 0; color: #ff6b35;" data-i18n="pumpkinPatch.checkout.selectPartyDate">📅 Select Party Date *</h3>
-                <div class="form-group">
-                    <select id="partyDate" class="form-input" style="width: 100%; font-size: 1rem;">
-                        <option value="2025-10-25" selected>🎃 October 25th, 2025 (Maxi-Party)</option>
-                        <option value="2025-11-01">🎃 November 1st, 2025 (Mini-Party)</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Visit Date Selection (shown only when visit pass selected) -->
-            <div id="visitDateSection" style="display: none; background: #d4edda; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border: 2px solid #28a745;">
-                <h3 style="margin-top: 0; color: #28a745;" data-i18n="pumpkinPatch.checkout.selectVisitDate">📅 Select Visit Date *</h3>
-                <p style="margin-bottom: 1rem; color: #666;" data-i18n="pumpkinPatch.checkout.selectVisitDateDesc">Choose any date from October 10-31, 2025 (except party days)</p>
-                <div class="form-group">
-                    <input type="date" id="visitDate" class="form-input" style="width: 100%; font-size: 1rem;" min="2025-10-10" max="2025-10-31">
-                </div>
-                <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
-                    <strong data-i18n="pumpkinPatch.checkout.notAvailable">Not available:</strong> <span data-i18n="pumpkinPatch.checkout.partyDaysNote">October 25th & November 1st (Party Days)</span>
-                </p>
             </div>
 
             <div class="total-row">
