@@ -567,6 +567,16 @@
                         ✓ Ah, welcome back! You can order without filling in your contact details again. Top up your GREENS above then...
                     </small>
                 </div>
+
+                <!-- Account Creation Checkbox -->
+                <div style="background: #e7f3ff; border: 2px solid #2196f3; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+                    <label style="display: flex; align-items: start; gap: 0.75rem; cursor: pointer;">
+                        <input type="checkbox" id="createAccount" checked style="width: 20px; height: 20px; cursor: pointer; margin-top: 2px; flex-shrink: 0;">
+                        <span style="font-size: 0.95rem; color: #004085; line-height: 1.5;">
+                            <strong>Make me an Alella Green Tech account</strong> so that I can use any leftover GREENS for future activities. You'll receive a welcome email in one week with your password setup link and QR code.
+                        </span>
+                    </label>
+                </div>
                 <div id="customerDetailsSection" style="display: none;">
                     <div class="form-group">
                         <label for="firstName" data-i18n="pumpkinPatch.checkout.firstName">First Name *</label>
@@ -1471,6 +1481,12 @@
 
                     // Send admin notification for order_created
                     await sendAdminNotification(order.id, 'order_created');
+
+                    // Schedule welcome account email if checkbox is checked
+                    const createAccountChecked = document.getElementById('createAccount').checked;
+                    if (createAccountChecked) {
+                        await scheduleWelcomeAccountEmail(order, orderItems);
+                    }
                 } else {
                     console.warn('⚠️ Order has temp ID - emails will not be sent until order is in database');
                 }
@@ -1654,6 +1670,59 @@
                 console.error('❌ Error sending admin notification:', error);
                 console.error('Error stack:', error.stack);
                 // Don't fail the order if notification fails
+            }
+        }
+
+        // Schedule welcome account email
+        async function scheduleWelcomeAccountEmail(order, orderItems) {
+            try {
+                // Generate QR code data (email + order ID)
+                const qrCodeData = `AGT-${order.email}-${order.id}`;
+
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+                const functionUrl = `${window.supabaseClient.supabaseUrl}/functions/v1/send-welcome-account-email`;
+
+                if (DEBUG_MODE) {
+                    console.log('📧 Scheduling welcome account email:', {
+                        email: order.email,
+                        orderId: order.id,
+                        functionUrl
+                    });
+                }
+
+                const response = await fetch(functionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session?.access_token || window.supabaseClient.supabaseKey}`
+                    },
+                    body: JSON.stringify({
+                        email: order.email,
+                        firstName: order.first_name,
+                        lastName: order.last_name,
+                        qrCodeData: qrCodeData,
+                        orderId: order.id
+                    })
+                });
+
+                const result = await response.json();
+
+                if (DEBUG_MODE) {
+                    console.log('📧 Welcome email scheduling response:', {
+                        status: response.status,
+                        result
+                    });
+                }
+
+                if (result.success) {
+                    if (DEBUG_MODE) console.log('✅ Welcome email scheduled for:', result.scheduled_for);
+                } else {
+                    console.error('⚠️ Welcome email scheduling failed:', result);
+                }
+            } catch (error) {
+                console.error('❌ Error scheduling welcome email:', error);
+                // Don't fail the order if scheduling fails
             }
         }
 
