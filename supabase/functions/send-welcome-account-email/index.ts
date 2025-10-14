@@ -10,8 +10,9 @@ interface WelcomeEmailRequest {
   email: string
   firstName: string
   lastName: string
-  qrCodeData: string
+  phone?: string
   orderId?: string
+  initialGreensBalance?: number
 }
 
 serve(async (req) => {
@@ -23,14 +24,14 @@ serve(async (req) => {
   try {
     console.log('📧 Processing welcome account email...')
 
-    const { email, firstName, lastName, qrCodeData, orderId }: WelcomeEmailRequest = await req.json()
+    const { email, firstName, lastName, phone, orderId, initialGreensBalance }: WelcomeEmailRequest = await req.json()
 
     // Validate required data
-    if (!email || !firstName || !lastName || !qrCodeData) {
+    if (!email || !firstName || !lastName) {
       throw new Error('Missing required fields')
     }
 
-    console.log(`📨 Scheduling welcome email for ${email}`)
+    console.log(`📨 Creating pending account for ${email}`)
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -38,17 +39,59 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    // Generate unique QR code
+    const { data: qrCodeData, error: qrCodeError } = await supabase
+      .rpc('generate_unique_qr_code')
+
+    if (qrCodeError) {
+      console.error('❌ QR code generation error:', qrCodeError)
+      throw new Error(`Failed to generate QR code: ${qrCodeError.message}`)
+    }
+
+    const qrCode = qrCodeData
+
+    // Generate secure activation token
+    const activationToken = crypto.randomUUID()
+
+    // Token expires in 30 days
+    const tokenExpiresAt = new Date()
+    tokenExpiresAt.setDate(tokenExpiresAt.getDate() + 30)
+
+    // Create pending account
+    const { data: pendingAccount, error: pendingError } = await supabase
+      .from('pending_accounts')
+      .insert({
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone || null,
+        qr_code: qrCode,
+        initial_greens_balance: initialGreensBalance || 0,
+        order_id: orderId,
+        activation_token: activationToken,
+        token_expires_at: tokenExpiresAt.toISOString()
+      })
+      .select()
+      .single()
+
+    if (pendingError) {
+      console.error('❌ Pending account creation error:', pendingError)
+      throw new Error(`Failed to create pending account: ${pendingError.message}`)
+    }
+
+    console.log('✅ Pending account created:', pendingAccount.id)
+
     // Schedule email for 1 week from now
     const scheduledDate = new Date()
     scheduledDate.setDate(scheduledDate.getDate() + 7)
 
-    const { data, error } = await supabase
+    const { data: scheduledEmail, error: scheduleError } = await supabase
       .from('scheduled_welcome_emails')
       .insert({
         email,
         first_name: firstName,
         last_name: lastName,
-        qr_code_data: qrCodeData,
+        qr_code_data: qrCode,
         order_id: orderId,
         scheduled_for: scheduledDate.toISOString(),
         status: 'pending'
@@ -56,18 +99,19 @@ serve(async (req) => {
       .select()
       .single()
 
-    if (error) {
-      console.error('❌ Database error:', error)
-      throw new Error(`Database error: ${error.message}`)
+    if (scheduleError) {
+      console.error('❌ Email scheduling error:', scheduleError)
+      throw new Error(`Failed to schedule email: ${scheduleError.message}`)
     }
 
-    console.log('✅ Welcome email scheduled successfully:', data.id)
+    console.log('✅ Welcome email scheduled successfully:', scheduledEmail.id)
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Welcome email scheduled successfully',
-        scheduled_id: data.id,
+        message: 'Pending account created and welcome email scheduled',
+        pending_account_id: pendingAccount.id,
+        qr_code: qrCode,
         scheduled_for: scheduledDate.toISOString()
       }),
       {

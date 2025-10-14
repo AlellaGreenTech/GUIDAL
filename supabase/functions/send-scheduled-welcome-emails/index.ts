@@ -57,14 +57,28 @@ serve(async (req) => {
       try {
         console.log(`📨 Sending welcome email to ${emailRecord.email}`)
 
-        // Generate password reset link (this would be your actual password setup URL)
-        const passwordSetupLink = `https://guidal.org/pages/auth/setup-password.html?token=${emailRecord.id}`
+        // Get activation token from pending_accounts
+        const { data: pendingAccount, error: accountError } = await supabase
+          .from('pending_accounts')
+          .select('activation_token, qr_code, initial_greens_balance')
+          .eq('email', emailRecord.email)
+          .eq('activated', false)
+          .single()
+
+        if (accountError || !pendingAccount) {
+          console.error(`❌ Pending account not found for ${emailRecord.email}`)
+          throw new Error('Pending account not found')
+        }
+
+        // Generate password setup link with secure token
+        const passwordSetupLink = `https://guidal.org/pages/auth/setup-password.html?token=${pendingAccount.activation_token}`
 
         const emailContent = generateWelcomeEmail(
           emailRecord.first_name,
           emailRecord.last_name,
           passwordSetupLink,
-          emailRecord.qr_code_data
+          pendingAccount.qr_code,
+          pendingAccount.initial_greens_balance
         )
 
         // Send email using Resend
@@ -161,7 +175,7 @@ serve(async (req) => {
   }
 })
 
-function generateWelcomeEmail(firstName: string, lastName: string, passwordSetupLink: string, qrCodeData: string): string {
+function generateWelcomeEmail(firstName: string, lastName: string, passwordSetupLink: string, qrCode: string, initialGreensBalance: number): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -209,8 +223,10 @@ function generateWelcomeEmail(firstName: string, lastName: string, passwordSetup
         <p style="margin: 0 0 1rem 0; color: #004085;">
           This is your digital wallet for AGT. Save this email or take a screenshot!
         </p>
-        <div style="background: white; padding: 1rem; border-radius: 8px; display: inline-block;">
-          <img src="${qrCodeData}" alt="Your QR Code" style="width: 200px; height: 200px; display: block;">
+        <div style="background: white; padding: 1.5rem; border-radius: 8px; display: inline-block; border: 2px solid #004085;">
+          <div style="font-size: 2rem; font-weight: bold; color: #004085; font-family: monospace; letter-spacing: 0.1em;">
+            ${qrCode}
+          </div>
         </div>
         <p style="margin: 1rem 0 0 0; color: #004085; font-size: 0.9rem;">
           Show this QR code at the farm to access your GREENS balance and make purchases.
@@ -219,9 +235,19 @@ function generateWelcomeEmail(firstName: string, lastName: string, passwordSetup
 
       <!-- GREENS Info -->
       <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-        <h3 style="margin: 0 0 1rem 0; color: #155724;">💰 About Your GREENS</h3>
-        <p style="margin: 0; color: #155724;">
-          Any leftover GREENS from your recent order will remain in your account and can be used for:
+        <h3 style="margin: 0 0 1rem 0; color: #155724;">💰 Your GREENS Balance</h3>
+        ${initialGreensBalance > 0 ? `
+        <div style="text-align: center; margin: 1rem 0;">
+          <div style="font-size: 2.5rem; font-weight: bold; color: #28a745;">
+            ${initialGreensBalance.toFixed(1)} GREENS
+          </div>
+          <p style="margin: 0.5rem 0 0 0; color: #155724; font-size: 0.9rem;">
+            Initial balance from your order
+          </p>
+        </div>
+        ` : ''}
+        <p style="margin: ${initialGreensBalance > 0 ? '1rem' : '0'} 0 0.5rem 0; color: #155724;">
+          Your GREENS can be used for:
         </p>
         <ul style="margin: 0.5rem 0; padding-left: 1.5rem; color: #155724;">
           <li>Food and drinks at the farm</li>

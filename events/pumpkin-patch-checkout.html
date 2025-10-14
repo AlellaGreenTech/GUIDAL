@@ -1673,20 +1673,22 @@
             }
         }
 
-        // Schedule welcome account email
+        // Schedule welcome account email and create pending account
         async function scheduleWelcomeAccountEmail(order, orderItems) {
             try {
-                // Generate QR code data (email + order ID)
-                const qrCodeData = `AGT-${order.email}-${order.id}`;
+                // Calculate initial GREENS balance from order
+                const scares = parseInt(document.getElementById('scares').value) || 0;
+                const initialGreensBalance = scares; // GREENS purchased in this order
 
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
 
                 const functionUrl = `${window.supabaseClient.supabaseUrl}/functions/v1/send-welcome-account-email`;
 
                 if (DEBUG_MODE) {
-                    console.log('📧 Scheduling welcome account email:', {
+                    console.log('📧 Creating pending account and scheduling welcome email:', {
                         email: order.email,
                         orderId: order.id,
+                        initialGreensBalance,
                         functionUrl
                     });
                 }
@@ -1701,8 +1703,9 @@
                         email: order.email,
                         firstName: order.first_name,
                         lastName: order.last_name,
-                        qrCodeData: qrCodeData,
-                        orderId: order.id
+                        phone: order.phone || null,
+                        orderId: order.id,
+                        initialGreensBalance: initialGreensBalance
                     })
                 });
 
