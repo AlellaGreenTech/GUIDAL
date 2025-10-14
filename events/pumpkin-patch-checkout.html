@@ -496,61 +496,52 @@
                 </div>
             </div>
 
-            <!-- Food Accordion -->
-            <div class="accordion" id="foodAccordion">
-                <div class="accordion-header" onclick="toggleAccordion('food')">
-                    <div class="accordion-title">
-                        <span>🍕 Food & Drinks</span>
-                        <span class="accordion-badge" id="foodBadge">0</span>
-                    </div>
-                    <span class="accordion-icon" id="foodIcon">▼</span>
+            <!-- Buy GREENS Section (Always Visible) -->
+            <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem;">
+                <h3 style="margin: 0 0 1rem 0; color: #28a745; font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    💰 Buy GREENS Credit
+                </h3>
+
+                <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">
+                    <strong>Buy extra GREENS credit for food, drinks and any other purchase</strong><br>
+                    <small>A cashier will debit your QR code when you make purchases at the farm.</small>
+                </p>
+
+                <!-- View Prices Button -->
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <a href="../pages/food-menu.html" target="_blank" class="btn" style="display: inline-block; background: #17a2b8; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                        📋 View Food & Activity Prices
+                    </a>
                 </div>
-                <div class="accordion-content" id="foodContent">
-                    <div class="accordion-body">
-                        <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
-                            <strong>Buy extra GREENS credit for food, drinks and any other purchase</strong><br>
-                            <small>A cashier will debit your QR code when you make purchases at the farm.</small>
-                        </p>
 
-                        <!-- View Prices Button -->
-                        <div style="text-align: center; margin-bottom: 1.5rem;">
-                            <a href="../pages/food-menu.html" target="_blank" class="btn" style="display: inline-block; background: #17a2b8; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 600;">
-                                📋 View Food & Activity Prices
-                            </a>
-                        </div>
+                <!-- Buy GREENS Section -->
+                <div style="background: #f0f9f4; padding: 1.5rem; border-radius: 8px; border: 2px solid #28a745;">
+                    <!-- Quick Amount Buttons -->
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; justify-content: center;">
+                        <button type="button" onclick="setGreensAmount(10)" style="flex: 1; min-width: 80px; padding: 0.75rem; background: white; border: 2px solid #28a745; color: #28a745; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            10 GREENS<br><small style="font-weight: normal;">€10</small>
+                        </button>
+                        <button type="button" onclick="setGreensAmount(15)" style="flex: 1; min-width: 80px; padding: 0.75rem; background: white; border: 2px solid #28a745; color: #28a745; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            15 GREENS<br><small style="font-weight: normal;">€15</small>
+                        </button>
+                        <button type="button" onclick="setGreensAmount(20)" style="flex: 1; min-width: 80px; padding: 0.75rem; background: white; border: 2px solid #28a745; color: #28a745; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            20 GREENS<br><small style="font-weight: normal;">€20</small>
+                        </button>
+                    </div>
 
-                        <!-- Buy GREENS Section -->
-                        <div style="background: #f0f9f4; padding: 1.5rem; border-radius: 8px; border: 2px solid #28a745;">
-                            <h4 style="margin: 0 0 1rem 0; color: #28a745; font-size: 1.1rem;">💰 Buy GREENS Credit</h4>
-
-                            <!-- Quick Amount Buttons -->
-                            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; justify-content: center;">
-                                <button type="button" onclick="setGreensAmount(10)" style="flex: 1; min-width: 80px; padding: 0.75rem; background: white; border: 2px solid #28a745; color: #28a745; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-                                    10 GREENS<br><small style="font-weight: normal;">€10</small>
-                                </button>
-                                <button type="button" onclick="setGreensAmount(15)" style="flex: 1; min-width: 80px; padding: 0.75rem; background: white; border: 2px solid #28a745; color: #28a745; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-                                    15 GREENS<br><small style="font-weight: normal;">€15</small>
-                                </button>
-                                <button type="button" onclick="setGreensAmount(20)" style="flex: 1; min-width: 80px; padding: 0.75rem; background: white; border: 2px solid #28a745; color: #28a745; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-                                    20 GREENS<br><small style="font-weight: normal;">€20</small>
-                                </button>
+                    <!-- Custom Amount -->
+                    <div style="margin-top: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Or enter custom amount:</label>
+                        <div class="item-row" style="border: none; padding: 0;">
+                            <div class="item-label">
+                                <span data-i18n="pumpkinPatch.checkout.individualGreens">💰 GREENS</span><br>
+                                <small style="color: #999;">€1 = 1 GREEN</small>
                             </div>
-
-                            <!-- Custom Amount -->
-                            <div style="margin-top: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Or enter custom amount:</label>
-                                <div class="item-row" style="border: none; padding: 0;">
-                                    <div class="item-label">
-                                        <span data-i18n="pumpkinPatch.checkout.individualGreens">💰 GREENS</span><br>
-                                        <small style="color: #999;">€1 = 1 GREEN</small>
-                                    </div>
-                                    <div class="item-price">€1 x</div>
-                                    <div class="quantity-control">
-                                        <button type="button" class="quantity-btn" onclick="changeQuantity('scares', -1)">−</button>
-                                        <input type="number" id="scares" class="item-input" min="0" value="0" readonly>
-                                        <button type="button" class="quantity-btn" onclick="changeQuantity('scares', 1)">+</button>
-                                    </div>
-                                </div>
+                            <div class="item-price">€1 x</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('scares', -1)">−</button>
+                                <input type="number" id="scares" class="item-input" min="0" value="0" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQuantity('scares', 1)">+</button>
                             </div>
                         </div>
                     </div>
@@ -780,10 +771,10 @@
                 greensInput.value = Math.ceil(parseFloat(greensAmount));
                 calculateTotal();
 
-                // Open food accordion and scroll to it
+                // Scroll to GREENS section and highlight it
                 setTimeout(() => {
-                    toggleAccordion('food');
-                    document.getElementById('foodAccordion').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    greensInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    greensInput.focus();
                 }, 500);
             } else if (openAccordion === 'visit') {
                 // Open visit accordion for "Pick Your Own Pumpkins"
@@ -849,6 +840,32 @@
             const currentValue = parseInt(input.value) || 0;
             const newValue = Math.max(0, currentValue + delta);
             input.value = newValue;
+
+            // Close opposite accordion when adding party or visit items
+            if (newValue > 0) {
+                if (inputId === 'adults' || inputId === 'children') {
+                    // Adding party tickets - close visit accordion
+                    const visitContent = document.getElementById('visitContent');
+                    const visitHeader = document.querySelector('#visitAccordion .accordion-header');
+                    const visitIcon = document.getElementById('visitIcon');
+                    if (visitContent && visitContent.classList.contains('open')) {
+                        visitContent.classList.remove('open');
+                        visitHeader.classList.remove('active');
+                        visitIcon.classList.remove('open');
+                    }
+                } else if (inputId === 'visit') {
+                    // Adding visit pass - close party accordion
+                    const partyContent = document.getElementById('partyContent');
+                    const partyHeader = document.querySelector('#partyAccordion .accordion-header');
+                    const partyIcon = document.getElementById('partyIcon');
+                    if (partyContent && partyContent.classList.contains('open')) {
+                        partyContent.classList.remove('open');
+                        partyHeader.classList.remove('active');
+                        partyIcon.classList.remove('open');
+                    }
+                }
+            }
+
             calculateTotal();
         }
 
@@ -857,12 +874,6 @@
             const input = document.getElementById('scares');
             input.value = amount;
             calculateTotal();
-
-            // Open food accordion if not already open
-            const foodContent = document.getElementById('foodContent');
-            if (!foodContent.classList.contains('open')) {
-                toggleAccordion('food');
-            }
         }
 
         // Accordion toggle function
