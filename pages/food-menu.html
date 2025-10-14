@@ -116,6 +116,72 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
+        /* Cart Controls */
+        .cart-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .quantity-btn {
+            width: 35px;
+            height: 35px;
+            border: 2px solid #28a745;
+            background: white;
+            color: #28a745;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .quantity-btn:hover {
+            background: #28a745;
+            color: white;
+        }
+        .quantity-display {
+            min-width: 40px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        /* Cart Summary */
+        .cart-summary {
+            position: sticky;
+            bottom: 0;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            margin: 2rem -2rem 0 -2rem;
+        }
+        .cart-summary.show {
+            display: flex;
+        }
+        .cart-total {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .buy-greens-btn {
+            background: white;
+            color: #28a745;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .buy-greens-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
         @media (max-width: 768px) {
             .menu-container {
                 padding: 1rem;
@@ -131,6 +197,14 @@
             }
             .item-price {
                 font-size: 1.2rem;
+            }
+            .cart-summary {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .cart-total {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -193,6 +267,11 @@
                 <div class="item-price">
                     <span class="greens-badge">2.5 GREENS</span>
                 </div>
+                <div class="cart-controls">
+                    <button class="quantity-btn" onclick="changeQuantity('pizzaSlice', -1)">−</button>
+                    <span class="quantity-display" id="qty-pizzaSlice">0</span>
+                    <button class="quantity-btn" onclick="changeQuantity('pizzaSlice', 1)">+</button>
+                </div>
             </div>
 
             <div class="menu-item">
@@ -202,6 +281,11 @@
                 </div>
                 <div class="item-price">
                     <span class="greens-badge">8 GREENS</span>
+                </div>
+                <div class="cart-controls">
+                    <button class="quantity-btn" onclick="changeQuantity('wholePizza', -1)">−</button>
+                    <span class="quantity-display" id="qty-wholePizza">0</span>
+                    <button class="quantity-btn" onclick="changeQuantity('wholePizza', 1)">+</button>
                 </div>
             </div>
 
@@ -213,6 +297,11 @@
                 <div class="item-price">
                     <span class="greens-badge">4 GREENS</span>
                 </div>
+                <div class="cart-controls">
+                    <button class="quantity-btn" onclick="changeQuantity('hotDog', -1)">−</button>
+                    <span class="quantity-display" id="qty-hotDog">0</span>
+                    <button class="quantity-btn" onclick="changeQuantity('hotDog', 1)">+</button>
+                </div>
             </div>
 
             <div class="menu-item">
@@ -222,6 +311,11 @@
                 </div>
                 <div class="item-price">
                     <span class="greens-badge">5 GREENS</span>
+                </div>
+                <div class="cart-controls">
+                    <button class="quantity-btn" onclick="changeQuantity('burger', -1)">−</button>
+                    <span class="quantity-display" id="qty-burger">0</span>
+                    <button class="quantity-btn" onclick="changeQuantity('burger', 1)">+</button>
                 </div>
             </div>
 
@@ -233,6 +327,11 @@
                 <div class="item-price">
                     <span class="greens-badge">7 GREENS</span>
                 </div>
+                <div class="cart-controls">
+                    <button class="quantity-btn" onclick="changeQuantity('paella', -1)">−</button>
+                    <span class="quantity-display" id="qty-paella">0</span>
+                    <button class="quantity-btn" onclick="changeQuantity('paella', 1)">+</button>
+                </div>
             </div>
 
             <div class="menu-item">
@@ -243,6 +342,11 @@
                 <div class="item-price">
                     <span class="greens-badge">2.5 GREENS</span>
                 </div>
+                <div class="cart-controls">
+                    <button class="quantity-btn" onclick="changeQuantity('drinks', -1)">−</button>
+                    <span class="quantity-display" id="qty-drinks">0</span>
+                    <button class="quantity-btn" onclick="changeQuantity('drinks', 1)">+</button>
+                </div>
             </div>
 
             <div class="menu-item">
@@ -252,6 +356,11 @@
                 </div>
                 <div class="item-price">
                     <span class="greens-badge">5 GREENS</span>
+                </div>
+                <div class="cart-controls">
+                    <button class="quantity-btn" onclick="changeQuantity('chips', -1)">−</button>
+                    <span class="quantity-display" id="qty-chips">0</span>
+                    <button class="quantity-btn" onclick="changeQuantity('chips', 1)">+</button>
                 </div>
             </div>
         </div>
@@ -268,6 +377,11 @@
                 <div class="item-price">
                     <span class="greens-badge">5 GREENS</span>
                 </div>
+                <div class="cart-controls">
+                    <button class="quantity-btn" onclick="changeQuantity('smallPumpkin', -1)">−</button>
+                    <span class="quantity-display" id="qty-smallPumpkin">0</span>
+                    <button class="quantity-btn" onclick="changeQuantity('smallPumpkin', 1)">+</button>
+                </div>
             </div>
 
             <div class="menu-item">
@@ -277,6 +391,11 @@
                 </div>
                 <div class="item-price">
                     <span class="greens-badge">7 GREENS</span>
+                </div>
+                <div class="cart-controls">
+                    <button class="quantity-btn" onclick="changeQuantity('mediumPumpkin', -1)">−</button>
+                    <span class="quantity-display" id="qty-mediumPumpkin">0</span>
+                    <button class="quantity-btn" onclick="changeQuantity('mediumPumpkin', 1)">+</button>
                 </div>
             </div>
         </div>
@@ -299,6 +418,16 @@
             <a href="../events/pumpkin-patch-checkout.html" class="back-button">
                 ← Back to Checkout
             </a>
+        </div>
+
+        <!-- Cart Summary Bar -->
+        <div class="cart-summary" id="cartSummary">
+            <div class="cart-total">
+                Total: <span id="totalGreens">0</span> GREENS
+            </div>
+            <button class="buy-greens-btn" onclick="buyGreens()">
+                💰 Buy GREENS
+            </button>
         </div>
     </main>
 
@@ -328,6 +457,70 @@
                 });
             }
         });
+    </script>
+
+    <!-- Cart Functionality -->
+    <script>
+        // Price mapping for all items
+        const itemPrices = {
+            pizzaSlice: 2.5,
+            wholePizza: 8,
+            hotDog: 4,
+            burger: 5,
+            paella: 7,
+            drinks: 2.5,
+            chips: 5,
+            smallPumpkin: 5,
+            mediumPumpkin: 7
+        };
+
+        // Cart state
+        const cart = {};
+
+        // Initialize cart with all items at 0
+        Object.keys(itemPrices).forEach(itemId => {
+            cart[itemId] = 0;
+        });
+
+        function changeQuantity(itemId, delta) {
+            // Update cart quantity
+            cart[itemId] = Math.max(0, cart[itemId] + delta);
+
+            // Update display
+            document.getElementById(`qty-${itemId}`).textContent = cart[itemId];
+
+            // Update cart summary
+            updateCart();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            Object.keys(cart).forEach(itemId => {
+                total += cart[itemId] * itemPrices[itemId];
+            });
+            return total;
+        }
+
+        function updateCart() {
+            const total = calculateTotal();
+            document.getElementById('totalGreens').textContent = total.toFixed(1);
+
+            // Show/hide cart summary based on whether there are items
+            const cartSummary = document.getElementById('cartSummary');
+            if (total > 0) {
+                cartSummary.classList.add('show');
+            } else {
+                cartSummary.classList.remove('show');
+            }
+        }
+
+        function buyGreens() {
+            const total = calculateTotal();
+            if (total > 0) {
+                // Redirect to checkout with the amount pre-filled
+                window.location.href = `../events/pumpkin-patch-checkout.html?greens=${total}`;
+            }
+        }
     </script>
 
     <!-- i18n -->

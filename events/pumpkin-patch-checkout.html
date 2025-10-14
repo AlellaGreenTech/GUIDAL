@@ -756,8 +756,20 @@
             // Check URL parameter and open appropriate accordion
             const urlParams = new URLSearchParams(window.location.search);
             const openAccordion = urlParams.get('open');
+            const greensAmount = urlParams.get('greens');
 
-            if (openAccordion === 'visit') {
+            // Pre-fill GREENS amount if provided
+            if (greensAmount) {
+                const greensInput = document.getElementById('scares');
+                greensInput.value = Math.ceil(parseFloat(greensAmount));
+                calculateTotal();
+
+                // Open food accordion and scroll to it
+                setTimeout(() => {
+                    toggleAccordion('food');
+                    document.getElementById('foodAccordion').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 500);
+            } else if (openAccordion === 'visit') {
                 // Open visit accordion for "Pick Your Own Pumpkins"
                 setTimeout(() => {
                     toggleAccordion('visit');
