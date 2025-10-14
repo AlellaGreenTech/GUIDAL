@@ -776,9 +776,7 @@
 
             // Track on any form field change
             ['firstName', 'lastName', 'phone', 'visit', 'adults', 'children',
-             'smallPumpkin', 'mediumPumpkin', 'scares', 'partyDate', 'visitDate',
-             'pizzaSlice', 'wholePizza', 'hotDog', 'burger', 'paella',
-             'drinks', 'chips'].forEach(id => {
+             'smallPumpkin', 'mediumPumpkin', 'scares', 'partyDate', 'visitDate'].forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
                     element.addEventListener('input', trackActivity);
@@ -1036,29 +1034,18 @@
             const mediumPumpkin = parseInt(document.getElementById('mediumPumpkin').value) || 0;
             const scares = parseInt(document.getElementById('scares').value) || 0;
 
-            // Food items
-            const pizzaSlice = parseInt(document.getElementById('pizzaSlice').value) || 0;
-            const wholePizza = parseInt(document.getElementById('wholePizza').value) || 0;
-            const hotDog = parseInt(document.getElementById('hotDog').value) || 0;
-            const burger = parseInt(document.getElementById('burger').value) || 0;
-            const paella = parseInt(document.getElementById('paella').value) || 0;
-            const drinks = parseInt(document.getElementById('drinks').value) || 0;
-            const chips = parseInt(document.getElementById('chips').value) || 0;
-
             // Calculate total
             const total = (visit * 5) + (adults * 15) + (children * 10) +
                          (smallPumpkin * 5) + (mediumPumpkin * 7) +
-                         (scares * 1) +
-                         (pizzaSlice * 2.5) + (wholePizza * 8) + (hotDog * 4) + (burger * 5) + (paella * 7) +
-                         (drinks * 2.5) + (chips * 5);
+                         (scares * 1);
 
             document.getElementById('total').textContent = '€' + total.toFixed(2);
 
             // Update accordion badges
             const partyCount = adults + children;
             const visitCount = visit;
-            const pumpkinsCount = smallPumpkin + mediumPumpkin + scares;
-            const foodCount = pizzaSlice + wholePizza + hotDog + burger + paella + drinks + chips;
+            const pumpkinsCount = smallPumpkin + mediumPumpkin;
+            const foodCount = scares; // GREENS count
 
             document.getElementById('partyBadge').textContent = partyCount;
             document.getElementById('visitBadge').textContent = visitCount;
@@ -1233,21 +1220,10 @@
                 return false;
             }
 
-            // Get food items
-            const pizzaSlice = parseInt(document.getElementById('pizzaSlice').value) || 0;
-            const wholePizza = parseInt(document.getElementById('wholePizza').value) || 0;
-            const hotDog = parseInt(document.getElementById('hotDog').value) || 0;
-            const burger = parseInt(document.getElementById('burger').value) || 0;
-            const paella = parseInt(document.getElementById('paella').value) || 0;
-            const drinks = parseInt(document.getElementById('drinks').value) || 0;
-            const chips = parseInt(document.getElementById('chips').value) || 0;
-
             // Calculate total
             const total = (visit * 5) + (adults * 15) + (children * 10) +
                          (smallPumpkin * 5) + (mediumPumpkin * 7) +
-                         (scares * 1) +
-                         (pizzaSlice * 2.5) + (wholePizza * 8) + (hotDog * 4) + (burger * 5) + (paella * 7) +
-                         (drinks * 2.5) + (chips * 5);
+                         (scares * 1);
 
             // Validate that at least one item is selected
             if (total === 0) {
@@ -1428,98 +1404,6 @@
                         quantity: scares,
                         unit_price: 1,
                         total_price: scares * 1,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                // Food items
-                if (pizzaSlice > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: '🍕 Pizza Slice (2.5 GREENS)',
-                        item_type: 'food',
-                        quantity: pizzaSlice,
-                        unit_price: 2.5,
-                        total_price: pizzaSlice * 2.5,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                if (wholePizza > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: '🍕 Whole Pizza (8 GREENS)',
-                        item_type: 'food',
-                        quantity: wholePizza,
-                        unit_price: 8,
-                        total_price: wholePizza * 8,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                if (hotDog > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: '🌭 Hot Dog (4 GREENS)',
-                        item_type: 'food',
-                        quantity: hotDog,
-                        unit_price: 4,
-                        total_price: hotDog * 4,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                if (burger > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: '🍔 Burger (5 GREENS)',
-                        item_type: 'food',
-                        quantity: burger,
-                        unit_price: 5,
-                        total_price: burger * 5,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                if (paella > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: '🥘 Paella Plate (7 GREENS)',
-                        item_type: 'food',
-                        quantity: paella,
-                        unit_price: 7,
-                        total_price: paella * 7,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                if (drinks > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: '🥤 Drinks (2.5 GREENS)',
-                        item_type: 'drink',
-                        quantity: drinks,
-                        unit_price: 2.5,
-                        total_price: drinks * 2.5,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
-                if (chips > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: '🍟 Chips Plate (5 GREENS)',
-                        item_type: 'food',
-                        quantity: chips,
-                        unit_price: 5,
-                        total_price: chips * 5,
                         adult_count: 0,
                         child_count: 0
                     });
