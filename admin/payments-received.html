@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments Received - Admin Dashboard</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .admin-container {
+            max-width: 1600px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #28a745;
+        }
+
+        .dashboard-header h1 {
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            padding: 0.5rem 1rem;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: #5a6268;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 4px solid #28a745;
+        }
+
+        .stat-card.success {
+            border-top-color: #28a745;
+        }
+
+        .stat-card.failed {
+            border-top-color: #dc3545;
+        }
+
+        .stat-card.duplicate {
+            border-top-color: #ffc107;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .stat-card.failed .stat-value {
+            color: #dc3545;
+        }
+
+        .stat-card.duplicate .stat-value {
+            color: #ffc107;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #218838;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .payments-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #28a745;
+            color: white;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-duplicate {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .amount {
+            font-weight: 600;
+            color: #28a745;
+            font-size: 1.1rem;
+        }
+
+        .transaction-id {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .email-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .email-link:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            font-family: inherit;
+        }
+
+        .order-link {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .order-link:hover {
+            background: #0056b3;
+        }
+
+        .no-order {
+            color: #999;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            table {
+                font-size: 0.875rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="container">
+            <a href="../index.html" style="text-decoration: none; color: white; font-size: 1.5rem; font-weight: bold;">
+                GUIDAL Admin
+            </a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div class="dashboard-header">
+            <h1>💳 Payments Received</h1>
+            <div class="nav-links">
+                <a href="pumpkin-orders.html">📦 All Orders</a>
+                <button class="btn btn-secondary btn-sm" onclick="refreshData()">🔄 Refresh</button>
+                <button class="btn btn-primary btn-sm" onclick="exportCSV()">📥 Export CSV</button>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card success">
+                <div class="stat-value" id="totalSuccessful">0</div>
+                <div class="stat-label">Successful Payments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalAmount">€0.00</div>
+                <div class="stat-label">Total Amount Received</div>
+            </div>
+            <div class="stat-card failed">
+                <div class="stat-value" id="totalFailed">0</div>
+                <div class="stat-label">Failed Notifications</div>
+            </div>
+            <div class="stat-card duplicate">
+                <div class="stat-value" id="totalDuplicate">0</div>
+                <div class="stat-label">Duplicate Notifications</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="todayCount">0</div>
+                <div class="stat-label">Payments Today</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="statusFilter" onchange="applyFilters()">
+                    <option value="">All Statuses</option>
+                    <option value="success">Success</option>
+                    <option value="failed">Failed</option>
+                    <option value="duplicate">Duplicate</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Search</label>
+                <input type="text" id="searchInput" placeholder="Email, transaction ID, order..." onkeyup="applyFilters()">
+            </div>
+            <div class="filter-group">
+                <label>From Date</label>
+                <input type="date" id="fromDate" onchange="applyFilters()">
+            </div>
+            <div class="filter-group">
+                <label>To Date</label>
+                <input type="date" id="toDate" onchange="applyFilters()">
+            </div>
+            <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+        </div>
+
+        <!-- Error display -->
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <!-- Payments Table -->
+        <div class="payments-table">
+            <div id="loadingState" class="loading">
+                <div>Loading payment notifications...</div>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">📭</div>
+                <h3>No payment notifications yet</h3>
+                <p>Payment notifications will appear here once your email parser sends webhooks.</p>
+            </div>
+
+            <table id="paymentsTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Transaction ID</th>
+                        <th>Order</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Email Modal -->
+    <div id="emailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Send Email</h2>
+                <button class="close-btn" onclick="closeEmailModal()">&times;</button>
+            </div>
+            <form id="emailForm" onsubmit="sendEmail(event)">
+                <div class="form-group">
+                    <label>To</label>
+                    <input type="email" id="emailTo" required readonly>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" id="emailSubject" required value="Regarding your payment">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="emailMessage" required placeholder="Enter your message here..."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEmailModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Email</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        let allPayments = [];
+        let filteredPayments = [];
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPayments();
+        });
+
+        async function loadPayments() {
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const paymentsTable = document.getElementById('paymentsTable');
+            const errorMessage = document.getElementById('errorMessage');
+
+            try {
+                loadingState.style.display = 'block';
+                emptyState.style.display = 'none';
+                paymentsTable.style.display = 'none';
+                errorMessage.style.display = 'none';
+
+                // Get payment notifications from database
+                const { data, error } = await window.supabaseClient
+                    .from('payment_notifications_summary')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allPayments = data || [];
+                filteredPayments = [...allPayments];
+
+                loadingState.style.display = 'none';
+
+                if (allPayments.length === 0) {
+                    emptyState.style.display = 'block';
+                } else {
+                    paymentsTable.style.display = 'table';
+                    renderPayments();
+                    updateStatistics();
+                }
+
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                loadingState.style.display = 'none';
+                errorMessage.textContent = 'Error loading payments: ' + error.message;
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        function renderPayments() {
+            const tbody = document.getElementById('paymentsBody');
+            tbody.innerHTML = '';
+
+            if (filteredPayments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #666;">No payments match your filters</td></tr>';
+                return;
+            }
+
+            filteredPayments.forEach(payment => {
+                const row = document.createElement('tr');
+
+                // Format date
+                const date = new Date(payment.created_at);
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+
+                // Status badge
+                const statusClass = payment.status === 'success' ? 'status-success' :
+                                   payment.status === 'failed' ? 'status-failed' :
+                                   'status-duplicate';
+                const statusText = payment.status.charAt(0).toUpperCase() + payment.status.slice(1);
+
+                // Order link
+                const orderCell = payment.order_number ?
+                    `<a href="pumpkin-orders.html?order=${payment.order_number}" class="order-link">${payment.order_number}</a>` :
+                    '<span class="no-order">No order linked</span>';
+
+                // Amount
+                const amountStr = payment.amount ?
+                    `€${parseFloat(payment.amount).toFixed(2)}` :
+                    '-';
+
+                row.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <a href="mailto:${payment.customer_email}" class="email-link">${payment.customer_email || 'N/A'}</a>
+                    </td>
+                    <td><span class="amount">${amountStr}</span></td>
+                    <td><span class="transaction-id">${payment.transaction_id || 'N/A'}</span></td>
+                    <td>${orderCell}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${payment.customer_email ? `<button class="btn btn-primary btn-sm" onclick="openEmailModal('${payment.customer_email}', '${payment.order_number || ''}')">✉️ Email</button>` : ''}
+                            ${payment.status === 'failed' && payment.error_message ? `<button class="btn btn-secondary btn-sm" onclick="showError('${escapeHtml(payment.error_message)}')">⚠️ Error</button>` : ''}
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateStatistics() {
+            // Calculate statistics
+            const successful = allPayments.filter(p => p.status === 'success').length;
+            const failed = allPayments.filter(p => p.status === 'failed').length;
+            const duplicate = allPayments.filter(p => p.status === 'duplicate').length;
+
+            // Total amount
+            const totalAmount = allPayments
+                .filter(p => p.status === 'success' && p.amount)
+                .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+
+            // Today's count
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayCount = allPayments.filter(p => {
+                const paymentDate = new Date(p.created_at);
+                paymentDate.setHours(0, 0, 0, 0);
+                return paymentDate.getTime() === today.getTime();
+            }).length;
+
+            // Update DOM
+            document.getElementById('totalSuccessful').textContent = successful;
+            document.getElementById('totalFailed').textContent = failed;
+            document.getElementById('totalDuplicate').textContent = duplicate;
+            document.getElementById('totalAmount').textContent = `€${totalAmount.toFixed(2)}`;
+            document.getElementById('todayCount').textContent = todayCount;
+        }
+
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+
+            filteredPayments = allPayments.filter(payment => {
+                // Status filter
+                if (statusFilter && payment.status !== statusFilter) {
+                    return false;
+                }
+
+                // Search filter
+                if (searchInput) {
+                    const searchableText = [
+                        payment.customer_email,
+                        payment.transaction_id,
+                        payment.order_number
+                    ].join(' ').toLowerCase();
+
+                    if (!searchableText.includes(searchInput)) {
+                        return false;
+                    }
+                }
+
+                // Date filters
+                const paymentDate = new Date(payment.created_at);
+                if (fromDate) {
+                    const from = new Date(fromDate);
+                    if (paymentDate < from) return false;
+                }
+                if (toDate) {
+                    const to = new Date(toDate);
+                    to.setHours(23, 59, 59, 999);
+                    if (paymentDate > to) return false;
+                }
+
+                return true;
+            });
+
+            renderPayments();
+        }
+
+        function clearFilters() {
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('fromDate').value = '';
+            document.getElementById('toDate').value = '';
+            applyFilters();
+        }
+
+        function refreshData() {
+            loadPayments();
+        }
+
+        // Email modal functions
+        function openEmailModal(email, orderNumber) {
+            document.getElementById('emailTo').value = email;
+            document.getElementById('emailSubject').value = orderNumber ?
+                `Regarding your order ${orderNumber}` :
+                'Regarding your payment';
+            document.getElementById('emailMessage').value = '';
+            document.getElementById('emailModal').classList.add('show');
+        }
+
+        function closeEmailModal() {
+            document.getElementById('emailModal').classList.remove('show');
+        }
+
+        async function sendEmail(event) {
+            event.preventDefault();
+
+            const to = document.getElementById('emailTo').value;
+            const subject = document.getElementById('emailSubject').value;
+            const message = document.getElementById('emailMessage').value;
+
+            // Create mailto link (browser will open email client)
+            const mailtoLink = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+            window.location.href = mailtoLink;
+
+            closeEmailModal();
+
+            // Alternative: You could send via Edge Function
+            // Uncomment and implement if you want server-side email sending
+            /*
+            try {
+                const response = await fetch('YOUR_SEND_EMAIL_EDGE_FUNCTION', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to, subject, message })
+                });
+
+                if (!response.ok) throw new Error('Failed to send email');
+
+                alert('Email sent successfully!');
+                closeEmailModal();
+            } catch (error) {
+                alert('Error sending email: ' + error.message);
+            }
+            */
+        }
+
+        function showError(errorMessage) {
+            alert('Error Details:\n\n' + errorMessage);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+
+        // Export to CSV
+        function exportCSV() {
+            const headers = ['Date', 'Status', 'Customer Email', 'Amount', 'Transaction ID', 'Order Number', 'Error'];
+            const rows = filteredPayments.map(p => [
+                new Date(p.created_at).toLocaleString(),
+                p.status,
+                p.customer_email || '',
+                p.amount || '',
+                p.transaction_id || '',
+                p.order_number || '',
+                p.error_message || ''
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(field => `"${field}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `payments-received-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+    </script>
+</body>
+</html>
