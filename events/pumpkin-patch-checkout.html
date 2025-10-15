@@ -470,19 +470,7 @@
                         </p>
                         <div class="item-row">
                             <div class="item-label">
-                                <span data-i18n="pumpkinPatch.checkout.smallPumpkin">🎃 Small Pumpkin</span><br>
-                                <small style="color: #999;">7 <span data-i18n="pumpkinPatch.checkout.greens">GREENS</span></small>
-                            </div>
-                            <div class="item-price">€7 x</div>
-                            <div class="quantity-control">
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('smallPumpkin', -1)">−</button>
-                                <input type="number" id="smallPumpkin" class="item-input" min="0" value="0" readonly>
-                                <button type="button" class="quantity-btn" onclick="changeQuantity('smallPumpkin', 1)">+</button>
-                            </div>
-                        </div>
-                        <div class="item-row">
-                            <div class="item-label">
-                                <span data-i18n="pumpkinPatch.checkout.mediumPumpkin">🎃 Larger Pumpkin</span><br>
+                                <span data-i18n="pumpkinPatch.checkout.pumpkin">🎃 Pumpkin</span><br>
                                 <small style="color: #999;">7 <span data-i18n="pumpkinPatch.checkout.greens">GREENS</span></small>
                             </div>
                             <div class="item-price">€7 x</div>
@@ -662,7 +650,6 @@
                 visit: parseInt(document.getElementById('visit').value) || 0,
                 adults: parseInt(document.getElementById('adults').value) || 0,
                 children: parseInt(document.getElementById('children').value) || 0,
-                smallPumpkin: parseInt(document.getElementById('smallPumpkin').value) || 0,
                 mediumPumpkin: parseInt(document.getElementById('mediumPumpkin').value) || 0,
                 scares: parseInt(document.getElementById('scares').value) || 0,
                 pizzaSlice: parseInt(document.getElementById('pizzaSlice').value) || 0,
@@ -675,8 +662,8 @@
             };
 
             // Calculate total
-            const total = (cartItems.visit * 5) + (cartItems.adults * 15) + (cartItems.children * 10) +
-                         (cartItems.smallPumpkin * 5) + (cartItems.mediumPumpkin * 7) +
+            const total = (cartItems.visit * 5) + (cartItems.adults * 15) + (cartItems.children * 15) +
+                         (cartItems.mediumPumpkin * 7) +
                          (cartItems.scares * 1) +
                          (cartItems.pizzaSlice * 3) + (cartItems.wholePizza * 8) + (cartItems.hotDog * 4) +
                          (cartItems.burger * 5) + (cartItems.paella * 5) +
@@ -820,7 +807,7 @@
 
             // Track on any form field change
             ['firstName', 'lastName', 'phone', 'visit', 'adults', 'children',
-             'smallPumpkin', 'mediumPumpkin', 'scares', 'partyDate', 'visitDate'].forEach(id => {
+             'mediumPumpkin', 'scares', 'partyDate', 'visitDate'].forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
                     element.addEventListener('input', trackActivity);
@@ -1124,13 +1111,12 @@
             const visit = parseInt(document.getElementById('visit').value) || 0;
             const adults = parseInt(document.getElementById('adults').value) || 0;
             const children = parseInt(document.getElementById('children').value) || 0;
-            const smallPumpkin = parseInt(document.getElementById('smallPumpkin').value) || 0;
             const mediumPumpkin = parseInt(document.getElementById('mediumPumpkin').value) || 0;
             const scares = parseInt(document.getElementById('scares').value) || 0;
 
             // Calculate total (kids come with free pumpkins, so no extra charge)
             const total = (visit * 5) + (adults * 15) + (children * 15) +
-                         (smallPumpkin * 7) + (mediumPumpkin * 7) +
+                         (mediumPumpkin * 7) +
                          (scares * 1);
 
             // Show free pumpkin message if kids are selected
@@ -1145,7 +1131,7 @@
             // Update accordion badges
             const partyCount = adults + children;
             const visitCount = visit;
-            const pumpkinsCount = smallPumpkin + mediumPumpkin;
+            const pumpkinsCount = mediumPumpkin;
             const foodCount = scares; // GREENS count
 
             document.getElementById('partyBadge').textContent = partyCount;
@@ -1354,7 +1340,6 @@
             const visit = parseInt(document.getElementById('visit').value) || 0;
             const adults = parseInt(document.getElementById('adults').value) || 0;
             const children = parseInt(document.getElementById('children').value) || 0;
-            const smallPumpkin = parseInt(document.getElementById('smallPumpkin').value) || 0;
             const mediumPumpkin = parseInt(document.getElementById('mediumPumpkin').value) || 0;
             const scares = parseInt(document.getElementById('scares').value) || 0;
 
@@ -1387,7 +1372,7 @@
 
             // Calculate total
             const total = (visit * 5) + (adults * 15) + (children * 15) +
-                         (smallPumpkin * 7) + (mediumPumpkin * 7) +
+                         (mediumPumpkin * 7) +
                          (scares * 1);
 
             // Validate that at least one item is selected
@@ -1548,23 +1533,10 @@
                     });
                 }
 
-                if (smallPumpkin > 0) {
-                    orderItems.push({
-                        order_id: order.id,
-                        item_name: 'Small Pumpkin (7 GREENS)',
-                        item_type: 'pumpkin',
-                        quantity: smallPumpkin,
-                        unit_price: 7,
-                        total_price: smallPumpkin * 7,
-                        adult_count: 0,
-                        child_count: 0
-                    });
-                }
-
                 if (mediumPumpkin > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: 'Larger Pumpkin (7 GREENS)',
+                        item_name: 'Pumpkin (7 GREENS)',
                         item_type: 'pumpkin',
                         quantity: mediumPumpkin,
                         unit_price: 7,
