@@ -262,10 +262,10 @@
             <div class="menu-item">
                 <div class="item-info">
                     <div class="item-name">🍕 Pizza Slice</div>
-                    <div class="item-description">Freshly baked pizza slice</div>
+                    <div class="item-description">Provided by Renowned Tony's of New York Bistrot!</div>
                 </div>
                 <div class="item-price">
-                    <span class="greens-badge">2.5 GREENS</span>
+                    <span class="greens-badge">3 GREENS</span>
                 </div>
                 <div class="cart-controls">
                     <button class="quantity-btn" onclick="changeQuantity('pizzaSlice', -1)">−</button>
@@ -276,16 +276,31 @@
 
             <div class="menu-item">
                 <div class="item-info">
-                    <div class="item-name">🍕 Whole Pizza</div>
-                    <div class="item-description">Full pizza, perfect for sharing</div>
+                    <div class="item-name">🍕 Whole Margherita Pizza</div>
+                    <div class="item-description">Tony's famous hand crafted pizza!</div>
                 </div>
                 <div class="item-price">
-                    <span class="greens-badge">8 GREENS</span>
+                    <span class="greens-badge">10 GREENS</span>
                 </div>
                 <div class="cart-controls">
                     <button class="quantity-btn" onclick="changeQuantity('wholePizza', -1)">−</button>
                     <span class="quantity-display" id="qty-wholePizza">0</span>
                     <button class="quantity-btn" onclick="changeQuantity('wholePizza', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="item-info">
+                    <div class="item-name">🍕 Whole Pepperoni Pizza</div>
+                    <div class="item-description">Tony's famous hand crafted pizza!</div>
+                </div>
+                <div class="item-price">
+                    <span class="greens-badge">11 GREENS</span>
+                </div>
+                <div class="cart-controls">
+                    <button class="quantity-btn" onclick="changeQuantity('wholePepperoniPizza', -1)">−</button>
+                    <span class="quantity-display" id="qty-wholePepperoniPizza">0</span>
+                    <button class="quantity-btn" onclick="changeQuantity('wholePepperoniPizza', 1)">+</button>
                 </div>
             </div>
 
@@ -463,8 +478,9 @@
     <script>
         // Price mapping for all items
         const itemPrices = {
-            pizzaSlice: 2.5,
-            wholePizza: 8,
+            pizzaSlice: 3,
+            wholePizza: 10,
+            wholePepperoniPizza: 11,
             hotDog: 4,
             burger: 5,
             paella: 7,
