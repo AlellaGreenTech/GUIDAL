@@ -903,12 +903,12 @@ class GuidalApp {
 
             // Halloween Mini-Party (Nov 1) - Check this FIRST (more specific)
             if (activity.title && activity.title.includes('Halloween Mini-Party 2025')) {
-                return `<a href="/events/pumpkin-patch-checkout.html?open=party" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+                return `<a href="/events/pumpkin-patch-checkout.html?open=party&date=2025-11-01" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
 
             // Halloween Party 2025 (Oct 25) - Main party
             if (activity.title && activity.title.includes('Halloween Party 2025')) {
-                return `<a href="/events/pumpkin-patch-checkout.html?open=party" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+                return `<a href="/events/pumpkin-patch-checkout.html?open=party&date=2025-10-25" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
 
             // For other events without a date, show Coming Soon

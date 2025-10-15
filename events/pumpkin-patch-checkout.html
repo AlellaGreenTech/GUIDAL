@@ -754,6 +754,7 @@
             const adultsParam = urlParams.get('adults');
             const childrenParam = urlParams.get('children');
             const visitParam = urlParams.get('visit');
+            const dateParam = urlParams.get('date');
 
             // Pre-fill quantities from URL parameters (coming back from menu)
             if (adultsParam) {
@@ -795,6 +796,14 @@
                 // Hide visits WhatsApp button for party customers
                 const visitBtn = document.getElementById('visitWhatsAppBtn');
                 if (visitBtn) visitBtn.style.display = 'none';
+
+                // Pre-select party date if provided
+                if (dateParam) {
+                    const partyDateSelect = document.getElementById('partyDate');
+                    if (partyDateSelect) {
+                        partyDateSelect.value = dateParam;
+                    }
+                }
             }
 
             // Recalculate total if any quantities were restored
