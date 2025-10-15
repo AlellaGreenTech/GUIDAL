@@ -13,9 +13,16 @@ serve(async (req) => {
   }
 
   try {
+    // Use service role key for admin operations (no auth required from webhook)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
     )
 
     const payload = await req.json()

@@ -331,8 +331,8 @@
                 Get your visit pass, party tickets, pumpkin and food GREENS here!
             </div>
 
-            <!-- Top up GREENS Button -->
-            <div style="text-align: center; margin: 2rem 0;">
+            <!-- Top up GREENS Button (hidden for first-time users) -->
+            <div id="topUpGreensSection" style="text-align: center; margin: 2rem 0; display: none;">
                 <button type="button" onclick="toggleAccordion('food')" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; font-size: 1.3rem; font-weight: 700; padding: 1.25rem 3rem; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4); transition: all 0.3s ease; display: inline-block;">
                     💰 Top up GREENS
                 </button>
@@ -382,9 +382,9 @@
                         <div class="item-row">
                             <div>
                                 <div class="item-label" data-i18n="pumpkinPatch.checkout.childTicket">👶 Child Entrance Ticket</div>
-                                <div style="font-size: 0.85rem; color: #28a745; font-style: italic; margin-top: 2px;">includes starter food plate + drink!</div>
+                                <div style="font-size: 0.85rem; color: #28a745; font-style: italic; margin-top: 2px;">includes starter food plate + drink + FREE pumpkin!</div>
                             </div>
-                            <div class="item-price">€10 x</div>
+                            <div class="item-price">€15 x</div>
                             <div class="quantity-control">
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('children', -1)">−</button>
                                 <input type="number" id="children" class="item-input" min="0" value="0" readonly>
@@ -471,9 +471,9 @@
                         <div class="item-row">
                             <div class="item-label">
                                 <span data-i18n="pumpkinPatch.checkout.smallPumpkin">🎃 Small Pumpkin</span><br>
-                                <small style="color: #999;">5 <span data-i18n="pumpkinPatch.checkout.greens">GREENS</span></small>
+                                <small style="color: #999;">7 <span data-i18n="pumpkinPatch.checkout.greens">GREENS</span></small>
                             </div>
-                            <div class="item-price">€5 x</div>
+                            <div class="item-price">€7 x</div>
                             <div class="quantity-control">
                                 <button type="button" class="quantity-btn" onclick="changeQuantity('smallPumpkin', -1)">−</button>
                                 <input type="number" id="smallPumpkin" class="item-input" min="0" value="0" readonly>
@@ -614,8 +614,8 @@
                 <strong data-i18n="pumpkinPatch.checkout.dontForget">📅 Don't forget!</strong><br>
                 <span data-i18n="pumpkinPatch.checkout.afterPayment">After payment, contact us on WhatsApp:</span><br>
                 <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
-                    <a href="https://chat.whatsapp.com/HnWhcfwNLenGKXMFOR6JUG" target="_blank" style="background: #25D366; color: white; padding: 0.75rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;" data-i18n="pumpkinPatch.checkout.requestVisitTime">💬 Request Visit Time</a>
-                    <a href="https://chat.whatsapp.com/GYQmIVwu3fID0VcW4QmUM2" target="_blank" style="background: #25D366; color: white; padding: 0.75rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;" data-i18n="pumpkinPatch.checkout.joinPartyGroup">💬 Join Party WhatsApp Group</a>
+                    <a id="visitWhatsAppBtn" href="https://chat.whatsapp.com/HnWhcfwNLenGKXMFOR6JUG" target="_blank" style="background: #25D366; color: white; padding: 0.75rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;" data-i18n="pumpkinPatch.checkout.joinVisitGroup">💬 Join the Visits WhatsApp Group</a>
+                    <a id="partyWhatsAppBtn" href="https://chat.whatsapp.com/GYQmIVwu3fID0VcW4QmUM2" target="_blank" style="background: #25D366; color: white; padding: 0.75rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;" data-i18n="pumpkinPatch.checkout.joinPartyGroup">💬 Join Party WhatsApp Group</a>
                 </div>
             </div>
         </div>
@@ -796,12 +796,18 @@
                     toggleAccordion('visit');
                     document.getElementById('visitAccordion').scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 500);
+                // Hide party WhatsApp button for visit customers
+                const partyBtn = document.getElementById('partyWhatsAppBtn');
+                if (partyBtn) partyBtn.style.display = 'none';
             } else if (openAccordion === 'party') {
                 // Open party accordion for party events
                 setTimeout(() => {
                     toggleAccordion('party');
                     document.getElementById('partyAccordion').scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 500);
+                // Hide visits WhatsApp button for party customers
+                const visitBtn = document.getElementById('visitWhatsAppBtn');
+                if (visitBtn) visitBtn.style.display = 'none';
             }
 
             // Recalculate total if any quantities were restored
@@ -1077,9 +1083,13 @@
                     const messageEl = document.getElementById('returningCustomerMessage');
                     const detailsEl = document.getElementById('customerDetailsSection');
                     const qrButtonEl = document.getElementById('sendQrCodeButton');
+                    const topUpSection = document.getElementById('topUpGreensSection');
 
                     if (messageEl) messageEl.style.display = 'block';
                     if (detailsEl) detailsEl.style.display = 'none';
+
+                    // Show "Top up GREENS" button for returning customers
+                    if (topUpSection) topUpSection.style.display = 'block';
 
                     // Only show QR button if they have completed orders (not for first-time buyers)
                     if (qrButtonEl) {
@@ -1118,12 +1128,19 @@
             const mediumPumpkin = parseInt(document.getElementById('mediumPumpkin').value) || 0;
             const scares = parseInt(document.getElementById('scares').value) || 0;
 
-            // Calculate total
-            const total = (visit * 5) + (adults * 15) + (children * 10) +
-                         (smallPumpkin * 5) + (mediumPumpkin * 7) +
+            // Calculate total (kids come with free pumpkins, so no extra charge)
+            const total = (visit * 5) + (adults * 15) + (children * 15) +
+                         (smallPumpkin * 7) + (mediumPumpkin * 7) +
                          (scares * 1);
 
-            document.getElementById('total').textContent = '€' + total.toFixed(2);
+            // Show free pumpkin message if kids are selected
+            let totalDisplay = '€' + total.toFixed(2);
+            if (children > 0) {
+                const freePumpkins = children;
+                totalDisplay += ` <span style="font-size: 0.85rem; color: #28a745; font-weight: normal;">(+${freePumpkins} FREE pumpkin${freePumpkins > 1 ? 's' : ''}!)</span>`;
+            }
+
+            document.getElementById('total').innerHTML = totalDisplay;
 
             // Update accordion badges
             const partyCount = adults + children;
@@ -1161,6 +1178,64 @@
 
         // Handle continue to payment button
         async function handleContinueToPayment() {
+            const continueButton = document.getElementById('continueButton');
+
+            // PROTECTION 1: Disable button immediately to prevent double-clicks
+            if (continueButton.disabled) {
+                console.log('⚠️ Button already clicked, preventing duplicate submission');
+                return;
+            }
+            continueButton.disabled = true;
+            continueButton.style.opacity = '0.6';
+            continueButton.style.cursor = 'not-allowed';
+            const originalText = continueButton.textContent;
+            continueButton.textContent = '⏳ Processing...';
+
+            // PROTECTION 2: Check for recent duplicate orders (within last 5 minutes)
+            const email = document.getElementById('email').value.trim();
+            const total = parseInt(document.getElementById('total').textContent.replace('€', ''));
+
+            try {
+                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+                const { data: recentOrders, error: checkError } = await window.supabaseClient
+                    .from('pumpkin_patch_orders')
+                    .select('id, order_number, created_at, total_amount')
+                    .eq('email', email)
+                    .eq('total_amount', total)
+                    .gte('created_at', fiveMinutesAgo)
+                    .order('created_at', { ascending: false });
+
+                if (!checkError && recentOrders && recentOrders.length > 0) {
+                    const lastOrder = recentOrders[0];
+                    const minutesAgo = Math.round((Date.now() - new Date(lastOrder.created_at).getTime()) / 60000);
+
+                    // PROTECTION 3: Show confirmation dialog for potential duplicate
+                    const isDuplicate = confirm(
+                        `⚠️ DUPLICATE ORDER WARNING\n\n` +
+                        `You already placed an identical order ${minutesAgo} minute(s) ago:\n` +
+                        `Order #${lastOrder.order_number}\n` +
+                        `Amount: €${lastOrder.total_amount}\n\n` +
+                        `Do you really want to create another order?\n\n` +
+                        `Click OK to proceed anyway, or Cancel to stop.`
+                    );
+
+                    if (!isDuplicate) {
+                        // User cancelled - re-enable button
+                        continueButton.disabled = false;
+                        continueButton.style.opacity = '1';
+                        continueButton.style.cursor = 'pointer';
+                        continueButton.textContent = originalText;
+                        console.log('✅ Duplicate order prevented by user choice');
+                        return;
+                    } else {
+                        console.log('⚠️ User confirmed duplicate order creation');
+                    }
+                }
+            } catch (err) {
+                console.error('Error checking for duplicates:', err);
+                // Continue anyway if check fails
+            }
+
             const success = await saveOrderToDatabase();
             if (success) {
                 // Hide continue button and show PayPal section
@@ -1169,6 +1244,12 @@
 
                 // Scroll to PayPal button
                 document.getElementById('paypalSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                // Re-enable button if order creation failed
+                continueButton.disabled = false;
+                continueButton.style.opacity = '1';
+                continueButton.style.cursor = 'pointer';
+                continueButton.textContent = originalText;
             }
         }
 
@@ -1305,8 +1386,8 @@
             }
 
             // Calculate total
-            const total = (visit * 5) + (adults * 15) + (children * 10) +
-                         (smallPumpkin * 5) + (mediumPumpkin * 7) +
+            const total = (visit * 5) + (adults * 15) + (children * 15) +
+                         (smallPumpkin * 7) + (mediumPumpkin * 7) +
                          (scares * 1);
 
             // Validate that at least one item is selected
@@ -1446,22 +1527,35 @@
                         item_name: 'Child Entrance Party Ticket',
                         item_type: 'party_ticket',
                         quantity: children,
-                        unit_price: 10,
-                        total_price: children * 10,
+                        unit_price: 15,
+                        total_price: children * 15,
                         adult_count: 0,
                         child_count: children,
                         metadata: { date: '2025-10-25', participant_type: 'child' }
+                    });
+
+                    // Add FREE pumpkins for kids (1 per child)
+                    orderItems.push({
+                        order_id: order.id,
+                        item_name: 'FREE Pumpkin (included with kid ticket)',
+                        item_type: 'pumpkin',
+                        quantity: children,
+                        unit_price: 0,
+                        total_price: 0,
+                        adult_count: 0,
+                        child_count: 0,
+                        metadata: { free_with_kids: true }
                     });
                 }
 
                 if (smallPumpkin > 0) {
                     orderItems.push({
                         order_id: order.id,
-                        item_name: 'Small Pumpkin (5 GREENS)',
+                        item_name: 'Small Pumpkin (7 GREENS)',
                         item_type: 'pumpkin',
                         quantity: smallPumpkin,
-                        unit_price: 5,
-                        total_price: smallPumpkin * 5,
+                        unit_price: 7,
+                        total_price: smallPumpkin * 7,
                         adult_count: 0,
                         child_count: 0
                     });
@@ -1623,7 +1717,7 @@
                                 </ol>
 
                                 <div style="text-align: center; margin: 30px 0;">
-                                    <a href="https://chat.whatsapp.com/HnWhcfwNLenGKXMFOR6JUG" class="button">💬 Request Visit Time</a>
+                                    <a href="https://chat.whatsapp.com/HnWhcfwNLenGKXMFOR6JUG" class="button">💬 Join the Visits WhatsApp Group</a>
                                 </div>
 
                                 <p>If you have any questions, please don't hesitate to contact us!</p>

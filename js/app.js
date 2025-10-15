@@ -502,8 +502,9 @@ class GuidalApp {
         let dateDisplay;
         let whatsappButton = '';
         if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
-            dateDisplay = 'October 10-31, 2025. Any time. Boo! us on WhatsApp first';
-            whatsappButton = '<a href="https://chat.whatsapp.com/HnWhcfwNLenGKXMFOR6JUG" target="_blank" class="btn" style="background: #25D366 !important; color: white !important; border-color: #25D366 !important;">💬 Request Visit</a>';
+            dateDisplay = 'October 10-31, 2025. Any time.';
+            // No button for visit pass - they'll get it in the booking process
+            whatsappButton = '';
         } else if (activity.date_time) {
             dateDisplay = new Date(activity.date_time).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -535,7 +536,7 @@ class GuidalApp {
                     ${dateDisplay}
                     ${this.getCompletedBadge(activity)}
                 </p>
-                <p class="activity-description">${this.formatDescription(activity.description)}</p>
+                <p class="activity-description">${this.formatDescription(activity.description, activity)}</p>
                 <div style="display: flex; gap: 0.5rem; align-items: center; margin: 0.5rem 0;">
                     ${whatsappButton}
                     ${this.getActivityButton(activity)}
@@ -553,10 +554,17 @@ class GuidalApp {
         return card;
     }
 
-    formatDescription(description) {
+    formatDescription(description, activity) {
         if (!description) return '';
 
-        // Convert WhatsApp URLs to buttons
+        // Don't convert WhatsApp URLs for SCARY PUMPKIN PATCH activities
+        if (activity && activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
+            // Remove WhatsApp URLs from description for pumpkin patch
+            const whatsappRegex = /(https:\/\/chat\.whatsapp\.com\/[a-zA-Z0-9]+)/g;
+            return description.replace(whatsappRegex, '').trim();
+        }
+
+        // Convert WhatsApp URLs to buttons for other activities
         const whatsappRegex = /(https:\/\/chat\.whatsapp\.com\/[a-zA-Z0-9]+)/g;
 
         return description.replace(whatsappRegex, (url) => {
@@ -855,7 +863,8 @@ class GuidalApp {
         if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
             // Check if it's "Pick Your Own Pumpkins" (non-party visit)
             if (activity.title.toLowerCase().includes('pick your own')) {
-                return `<a href="/events/pumpkin-patch-checkout.html?open=visit" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+                // No button for visit pass - they'll get it in the booking process
+                return '';
             }
             return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
         }
@@ -887,7 +896,8 @@ class GuidalApp {
             if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
                 // Check if it's "Pick Your Own Pumpkins" (non-party visit)
                 if (activity.title.toLowerCase().includes('pick your own')) {
-                    return `<a href="/events/pumpkin-patch-checkout.html?open=visit" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+                    // No button for visit pass - they'll get it in the booking process
+                    return '';
                 }
                 return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
