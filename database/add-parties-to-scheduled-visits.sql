@@ -3,12 +3,14 @@
 -- Insert Halloween Maxi-Party (Oct 25, 2025)
 INSERT INTO scheduled_visits (
     activity_id,
+    title,
     visit_type,
     scheduled_date,
     status
 )
 SELECT
     id,
+    title,
     'public_event',
     date_time,
     'confirmed'
@@ -22,12 +24,14 @@ WHERE title LIKE '%Halloween%Party 2025%'
 -- Insert Halloween Mini-Party (Nov 1, 2025)
 INSERT INTO scheduled_visits (
     activity_id,
+    title,
     visit_type,
     scheduled_date,
     status
 )
 SELECT
     id,
+    title,
     'public_event',
     date_time,
     'confirmed'
