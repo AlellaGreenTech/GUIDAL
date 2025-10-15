@@ -27,7 +27,7 @@ li .language-switcher {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.75rem;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
@@ -51,6 +51,7 @@ li .language-switcher {
 
 .lang-name {
     font-size: 0.9rem;
+    display: none; /* Hide language text, show only flag icon */
 }
 
 .lang-arrow {
