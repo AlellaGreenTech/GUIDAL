@@ -888,11 +888,10 @@ class GuidalApp {
         if (activityTypeSlug === 'annual-events' || activityTypeSlug === 'events') {
             if (isCompleted) {
                 return ''; // No button for completed activities - badge shows status
-            } else if (!activityDate) {
-                return `<button class="btn btn-info" disabled>📅 Coming Soon</button>`;
             }
 
             // Special handling for Halloween events - direct to checkout without login
+            // Check these BEFORE the !activityDate check
             if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
                 // Check if it's "Pick Your Own Pumpkins" (non-party visit)
                 if (activity.title.toLowerCase().includes('pick your own')) {
@@ -902,14 +901,19 @@ class GuidalApp {
                 return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
 
+            // Halloween Mini-Party (Nov 1) - Check this FIRST (more specific)
+            if (activity.title && activity.title.includes('Halloween Mini-Party 2025')) {
+                return `<a href="/events/pumpkin-patch-checkout.html?open=party" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+            }
+
             // Halloween Party 2025 (Oct 25) - Main party
             if (activity.title && activity.title.includes('Halloween Party 2025')) {
                 return `<a href="/events/pumpkin-patch-checkout.html?open=party" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
 
-            // Halloween Mini-Party (Nov 1)
-            if (activity.title && activity.title.includes('Halloween Mini-Party 2025')) {
-                return `<a href="/events/pumpkin-patch-checkout.html?open=party" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
+            // For other events without a date, show Coming Soon
+            if (!activityDate) {
+                return `<button class="btn btn-info" disabled>📅 Coming Soon</button>`;
             }
         }
 
