@@ -902,8 +902,8 @@ class GuidalApp {
                 return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
 
-            // Halloween Maxi-Party (Oct 25)
-            if (activity.title && activity.title.includes('Halloween Maxi-Party 2025')) {
+            // Halloween Party 2025 (Oct 25) - Main party
+            if (activity.title && activity.title.includes('Halloween Party 2025')) {
                 return `<a href="/events/pumpkin-patch-checkout.html?open=party" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
 
