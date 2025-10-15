@@ -863,8 +863,8 @@ class GuidalApp {
         if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
             // Check if it's "Pick Your Own Pumpkins" (non-party visit)
             if (activity.title.toLowerCase().includes('pick your own')) {
-                // No button for visit pass - they'll get it in the booking process
-                return '';
+                // Visit pass - opens visit accordion
+                return `<a href="/events/pumpkin-patch-checkout.html?open=visit" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
             return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
         }
@@ -896,8 +896,8 @@ class GuidalApp {
             if (activity.title && activity.title.includes('SCARY PUMPKIN PATCH')) {
                 // Check if it's "Pick Your Own Pumpkins" (non-party visit)
                 if (activity.title.toLowerCase().includes('pick your own')) {
-                    // No button for visit pass - they'll get it in the booking process
-                    return '';
+                    // Visit pass - opens visit accordion
+                    return `<a href="/events/pumpkin-patch-checkout.html?open=visit" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
                 }
                 return `<a href="/events/pumpkin-patch-checkout.html" class="btn btn-primary" style="background: #ff6b35 !important; border-color: #ff6b35 !important;">Book</a>`;
             }
