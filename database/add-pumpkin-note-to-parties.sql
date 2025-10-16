@@ -1,11 +1,11 @@
--- Add "Kids tickets include a pumpkin!" to party descriptions
+-- Add "Kids tickets include a pumpkin!" to party descriptions (BOLD)
 
 -- Update Halloween Party 2025 (Oct 25)
 UPDATE activities
 SET description = REPLACE(
     description,
     'costumes encouraged!',
-    'costumes encouraged! Kids tickets include a pumpkin!'
+    'costumes encouraged! <strong>Kids tickets include a pumpkin!</strong>'
 )
 WHERE title LIKE '%Halloween Party 2025%'
   AND title NOT LIKE '%Mini%';
@@ -15,7 +15,7 @@ UPDATE activities
 SET description = REPLACE(
     description,
     'costumes encouraged!',
-    'costumes encouraged! Kids tickets include a pumpkin!'
+    'costumes encouraged! <strong>Kids tickets include a pumpkin!</strong>'
 )
 WHERE title LIKE '%Halloween Mini-Party%';
 
