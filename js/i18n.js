@@ -148,7 +148,8 @@
                 } else if (element.tagName === 'INPUT' && element.type === 'button') {
                     element.value = translation;
                 } else {
-                    element.textContent = translation;
+                    // Use innerHTML to support HTML tags like <br> in translations
+                    element.innerHTML = translation;
                 }
             });
         }
