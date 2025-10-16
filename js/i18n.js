@@ -49,7 +49,7 @@
                 const isSubpage = path.includes('/pages/') || path.includes('/events/');
                 const basePath = isSubpage ? '../js/i18n' : 'js/i18n';
 
-                const response = await fetch(`${basePath}/${langCode}.json`);
+                const response = await fetch(`${basePath}/${langCode}.json?v=9`);
                 if (!response.ok) {
                     throw new Error(`Failed to load language: ${langCode}`);
                 }
